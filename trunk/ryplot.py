@@ -116,7 +116,7 @@ class plotter:
            filename='': output filename to write plot, file ext 
            dpi: the resolution of the graph in dots per inche
            bbox_inches
-       """
+        """
         if len(filename)>0:
             plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches, 
                         pad_inches=pad_inches,\

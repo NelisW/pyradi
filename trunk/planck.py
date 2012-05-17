@@ -290,7 +290,6 @@ if __name__ == '__init__':
     pass
     
 if __name__ == '__main__':
-    import ryplot
     
     #--------------------------------------------------------------------------------------
     #first test at fixed temperature
@@ -419,11 +418,95 @@ if __name__ == '__main__':
     
     #--------------------------------------------------------------------------------------
     #now plot a number of graphs
+    import ryplot
     
+    wl=numpy.logspace(numpy.log10(0.1), numpy.log10(100), num=100).reshape(-1, 1)
+    n=numpy.logspace(numpy.log10(1e4/100),numpy. log10(1e4/0.1), num=100).reshape(-1, 1)
+    f=numpy.logspace(numpy.log10(c/ (100*1e-6)),numpy. log10(c/ (0.1*1e-6)), num=100).reshape(-1, 1)
+    temperature=[280,300,450,650,1000,1800,3000,6000]
+    
+    Mel = planck(wl, temperature[0], type='el').reshape(-1, 1)
+    Mql = planck(wl, temperature[0], type='ql').reshape(-1, 1)
+    Men = planck(n, temperature[0], type='en').reshape(-1, 1)
+    Mqn = planck(n, temperature[0], type='qn').reshape(-1, 1)
+    Mef = planck(f, temperature[0], type='ef').reshape(-1, 1)
+    Mqf = planck(f, temperature[0], type='qf').reshape(-1, 1)
+
+    legend = ["{0:.0f} K".format(temperature[0])]
+    
+    for temp in temperature[1:] :
+        Mel = numpy.hstack((Mel, planck(wl,temp, type='el').reshape(-1, 1)))
+        Mql = numpy.hstack((Mql, planck(wl,temp, type='ql').reshape(-1, 1)))
+        Men = numpy.hstack((Men, planck(n,temp, type='en').reshape(-1, 1)))
+        Mqn = numpy.hstack((Mqn, planck(n,temp, type='qn').reshape(-1, 1)))
+        Mef = numpy.hstack((Mef, planck(f,temp, type='ef').reshape(-1, 1)))
+        Mqf = numpy.hstack((Mqf, planck(f,temp, type='qf').reshape(-1, 1)))
+        legend.append("{0:.0f} K".format(temp))
+    
+    fplanck = ryplot.plotter(1, 2, 3,"Planck's Law", figsize=(18, 12))
+    fplanck.LogLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
+        "Emittance [W/(m$^2$.$\mu$m)]", wl, Mel,legendAlpha=0.5, label=legend, \
+                    pltaxis=[0.1, 100, 1e-2, 1e9])
+    fplanck.LogLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+        "Emittance [W/(m$^2$.cm$^{-1}$)]", n, Men,legendAlpha=0.5, label=legend, \
+                    pltaxis=[100, 100000, 1e-8, 1e+4])
+    fplanck.LogLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
+        "Emittance [W/(m$^2$.Hz)]", f, Mef,legendAlpha=0.5, label=legend, \
+                    pltaxis=[3e12, 3e15, 1e-20, 1e-6])
+                    
+    fplanck.LogLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
+        "Emittance [q/(s.m$^2$.$\mu$m)]", wl, Mql,legendAlpha=0.5, label=legend, \
+                    pltaxis=[0.1, 100, 1e-0, 1e27])
+    fplanck.LogLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+        "Emittance [q/(s.m$^2$.cm$^{-1}$)]", n, Mqn,legendAlpha=0.5, label=legend, \
+                    pltaxis=[100, 100000, 1e-8, 1e+23])
+    fplanck.LogLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
+        "Emittance [q/(s.m$^2$.Hz)]", f, Mqf,legendAlpha=0.5, label=legend, \
+                    pltaxis=[3e12, 3e15, 1e-20, 1e+13])
+                    
+    #fplanck.GetPlot().show()
+    fplanck.SaveFig('planck.png')
 
 
+    #now plot temperature derivatives
+    Mel = dplanck(wl, temperature[0], type='el').reshape(-1, 1)
+    Mql = dplanck(wl, temperature[0], type='ql').reshape(-1, 1)
+    Men = dplanck(n, temperature[0], type='en').reshape(-1, 1)
+    Mqn = dplanck(n, temperature[0], type='qn').reshape(-1, 1)
+    Mef = dplanck(f, temperature[0], type='ef').reshape(-1, 1)
+    Mqf = dplanck(f, temperature[0], type='qf').reshape(-1, 1)
+    
+    for temp in temperature[1:] :
+        Mel = numpy.hstack((Mel, dplanck(wl,temp, type='el').reshape(-1, 1)))
+        Mql = numpy.hstack((Mql, dplanck(wl,temp, type='ql').reshape(-1, 1)))
+        Men = numpy.hstack((Men, dplanck(n,temp, type='en').reshape(-1, 1)))
+        Mqn = numpy.hstack((Mqn, dplanck(n,temp, type='qn').reshape(-1, 1)))
+        Mef = numpy.hstack((Mef, dplanck(f,temp, type='ef').reshape(-1, 1)))
+        Mqf = numpy.hstack((Mqf, dplanck(f,temp, type='qf').reshape(-1, 1)))
 
-
-
-
-
+    
+    fdplanck = ryplot.plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
+    fdplanck.LogLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
+        "dM/dT [W/(m$^2$.$\mu$m.K)]", wl, Mel,legendAlpha=0.5, label=legend, \
+                    pltaxis=[0.1, 100, 1e-5, 1e5])
+    fdplanck.LogLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+        "dM/dT [W/(m$^2$.cm$^{-1}$.K)]", n, Men,legendAlpha=0.5, label=legend, \
+                    pltaxis=[100, 100000, 1e-10, 1e+1])
+    fdplanck.LogLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
+        "dM/dT [W/(m$^2$.Hz.K)]", f, Mef,legendAlpha=0.5, label=legend, \
+                    pltaxis=[3e12, 3e15, 1e-20, 1e-10])
+                    
+    fdplanck.LogLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
+        "dM/dT [q/(s.m$^2$.$\mu$m.K)]", wl, Mql,legendAlpha=0.5, label=legend, \
+                    pltaxis=[0.1, 100, 1e-0, 1e24])
+    fdplanck.LogLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+        "dM/dT [q/(s.m$^2$.cm$^{-1}$.K)]", n, Mqn,legendAlpha=0.5, label=legend, \
+                    pltaxis=[100, 100000, 1e-10, 1e+20])
+    fdplanck.LogLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
+        "dM/dT [q/(s.m$^2$.Hz.K)]", f, Mqf,legendAlpha=0.5, label=legend, \
+                    pltaxis=[3e12, 3e15, 1e-20, 1e+9])
+                    
+    #fdplanck.GetPlot().show()
+    fdplanck.SaveFig('dplanck.png')
+    
+    
