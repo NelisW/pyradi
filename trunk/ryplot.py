@@ -49,14 +49,16 @@ class plotter:
     def __init__(self,fignumber=0,subpltnrow=1,subpltncol=1,\
                  figuretitle='', 
                  figsize=(9,9)):
-        """Class constructor parameters:
-          fignumber: the plt figure number, must be supplied
-          subpltnrow=1: subplot number of rows
-          subpltncol=1: subplot number of columns
-          figuretitle='': the overall heading for the figure
-          figsize is the size in inches
-          dpi is the resolution of the bitmap
-          is required to indicate the filee type required.
+        """Class constructor 
+        
+            parameters:
+                fignumber: the plt figure number, must be supplied
+                subpltnrow=1: subplot number of rows
+                subpltncol=1: subplot number of columns
+                figuretitle='': the overall heading for the figure
+                figsize is the size in inches
+                dpi is the resolution of the bitmap
+                is required to indicate the filee type required.
         """
     
         version=mpl.__version__.split('.')
@@ -111,11 +113,12 @@ class plotter:
     ##
     def SaveFig(self, filename='mpl.png',dpi=100,bbox_inches='tight',\
                 pad_inches=0.1):
-        """Save the plot to a disk file, using name supplied in 
-           constructor
-           filename='': output filename to write plot, file ext 
-           dpi: the resolution of the graph in dots per inche
-           bbox_inches
+        """Save the plot to a disk file, using name supplied in the constructor.
+        
+            Parameters:
+                filename = output filename to write plot, file ext 
+                dpi = the resolution of the graph in dots per inch
+                bbox_inches
         """
         if len(filename)>0:
             plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches, 
@@ -134,6 +137,22 @@ class plotter:
     def Plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
+        """Plot data on linear scales for abscissa and ordinates.
+        
+            Parameters:
+                plotnum: subplot number
+                ptitle: plot title
+                xlabel: x axis label
+                ylabel: y axis label
+                x: abscissa
+                y: ordinates - could be N columns
+                plotCol []:plot line style, list with N entries, use default if []
+                label []: legend label for ordinate, list with N entries
+                legendAlpha=0.0: transparancy for legend
+                pltaxis:scale for x,y axes.default if all zeros.
+                MaxNX: draw MaxNX+1 tick labels on x axis
+                MaxNY: draw MaxNy+1 tick labels on y axis
+       """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.plot, plotnum, ptitle, xlabel, ylabel, \
                     x, y,plotCol, label,legendAlpha, pltaxis, \
@@ -144,6 +163,22 @@ class plotter:
     def LogLog(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
+        """Plot data on logarithmic scales for abscissa and ordinates.
+
+            Parameters:
+                plotnum: subplot number
+                ptitle: plot title
+                xlabel: x axis label
+                ylabel: y axis label
+                x: abscissa
+                y: ordinates - could be N columns
+                plotCol []:plot line style, list with N entries, use default if []
+                label []: legend label for ordinate, list with N entries
+                legendAlpha=0.0: transparancy for legend
+                pltaxis:scale for x,y axes.default if all zeros.
+                MaxNX: draw MaxNX+1 tick labels on x axis
+                MaxNY: draw MaxNy+1 tick labels on y axis
+       """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.loglog, plotnum, ptitle, xlabel,ylabel,\
                     x, y,plotCol, label,legendAlpha, pltaxis, \
@@ -154,6 +189,22 @@ class plotter:
     def SemilogX(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
+        """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
+        
+            Parameters:
+                plotnum: subplot number
+                ptitle: plot title
+                xlabel: x axis label
+                ylabel: y axis label
+                x: abscissa
+                y: ordinates - could be N columns
+                plotCol []:plot line style, list with N entries, use default if []
+                label []: legend label for ordinate, list with N entries
+                legendAlpha=0.0: transparancy for legend
+                pltaxis:scale for x,y axes.default if all zeros.
+                MaxNX: draw MaxNX+1 tick labels on x axis
+                MaxNY: draw MaxNy+1 tick labels on y axis
+       """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.semilogx, plotnum,ptitle,xlabel,ylabel,\
                     x, y,plotCol, label,legendAlpha, pltaxis, \
@@ -164,6 +215,22 @@ class plotter:
     def SemilogY(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
+        """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
+
+            Parameters:
+                plotnum: subplot number
+                ptitle: plot title
+                xlabel: x axis label
+                ylabel: y axis label
+                x: abscissa
+                y: ordinates - could be N columns
+                plotCol []:plot line style, list with N entries, use default if []
+                label []: legend label for ordinate, list with N entries
+                legendAlpha=0.0: transparancy for legend
+                pltaxis:scale for x,y axes.default if all zeros.
+                MaxNX: draw MaxNX+1 tick labels on x axis
+                MaxNY: draw MaxNy+1 tick labels on y axis
+       """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.semilogy, plotnum,ptitle,xlabel,ylabel,\
                     x, y,plotCol, label,legendAlpha, pltaxis, \
@@ -174,18 +241,18 @@ class plotter:
     def MyPlot(self, plotcommand,plotnum,ptitle,xlabel,ylabel, 
                     x, y, plotCol=[],label=[],legendAlpha=0.0,\
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
-        """Create a subplot and plot the data as required.
-            Function parameters:
+        """Low level helper function to create a subplot and plot the data as required.
+        
+            Parameters:
+                plotcommand: name of a MatplotLib plotting function 
                 plotnum: subplot number
                 ptitle: plot title
                 xlabel: x axis label
                 ylabel: y axis label
                 x: abscissa
                 y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, 
-                        use default if []
-                label []: legend label for ordinate, list with 
-                        N entries
+                plotCol []:plot line style, list with N entries, use default if []
+                label []: legend label for ordinate, list with N entries
                 legendAlpha=0.0: transparancy for legend
                 pltaxis:scale for x,y axes.default if all zeros.
                 MaxNX: draw MaxNX+1 tick labels on x axis
@@ -234,19 +301,18 @@ class plotter:
                     rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0):
         """Create a subplot and plot the data as required.
-            Function parameters:
+        
+            Parameters:
                 plotnum: subplot number
                 ptitle: plot title
                 theta: angular abscissa
                 r: radial ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, 
-                        use default if []
+                plotCol []:plot line style, list with N entries, use default if []
                 label []: legend label, list with N entries
                 labelLocation[]: where the legend should located
                 legendAlpha=0.0: transparancy for legend
                 rscale[]:plotting limits: [rmin, rmax] default if all 0
-                rgrid[]: radial grid [rinc, rmax] default if all 0.
-                         if rinc==0 then rmax is number of ntervals.
+                rgrid[]: radial grid [rinc, rmax] default if all 0. if rinc==0 then rmax is number of ntervals.
                 thetagrids[]: theta grid interval
                 direction = 'counterclockwise' or 'clockwise'
                 zerooffset = rotation offset where zero should be [rad]
