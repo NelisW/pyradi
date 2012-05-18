@@ -1,4 +1,4 @@
-#  $Id$
+chroma#  $Id$
 #  $HeadURL$
 
 ################################################################
@@ -29,13 +29,14 @@ import numpy
 ##
 def chromaticityforSpectralL(wavelength,radiance,xbar,ybar,zbar):
     """ Calculate the CIE chromaticity coordinates for an arbitrary spectrum
-    Parameters:
+        Parameters:
         wavelength  == wavelength vector in  [um]
         radiance == the spectral radiance (any units), (sampled at wavelength)
         xbar == CIE x tristimulus spectral curve (sampled at wavelength values)
         ybar == CIE y tristimulus spectral curve (sampled at wavelength values)
         zbar == CIE z tristimulus spectral curve (sampled at wavelength values)
-    Return:
+        
+        Return:
         a list with color coordinates and Y [x,y,Y]
     """
     

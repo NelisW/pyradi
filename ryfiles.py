@@ -46,10 +46,8 @@ def SaveHeaderArrayTextFile(filename,dataArray, header=None,
         filename: string, the name of the output ASCII flatfile. 
         dataArray: a two-dimensional array
         header=None: the optional header
-        comment=None: string, the symbol used to comment out 
-            lines, default value is None
-        delimiter=None: string, the delimiter used to separate 
-            columns, default is whitespace.
+        comment=None: string, the symbol used to comment out lines, default value is None
+        delimiter=None: string, the delimiter used to separate columns, default is whitespace.
             
     Returns:
         Nothing
@@ -81,22 +79,14 @@ def LoadColumnTextFile(filename, loadCol=[1],  \
     
     Parameters:
         filename: string, the name of the input ASCII flatfile. 
-        loadCol=[1]: list of numbers, the column to be loaded as 
-            the ordinate, default value is column 1
-        comment=None: string, the symbol used to comment out 
-            lines, default value is None
-        normalize=0: integer, flag to indicate if data must be 
-            normalized.
-        skiprows=0: integer, the number of rows to be skipped at
-            the start of the file (e.g. headers)
-        delimiter=None: string, the delimiter used to separate 
-            columns, default is whitespace.
-        abscissaScale=1: float, the scale by which abscissa 
-            (column 0) must be multiplied
-        ordinateScale=1: float, the scale by which ordinate 
-            (column >0) must be multiplied
-        abscissaOut: numpy 1-D array, the abscissa vector on 
-            which output variables are interpolated.
+        loadCol=[1]: list of numbers, the column to be loaded as the ordinate, default value is column 1
+        comment=None: string, the symbol used to comment out lines, default value is None
+        normalize=0: integer, flag to indicate if data must be normalized.
+        skiprows=0: integer, the number of rows to be skipped at the start of the file (e.g. headers)
+        delimiter=None: string, the delimiter used to separate columns, default is whitespace.
+        abscissaScale=1: float, the scale by which abscissa (column 0) must be multiplied
+        ordinateScale=1: float, the scale by which ordinate (column >0) must be multiplied
+        abscissaOut: numpy 1-D array, the abscissa vector on which output variables are interpolated.
         
     Returns:
         the interpolated, scaled vector read in. 
@@ -142,8 +132,7 @@ def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
     
     Parameters:
         filename: string, the name of the input ASCII flatfile. 
-        loadCol=[]: list of numbers, the column headers to be 
-            loaded , default value is column 1
+        loadCol=[]: list of numbers, the column headers to be loaded , default value is column 1
         comment=None: string, the symbol to comment out lines
         
     Returns:

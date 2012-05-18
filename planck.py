@@ -193,9 +193,11 @@ def dplnckql(wavelength, temperature):
 ##
 def dplnckqn(wavenumber, temperature):
     """   Planck function in wavenumber domain.
+    
     Parameters:
         wavelength == wavenumber vector in   [cm^-1]
         temperature == temperature scalar in [K]
+        
     Return:
         returns spectral radiant emitance in  q/(s.m^2.cm^-1)
     """
@@ -210,13 +212,15 @@ def dplnckqn(wavenumber, temperature):
 ################################################################
 ##
 def stefanboltzman(temperature, type='e'):
-    """   Stefan-Botlzman function.
-    Parameters:
-        temperature == temperature scalar in [K]
-        type == 'e' for radiant or 'q' for photon rate emittance
-    Return:
-        returns integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].
-        returns a zero if the type is not 'e' or 'q'
+    """Stefan-Botlzman function.
+    
+        Parameters:
+            temperature == temperature scalar in [K]
+            type == 'e' for radiant or 'q' for photon rate emittance
+            
+        Return:
+            returns integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].
+            returns a zero if the type is not 'e' or 'q'
     """
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
@@ -238,21 +242,23 @@ dplancktype = {'el' : dplnckel, 'ef' : dplnckef, 'en' : dplncken, \
 ################################################################
 ##
 def planck(spectral, temperature, type='el'):
-    """   Planck function.
-    Parameters:
-        spectral == spectral vector
-        temperature == Temperature scalar in [K]
-        type = 'e' signifies Radiant values in [W/m2]
-                  'q' signifies photon rate values  [quanta/(s.m2)]
-                  'l' signifies wavelength spectral vector  [micrometer]
-                  'n' signifies wavenumber spectral vector [cm-1]
-                  'f' signifies frequency spectral vecor [Hz]
-        
-    Return:
-        returns spectral radiant emitance (not radiance) in units selected.
-        For type = 'el' units will be [W/(m2.um)]
-        For type = 'qf' units will be [q/(s.m2.Hz)]
-        returns zeros if illegal type is requested
+    """Planck function.
+    
+        Parameters:
+            spectral == spectral vector
+            temperature == Temperature scalar in [K]
+            type = 
+            'e' signifies Radiant values in [W/m2]
+            'q' signifies photon rate values  [quanta/(s.m2)]
+            'l' signifies wavelength spectral vector  [micrometer]
+            'n' signifies wavenumber spectral vector [cm-1]
+            'f' signifies frequency spectral vecor [Hz]
+
+        Return:
+            returns spectral radiant emitance (not radiance) in units selected.
+            For type = 'el' units will be [W/(m2.um)]
+            For type = 'qf' units will be [q/(s.m2.Hz)]
+            returns zeros if illegal type is requested
     """
     if type in plancktype.keys():
         #select the appropriate fn as requested by user
@@ -268,21 +274,23 @@ def planck(spectral, temperature, type='el'):
 ################################################################
 ##
 def dplanck(spectral, temperature, type='el'):
-    """   Temperature derivative of Planck function.
-    Parameters:
-        spectral == spectral vector
-        temperature == Temperature scalar in [K]
-        type = 'e' signifies Radiant values in [W/m2]
-                  'q' signifies photon rate values  [quanta/(s.m2)]
-                  'l' signifies wavelength spectral vector  [micrometer]
-                  'n' signifies wavenumber spectral vector [cm-1]
-                  'f' signifies frequency spectral vecor [Hz]
-        
-    Return:
-        returns spectral radiant emitance (not radiance) in units selected.
-        For type = 'el' units will be [W/(m2.um)]
-        For type = 'qf' units will be [q/(s.m2.Hz)]
-        returns zeros if illegal type is requested
+    """Temperature derivative of Planck function.
+    
+        Parameters:
+            spectral == spectral vector
+            temperature == Temperature scalar in [K]
+            type = 
+            'e' signifies Radiant values in [W/m2]
+            'q' signifies photon rate values  [quanta/(s.m2)]
+            'l' signifies wavelength spectral vector  [micrometer]
+            'n' signifies wavenumber spectral vector [cm-1]
+            'f' signifies frequency spectral vecor [Hz]
+
+        Return:
+            returns spectral radiant emitance (not radiance) in units selected.
+            For type = 'el' units will be [W/(m2.um)]
+            For type = 'qf' units will be [q/(s.m2.Hz)]
+            returns zeros if illegal type is requested
     """
 
     if type in dplancktype.keys():
