@@ -1,0 +1,143 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Colour coordinates &mdash; pyradi 0.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyradi 0.0.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to pyradi’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyradi’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyradi 0.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="colour-coordinates">
+<h1>Colour coordinates<a class="headerlink" href="#colour-coordinates" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pyradi.chroma.chromaticityforSpectralL">
+<tt class="descclassname">pyradi.chroma.</tt><tt class="descname">chromaticityforSpectralL</tt><big>(</big><em>spectral</em>, <em>radiance</em>, <em>xbar</em>, <em>ybar</em>, <em>zbar</em><big>)</big><a class="headerlink" href="#pyradi.chroma.chromaticityforSpectralL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the CIE chromaticity coordinates for an arbitrary spectrum.</p>
+<p>Given a spectral radiance vector and CIE tristimulus curves, 
+calculate the CIE chromaticity coordinates. It is assumed that the 
+radiance spectral density is given in the same units as the spectral
+vector (i.e. [1/um] or [1/cm-1], corresponding to [um] or [cm-1] respectively.
+It is furthermore accepted that the tristimulus curves are also sampled at
+the same spectral intervals as the radiance. See 
+<a class="reference external" href="http://en.wikipedia.org/wiki/CIE_1931_color_space">http://en.wikipedia.org/wiki/CIE_1931_color_space</a> 
+for more information on CIE tristimulus spectral curves.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">spectral: spectral vector in  [um] or [cm-1].</div>
+<div class="line">radiance: the spectral radiance (any units), (sampled at spectral).</div>
+<div class="line">xbar: CIE x tristimulus spectral curve (sampled at spectral values).</div>
+<div class="line">ybar: CIE y tristimulus spectral curve (sampled at spectral values).</div>
+<div class="line">zbar: CIE z tristimulus spectral curve (sampled at spectral values).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">A list with color coordinates and Y [x,y,Y].</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pyradi&#8217;s documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/colourcoordinates.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyradi’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">pyradi 0.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, CJ Willers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

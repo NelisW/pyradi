@@ -42,6 +42,13 @@ from matplotlib.font_manager import FontProperties
 class plotter:
     """ Encapsulates a plotting environment, optimized for 
     radiometry plots.
+    
+    This class provides a wrapper around Matplotlib to provide a plotting 
+    environment specialised towards radiometry results.  These functions
+    were developed to provide well labelled plots by entering only one or two lines.
+    
+    Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
+    linear scale and log scale plots, and cartesian and polar plots.
     """
     
     ############################################################
@@ -51,14 +58,24 @@ class plotter:
                  figsize=(9,9)):
         """Class constructor 
         
-            parameters:
-                fignumber: the plt figure number, must be supplied
-                subpltnrow=1: subplot number of rows
-                subpltncol=1: subplot number of columns
-                figuretitle='': the overall heading for the figure
-                figsize is the size in inches
-                dpi is the resolution of the bitmap
-                is required to indicate the filee type required.
+        The constructor defines the number for this figure, allowing future reference 
+        to this figure. The number of subplot rows and columns allow the user to define
+        the subplot configuration.  The user can also provide a title to be
+        used for the figure (centred on top) and finally, the size of the figure in inches
+        can be specified to scale the text relative to the figure.
+        
+            Args:
+                | fignumber: the plt figure number, must be supplied
+                | subpltnrow=1: subplot number of rows
+                | subpltncol=1: subplot number of columns
+                | figuretitle='': the overall heading for the figure
+                | figsize: the figure size in inches
+                
+            Returns:
+                | Nothing. Creates the figure for subequent use.
+        
+            Raises:
+                | No exception is raised.
         """
     
         version=mpl.__version__.split('.')
@@ -100,25 +117,54 @@ class plotter:
     ############################################################
     ##
     def BuildPlotCol(self, plotCol, n):
-        """returns a sequence of default colour styles of 
-           appropriate length
+        """Returns a sequence of default colour styles of 
+           appropriate length.
+           
+           The constructor provides a sequence with length 14 pre-defined plot styles.
+           The user can define a new sequence if required.  
+           This function modulus-folds either sequence, in case longer sequences are required.
+           
+            Args:
+                | plotCol: User-supplied list  of plotting styles(can be empty []).
+                | n: Length of required sequence.
+                
+            Returns:
+                | A list with sequence of plot styles, of required length.
+        
+            Raises:
+                | No exception is raised.
         """
         if not plotCol:
             return [self.plotCol[i % len(self.plotCol)] \
                                          for i in range(n)]
         else:
-            return plotCol
+            return [plotCol[i % len(plotCol)] \
+                                         for i in range(n)]
 
     ############################################################
     ##
     def SaveFig(self, filename='mpl.png',dpi=100,bbox_inches='tight',\
                 pad_inches=0.1):
-        """Save the plot to a disk file, using name supplied in the constructor.
+        """Save the plot to a disk file, using filename, dpi specification and bounding box limits.
         
-            Parameters:
-                filename = output filename to write plot, file ext 
-                dpi = the resolution of the graph in dots per inch
-                bbox_inches
+        One of matplotlib's design choices is a bounding box strategy  which may result in a bounding box
+        that is smaller than the size of all the objects on the page.  It took a while to figure this out, 
+        but the current default values for bbox_inches and pad_inches seem to create meaningful
+        bounding boxes. These are however larger than the true bounding box. You still need a 
+        tool such as epstools or Adobe Acrobat to trim eps files to the true bounding box.
+        
+            Args:
+                | filename: output filename to write plot, file ext 
+                | dpi: the resolution of the graph in dots per inch
+                | bbox_inches: see matplotlib docs for more detail.
+                | pad_inches: see matplotlib docs for more detail.
+                
+                
+            Returns:
+                | Nothing. Saves a file to disk.
+                
+            Raises:
+                | No exception is raised.
         """
         if len(filename)>0:
             plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches, 
@@ -129,6 +175,15 @@ class plotter:
     ##
     def GetPlot(self):
         """Returns the current plot
+        
+            Args:        
+                | None
+                
+            Returns:
+                | A handle to the current plot.
+        
+            Raises:
+                | No exception is raised.
         """
         return self.fig
 
@@ -137,21 +192,35 @@ class plotter:
     def Plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
-        """Plot data on linear scales for abscissa and ordinates.
+        """Cartesian plot on linear scales for abscissa and ordinates.
         
-            Parameters:
-                plotnum: subplot number
-                ptitle: plot title
-                xlabel: x axis label
-                ylabel: y axis label
-                x: abscissa
-                y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label for ordinate, list with N entries
-                legendAlpha=0.0: transparancy for legend
-                pltaxis:scale for x,y axes.default if all zeros.
-                MaxNX: draw MaxNX+1 tick labels on x axis
-                MaxNY: draw MaxNy+1 tick labels on y axis
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. Note that the y-values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot. This is convenient if large arrays of data must be plotted. If more 
+        than one column is present, the label argument can contain the legend labels for 
+        each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+        for the x and y axes.
+        
+            Args:
+                | plotnum: subplot number
+                | ptitle: plot title
+                | xlabel: x axis label
+                | ylabel: y axis label
+                | x: abscissa
+                | y: ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label for ordinate, list with N entries
+                | legendAlpha=0.0: transparancy for legend
+                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
+                | MaxNX: draw MaxNX+1 tick labels on x axis
+                | MaxNY: draw MaxNy+1 tick labels on y axis
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.plot, plotnum, ptitle, xlabel, ylabel, \
@@ -165,19 +234,34 @@ class plotter:
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
-            Parameters:
-                plotnum: subplot number
-                ptitle: plot title
-                xlabel: x axis label
-                ylabel: y axis label
-                x: abscissa
-                y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label for ordinate, list with N entries
-                legendAlpha=0.0: transparancy for legend
-                pltaxis:scale for x,y axes.default if all zeros.
-                MaxNX: draw MaxNX+1 tick labels on x axis
-                MaxNY: draw MaxNy+1 tick labels on y axis
+        
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. Note that the y-values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot. This is convenient if large arrays of data must be plotted. If more 
+        than one column is present, the label argument can contain the legend labels for 
+        each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+        for the x and y axes.
+        
+            Args:
+                | plotnum: subplot number
+                | ptitle: plot title
+                | xlabel: x axis label
+                | ylabel: y axis label
+                | x: abscissa
+                | y: ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label for ordinate, list with N entries
+                | legendAlpha=0.0: transparancy for legend
+                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
+                | MaxNX: draw MaxNX+1 tick labels on x axis
+                | MaxNY: draw MaxNy+1 tick labels on y axis
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.loglog, plotnum, ptitle, xlabel,ylabel,\
@@ -191,19 +275,33 @@ class plotter:
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
         
-            Parameters:
-                plotnum: subplot number
-                ptitle: plot title
-                xlabel: x axis label
-                ylabel: y axis label
-                x: abscissa
-                y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label for ordinate, list with N entries
-                legendAlpha=0.0: transparancy for legend
-                pltaxis:scale for x,y axes.default if all zeros.
-                MaxNX: draw MaxNX+1 tick labels on x axis
-                MaxNY: draw MaxNy+1 tick labels on y axis
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. Note that the y-values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot. This is convenient if large arrays of data must be plotted. If more 
+        than one column is present, the label argument can contain the legend labels for 
+        each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+        for the x and y axes.
+        
+            Args:
+                | plotnum: subplot number
+                | ptitle: plot title
+                | xlabel: x axis label
+                | ylabel: y axis label
+                | x: abscissa
+                | y: ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label for ordinate, list with N entries
+                | legendAlpha=0.0: transparancy for legend
+                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
+                | MaxNX: draw MaxNX+1 tick labels on x axis
+                | MaxNY: draw MaxNy+1 tick labels on y axis
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.semilogx, plotnum,ptitle,xlabel,ylabel,\
@@ -216,20 +314,34 @@ class plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
-
-            Parameters:
-                plotnum: subplot number
-                ptitle: plot title
-                xlabel: x axis label
-                ylabel: y axis label
-                x: abscissa
-                y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label for ordinate, list with N entries
-                legendAlpha=0.0: transparancy for legend
-                pltaxis:scale for x,y axes.default if all zeros.
-                MaxNX: draw MaxNX+1 tick labels on x axis
-                MaxNY: draw MaxNy+1 tick labels on y axis
+        
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. Note that the y-values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot. This is convenient if large arrays of data must be plotted. If more 
+        than one column is present, the label argument can contain the legend labels for 
+        each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+        for the x and y axes.
+        
+            Args:
+                | plotnum: subplot number
+                | ptitle: plot title
+                | xlabel: x axis label
+                | ylabel: y axis label
+                | x: abscissa
+                | y: ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label for ordinate, list with N entries
+                | legendAlpha=0.0: transparancy for legend
+                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
+                | MaxNX: draw MaxNX+1 tick labels on x axis
+                | MaxNY: draw MaxNy+1 tick labels on y axis
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
         self.MyPlot(plt.semilogy, plotnum,ptitle,xlabel,ylabel,\
@@ -243,20 +355,29 @@ class plotter:
                     pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0):
         """Low level helper function to create a subplot and plot the data as required.
         
-            Parameters:
-                plotcommand: name of a MatplotLib plotting function 
-                plotnum: subplot number
-                ptitle: plot title
-                xlabel: x axis label
-                ylabel: y axis label
-                x: abscissa
-                y: ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label for ordinate, list with N entries
-                legendAlpha=0.0: transparancy for legend
-                pltaxis:scale for x,y axes.default if all zeros.
-                MaxNX: draw MaxNX+1 tick labels on x axis
-                MaxNY: draw MaxNy+1 tick labels on y axis
+        This function does the actual plotting, labelling etc. It uses the plotting 
+        function provided by its user functions.
+        
+            Args:
+                | plotcommand: name of a MatplotLib plotting function 
+                | plotnum: subplot number
+                | ptitle: plot title
+                | xlabel: x axis label
+                | ylabel: y axis label
+                | x: abscissa
+                | y: ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label for ordinate, list with N entries
+                | legendAlpha=0.0: transparancy for legend
+                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
+                | MaxNX: draw MaxNX+1 tick labels on x axis
+                | MaxNY: draw MaxNy+1 tick labels on y axis
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
         """
 
         if x.ndim>1:
@@ -300,22 +421,40 @@ class plotter:
                     legendAlpha=0.0, \
                     rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0):
-        """Create a subplot and plot the data as required.
+        """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
         
-            Parameters:
-                plotnum: subplot number
-                ptitle: plot title
-                theta: angular abscissa
-                r: radial ordinates - could be N columns
-                plotCol []:plot line style, list with N entries, use default if []
-                label []: legend label, list with N entries
-                labelLocation[]: where the legend should located
-                legendAlpha=0.0: transparancy for legend
-                rscale[]:plotting limits: [rmin, rmax] default if all 0
-                rgrid[]: radial grid [rinc, rmax] default if all 0. if rinc==0 then rmax is number of ntervals.
-                thetagrids[]: theta grid interval
-                direction = 'counterclockwise' or 'clockwise'
-                zerooffset = rotation offset where zero should be [rad]
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. Note that the radial values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot. This is convenient if large arrays of data must be plotted. If more 
+        than one column is present, the label argument can contain the legend labels for 
+        each of the columns/lines.  The scale for the radial ordinates can be set with rscale.
+        The number of radial grid circles can be set with rgrid - this provides a somewhat 
+        better control over the built-in radial grid in matplotlib. thetagrids defines the angular 
+        grid interval.  The angular rotation direction can be set to be clockwise or
+        counterclockwise. Likewise the rotation offset where the plot zero angle must be, 
+        is set with zerooffset.
+        
+            Args:
+                | plotnum: subplot number
+                | ptitle: plot title
+                | theta: angular abscissa
+                | r: radial ordinates - could be N columns
+                | plotCol []:plot line style, list with N entries, use default if []
+                | label []: legend label, list with N entries
+                | labelLocation[]: where the legend should located
+                | legendAlpha=0.0: transparancy for legend
+                | rscale[]:plotting limits: [rmin, rmax] default if all 0
+                | rgrid[]: radial grid [rinc, rmax] default if all 0. if rinc==0 then rmax is number of ntervals.
+                | thetagrids[]: theta grid interval [degrees]
+                | direction = 'counterclockwise' or 'clockwise'
+                | zerooffset = rotation offset where zero should be [rad]
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
         """
 
         if theta.ndim>1:

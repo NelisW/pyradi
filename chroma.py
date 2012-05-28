@@ -1,4 +1,4 @@
-chroma#  $Id$
+#  $Id$
 #  $HeadURL$
 
 ################################################################
@@ -22,27 +22,39 @@ chroma#  $Id$
 ################################################################
 
 
-
 import numpy
 
 ##############################################################################
 ##
-def chromaticityforSpectralL(wavelength,radiance,xbar,ybar,zbar):
-    """ Calculate the CIE chromaticity coordinates for an arbitrary spectrum
-        Parameters:
-        wavelength  == wavelength vector in  [um]
-        radiance == the spectral radiance (any units), (sampled at wavelength)
-        xbar == CIE x tristimulus spectral curve (sampled at wavelength values)
-        ybar == CIE y tristimulus spectral curve (sampled at wavelength values)
-        zbar == CIE z tristimulus spectral curve (sampled at wavelength values)
+def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
+    """ Calculate the CIE chromaticity coordinates for an arbitrary spectrum.
+    
+    Given a spectral radiance vector and CIE tristimulus curves, 
+    calculate the CIE chromaticity coordinates. It is assumed that the 
+    radiance spectral density is given in the same units as the spectral
+    vector (i.e. [1/um] or [1/cm-1], corresponding to [um] or [cm-1] respectively.
+    It is furthermore accepted that the tristimulus curves are also sampled at
+    the same spectral intervals as the radiance. See 
+    http://en.wikipedia.org/wiki/CIE_1931_color_space 
+    for more information on CIE tristimulus spectral curves.
+    
+    Args:
+        | spectral: spectral vector in  [um] or [cm-1].
+        | radiance: the spectral radiance (any units), (sampled at spectral).
+        | xbar: CIE x tristimulus spectral curve (sampled at spectral values).
+        | ybar: CIE y tristimulus spectral curve (sampled at spectral values).
+        | zbar: CIE z tristimulus spectral curve (sampled at spectral values).
         
-        Return:
-        a list with color coordinates and Y [x,y,Y]
+    Returns:
+        | A list with color coordinates and Y [x,y,Y].
+        
+    Raises:
+        | No exception is raised.
     """
     
-    X=numpy.trapz(radiance*xbar.reshape(-1, 1),wavelength, axis=0)
-    Y=numpy.trapz(radiance*ybar.reshape(-1, 1),wavelength, axis=0)
-    Z=numpy.trapz(radiance*zbar.reshape(-1, 1),wavelength, axis=0)
+    X=numpy.trapz(radiance*xbar.reshape(-1, 1),spectral, axis=0)
+    Y=numpy.trapz(radiance*ybar.reshape(-1, 1),spectral, axis=0)
+    Z=numpy.trapz(radiance*zbar.reshape(-1, 1),spectral, axis=0)
     
     x=X/(X+Y+Z)
     y=Y/(X+Y+Z)
