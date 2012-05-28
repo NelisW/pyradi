@@ -29,7 +29,10 @@ The respective python files all have examples of use and simple test code at
 the end of each of the files. Execute these python files as scripts to execute
 the example code, and observe the results.
 
+Project page
+===============
 
+See http://code.google.com/p/pyradi/.
 
 
 Indices and tables
