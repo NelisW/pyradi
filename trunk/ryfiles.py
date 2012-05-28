@@ -21,36 +21,37 @@
 # Contributor(s): ______________________________________.
 ################################################################
 
-
-
-
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-
 
 from scipy.interpolate import interp1d
 import numpy
 import os.path, fnmatch
 import csv
 
-
 ################################################################
 def SaveHeaderArrayTextFile(filename,dataArray, header=None, 
         comment=None, delimiter=None):
-    """This function saves a two-dimensional array to a text file, with 
-    an optional user-defined header.
+    """Save a numpy array to a file, included header lines.
     
-    Parameters:
-        filename: string, the name of the output ASCII flatfile. 
-        dataArray: a two-dimensional array
-        header=None: the optional header
-        comment=None: string, the symbol used to comment out lines, default value is None
-        delimiter=None: string, the delimiter used to separate columns, default is whitespace.
+    This function saves a two-dimensional array to a text file, with 
+    an optional user-defined header. This functionality will be part of
+    numpy 1.7, when released.
+    
+    Args:
+        | filename: string, the name of the output ASCII flatfile. 
+        | dataArray: a two-dimensional array.
+        | header=None: the optional header.
+        | comment=None: string, the symbol used to comment out lines, default value is None.
+        | delimiter=None: string, the delimiter used to separate columns, default is whitespace.
             
     Returns:
-        Nothing
+        | Nothing.
+        
+    Raises:
+        | No exception is raised.
     """
     #open required file
     file=open(filename, 'wt')
@@ -70,27 +71,32 @@ def SaveHeaderArrayTextFile(filename,dataArray, header=None,
 def LoadColumnTextFile(filename, loadCol=[1],  \
         comment=None, normalize=0, skiprows=0, delimiter=None,\
         abscissaScale=1,ordinateScale=1, abscissaOut=None):
-    """This function loads column data from a text file, 
+    """Load selected column data from a text file, processing as specified.
+    
+    This function loads column data from a text file, 
     manipulating the data read in. The individual vector data 
     must be given in columns in the file, with the 
     abscissa (x-value) in first column (col 0 in Python)
     and any number of ordinate (y-value) vectors in second and 
     later columns.
     
-    Parameters:
-        filename: string, the name of the input ASCII flatfile. 
-        loadCol=[1]: list of numbers, the column to be loaded as the ordinate, default value is column 1
-        comment=None: string, the symbol used to comment out lines, default value is None
-        normalize=0: integer, flag to indicate if data must be normalized.
-        skiprows=0: integer, the number of rows to be skipped at the start of the file (e.g. headers)
-        delimiter=None: string, the delimiter used to separate columns, default is whitespace.
-        abscissaScale=1: float, the scale by which abscissa (column 0) must be multiplied
-        ordinateScale=1: float, the scale by which ordinate (column >0) must be multiplied
-        abscissaOut: numpy 1-D array, the abscissa vector on which output variables are interpolated.
+    Args:
+        | filename: string, the name of the input ASCII flatfile. 
+        | loadCol=[1]: list of numbers, the column to be loaded as the ordinate, default value is column 1
+        | comment=None: string, the symbol used to comment out lines, default value is None
+        | normalize=0: integer, flag to indicate if data must be normalized.
+        | skiprows=0: integer, the number of rows to be skipped at the start of the file (e.g. headers)
+        | delimiter=None: string, the delimiter used to separate columns, default is whitespace.
+        | abscissaScale=1: float, the scale by which abscissa (column 0) must be multiplied
+        | ordinateScale=1: float, the scale by which ordinate (column >0) must be multiplied
+        | abscissaOut: numpy 1-D array, the abscissa vector on which output variables are interpolated.
         
     Returns:
-        the interpolated, scaled vector read in. 
-        shape is (N,1) i.e. a 2-D column vector
+        | The interpolated, scaled vector read in. 
+        | Shape is (N,1) i.e. a 2-D column vector
+        
+    Raises:
+        | No exception is raised.
     """
 
     #numpy.loadtxt(fname, dtype=<type 'float'>, comments='#', \
@@ -127,16 +133,22 @@ def LoadColumnTextFile(filename, loadCol=[1],  \
 
 ################################################################################
 def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
-    """Loads column header data from a file, from the firstrow. 
-    Headers must be delimited by commas.
+    """Loads column data from a text file, using the csv package.
     
-    Parameters:
-        filename: string, the name of the input ASCII flatfile. 
-        loadCol=[]: list of numbers, the column headers to be loaded , default value is column 1
-        comment=None: string, the symbol to comment out lines
+    Using the csv package, loads column header data from a file, from the firstrow. 
+    Headers must be delimited by commas. The function [LoadColumnTextFile] provides
+    more comprehensive capabilties.
+    
+    Args:
+        | filename: string, the name of the input ASCII flatfile. 
+        | loadCol=[]: list of numbers, the column headers to be loaded , default value is column 1
+        | comment=None: string, the symbol to comment out lines
         
     Returns:
-        a list with selected column entries
+        | a list with selected column entries
+        
+    Raises:
+        | No exception is raised.
     """
 
     #read from CVS file, must be comma delimited
@@ -150,12 +162,24 @@ def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
 
 
 ################################################################
-def CleanFilename(filename):
-    """Creates a legal and 'clean' filename from a string by removing some clutter and illegals.
-    """
+def CleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
+    """Clean a string by removing selected characters.
+    
+    Creates a legal and 'clean' sourcestring from a string by removing some clutter and illegals. 
+    A default set is given but the user can override the default string.
 
+    Args:
+        | sourcestring: the string to be cleaned.
+        | removestring: remove all these characters from the source.
+    
+    Returns:
+        | A cleaned-up string.
+        
+    Raises:
+        | No exception is raised.
+    """
     #remove spaces,comma, ":.%/\[]"
-    return filter(lambda c: c not in " %:/,.\\[]", filename)
+    return filter(lambda c: c not in removestring, sourcestring)
 
 
 ################################################################
@@ -164,15 +188,22 @@ def CleanFilename(filename):
 #this code comes from the Python Cookbook
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """Lists the files/directories meeting specific requirement
+    
+    Searches a directory structure along the specified path, looking
+    for files that matches the glob pattern. If specified, the search will
+    continue into sub-directories.  A list of matching names is returned.
      
-    Parameters:
-        root: root directory from where the search must take place
-        patterns: glob pattern for filename matching
-        recurse: should the search extend to subdirs of root?
-        return_folders: should foldernames also be returned?
+    Args:
+        | root: root directory from where the search must take place
+        | patterns: glob pattern for filename matching
+        | recurse: should the search extend to subdirs of root?
+        | return_folders: should foldernames also be returned?
         
     Returns:
-        a list with matching file/directory names
+        | A list with matching file/directory names
+        
+    Raises:
+        | No exception is raised.
     """
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
@@ -227,6 +258,8 @@ if __name__ == '__main__':
     print ('\nTest CleanFilename function:')
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
     print('{0}\n{1}'.format(inString,CleanFilename(inString) ))
+    inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+    print('{0}\n{1}'.format(inString,CleanFilename(inString, "") ))
  
     print ('\nTest listFiles function:')
     print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
