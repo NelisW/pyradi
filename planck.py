@@ -21,11 +21,12 @@
 # Contributor(s): ______________________________________.
 ################################################################
 
-
-
+#prepare so long for Python 3
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import numpy
-
 
 ################################################################
 ##
