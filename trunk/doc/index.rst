@@ -42,3 +42,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+##############################################################################
+#Serving HTML Documentation from Google Code / SVN
+#http://manjeetdahiya.com/2010/09/29/serving-html-documentation-from-google-code-svn/
+
