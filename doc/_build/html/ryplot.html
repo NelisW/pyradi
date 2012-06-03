@@ -78,8 +78,8 @@ This function modulus-folds either sequence, in case longer sequences are requir
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotCol: User-supplied list  of plotting styles(can be empty []).</div>
-<div class="line">n: Length of required sequence.</div>
+<div class="line">plotCol ([strings]): User-supplied list  of plotting styles(can be empty []).</div>
+<div class="line">n (int): Length of required sequence.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -134,18 +134,18 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">xlabel: x axis label</div>
-<div class="line">ylabel: y axis label</div>
-<div class="line">x: abscissa</div>
-<div class="line">y: ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label for ordinate, list with N entries</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.</div>
-<div class="line">MaxNX: draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY: draw MaxNy+1 tick labels on y axis</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,1]): abscissa</div>
+<div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
+<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -173,18 +173,18 @@ function provided by its user functions.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">plotcommand: name of a MatplotLib plotting function </div>
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">xlabel: x axis label</div>
-<div class="line">ylabel: y axis label</div>
-<div class="line">x: abscissa</div>
-<div class="line">y: ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label for ordinate, list with N entries</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.</div>
-<div class="line">MaxNX: draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY: draw MaxNy+1 tick labels on y axis</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,1]): abscissa</div>
+<div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
+<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -216,18 +216,18 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">xlabel: x axis label</div>
-<div class="line">ylabel: y axis label</div>
-<div class="line">x: abscissa</div>
-<div class="line">y: ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label for ordinate, list with N entries</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.</div>
-<div class="line">MaxNX: draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY: draw MaxNy+1 tick labels on y axis</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,1]): abscissa</div>
+<div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
+<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -263,19 +263,19 @@ is set with zerooffset.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">theta: angular abscissa</div>
-<div class="line">r: radial ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label, list with N entries</div>
-<div class="line">labelLocation[]: where the legend should located</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">rscale[]:plotting limits: [rmin, rmax] default if all 0</div>
-<div class="line">rgrid[]: radial grid [rinc, rmax] default if all 0. if rinc==0 then rmax is number of ntervals.</div>
-<div class="line">thetagrids[]: theta grid interval [degrees]</div>
-<div class="line">direction = &#8216;counterclockwise&#8217; or &#8216;clockwise&#8217;</div>
-<div class="line">zerooffset = rotation offset where zero should be [rad]</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">theta (np.array[N,] or [N,1]): angular abscissa</div>
+<div class="line">r (np.array[N,] or [N,M]): radial ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label, list with M entries</div>
+<div class="line">labelLocation ([x,y]): where the legend should located</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">rscale ([rmin, rmax]): plotting limits. default if all 0</div>
+<div class="line">rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals.</div>
+<div class="line">thetagrids (float): theta grid interval [degrees]</div>
+<div class="line">direction (string)= &#8216;counterclockwise&#8217; or &#8216;clockwise&#8217;</div>
+<div class="line">zerooffset (float) = rotation offset where zero should be [rad]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -305,8 +305,8 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename: output filename to write plot, file ext </div>
-<div class="line">dpi: the resolution of the graph in dots per inch</div>
+<div class="line">filename (string): output filename to write plot, file ext </div>
+<div class="line">dpi (int): the resolution of the graph in dots per inch</div>
 <div class="line">bbox_inches: see matplotlib docs for more detail.</div>
 <div class="line">pad_inches: see matplotlib docs for more detail.</div>
 </div>
@@ -340,18 +340,18 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">xlabel: x axis label</div>
-<div class="line">ylabel: y axis label</div>
-<div class="line">x: abscissa</div>
-<div class="line">y: ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label for ordinate, list with N entries</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.</div>
-<div class="line">MaxNX: draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY: draw MaxNy+1 tick labels on y axis</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,1]): abscissa</div>
+<div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
+<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -383,18 +383,18 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum: subplot number</div>
-<div class="line">ptitle: plot title</div>
-<div class="line">xlabel: x axis label</div>
-<div class="line">ylabel: y axis label</div>
-<div class="line">x: abscissa</div>
-<div class="line">y: ordinates - could be N columns</div>
-<div class="line">plotCol []:plot line style, list with N entries, use default if []</div>
-<div class="line">label []: legend label for ordinate, list with N entries</div>
-<div class="line">legendAlpha=0.0: transparancy for legend</div>
-<div class="line">pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.</div>
-<div class="line">MaxNX: draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY: draw MaxNy+1 tick labels on y axis</div>
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,1]): abscissa</div>
+<div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list withM entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
+<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>

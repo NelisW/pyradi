@@ -34,11 +34,11 @@ def planckef(frequency, temperature):
     """ Planck function in frequency for radiant emittance.
     
     Args:
-        | frequency:  frequency vector in  [Hz]
-        | Temperature:  Temperature scalar in [K]
+        | frequency (np.array[N,]):  frequency vector in  [Hz]
+        | temperature (float):  Temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in W/(m^2.Hz)
+        | (np.array[N,]): spectral radiant emitance in W/(m^2.Hz)
         
     Raises:
         | No exception is raised.
@@ -52,11 +52,11 @@ def planckel(wavelength, temperature):
     """ Planck function in wavelength for radiant emittance.
     
     Args:
-        | wavelength:  wavelength vector in  [um]
-        | Temperature:  Temperature scalar in [K]
+        | wavelength (np.array[N,]):  wavelength vector in  [um]
+        | temperature (float):  Temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in W/(m^2.um)
+        | (np.array[N,]):  spectral radiant emitance in W/(m^2.um)
         
     Raises:
         | No exception is raised.
@@ -70,11 +70,11 @@ def plancken(wavenumber, temperature):
     """ Planck function in wavenumber for radiant emittance.
     
     Args:
-        | wavelength:  wavenumber vector in   [cm^-1]
-        | Temperature:  Temperature scalar in [K]
+        | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
+        | temperature (float):  Temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  W/(m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emitance in  W/(m^2.cm^-1)
         
     Raises:
         | No exception is raised.
@@ -88,11 +88,11 @@ def planckqf(frequency, temperature):
     """ Planck function in frequency domain for photon rate emittance.
     
     Args:
-        | frequency:  frequency vector in  [Hz]
-        | Temperature:  Temperature scalar in [K]
+        | frequency (np.array[N,]): frequency vector in  [Hz]
+        | temperature (float):  Temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in q/(s.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emitance in q/(s.m^2.Hz)
         
     Raises:
         | No exception is raised.
@@ -106,11 +106,11 @@ def planckql(wavelength, temperature):
     """ Planck function in wavelength domain for photon rate emittance.
     
     Args:
-        | wavelength:  wavelength vector in  [um]
-        | Temperature:  temperature scalar in [K]
+        | wavelength (np.array[N,]):  wavelength vector in  [um]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  q/(s.m^2.um)
+        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.um)
         
     Raises:
         | No exception is raised.
@@ -124,11 +124,11 @@ def planckqn(wavenumber, temperature):
     """ Planck function in wavenumber domain for photon rate emittance.
     
     Args:
-        | wavelength:  wavenumber vector in   [cm^-1]
-        | Temperature:  temperature scalar in [K]
+        | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  q/(s.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.cm^-1)
         
     Raises:
         | No exception is raised.
@@ -142,11 +142,11 @@ def dplnckef(frequency, temperature):
     """Temperative derivative of Planck function in frequency domain for radiant emittance.
     
     Args:
-        | frequency:  frequency vector in  [Hz]
-        | Temperature:  temperature scalar in [K]
+        | frequency (np.array[N,]): frequency vector in  [Hz]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance/K in W/(K.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emitance/K in W/(K.m^2.Hz)
         
     Raises:
         | No exception is raised.
@@ -164,15 +164,16 @@ def dplnckel(wavelength, temperature):
     """Temperative derivative of Planck function in wavelength domain for radiant emittance.
     
     Args:
-        | wavelength:  wavelength vector in  [um]
-        | Temperature:  temperature scalar in [K]
+        | wavelength (np.array[N,]):  wavelength vector in  [um]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in W/(K.m^2.um)
+        | (np.array[N,]):  spectral radiant emitance in W/(K.m^2.um)
         
     Raises:
         | No exception is raised.
     """
+    # if xx > 350, then we get overflow
     xx=14387.86 /(wavelength * temperature)
     return (3.7418301e8 * xx * numpy.exp(xx) )/\
         (temperature* wavelength ** 5 * (numpy.exp(xx)-1) **2 )
@@ -183,11 +184,11 @@ def dplncken(wavenumber, temperature):
     """Temperative derivative of Planck function in wavenumber domain for radiance emittance.
     
     Args:
-        | wavelength:  wavenumber vector in   [cm^-1]
-        | Temperature:  temperature scalar in [K]
+        | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  W/(K.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emitance in  W/(K.m^2.cm^-1)
         
     Raises:
         | No exception is raised.
@@ -204,11 +205,11 @@ def dplnckqf(frequency, temperature):
     """Temperative derivative of Planck function in frequency domain for photon rate.
     
     Args:
-        | frequency:  frequency vector in  [Hz]
-        | Temperature:  temperature scalar in [K]
+        | frequency (np.array[N,]): frequency vector in  [Hz]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in q/(K.s.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emitance in q/(K.s.m^2.Hz)
         
     Raises:
         | No exception is raised.
@@ -225,11 +226,11 @@ def dplnckql(wavelength, temperature):
     """Temperative derivative of Planck function in wavenumber domain for radiance emittance.
     
     Args:
-        | wavelength:  wavelength vector in  [um]
-        | Temperature:  temperature scalar in [K]
+        | wavelength (np.array[N,]):  wavelength vector in  [um]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  q/(K.s.m^2.um)
+        | (np.array[N,]):  spectral radiant emitance in  q/(K.s.m^2.um)
         
     Raises:
         | No exception is raised.
@@ -246,11 +247,11 @@ def dplnckqn(wavenumber, temperature):
     """Temperative derivative of Planck function in wavenumber domain for photon rate.
     
     Args:
-        | wavelength:  wavenumber vector in   [cm^-1]
-        | Temperature:  temperature scalar in [K]
+        | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
+        | temperature (float):  temperature scalar in [K]
         
     Returns:
-        | Returns spectral radiant emitance in  q/(s.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.cm^-1)
         
     Raises:
         | No exception is raised.
@@ -273,11 +274,11 @@ def stefanboltzman(temperature, type='e'):
     photon rate units, depending on user input in type.
     
     Args:
-        | Temperature:  temperature scalar in [K].
-        | Type:  'e' for radiant or 'q' for photon rate emittance.
+        | temperature (float):  temperature scalar in [K].
+        | type (string):  'e' for radiant or 'q' for photon rate emittance.
         
     Returns:
-        | Returns integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].
+        | (float): integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].
         | Returns a -1 if the type is not 'e' or 'q'
             
     Raises:
@@ -310,9 +311,9 @@ def planck(spectral, temperature, type='el'):
     photon rate units, depending on user input in type.
     
     Args:
-        | Spectral:  spectral vector.
-        | Temperature:  Temperature scalar in [K].
-        | Type: 
+        | spectral (np.array[N,]):  spectral vector.
+        | temperature (float):  Temperature scalar in [K].
+        | type (string): 
         |  'e' signifies Radiant values in [W/m^2.*].
         |  'q' signifies photon rate values  [quanta/(s.m^2.*)].
         |  'l' signifies wavelength spectral vector  [micrometer].
@@ -320,7 +321,7 @@ def planck(spectral, temperature, type='el'):
         |  'f' signifies frequency spectral vecor [Hz].
         
     Returns:
-        | Returns spectral radiant emitance (not radiance) in units selected.
+        | (np.array[N,]):  spectral radiant emitance (not radiance) in units selected.
         | For type = 'el' units will be [W/(m^2.um)].
         | For type = 'qf' units will be [q/(s.m^2.Hz)].
         | Other return types are similarly defined as above.
@@ -350,9 +351,9 @@ def dplanck(spectral, temperature, type='el'):
     photon rate units, depending on user input in type.
     
     Args:
-        | Spectral:  spectral vector in  [micrometer], [cm-1] or [Hz].
-        | Temperature:  Temperature scalar in [K].
-        | Type: 
+        | spectral (np.array[N,]):  spectral vector in  [micrometer], [cm-1] or [Hz].
+        | temperature (float):  Temperature scalar in [K].
+        | type (string): 
         |  'e' signifies Radiant values in [W/(m^2.K)].
         |  'q' signifies photon rate values  [quanta/(s.m^2.K)].
         |  'l' signifies wavelength spectral vector  [micrometer].
@@ -360,7 +361,7 @@ def dplanck(spectral, temperature, type='el'):
         |  'f' signifies frequency spectral vecor [Hz].
         
     Returns:
-        | Returns spectral radiant emitance (not radiance) in units selected.
+        | (np.array[N,]):  spectral radiant emitance (not radiance) in units selected.
         | For type = 'el' units will be [W/(m2.um.K)]
         | For type = 'qf' units will be [q/(s.m2.Hz.K)]
         | Other return types are similarly defined as above.
@@ -522,7 +523,6 @@ if __name__ == '__main__':
     print('radiant emittance (int)    {0:e}   {1:e}  [q/(s.m^2)]'.format(I, sbl))
     print('radiant emittance (int)    {0:e}   {1:e}  [q/(s.m^2)]'.format(sblf, sbl))
     print('radiant emittance dM/dT    {0:e}   {1:e}  [q/(s.m^2.cm-1.K)]'.format(dMf,  dMe))
-
     
     #--------------------------------------------------------------------------------------
     #now plot a number of graphs
@@ -583,7 +583,7 @@ if __name__ == '__main__':
     Mqn = dplanck(n, temperature[0], type='qn').reshape(-1, 1)
     Mef = dplanck(f, temperature[0], type='ef').reshape(-1, 1)
     Mqf = dplanck(f, temperature[0], type='qf').reshape(-1, 1)
-    
+
     for temp in temperature[1:] :
         Mel = numpy.hstack((Mel, dplanck(wl,temp, type='el').reshape(-1, 1)))
         Mql = numpy.hstack((Mql, dplanck(wl,temp, type='ql').reshape(-1, 1)))

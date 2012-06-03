@@ -66,11 +66,11 @@ numpy 1.7, when released.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename: string, the name of the output ASCII flatfile. </div>
-<div class="line">dataArray: a two-dimensional array.</div>
-<div class="line">header=None: the optional header.</div>
-<div class="line">comment=None: string, the symbol used to comment out lines, default value is None.</div>
-<div class="line">delimiter=None: string, the delimiter used to separate columns, default is whitespace.</div>
+<div class="line">filename (string): name of the output ASCII flatfile. </div>
+<div class="line">dataArray (np.array[N,M]): a two-dimensional array.</div>
+<div class="line">header (string): the optional header.</div>
+<div class="line">comment (string): the symbol used to comment out lines, default value is None.</div>
+<div class="line">delimiter (string): delimiter used to separate columns, default is whitespace.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -99,21 +99,20 @@ later columns.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename: string, the name of the input ASCII flatfile. </div>
-<div class="line">loadCol=[1]: list of numbers, the column to be loaded as the ordinate, default value is column 1</div>
-<div class="line">comment=None: string, the symbol used to comment out lines, default value is None</div>
-<div class="line">normalize=0: integer, flag to indicate if data must be normalized.</div>
-<div class="line">skiprows=0: integer, the number of rows to be skipped at the start of the file (e.g. headers)</div>
-<div class="line">delimiter=None: string, the delimiter used to separate columns, default is whitespace.</div>
-<div class="line">abscissaScale=1: float, the scale by which abscissa (column 0) must be multiplied</div>
-<div class="line">ordinateScale=1: float, the scale by which ordinate (column &gt;0) must be multiplied</div>
-<div class="line">abscissaOut: numpy 1-D array, the abscissa vector on which output variables are interpolated.</div>
+<div class="line">filename (string): name of the input ASCII flatfile. </div>
+<div class="line">loadCol ([int]): the M =len([]) column(s) to be loaded as the ordinate, default value is column 1</div>
+<div class="line">comment (string): string, the symbol used to comment out lines, default value is None</div>
+<div class="line">normalize (int): integer, flag to indicate if data must be normalized.</div>
+<div class="line">skiprows (int): integer, the number of rows to be skipped at the start of the file (e.g. headers)</div>
+<div class="line">delimiter (string): string, the delimiter used to separate columns, default is whitespace.</div>
+<div class="line">abscissaScale (float): scale by which abscissa (column 0) must be multiplied</div>
+<div class="line">ordinateScale (float): scale by which ordinate (column &gt;0) must be multiplied</div>
+<div class="line">abscissaOut (np.array[N,] or [N,1]): abscissa vector on which output variables are interpolated.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">The interpolated, scaled vector read in. </div>
-<div class="line">Shape is (N,1) i.e. a 2-D column vector</div>
+<div class="line">(np.array[N,M]): The interpolated, M columns of N rows, processed array. </div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -134,14 +133,14 @@ more comprehensive capabilties.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename: string, the name of the input ASCII flatfile. </div>
-<div class="line">loadCol=[]: list of numbers, the column headers to be loaded , default value is column 1</div>
-<div class="line">comment=None: string, the symbol to comment out lines</div>
+<div class="line">filename (string): the name of the input ASCII flatfile. </div>
+<div class="line">loadCol ([int]): list of numbers, the column headers to be loaded , default value is column 1</div>
+<div class="line">comment (string): the symbol to comment out lines</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">a list with selected column entries</div>
+<div class="line">[string]: a list with selected column header entries</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -161,13 +160,13 @@ A default set is given but the user can override the default string.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">sourcestring: the string to be cleaned.</div>
-<div class="line">removestring: remove all these characters from the source.</div>
+<div class="line">sourcestring (string): the string to be cleaned.</div>
+<div class="line">removestring (string): remove all these characters from the source.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">A cleaned-up string.</div>
+<div class="line">(string): A cleaned-up string.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -188,10 +187,10 @@ continue into sub-directories.  A list of matching names is returned.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">root: root directory from where the search must take place</div>
-<div class="line">patterns: glob pattern for filename matching</div>
-<div class="line">recurse: should the search extend to subdirs of root?</div>
-<div class="line">return_folders: should foldernames also be returned?</div>
+<div class="line">root (string): root directory from where the search must take place</div>
+<div class="line">patterns (string): glob pattern for filename matching</div>
+<div class="line">recurse (unt): should the search extend to subdirs of root?</div>
+<div class="line">return_folders (int): should foldernames also be returned?</div>
 </div>
 </dd>
 <dt>Returns:</dt>

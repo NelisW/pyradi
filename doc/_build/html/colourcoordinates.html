@@ -67,16 +67,16 @@ for more information on CIE tristimulus spectral curves.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral: spectral vector in  [um] or [cm-1].</div>
-<div class="line">radiance: the spectral radiance (any units), (sampled at spectral).</div>
-<div class="line">xbar: CIE x tristimulus spectral curve (sampled at spectral values).</div>
-<div class="line">ybar: CIE y tristimulus spectral curve (sampled at spectral values).</div>
-<div class="line">zbar: CIE z tristimulus spectral curve (sampled at spectral values).</div>
+<div class="line">spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].</div>
+<div class="line">radiance (np.array[N,] or [N,1]): the spectral radiance (any units), (sampled at spectral).</div>
+<div class="line">xbar (np.array[N,] or [N,1]): CIE x tristimulus spectral curve (sampled at spectral values).</div>
+<div class="line">ybar (np.array[N,] or [N,1]): CIE y tristimulus spectral curve (sampled at spectral values).</div>
+<div class="line">zbar (np.array[N,] or [N,1]): CIE z tristimulus spectral curve (sampled at spectral values).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">A list with color coordinates and Y [x,y,Y].</div>
+<div class="line">[x,y,Y]: color coordinates x, y, and Y.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
