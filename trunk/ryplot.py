@@ -65,11 +65,11 @@ class plotter:
         can be specified to scale the text relative to the figure.
         
             Args:
-                | fignumber: the plt figure number, must be supplied
-                | subpltnrow=1: subplot number of rows
-                | subpltncol=1: subplot number of columns
-                | figuretitle='': the overall heading for the figure
-                | figsize: the figure size in inches
+                | fignumber (int): the plt figure number, must be supplied
+                | subpltnrow (int): subplot number of rows
+                | subpltncol (int): subplot number of columns
+                | figuretitle (string): the overall heading for the figure
+                | figsize ((w,h)): the figure size in inches
                 
             Returns:
                 | Nothing. Creates the figure for subequent use.
@@ -125,8 +125,8 @@ class plotter:
            This function modulus-folds either sequence, in case longer sequences are required.
            
             Args:
-                | plotCol: User-supplied list  of plotting styles(can be empty []).
-                | n: Length of required sequence.
+                | plotCol ([strings]): User-supplied list  of plotting styles(can be empty []).
+                | n (int): Length of required sequence.
                 
             Returns:
                 | A list with sequence of plot styles, of required length.
@@ -154,8 +154,8 @@ class plotter:
         tool such as epstools or Adobe Acrobat to trim eps files to the true bounding box.
         
             Args:
-                | filename: output filename to write plot, file ext 
-                | dpi: the resolution of the graph in dots per inch
+                | filename (string): output filename to write plot, file ext 
+                | dpi (int): the resolution of the graph in dots per inch
                 | bbox_inches: see matplotlib docs for more detail.
                 | pad_inches: see matplotlib docs for more detail.
                 
@@ -203,18 +203,18 @@ class plotter:
         for the x and y axes.
         
             Args:
-                | plotnum: subplot number
-                | ptitle: plot title
-                | xlabel: x axis label
-                | ylabel: y axis label
-                | x: abscissa
-                | y: ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label for ordinate, list with N entries
-                | legendAlpha=0.0: transparancy for legend
-                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
-                | MaxNX: draw MaxNX+1 tick labels on x axis
-                | MaxNY: draw MaxNy+1 tick labels on y axis
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list with M entries
+                | legendAlpha (float): transparancy for legend
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | MaxNX (int): draw MaxNX+1 tick labels on x axis
+                | MaxNY (int): draw MaxNy+1 tick labels on y axis
                 
             Returns:
                 | Nothing
@@ -244,18 +244,18 @@ class plotter:
         for the x and y axes.
         
             Args:
-                | plotnum: subplot number
-                | ptitle: plot title
-                | xlabel: x axis label
-                | ylabel: y axis label
-                | x: abscissa
-                | y: ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label for ordinate, list with N entries
-                | legendAlpha=0.0: transparancy for legend
-                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
-                | MaxNX: draw MaxNX+1 tick labels on x axis
-                | MaxNY: draw MaxNy+1 tick labels on y axis
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list with M entries
+                | legendAlpha (float): transparancy for legend
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | MaxNX (int): draw MaxNX+1 tick labels on x axis
+                | MaxNY (int): draw MaxNy+1 tick labels on y axis
                 
             Returns:
                 | Nothing
@@ -284,18 +284,18 @@ class plotter:
         for the x and y axes.
         
             Args:
-                | plotnum: subplot number
-                | ptitle: plot title
-                | xlabel: x axis label
-                | ylabel: y axis label
-                | x: abscissa
-                | y: ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label for ordinate, list with N entries
-                | legendAlpha=0.0: transparancy for legend
-                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
-                | MaxNX: draw MaxNX+1 tick labels on x axis
-                | MaxNY: draw MaxNy+1 tick labels on y axis
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list with M entries
+                | legendAlpha (float): transparancy for legend
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | MaxNX (int): draw MaxNX+1 tick labels on x axis
+                | MaxNY (int): draw MaxNy+1 tick labels on y axis
                 
             Returns:
                 | Nothing
@@ -324,18 +324,18 @@ class plotter:
         for the x and y axes.
         
             Args:
-                | plotnum: subplot number
-                | ptitle: plot title
-                | xlabel: x axis label
-                | ylabel: y axis label
-                | x: abscissa
-                | y: ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label for ordinate, list with N entries
-                | legendAlpha=0.0: transparancy for legend
-                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
-                | MaxNX: draw MaxNX+1 tick labels on x axis
-                | MaxNY: draw MaxNy+1 tick labels on y axis
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list withM entries
+                | legendAlpha (float): transparancy for legend
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | MaxNX (int): draw MaxNX+1 tick labels on x axis
+                | MaxNY (int): draw MaxNy+1 tick labels on y axis
                 
             Returns:
                 | Nothing
@@ -360,18 +360,18 @@ class plotter:
         
             Args:
                 | plotcommand: name of a MatplotLib plotting function 
-                | plotnum: subplot number
-                | ptitle: plot title
-                | xlabel: x axis label
-                | ylabel: y axis label
-                | x: abscissa
-                | y: ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label for ordinate, list with N entries
-                | legendAlpha=0.0: transparancy for legend
-                | pltaxis:scale for x,y axes [xmin, xmax, ymin,ymax]. default if all zeros.
-                | MaxNX: draw MaxNX+1 tick labels on x axis
-                | MaxNY: draw MaxNy+1 tick labels on y axis
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list with M entries
+                | legendAlpha (float): transparancy for legend
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | MaxNX (int): draw MaxNX+1 tick labels on x axis
+                | MaxNY (int): draw MaxNy+1 tick labels on y axis
                 
             Returns:
                 | Nothing
@@ -400,6 +400,7 @@ class plotter:
             sbp.xaxis.set_major_locator(mpl.ticker.MaxNLocator(MaxNX))
         if MaxNY >0:
             sbp.yaxis.set_major_locator(mpl.ticker.MaxNLocator(MaxNY))
+        #print(label)
         if not label:
             for i in range(yy.shape[1]):
                 plotcommand(xx, yy[:, i], plotCol[i],)
@@ -436,19 +437,19 @@ class plotter:
         is set with zerooffset.
         
             Args:
-                | plotnum: subplot number
-                | ptitle: plot title
-                | theta: angular abscissa
-                | r: radial ordinates - could be N columns
-                | plotCol []:plot line style, list with N entries, use default if []
-                | label []: legend label, list with N entries
-                | labelLocation[]: where the legend should located
-                | legendAlpha=0.0: transparancy for legend
-                | rscale[]:plotting limits: [rmin, rmax] default if all 0
-                | rgrid[]: radial grid [rinc, rmax] default if all 0. if rinc==0 then rmax is number of ntervals.
-                | thetagrids[]: theta grid interval [degrees]
-                | direction = 'counterclockwise' or 'clockwise'
-                | zerooffset = rotation offset where zero should be [rad]
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | theta (np.array[N,] or [N,1]): angular abscissa
+                | r (np.array[N,] or [N,M]): radial ordinates - could be M columns
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label, list with M entries
+                | labelLocation ([x,y]): where the legend should located
+                | legendAlpha (float): transparancy for legend
+                | rscale ([rmin, rmax]): plotting limits. default if all 0
+                | rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals.
+                | thetagrids (float): theta grid interval [degrees]
+                | direction (string)= 'counterclockwise' or 'clockwise'
+                | zerooffset (float) = rotation offset where zero should be [rad]
                 
             Returns:
                 | Nothing
@@ -545,7 +546,7 @@ if __name__ == '__main__':
             numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
     yLinA = numpy.hstack((yLinA, \
             numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
-    
+
     A = plotter(1, 2, 2,'Array Plots')
     A.Plot(1, "Array Linear","X", "Y", xLinS, yLinA,\
            label=['A1', 'A2', 'A3'],legendAlpha=0.5, MaxNX=10, MaxNY=2)

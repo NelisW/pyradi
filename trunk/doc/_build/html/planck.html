@@ -58,7 +58,7 @@
 <h1>Planck and thermal radiation<a class="headerlink" href="#planck-and-thermal-radiation" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pyradi.planck.planck">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type='el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.planck" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.planck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.planck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck Law spectral emittance.</p>
 <p>Calculates the Planck Law spectral emittance
 from a surface at the stated temperature. Emittance can be given in radiant or
@@ -66,9 +66,9 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">Spectral:  spectral vector.</div>
-<div class="line">Temperature:  Temperature scalar in [K].</div>
-<div class="line">Type: </div>
+<div class="line">spectral (np.array[N,]):  spectral vector.</div>
+<div class="line">temperature (float):  Temperature scalar in [K].</div>
+<div class="line">type (string): </div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/m^2.*].</div>
 <div class="line">&#8216;q&#8217; signifies photon rate values  [quanta/(s.m^2.*)].</div>
@@ -80,7 +80,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Returns spectral radiant emitance (not radiance) in units selected.</div>
+<div class="line">(np.array[N,]):  spectral radiant emitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m^2.um)].</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m^2.Hz)].</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -97,7 +97,7 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.planck.dplanck">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">dplanck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type='el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.dplanck" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.planck.</tt><tt class="descname">dplanck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.dplanck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck Law emittance.</p>
 <p>Calculates the temperature derivative for Planck Law spectral emittance
 from a surface at the stated temperature. dM/dT can be given in radiant or
@@ -105,9 +105,9 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">Spectral:  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
-<div class="line">Temperature:  Temperature scalar in [K].</div>
-<div class="line">Type: </div>
+<div class="line">spectral (np.array[N,]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
+<div class="line">temperature (float):  Temperature scalar in [K].</div>
+<div class="line">type (string): </div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/(m^2.K)].</div>
 <div class="line">&#8216;q&#8217; signifies photon rate values  [quanta/(s.m^2.K)].</div>
@@ -119,7 +119,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Returns spectral radiant emitance (not radiance) in units selected.</div>
+<div class="line">(np.array[N,]):  spectral radiant emitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m2.um.K)]</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m2.Hz.K)]</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -136,7 +136,7 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.planck.stefanboltzman">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type='e'</em><big>)</big><a class="headerlink" href="#pyradi.planck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.planck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type=u'e'</em><big>)</big><a class="headerlink" href="#pyradi.planck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stefan-Boltzman wideband integrated emittance.</p>
 <p>Calculates the total Planck Law emittance, integrated over all wavelengths, 
 from a surface at the stated temperature. Emittance can be given in radiant or
@@ -144,13 +144,13 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">Temperature:  temperature scalar in [K].</div>
-<div class="line">Type:  &#8216;e&#8217; for radiant or &#8216;q&#8217; for photon rate emittance.</div>
+<div class="line">temperature (float):  temperature scalar in [K].</div>
+<div class="line">type (string):  &#8216;e&#8217; for radiant or &#8216;q&#8217; for photon rate emittance.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Returns integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].</div>
+<div class="line">(float): integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].</div>
 <div class="line">Returns a -1 if the type is not &#8216;e&#8217; or &#8216;q&#8217;</div>
 </div>
 </dd>

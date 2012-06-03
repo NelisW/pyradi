@@ -30,6 +30,7 @@ from scipy.interpolate import interp1d
 import numpy
 import os.path, fnmatch
 import csv
+import ryplot
 
 ################################################################
 def SaveHeaderArrayTextFile(filename,dataArray, header=None, 
@@ -41,11 +42,11 @@ def SaveHeaderArrayTextFile(filename,dataArray, header=None,
     numpy 1.7, when released.
     
     Args:
-        | filename: string, the name of the output ASCII flatfile. 
-        | dataArray: a two-dimensional array.
-        | header=None: the optional header.
-        | comment=None: string, the symbol used to comment out lines, default value is None.
-        | delimiter=None: string, the delimiter used to separate columns, default is whitespace.
+        | filename (string): name of the output ASCII flatfile. 
+        | dataArray (np.array[N,M]): a two-dimensional array.
+        | header (string): the optional header.
+        | comment (string): the symbol used to comment out lines, default value is None.
+        | delimiter (string): delimiter used to separate columns, default is whitespace.
             
     Returns:
         | Nothing.
@@ -81,19 +82,18 @@ def LoadColumnTextFile(filename, loadCol=[1],  \
     later columns.
     
     Args:
-        | filename: string, the name of the input ASCII flatfile. 
-        | loadCol=[1]: list of numbers, the column to be loaded as the ordinate, default value is column 1
-        | comment=None: string, the symbol used to comment out lines, default value is None
-        | normalize=0: integer, flag to indicate if data must be normalized.
-        | skiprows=0: integer, the number of rows to be skipped at the start of the file (e.g. headers)
-        | delimiter=None: string, the delimiter used to separate columns, default is whitespace.
-        | abscissaScale=1: float, the scale by which abscissa (column 0) must be multiplied
-        | ordinateScale=1: float, the scale by which ordinate (column >0) must be multiplied
-        | abscissaOut: numpy 1-D array, the abscissa vector on which output variables are interpolated.
+        | filename (string): name of the input ASCII flatfile. 
+        | loadCol ([int]): the M =len([]) column(s) to be loaded as the ordinate, default value is column 1
+        | comment (string): string, the symbol used to comment out lines, default value is None
+        | normalize (int): integer, flag to indicate if data must be normalized.
+        | skiprows (int): integer, the number of rows to be skipped at the start of the file (e.g. headers)
+        | delimiter (string): string, the delimiter used to separate columns, default is whitespace.
+        | abscissaScale (float): scale by which abscissa (column 0) must be multiplied
+        | ordinateScale (float): scale by which ordinate (column >0) must be multiplied
+        | abscissaOut (np.array[N,] or [N,1]): abscissa vector on which output variables are interpolated.
         
     Returns:
-        | The interpolated, scaled vector read in. 
-        | Shape is (N,1) i.e. a 2-D column vector
+        | (np.array[N,M]): The interpolated, M columns of N rows, processed array. 
         
     Raises:
         | No exception is raised.
@@ -113,6 +113,8 @@ def LoadColumnTextFile(filename, loadCol=[1],  \
             delimiter=delimiter, unpack=True)    
     
     if  abscissaOut is not None:
+        #convert to [N, ] array
+        abscissaOut=abscissaOut[:,0]
         #inpterpolate read values with the given inut vec
         f=interp1d(abscissa,  ordinate)
         interpValue=f(abscissaOut)
@@ -140,24 +142,26 @@ def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
     more comprehensive capabilties.
     
     Args:
-        | filename: string, the name of the input ASCII flatfile. 
-        | loadCol=[]: list of numbers, the column headers to be loaded , default value is column 1
-        | comment=None: string, the symbol to comment out lines
+        | filename (string): the name of the input ASCII flatfile. 
+        | loadCol ([int]): list of numbers, the column headers to be loaded , default value is column 1
+        | comment (string): the symbol to comment out lines
         
     Returns:
-        | a list with selected column entries
+        | [string]: a list with selected column header entries
         
     Raises:
         | No exception is raised.
     """
 
-    #read from CVS file, must be comma delimited
-    lstHeader = csv.reader(open(filename, 'rb'), delimiter=',',\
-            quotechar='"',quoting=csv.QUOTE_ALL)
-    #get rid of leading and trailing whitespace
-    list=[x.strip() for x in lstHeader.next()]
-    #select only those required
-    rtnList =[list[i] for i in loadCol ]    
+    with open(filename, 'rb') as infile:
+        #read from CVS file, must be comma delimited
+        lstHeader = csv.reader(infile,quoting=csv.QUOTE_ALL)
+        #get rid of leading and trailing whitespace
+        list=[x.strip() for x in lstHeader.next()]
+        #select only those required
+        rtnList =[list[i] for i in loadCol ]    
+        infile.close()
+        
     return rtnList
 
 
@@ -169,11 +173,11 @@ def CleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
     A default set is given but the user can override the default string.
 
     Args:
-        | sourcestring: the string to be cleaned.
-        | removestring: remove all these characters from the source.
+        | sourcestring (string): the string to be cleaned.
+        | removestring (string): remove all these characters from the source.
     
     Returns:
-        | A cleaned-up string.
+        | (string): A cleaned-up string.
         
     Raises:
         | No exception is raised.
@@ -194,10 +198,10 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     continue into sub-directories.  A list of matching names is returned.
      
     Args:
-        | root: root directory from where the search must take place
-        | patterns: glob pattern for filename matching
-        | recurse: should the search extend to subdirs of root?
-        | return_folders: should foldernames also be returned?
+        | root (string): root directory from where the search must take place
+        | patterns (string): glob pattern for filename matching
+        | recurse (unt): should the search extend to subdirs of root?
+        | return_folders (int): should foldernames also be returned?
         
     Returns:
         | A list with matching file/directory names
@@ -244,17 +248,42 @@ if __name__ == '__main__':
     #create a two-dimensional array of 25 rows and 7 columns as an outer product
     twodA=numpy.outer(numpy.arange(0, 5, .2),numpy.arange(1, 8))
     #write this out as a test file
-    filename='tempfile.txt'
+    filename='ryfilestesttempfile.txt'
     SaveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
                        delimiter=' ', comment='%')
     
     #create a new range to be used for interpolation
-    tim=numpy.arange(1, 3, .3)
+    tim=numpy.arange(1, 3, .3).reshape(-1, 1)
     #read the test file and interpolate the selected columns on the new range tim
     # the comment parameter is superfluous, since there are no comments in this file
+    
+    print(LoadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
     print(LoadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
     os.remove(filename)
 
+    ##------------------------- samples ----------------------------------------
+    # read space separated file containing wavelength in um, then samples.
+    # select the samples to be read in and then load all in one call!
+    # first line in file contains labels for columns.
+    wavelength=numpy.linspace(0.38, 0.72, 350).reshape(-1, 1)
+    samplesSelect = [1,2,3,8,10,11]
+    samples = LoadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
+                loadCol=samplesSelect,  comment='%')
+    samplesTxt=LoadHeaderTextFile('data/samples.txt',\
+                loadCol=samplesSelect, comment='%')
+    #print(samples)
+    print(samplesTxt)
+    print(samples.shape)
+    print(wavelength.shape)
+
+    ##------------------------- plot sample spectra ------------------------------
+    smpleplt = ryplot.plotter(1, 1, 1)
+    smpleplt.Plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
+                r'Reflectance', wavelength, samples, \
+                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
+    smpleplt.SaveFig('SampleReflectance'+'.png')
+
+    ##===================================================
     print ('\nTest CleanFilename function:')
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
     print('{0}\n{1}'.format(inString,CleanFilename(inString) ))
