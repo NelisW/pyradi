@@ -20,11 +20,22 @@
 
 # Contributor(s): ______________________________________.
 ################################################################
+"""
+This module provides functions for file input/output. These are all wrapper functions, based on
+existing functions in other Python classes.
+
+See the __main__ function for examples of use.
+"""
 
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
+__version__= "$Revision:"
+__author__='CJ Willers'
+__all__=['SaveHeaderArrayTextFile', 'LoadColumnTextFile', 'LoadHeaderTextFile', 'CleanFilename', 
+         'listFiles']
 
 from scipy.interpolate import interp1d
 import numpy
