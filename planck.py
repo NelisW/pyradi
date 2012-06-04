@@ -20,11 +20,25 @@
 
 # Contributor(s): ______________________________________.
 ################################################################
+"""
+This module provides functions for Planck Law emitance calculations.
+The functions provide spectral emittance, given the temperature and
+a vector of one of wavelength, wavenumbers or frequency.  The integrated
+emittance can also be calculated by using the Stefan-Boltzman equation.
+
+See the __main__ function for examples of use.
+"""
 
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
+__version__= "$Revision:"
+__author__='CJ Willers'
+__all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken', 
+'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf', 
+'dplnckql', 'dplnckqn']
 
 import numpy
 

@@ -20,15 +20,22 @@
 
 # Contributor(s): ______________________________________.
 ################################################################
+"""
+This module provides functions for plotting cartesian and polar plots. This class provides a 
+basic plotting capability, with a minimum number of lines. These are all wrapper functions, 
+based on existing functions in other Python classes.
 
-
-## This class provides a basic plotting capability, with a 
-## minimum number of lines.
+See the __main__ function for examples of use.
+"""
 
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
+__version__= "$Revision:"
+__author__='CJ Willers'
+__all__=['plotter']
 
 import numpy
 import math
@@ -78,6 +85,9 @@ class plotter:
                 | No exception is raised.
         """
     
+        __all__ = ['__init__', 'BuildPlotCol', 'SaveFig', 'GetPlot', 'Plot', 
+                   'LogLog', 'SemilogX', 'SemilogY', 'MyPlot', 'Polar']
+        
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
         

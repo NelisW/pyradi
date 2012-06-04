@@ -4,7 +4,17 @@ Plotting utility
 .. include global.rst
 
 
+Overview
+----------
+
+.. automodule:: pyradi.ryplot
+
+Module classes
+------------------
+
 .. autoclass:: pyradi.ryplot.plotter
 	:members:
+	
+
 
 	
