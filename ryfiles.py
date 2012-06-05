@@ -32,7 +32,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-__version__= "$Revision:"
+__version__= "$Revision$"
 __author__='CJ Willers'
 __all__=['SaveHeaderArrayTextFile', 'LoadColumnTextFile', 'LoadHeaderTextFile', 'CleanFilename', 
          'listFiles']

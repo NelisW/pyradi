@@ -20,4 +20,10 @@
 
 # Contributor(s): ______________________________________.
 ################################################################
-
+"""The pyradi toolkit is a Python toolkit to perform optical and infrared 
+radiometry (flux flow) calculations. The toolkit is available at 
+http://code.google.com/p/pyradi/. See docs at 
+http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
+"""
+__version__= "$Revision$"
+__author__='CJ Willers'
