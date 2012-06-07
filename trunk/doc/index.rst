@@ -6,14 +6,10 @@
 Welcome to pyradi's documentation!
 ==================================
 
-The pyradi toolkit is a Python toolkit to perform optical and infrared radiometry 
-(flux flow) calculations. 
-The toolkit is available at http://code.google.com/p/pyradi/. 
-See docs at http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
-
 .. automodule:: pyradi
 
 Contents:
+---------
 
 .. toctree::
    :maxdepth: 2
@@ -28,20 +24,15 @@ Contents:
 
 
 Examples of code use
-==================================
+-----------------------
 
 The respective python files all have examples of use and simple test code at
 the end of each of the files. Execute these python files as scripts to execute
 the example code, and observe the results.
 
-Project page
-===============
-
-See http://code.google.com/p/pyradi/.
-
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
