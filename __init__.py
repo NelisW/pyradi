@@ -27,3 +27,8 @@ http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
 """
 __version__= "$Revision$"
 __author__='CJ Willers'
+
+import chroma
+import planck
+import ryfiles
+import ryplot
