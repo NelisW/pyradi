@@ -20,6 +20,8 @@ Contents:
    
    ryplot
 
+   ryutils
+
    colourcoordinates
 
 

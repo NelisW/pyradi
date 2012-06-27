@@ -1,0 +1,16 @@
+Utility Functions
+******************
+
+.. include global.rst
+
+Overview
+----------
+.. automodule:: pyradi.ryutils
+
+Module functions
+------------------
+
+.. autofunction:: pyradi.ryutils.responsivity  
+
+.. autofunction:: pyradi.ryutils.sfilter 
+
