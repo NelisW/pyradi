@@ -1,0 +1,30 @@
+Coding Guidelines
+******************
+
+.. include global.rst
+
+Broadly speaking we adhere to the Google Python Style Guide, but not always.
+The style guide is available at
+http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+
+Naming Rules
+-----------------
+
+We deviate from Guido's naming rules as follows:
+
+
+===========================  ====================================  ===========================
+Type                          Public                                Internal 
+===========================  ====================================  ===========================
+Packages                     lowerwordslater  
+Modules                      lowerwordslater                        _lowerwordslater 
+Classes                      CapWordsLater                          _CapWordsLater 
+Exceptions                   CapWordsLater  
+Functions                    CapWordsLater()                        _CapWordsLater() 
+Global/Class Constants       CAPS_WITH_UNDER                        _CAPS_WITH_UNDER 
+Global/Class Variables       lowerWordsLater                        _lowerWordsLater 
+Instance Variables           lowerWordsLater                        _lowerWordsLater (protected) or __lowerWordsLater (private) 
+Method Names                 CapWordsLater()                        _CapWordsLater() (protected) or __CapWordsLater() (private) 
+Function/Method Parameters   lowerWordsLater  
+Local Variables              lowerWordsLater 
+===========================  ====================================  ===========================
