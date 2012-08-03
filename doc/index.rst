@@ -24,6 +24,7 @@ Contents:
 
    colourcoordinates
 
+   codingguidelines
 
 Examples of code use
 -----------------------

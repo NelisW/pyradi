@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Coding Guidelines &mdash; pyradi  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyradi  documentation" href="index.html" />
+    <link rel="prev" title="Colour coordinates" href="colourcoordinates.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="colourcoordinates.html" title="Colour coordinates"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="coding-guidelines">
+<h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
+<p>Broadly speaking we adhere to the Google Python Style Guide, but not always.
+The style guide is available at
+<a class="reference external" href="http://google-styleguide.googlecode.com/svn/trunk/pyguide.html">http://google-styleguide.googlecode.com/svn/trunk/pyguide.html</a></p>
+<div class="section" id="naming-rules">
+<h2>Naming Rules<a class="headerlink" href="#naming-rules" title="Permalink to this headline">¶</a></h2>
+<p>We deviate from Guido&#8217;s naming rules as follows:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="29%" />
+<col width="49%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Public</th>
+<th class="head">Internal</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Packages</td>
+<td>lowerwordslater</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Modules</td>
+<td>lowerwordslater</td>
+<td>_lowerwordslater</td>
+</tr>
+<tr class="row-even"><td>Classes</td>
+<td>CapWordsLater</td>
+<td>_CapWordsLater</td>
+</tr>
+<tr class="row-odd"><td>Exceptions</td>
+<td>CapWordsLater</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Functions</td>
+<td>CapWordsLater()</td>
+<td>_CapWordsLater()</td>
+</tr>
+<tr class="row-odd"><td>Global/Class Constants</td>
+<td>CAPS_WITH_UNDER</td>
+<td>_CAPS_WITH_UNDER</td>
+</tr>
+<tr class="row-even"><td>Global/Class Variables</td>
+<td>lowerWordsLater</td>
+<td>_lowerWordsLater</td>
+</tr>
+<tr class="row-odd"><td>Instance Variables</td>
+<td>lowerWordsLater</td>
+<td>_lowerWordsLater (protected) or __lowerWordsLater (private)</td>
+</tr>
+<tr class="row-even"><td>Method Names</td>
+<td>CapWordsLater()</td>
+<td>_CapWordsLater() (protected) or __CapWordsLater() (private)</td>
+</tr>
+<tr class="row-odd"><td>Function/Method Parameters</td>
+<td>lowerWordsLater</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Local Variables</td>
+<td>lowerWordsLater</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Coding Guidelines</a><ul>
+<li><a class="reference internal" href="#naming-rules">Naming Rules</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="colourcoordinates.html"
+                        title="previous chapter">Colour coordinates</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/codingguidelines.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="colourcoordinates.html" title="Colour coordinates"
+             >previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, CJ Willers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

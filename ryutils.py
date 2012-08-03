@@ -101,6 +101,42 @@ def responsivity(wavelength,lwavepeak, cuton=1, cutoff=20, scaling=1.0):
     return responsivity
 
 
+##############################################################################
+##
+def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowtype=numpy.bartlett):
+    """ Convolve (non-circular) a spectral variable with a window function, 
+    given the input resolution and input and output window widths.
+    
+    This function is normally used on wavenumber-domain spectral data.  The spectral
+    data is assumed sampled at samplingresolution wavenumber intervals. 
+    The inwinwidth and outwinwidth window function widths are full width half-max (FWHM)
+    for the window functions for the inspectral and returned spectral variables, respectively.
+    The Bartlett function is used as default, but the user can use a different function.
+    The Bartlett function is a triangular function reaching zero at the ends. Window functio 
+    width is correct for Bartlett and only approximate for other window functions.
+    
+    Args:
+        | inspectral (np.array[N,] or [N,1]):  vector in  [cm-1].
+        | samplingresolution (float): wavenumber interval between inspectral samples
+        | inwinwidth (float): FWHM window width of the input spectral vector
+        | outwinwidth (float): FWHM window width of the output spectral vector
+        | windowtype (function): name of a  numpy/scipy function for the window function
+         
+    Returns:
+        | outspectral (np.array[N,]):  input vector, filtered to new window width.
+        | windowfn (np.array[N,]):  The window function used.
+        
+    Raises:
+        | No exception is raised.
+    """
+
+    winbins = round(2*(outwinwidth/(inwinwidth*samplingresolution)), 0)
+    winbins = winbins if winbins%2==1 else winbins+1
+    windowfn=windowtype(winbins)
+    #numpy.convolve is unfriendly towards unicode strings
+    outspectral = numpy.convolve(windowfn/(samplingresolution*windowfn.sum()),
+                        inspectral.reshape(-1, ),mode='same'.encode('utf-8'))
+    return outspectral,  windowfn
 
 ################################################################
 ##
@@ -109,9 +145,6 @@ if __name__ == '__init__':
     pass
     
 if __name__ == '__main__':
-        
-    import math
-    import sys
 
     import pyradi.planck as radiometry
     import pyradi.ryplot as ryplot
@@ -119,12 +152,83 @@ if __name__ == '__main__':
 
     figtype = ".png"  # eps, jpg, png
     #figtype = ".eps"  # eps, jpg, png
+        
+    import math
+    import sys
+    from scipy.interpolate import interp1d
+    
+    ##++++++++++++++++++++ demo the convolution ++++++++++++++++++++++++++++
+    #do a few tests first to check basic functionality. Place single lines and then convolve.
+    ## ----------------------- basic functionality------------------------------------------
+    samplingresolution=0.5
+    wavenum=numpy.linspace(0, 100, 100/samplingresolution)
+    inspectral=numpy.zeros(wavenum.shape)
+    inspectral[10/samplingresolution] = 1
+    inspectral[11/samplingresolution] = 1
+    inspectral[45/samplingresolution] = 1
+    inspectral[55/samplingresolution] = 1
+    inspectral[70/samplingresolution] = 1
+    inspectral[75/samplingresolution] = 1
+    inwinwidth=1
+    outwinwidth=5
+    outspectral,  windowfn = convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth)
+    convplot = ryplot.plotter(1, 1, 1)
+    convplot.Plot(1, "Convolution Test", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, inspectral, ['r-'],['Input'],0.5)
+    convplot.Plot(1, "Convolution Test", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, outspectral, ['g-'],['Output'],0.5)
+    convplot.SaveFig('convplot01'+figtype)
+    
+    ## ----------------------- practical example ------------------------------------------
+    # loading bunsen spectral radiance file: 4cm-1  spectral resolution, approx 2 cm-1 sampling
+    specRad = ryfiles.LoadColumnTextFile('data/bunsenspec.txt',  \
+                    loadCol=[0,1], comment='%', delimiter=' ')
+    # modtran5 transmittance 5m path, 1 cm-1 spectral resolution, sampled 1cm-1 
+    tauAtmo = ryfiles.LoadColumnTextFile('data/atmotrans5m.txt',  \
+                    loadCol=[0,1], comment='%', delimiter=' ')
+    wavenum =  tauAtmo[:, 0]
+    # convolve transmittance from 1cm-1 to 4 cm-1
+    tauAtmo4,  windowfn = convolve(tauAtmo[:, 1], 1,  1,  4)
+    #interpolate bunsen spectrum to atmo sampling
+    #first construct the interpolating function, using bunsen
+    bunInterp1 = interp1d(specRad[:,0], specRad[:,1])
+    #then call the function on atmo intervals
+    bunsen = bunInterp1(wavenum)
+    
+ 
+    
+    convplot = ryplot.plotter(1, 1, 1,figsize=(20,5))
+    convplot.Plot(1, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
+                r'1 cm-1', wavenum, tauAtmo[:, 1], ['r-'],['Input'],0.5)
+    convplot.Plot(1, "Atmosphere Transmittance", r'Wavenumber cm$^{-1}$',\
+                r'4 cm-1', wavenum, tauAtmo4, ['g-'],['Output'],0.5)
+    convplot.SaveFig('convplot02'+figtype)
 
+    bunsenPlt = ryplot.plotter(1,3, 2, figsize=(20,5))
+    bunsenPlt.Plot(1, "Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, bunsen, ['r-'],['Radiance'], legendAlpha=0.5)
+    bunsenPlt.Plot(2, "Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, bunsen, ['r-'],['Radiance'],legendAlpha=0.5)
+    bunsenPlt.Plot(3, "Atmospheric Transmittance 1 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Transmittance', wavenum, tauAtmo[:, 1], ['r-'],['Transmittance'],legendAlpha=0.5)
+    bunsenPlt.Plot(4, "Atmospheric Transmittance 4 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Transmittance', wavenum, tauAtmo4, ['r-'],['Transmittance'],legendAlpha=0.5)
+    bunsenPlt.Plot(5, "Atmospheric Transmittance 1 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, bunsen/tauAtmo[:, 1], ['r-'],['Radiance'],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.4])
+    bunsenPlt.Plot(6, "Atmospheric Transmittance 4 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', wavenum, bunsen/tauAtmo4, ['r-'],['Radiance'],legendAlpha=0.5)
+                
+    bunsenPlt.SaveFig('bunsenPlt01'+figtype)
+
+
+    bunsenPlt.Plot
+
+    ##++++++++++++++++++++ demo the filter ++++++++++++++++++++++++++++
     ## ----------------------- wavelength------------------------------------------
     #create the wavelength scale to be used in all spectral calculations, 
     # wavelength is reshaped to a 2-D  (N,1) column vector
     wavelength=numpy.linspace(0.1, 1.3, 350).reshape(-1, 1)
-    
+   
     ##------------------------filter -------------------------------------
     width = 0.5
     center = 0.7
@@ -132,7 +236,7 @@ if __name__ == '__main__':
     filterTxt = [str(s) for s in filterExp ]
     filters = sfilter(wavelength,center, width, filterExp[0], 0.8,  0.1)
     for exponent in filterExp[1:]:
-        filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
+        filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1))) 
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.plotter(1, 1, 1)
@@ -140,38 +244,36 @@ if __name__ == '__main__':
                 r'Transmittance', wavelength, filters, \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt,0.5)
     smpleplt.SaveFig('sfilterVar'+figtype)
- 
 
+
+    ##++++++++++++++++++++ demo the detector ++++++++++++++++++++++++++++
     ## ----------------------- detector------------------------------------------
     lwavepeak = 1.2
     params = [(0.5, 5), (1, 10), (1, 20), (1, 30), (1, 1000), (2, 20)]
     parameterTxt = [str(s) for s in params ]
     responsivities = responsivity(wavelength,lwavepeak, params[0][0], params[0][1], 1.0)
     for param in params[1:]:
-        responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
+        responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0))) 
 
 
     ##------------------------- plot sample detector ------------------------------
     smpleplt = ryplot.plotter(1, 1, 1)
     smpleplt.Plot(1, "Detector Responsivity", r'Wavelength $\mu$m',\
-                r'Responsivity', wavelength, responsivities, \
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
+               r'Responsivity', wavelength, responsivities, \
+               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
     smpleplt.SaveFig('responsivityVar'+figtype)
- 
+
     ##--------------------filtered responsivity ------------------------------
     # here we simply multiply the responsivity and spectral filter spectral curves.
     # this is a silly example, but demonstrates the spectral integral.
     filtreps = responsivities * filters
     parameterTxt = [str(s)+' & '+str(f) for (s, f) in zip(params, filterExp) ]
-   ##------------------------- plot filtered detector ------------------------------
+    ##------------------------- plot filtered detector ------------------------------
     smpleplt = ryplot.plotter(1, 1, 1)
     smpleplt.Plot(1, "Filtered Detector Responsivity", r'Wavelength $\mu$m',\
-                r'Responsivity', wavelength, filtreps, \
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
+               r'Responsivity', wavelength, filtreps, \
+               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
     smpleplt.SaveFig('filtrespVar'+figtype)
- 
-    
-    
-    
-    
-    
+
+
+
