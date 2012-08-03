@@ -5,6 +5,11 @@
 
 Welcome to pyradi's documentation!
 ==================================
+.. image:: images/pyradi.png
+    :width: 50px
+    :align: left
+    :height: 50px
+    :alt: pyradi logo
 
 .. automodule:: pyradi
 
