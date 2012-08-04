@@ -54,66 +54,84 @@
 <h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
 <p>Broadly speaking we adhere to the Google Python Style Guide, but not always.
 The style guide is available at
-<a class="reference external" href="http://google-styleguide.googlecode.com/svn/trunk/pyguide.html">http://google-styleguide.googlecode.com/svn/trunk/pyguide.html</a></p>
+<a class="reference external" href="http://google-styleguide.googlecode.com/svn/trunk/pyguide.html">http://google-styleguide.googlecode.com/svn/trunk/pyguide.html</a>. This style is
+based on Python&#8217;s PEP 8 <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">http://www.python.org/dev/peps/pep-0008/</a>.</p>
 <div class="section" id="naming-rules">
 <h2>Naming Rules<a class="headerlink" href="#naming-rules" title="Permalink to this headline">¶</a></h2>
-<p>We deviate from Guido&#8217;s naming rules as follows:</p>
+<p>We deviate from PEP 8 / Google&#8217;s naming rules as shown here. Essentially we avoid
+underscores inside names, and prefer to Capitalise words to highlight.  The primary
+motivation is (in our opinion) improved readability: it better binds the words
+into a single entity. Underscores tend to break the name visually into separate
+sub-names.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="22%" />
-<col width="29%" />
-<col width="49%" />
+<col width="18%" />
+<col width="24%" />
+<col width="43%" />
+<col width="15%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Type</th>
 <th class="head">Public</th>
 <th class="head">Internal</th>
+<th class="head">PEP 8</th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>Packages</td>
 <td>lowerwordslater</td>
 <td>&nbsp;</td>
+<td>lower_with_under</td>
 </tr>
 <tr class="row-odd"><td>Modules</td>
 <td>lowerwordslater</td>
 <td>_lowerwordslater</td>
+<td>lower_with_under</td>
 </tr>
 <tr class="row-even"><td>Classes</td>
 <td>CapWordsLater</td>
 <td>_CapWordsLater</td>
+<td>CapWords</td>
 </tr>
 <tr class="row-odd"><td>Exceptions</td>
 <td>CapWordsLater</td>
 <td>&nbsp;</td>
+<td>CapWords</td>
 </tr>
 <tr class="row-even"><td>Functions</td>
 <td>CapWordsLater()</td>
 <td>_CapWordsLater()</td>
+<td>lower_with_under()</td>
 </tr>
 <tr class="row-odd"><td>Global/Class Constants</td>
 <td>CAPS_WITH_UNDER</td>
 <td>_CAPS_WITH_UNDER</td>
+<td>CAPS_WITH_UNDER</td>
 </tr>
 <tr class="row-even"><td>Global/Class Variables</td>
 <td>lowerWordsLater</td>
 <td>_lowerWordsLater</td>
+<td>lower_with_under</td>
 </tr>
 <tr class="row-odd"><td>Instance Variables</td>
 <td>lowerWordsLater</td>
 <td>_lowerWordsLater (protected) or __lowerWordsLater (private)</td>
+<td>lower_with_under</td>
 </tr>
 <tr class="row-even"><td>Method Names</td>
 <td>CapWordsLater()</td>
 <td>_CapWordsLater() (protected) or __CapWordsLater() (private)</td>
+<td>lower_with_under()</td>
 </tr>
 <tr class="row-odd"><td>Function/Method Parameters</td>
 <td>lowerWordsLater</td>
 <td>&nbsp;</td>
+<td>lower_with_under</td>
 </tr>
 <tr class="row-even"><td>Local Variables</td>
 <td>lowerWordsLater</td>
 <td>&nbsp;</td>
+<td>lower_with_under</td>
 </tr>
 </tbody>
 </table>
