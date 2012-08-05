@@ -132,6 +132,96 @@ This function does not calculate ripple in the pass-band or cut-off band.</p>
 </dl>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyradi.ryutils.convertSpectralDomain">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDomain</tt><big>(</big><em>inspectraldomain</em>, <em>type=u''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert spectral domains, i.e. between wavelength [um], wavenummber [cm^-1] and frequency [Hz]</p>
+<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
+&#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
+The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
+<p>Note that the &#8216;to&#8217; domain vector is a direct conversion of the &#8216;from&#8217; domain 
+to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line-block">
+<div class="line">wavelength vector in  [um]</div>
+<div class="line">frequency vector in  [Hz]</div>
+<div class="line">wavenumber vector in   [cm^-1]</div>
+</div>
+<div class="line">type (string):  specify from and to domains:</div>
+<div class="line-block">
+<div class="line">&#8216;wf&#8217; convert from wavelength to per frequency </div>
+<div class="line">&#8216;wn&#8217; convert from wavelength to per wavenumber </div>
+<div class="line">&#8216;fw&#8217; convert from frequency to per wavelength </div>
+<div class="line">&#8216;fn&#8217; convert from frequency to per wavenumber</div>
+<div class="line">&#8216;nw&#8217; convert from wavenumber to per wavelength </div>
+<div class="line">&#8216;nf&#8217; convert from wavenumber to per frequency</div>
+</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">[N,1]: outspectraldomain </div>
+<div class="line">Returns zero length array if type is illegal, i.e. not one of the expected values</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.convertSpectralDensity">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDensity</tt><big>(</big><em>inspectraldomain</em>, <em>inspectralquantity</em>, <em>type=u''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz)</p>
+<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
+&#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
+The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
+<p>The spectral density quantity input is given as a two vectors: the domain value vector
+and the density quantity vector. The output of the function is also two vectors, i.e.
+the &#8216;to&#8217; domain value vector and the &#8216;to&#8217; spectral density. Note that the &#8216;to&#8217; domain 
+vector is a direct conversion of the &#8216;from&#8217; domain to the &#8216;to&#8217; domain (not interpolated
+or otherwise sampled).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line">inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain as domain vector above.</div>
+<div class="line-block">
+<div class="line">wavelength vector in  [um]</div>
+<div class="line">frequency vector in  [Hz]</div>
+<div class="line">wavenumber vector in   [cm^-1]</div>
+</div>
+<div class="line">type (string):  specify from and to domains:</div>
+<div class="line-block">
+<div class="line">&#8216;wf&#8217; convert from per wavelength interval density to per frequency interval density</div>
+<div class="line">&#8216;wn&#8217; convert from per wavelength interval density to per wavenumber interval density</div>
+<div class="line">&#8216;fw&#8217; convert from per frequency interval density to per wavelength interval density</div>
+<div class="line">&#8216;fn&#8217; convert from per frequency interval density to per wavenumber interval density</div>
+<div class="line">&#8216;nw&#8217; convert from per wavenumber interval density to per wavelength interval density</div>
+<div class="line">&#8216;nf&#8217; convert from per wavenumber interval density to per frequency interval density</div>
+</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">([N,1],[N,1]): outspectraldomain and outspectralquantity</div>
+<div class="line">Returns zero length arrays is type is illegal, i.e. not one of the expected values</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 

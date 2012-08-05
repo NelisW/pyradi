@@ -12,7 +12,7 @@ Overview
 Module classes
 ------------------
 
-.. autoclass:: pyradi.ryplot.plotter
+.. autoclass:: pyradi.ryplot.Plotter
 	:members:
 	
 

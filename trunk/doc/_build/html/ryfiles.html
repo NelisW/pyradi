@@ -65,8 +65,8 @@ existing functions in other Python classes.</p>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="pyradi.ryfiles.SaveHeaderArrayTextFile">
-<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">SaveHeaderArrayTextFile</tt><big>(</big><em>filename</em>, <em>dataArray</em>, <em>header=None</em>, <em>comment=None</em>, <em>delimiter=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.SaveHeaderArrayTextFile" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryfiles.saveHeaderArrayTextFile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">saveHeaderArrayTextFile</tt><big>(</big><em>filename</em>, <em>dataArray</em>, <em>header=None</em>, <em>comment=None</em>, <em>delimiter=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.saveHeaderArrayTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a numpy array to a file, included header lines.</p>
 <p>This function saves a two-dimensional array to a text file, with 
 an optional user-defined header. This functionality will be part of
@@ -95,8 +95,8 @@ numpy 1.7, when released.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.ryfiles.LoadColumnTextFile">
-<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">LoadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.LoadColumnTextFile" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryfiles.loadColumnTextFile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadColumnTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load selected column data from a text file, processing as specified.</p>
 <p>This function loads column data from a text file, 
 manipulating the data read in. The individual vector data 
@@ -132,8 +132,8 @@ later columns.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.ryfiles.LoadHeaderTextFile">
-<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">LoadHeaderTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.LoadHeaderTextFile" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryfiles.loadHeaderTextFile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadHeaderTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadHeaderTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads column data from a text file, using the csv package.</p>
 <p>Using the csv package, loads column header data from a file, from the firstrow. 
 Headers must be delimited by commas. The function [LoadColumnTextFile] provides
@@ -160,8 +160,8 @@ more comprehensive capabilties.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.ryfiles.CleanFilename">
-<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">CleanFilename</tt><big>(</big><em>sourcestring</em>, <em>removestring=u' %:/</em>, <em>.\\[]'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.CleanFilename" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryfiles.cleanFilename">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">cleanFilename</tt><big>(</big><em>sourcestring</em>, <em>removestring=u' %:/</em>, <em>.\\[]'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.cleanFilename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean a string by removing selected characters.</p>
 <p>Creates a legal and &#8216;clean&#8217; sourcestring from a string by removing some clutter and illegals. 
 A default set is given but the user can override the default string.</p>
