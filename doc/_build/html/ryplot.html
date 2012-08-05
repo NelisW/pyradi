@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="pyradi  documentation" href="index.html" />
-    <link rel="next" title="Colour coordinates" href="colourcoordinates.html" />
+    <link rel="next" title="Utility Functions" href="ryutils.html" />
     <link rel="prev" title="File reading/writing utility" href="ryfiles.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="colourcoordinates.html" title="Colour coordinates"
+          <a href="ryutils.html" title="Utility Functions"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ryfiles.html" title="File reading/writing utility"
@@ -66,8 +66,8 @@ based on existing functions in other Python classes.</p>
 <div class="section" id="module-classes">
 <h2>Module classes<a class="headerlink" href="#module-classes" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pyradi.ryplot.plotter">
-<em class="property">class </em><tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">plotter</tt><big>(</big><em>fignumber=0</em>, <em>subpltnrow=1</em>, <em>subpltncol=1</em>, <em>figuretitle=u''</em>, <em>figsize=(9</em>, <em>9)</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter">
+<em class="property">class </em><tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">Plotter</tt><big>(</big><em>fignumber=0</em>, <em>subpltnrow=1</em>, <em>subpltncol=1</em>, <em>figuretitle=u''</em>, <em>figsize=(9</em>, <em>9)</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encapsulates a plotting environment, optimized for 
 radiometry plots.</p>
 <p>This class provides a wrapper around Matplotlib to provide a plotting 
@@ -76,8 +76,8 @@ were developed to provide well labelled plots by entering only one or two lines.
 <p>Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
 linear scale and log scale plots, and cartesian and polar plots.</p>
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.BuildPlotCol">
-<tt class="descname">BuildPlotCol</tt><big>(</big><em>plotCol</em>, <em>n</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.BuildPlotCol" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.buildPlotCol">
+<tt class="descname">buildPlotCol</tt><big>(</big><em>plotCol</em>, <em>n</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.buildPlotCol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a sequence of default colour styles of 
 appropriate length.</p>
 <p>The constructor provides a sequence with length 14 pre-defined plot styles.
@@ -106,8 +106,8 @@ This function modulus-folds either sequence, in case longer sequences are requir
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.GetPlot">
-<tt class="descname">GetPlot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.GetPlot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.getPlot">
+<tt class="descname">getPlot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.getPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current plot</p>
 <dl class="docutils">
 <dt>Args:        </dt>
@@ -129,8 +129,8 @@ This function modulus-folds either sequence, in case longer sequences are requir
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.LogLog">
-<tt class="descname">LogLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.LogLog" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.logLog">
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -153,8 +153,8 @@ for the x and y axes.</p>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
 <div class="line">legendAlpha (float): transparancy for legend</div>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
-<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
+<div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
+<div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -172,8 +172,8 @@ for the x and y axes.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.MyPlot">
-<tt class="descname">MyPlot</tt><big>(</big><em>plotcommand, plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.MyPlot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.myPlot">
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting 
 function provided by its user functions.</p>
@@ -192,8 +192,8 @@ function provided by its user functions.</p>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
 <div class="line">legendAlpha (float): transparancy for legend</div>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
-<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
+<div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
+<div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -211,8 +211,8 @@ function provided by its user functions.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.Plot">
-<tt class="descname">Plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.Plot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.plot">
+<tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -235,8 +235,8 @@ for the x and y axes.</p>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
 <div class="line">legendAlpha (float): transparancy for legend</div>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
-<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
+<div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
+<div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -254,8 +254,8 @@ for the x and y axes.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.Polar">
-<tt class="descname">Polar</tt><big>(</big><em>plotnum, ptitle, theta, r, plotCol=[], label=[], labelLocation=[-0.1, 0.1], legendAlpha=0.0, rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], direction=u'counterclockwise', zerooffset=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.Polar" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.polar">
+<tt class="descname">polar</tt><big>(</big><em>plotnum, ptitle, theta, r, plotCol=[], label=[], labelLocation=[-0.1, 0.1], legendAlpha=0.0, rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], direction=u'counterclockwise', zerooffset=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a subplot and plot the data in polar coordinates (linear radial orginates only).</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the radial values
@@ -302,8 +302,8 @@ is set with zerooffset.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.SaveFig">
-<tt class="descname">SaveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.SaveFig" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.saveFig">
+<tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to a disk file, using filename, dpi specification and bounding box limits.</p>
 <p>One of matplotlib&#8217;s design choices is a bounding box strategy  which may result in a bounding box
 that is smaller than the size of all the objects on the page.  It took a while to figure this out, 
@@ -335,8 +335,8 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.SemilogX">
-<tt class="descname">SemilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.SemilogX" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.semilogX">
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -359,8 +359,8 @@ for the x and y axes.</p>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
 <div class="line">legendAlpha (float): transparancy for legend</div>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
-<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
+<div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
+<div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -378,8 +378,8 @@ for the x and y axes.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyradi.ryplot.plotter.SemilogY">
-<tt class="descname">SemilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], MaxNX=0, MaxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.plotter.SemilogY" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplot.Plotter.semilogY">
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -402,8 +402,8 @@ for the x and y axes.</p>
 <div class="line">label  ([strings]): legend label for ordinate, list withM entries</div>
 <div class="line">legendAlpha (float): transparancy for legend</div>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
-<div class="line">MaxNX (int): draw MaxNX+1 tick labels on x axis</div>
-<div class="line">MaxNY (int): draw MaxNy+1 tick labels on y axis</div>
+<div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
+<div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -444,8 +444,8 @@ for the x and y axes.</p>
   <p class="topless"><a href="ryfiles.html"
                         title="previous chapter">File reading/writing utility</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="colourcoordinates.html"
-                        title="next chapter">Colour coordinates</a></p>
+  <p class="topless"><a href="ryutils.html"
+                        title="next chapter">Utility Functions</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ryplot.txt"
@@ -478,7 +478,7 @@ for the x and y axes.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="colourcoordinates.html" title="Colour coordinates"
+          <a href="ryutils.html" title="Utility Functions"
              >next</a> |</li>
         <li class="right" >
           <a href="ryfiles.html" title="File reading/writing utility"

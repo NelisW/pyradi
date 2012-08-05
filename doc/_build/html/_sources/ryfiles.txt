@@ -12,12 +12,12 @@ Overview
 Module functions
 ------------------
 
-.. autofunction:: pyradi.ryfiles.SaveHeaderArrayTextFile	
+.. autofunction:: pyradi.ryfiles.saveHeaderArrayTextFile	
 
-.. autofunction:: pyradi.ryfiles.LoadColumnTextFile	
+.. autofunction:: pyradi.ryfiles.loadColumnTextFile	
 
-.. autofunction:: pyradi.ryfiles.LoadHeaderTextFile	
+.. autofunction:: pyradi.ryfiles.loadHeaderTextFile	
 
-.. autofunction:: pyradi.ryfiles.CleanFilename	
+.. autofunction:: pyradi.ryfiles.cleanFilename	
 
 .. autofunction:: pyradi.ryfiles.listFiles		

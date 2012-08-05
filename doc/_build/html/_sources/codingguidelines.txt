@@ -18,21 +18,21 @@ into a single entity. Underscores tend to break the name visually into separate
 sub-names.  
 
 
-===========================  ====================================  ================================================================ ======================
-Type                          Public                                Internal                                                          PEP 8
-===========================  ====================================  ================================================================ ======================
-Packages                     lowerwordslater                                                                                         lower_with_under 
-Modules                      lowerwordslater                        _lowerwordslater                                                 lower_with_under
-Classes                      CapWordsLater                          _CapWordsLater                                                   CapWords
-Exceptions                   CapWordsLater                                                                                           CapWords
-Functions                    CapWordsLater()                        _CapWordsLater()                                                 lower_with_under()
-Global/Class Constants       CAPS_WITH_UNDER                        _CAPS_WITH_UNDER                                                 CAPS_WITH_UNDER
-Global/Class Variables       lowerWordsLater                        _lowerWordsLater                                                 lower_with_under
-Instance Variables           lowerWordsLater                        _lowerWordsLater (protected) or __lowerWordsLater (private)      lower_with_under
-Method Names                 CapWordsLater()                        _CapWordsLater() (protected) or __CapWordsLater() (private)      lower_with_under()
-Function/Method Parameters   lowerWordsLater                                                                                         lower_with_under
-Local Variables              lowerWordsLater                                                                                         lower_with_under
-===========================  ====================================  ================================================================ ======================
+===========================  ====================================  ================================================================= ======================
+Type                          Public                                Internal                                                           PEP 8
+===========================  ====================================  ================================================================= ======================
+Packages                     lowerwordslater                                                                                          lower_with_under 
+Modules                      lowerwordslater                        _lowerwordslater                                                  lower_with_under
+Classes                      CapWordsLater                          _CapWordsLater                                                    CapWords
+Exceptions                   CapWordsLater                                                                                            CapWords
+Functions                    lowerWordsLater()                      _lowerWordsLater()                                                lower_with_under()
+Global/Class Constants       CAPS_WITH_UNDER                        _CAPS_WITH_UNDER                                                  CAPS_WITH_UNDER
+Global/Class Variables       lowerWordsLater                        _lowerWordsLater                                                  lower_with_under
+Instance Variables           lowerWordsLater                        _lowerWordsLater (protected) or __lowerWordsLater (private)       lower_with_under
+Method Names                 lowerWordsLater()                      _lowerWordsLater() (protected) or __lowerWordsLater() (private)   lower_with_under()
+Function/Method Parameters   lowerWordsLater                                                                                          lower_with_under
+Local Variables              lowerWordsLater                                                                                          lower_with_under
+===========================  ====================================  ================================================================= ======================
 
 
 

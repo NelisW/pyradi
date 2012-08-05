@@ -44,7 +44,7 @@ import csv
 import ryplot
 
 ################################################################
-def SaveHeaderArrayTextFile(filename,dataArray, header=None, 
+def saveHeaderArrayTextFile(filename,dataArray, header=None, 
         comment=None, delimiter=None):
     """Save a numpy array to a file, included header lines.
     
@@ -80,7 +80,7 @@ def SaveHeaderArrayTextFile(filename,dataArray, header=None,
 
 
 ################################################################
-def LoadColumnTextFile(filename, loadCol=[1],  \
+def loadColumnTextFile(filename, loadCol=[1],  \
         comment=None, normalize=0, skiprows=0, delimiter=None,\
         abscissaScale=1,ordinateScale=1, abscissaOut=None):
     """Load selected column data from a text file, processing as specified.
@@ -145,7 +145,7 @@ def LoadColumnTextFile(filename, loadCol=[1],  \
 
 
 ################################################################################
-def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
+def loadHeaderTextFile(filename, loadCol=[1], comment=None):
     """Loads column data from a text file, using the csv package.
     
     Using the csv package, loads column header data from a file, from the firstrow. 
@@ -177,7 +177,7 @@ def LoadHeaderTextFile(filename, loadCol=[1], comment=None):
 
 
 ################################################################
-def CleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
+def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
     """Clean a string by removing selected characters.
     
     Creates a legal and 'clean' sourcestring from a string by removing some clutter and illegals. 
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     twodA=numpy.outer(numpy.arange(0, 5, .2),numpy.arange(1, 8))
     #write this out as a test file
     filename='ryfilestesttempfile.txt'
-    SaveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
+    saveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
                        delimiter=' ', comment='%')
     
     #create a new range to be used for interpolation
@@ -268,8 +268,8 @@ if __name__ == '__main__':
     #read the test file and interpolate the selected columns on the new range tim
     # the comment parameter is superfluous, since there are no comments in this file
     
-    print(LoadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
-    print(LoadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
+    print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
+    print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
     os.remove(filename)
 
     ##------------------------- samples ----------------------------------------
@@ -278,9 +278,9 @@ if __name__ == '__main__':
     # first line in file contains labels for columns.
     wavelength=numpy.linspace(0.38, 0.72, 350).reshape(-1, 1)
     samplesSelect = [1,2,3,8,10,11]
-    samples = LoadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
+    samples = loadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
                 loadCol=samplesSelect,  comment='%')
-    samplesTxt=LoadHeaderTextFile('data/samples.txt',\
+    samplesTxt=loadHeaderTextFile('data/samples.txt',\
                 loadCol=samplesSelect, comment='%')
     #print(samples)
     print(samplesTxt)
@@ -288,21 +288,23 @@ if __name__ == '__main__':
     print(wavelength.shape)
 
     ##------------------------- plot sample spectra ------------------------------
-    smpleplt = ryplot.plotter(1, 1, 1)
-    smpleplt.Plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
+    smpleplt = ryplot.Plotter(1, 1, 1)
+    smpleplt.plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
                 r'Reflectance', wavelength, samples, \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
-    smpleplt.SaveFig('SampleReflectance'+'.png')
+    smpleplt.saveFig('SampleReflectance'+'.png')
 
     ##===================================================
     print ('\nTest CleanFilename function:')
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-    print('{0}\n{1}'.format(inString,CleanFilename(inString) ))
+    print('{0}\n{1}'.format(inString,cleanFilename(inString) ))
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-    print('{0}\n{1}'.format(inString,CleanFilename(inString, "") ))
+    print('{0}\n{1}'.format(inString,cleanFilename(inString, "") ))
  
     print ('\nTest listFiles function:')
     print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
     
 
 
+    
+    print('module ryfiles done!')

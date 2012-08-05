@@ -102,11 +102,11 @@ if __name__ == '__main__':
     ## ----------------------- colour tristimulus ---------------------------------
     # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).  
     # return values are 2-D  (N,1) column vectors scaled and interpolated.
-    xbar = ryfiles.LoadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
+    xbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
                     loadCol=[1], comment='%', delimiter=',', abscissaScale=1e-3)
-    ybar = ryfiles.LoadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
+    ybar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
                     loadCol=[2],  comment='%', delimiter=',', abscissaScale=1e-3)
-    zbar = ryfiles.LoadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, 
+    zbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, 
                     loadCol=[3],  comment='%', delimiter=',', abscissaScale=1e-3)
 
     ## ------------------------ sources ------------------------------------------
@@ -117,11 +117,11 @@ if __name__ == '__main__':
     #Data read from files are interpolated to the required wavelength intervals 
     #Use numpy.hstack to stack columns horizontally.
 
-    sources = ryfiles.LoadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength, 
+    sources = ryfiles.loadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength, 
                             comment='%', normalize=1)
     sources = numpy.hstack((sources, radiometry.planckel(wavelength,5900)))
     sources = numpy.hstack((sources, radiometry.planckel(wavelength,2850)))
-    sources = numpy.hstack((sources, ryfiles.LoadColumnTextFile(\
+    sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(\
                             'data/LowPressureSodiumLamp.txt', \
                             abscissaOut=wavelength, comment='%', normalize=1)))
     #label sources in order of appearance
@@ -138,36 +138,34 @@ if __name__ == '__main__':
     # first line in file contains labels for columns.
     samplesSelect = [1,2,3,8,10,11]
 
-    samples = ryfiles.LoadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
+    samples = ryfiles.loadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
                 loadCol=samplesSelect,  comment='%')
-    samplesTxt=ryfiles.LoadHeaderTextFile('data/samples.txt',\
+    samplesTxt=ryfiles.loadHeaderTextFile('data/samples.txt',\
                 loadCol=samplesSelect, comment='%')
-    print(samples.shape)
-    print(wavelength.shape)
 
     ##------------------------- plot sample spectra ------------------------------
-    smpleplt = ryplot.plotter(1, 1, 1)
-    smpleplt.Plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
+    smpleplt = ryplot.Plotter(1, 1, 1)
+    smpleplt.plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
                 r'Reflectance', wavelength, samples, \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
-    smpleplt.SaveFig('SampleReflectance'+figtype)
+    smpleplt.saveFig('SampleReflectance'+figtype)
 
     ##------------------------- plot source spectra ------------------------------
-    srceplt = ryplot.plotter(2, 1, 1)
-    srceplt.Plot(1, "Normalized source radiance", \
+    srceplt = ryplot.Plotter(2, 1, 1)
+    srceplt.plot(1, "Normalized source radiance", \
                 r'Wavelength $\mu$m', r'Radiance', wavelength, sources, \
                 ['k:', 'k-.', 'k--', 'k-'],sourcesTxt,0.5 )
-    srceplt.SaveFig('SourceRadiance'+figtype)
+    srceplt.saveFig('SourceRadiance'+figtype)
 
     ##------------------------- plot cie tristimulus spectra ---------------------
-    cietriplt = ryplot.plotter(3, 1, 1)
-    cietriplt.Plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
+    cietriplt = ryplot.Plotter(3, 1, 1)
+    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
             r'Response', wavelength, xbar, 'k-', ['$\\bar{x}$'],0.5)
-    cietriplt.Plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
+    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
             r'Response', wavelength, ybar, 'k-.', ['$\\bar{y}$'],0.5)
-    cietriplt.Plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
+    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
             r'Response', wavelength, zbar, 'k--', ['$\\bar{z}$'],0.5)
-    cietriplt.SaveFig('tristimulus'+figtype)
+    cietriplt.saveFig('tristimulus'+figtype)
 
 
     ##------------------------- calculate cie xy for samples and sources ---------
@@ -195,25 +193,27 @@ if __name__ == '__main__':
         #print('{0} um ({1},{2})'.format(wavelength[iWavel],xm[iWavel],ym[iWavel]))
 
     ##---------------------- plot chromaticity diagram  ---------------------------
-    ciexyplt = ryplot.plotter(4, 1, 1)
+    ciexyplt = ryplot.Plotter(4, 1, 1)
     #plot monochromatic horseshoe
-    ciexyplt.Plot(1,"CIE chromaticity diagram", r'x', r'y', \
+    ciexyplt.plot(1,"CIE chromaticity diagram", r'x', r'y', \
             xm, ym, ['k-'])
     #plot chromaticity loci for samples
     styleSample=['r--', 'g-.', 'y-', 'g-', 'b-', 'k-']
     for iSmpl in range(samples.shape[1]):
-        ciexyplt.Plot(1,"CIE chromaticity diagram", r'x', r'y', \
+        ciexyplt.plot(1,"CIE chromaticity diagram", r'x', r'y', \
                 xs[iSmpl],ys[iSmpl],[styleSample[iSmpl]] ,[samplesTxt[iSmpl]],0.5 )
     #plot source markers
     styleSource=['bo', 'yo', 'ro', 'go']
     for iSmpl in range(samples.shape[1]):
         for iSrc in range(sources.shape[1]):
             if iSmpl==0:
-                legend=sourcesTxt[iSrc]
+                legend=[sourcesTxt[iSrc]]
             else:
                 legend=''
                
-            ciexyplt.Plot(1,"CIE chromaticity diagram", r'x',r'y',\
+            ciexyplt.plot(1,"CIE chromaticity diagram", r'x',r'y',\
                     xs[iSmpl,iSrc],ys[iSmpl,iSrc],[styleSource[iSrc]],legend,0.5 )
 
-    ciexyplt.SaveFig('chromaticity'+figtype)
+    ciexyplt.saveFig('chromaticity'+figtype)
+    
+    print('module chroma done!')

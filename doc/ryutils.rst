@@ -14,3 +14,7 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.sfilter 
 
+.. autofunction:: pyradi.ryutils.convertSpectralDomain 
+
+.. autofunction:: pyradi.ryutils.convertSpectralDensity 
+

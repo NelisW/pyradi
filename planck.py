@@ -565,29 +565,29 @@ if __name__ == '__main__':
         Mqf = numpy.hstack((Mqf, planck(f,temp, type='qf').reshape(-1, 1)))
         legend.append("{0:.0f} K".format(temp))
     
-    fplanck = ryplot.plotter(1, 2, 3,"Planck's Law", figsize=(18, 12))
-    fplanck.LogLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
+    fplanck = ryplot.Plotter(1, 2, 3,"Planck's Law", figsize=(18, 12))
+    fplanck.logLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
         "Emittance [W/(m$^2$.$\mu$m)]", wl, Mel,legendAlpha=0.5, label=legend, \
                     pltaxis=[0.1, 100, 1e-2, 1e9])
-    fplanck.LogLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+    fplanck.logLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
         "Emittance [W/(m$^2$.cm$^{-1}$)]", n, Men,legendAlpha=0.5, label=legend, \
                     pltaxis=[100, 100000, 1e-8, 1e+4])
-    fplanck.LogLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
+    fplanck.logLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
         "Emittance [W/(m$^2$.Hz)]", f, Mef,legendAlpha=0.5, label=legend, \
                     pltaxis=[3e12, 3e15, 1e-20, 1e-6])
                     
-    fplanck.LogLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
+    fplanck.logLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
         "Emittance [q/(s.m$^2$.$\mu$m)]", wl, Mql,legendAlpha=0.5, label=legend, \
                     pltaxis=[0.1, 100, 1e-0, 1e27])
-    fplanck.LogLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+    fplanck.logLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
         "Emittance [q/(s.m$^2$.cm$^{-1}$)]", n, Mqn,legendAlpha=0.5, label=legend, \
                     pltaxis=[100, 100000, 1e-8, 1e+23])
-    fplanck.LogLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
+    fplanck.logLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
         "Emittance [q/(s.m$^2$.Hz)]", f, Mqf,legendAlpha=0.5, label=legend, \
                     pltaxis=[3e12, 3e15, 1e-20, 1e+13])
                     
     #fplanck.GetPlot().show()
-    fplanck.SaveFig('planck.png')
+    fplanck.saveFig('planck.png')
 
 
     #now plot temperature derivatives
@@ -606,29 +606,28 @@ if __name__ == '__main__':
         Mef = numpy.hstack((Mef, dplanck(f,temp, type='ef').reshape(-1, 1)))
         Mqf = numpy.hstack((Mqf, dplanck(f,temp, type='qf').reshape(-1, 1)))
 
-    
-    fdplanck = ryplot.plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
-    fdplanck.LogLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
+    fdplanck = ryplot.Plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
+    fdplanck.logLog(1, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
         "dM/dT [W/(m$^2$.$\mu$m.K)]", wl, Mel,legendAlpha=0.5, label=legend, \
                     pltaxis=[0.1, 100, 1e-5, 1e5])
-    fdplanck.LogLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+    fdplanck.logLog(2, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
         "dM/dT [W/(m$^2$.cm$^{-1}$.K)]", n, Men,legendAlpha=0.5, label=legend, \
                     pltaxis=[100, 100000, 1e-10, 1e+1])
-    fdplanck.LogLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
+    fdplanck.logLog(3, "Radiant, Frequency Domain","Frequency [Hz]", \
         "dM/dT [W/(m$^2$.Hz.K)]", f, Mef,legendAlpha=0.5, label=legend, \
                     pltaxis=[3e12, 3e15, 1e-20, 1e-10])
                     
-    fdplanck.LogLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
+    fdplanck.logLog(4, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
         "dM/dT [q/(s.m$^2$.$\mu$m.K)]", wl, Mql,legendAlpha=0.5, label=legend, \
                     pltaxis=[0.1, 100, 1e-0, 1e24])
-    fdplanck.LogLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
+    fdplanck.logLog(5, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
         "dM/dT [q/(s.m$^2$.cm$^{-1}$.K)]", n, Mqn,legendAlpha=0.5, label=legend, \
                     pltaxis=[100, 100000, 1e-10, 1e+20])
-    fdplanck.LogLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
+    fdplanck.logLog(6, "Photon Rate, Frequency Domain","Frequency [Hz]", \
         "dM/dT [q/(s.m$^2$.Hz.K)]", f, Mqf,legendAlpha=0.5, label=legend, \
                     pltaxis=[3e12, 3e15, 1e-20, 1e+9])
                     
     #fdplanck.GetPlot().show()
-    fdplanck.SaveFig('dplanck.png')
+    fdplanck.saveFig('dplanck.png')
     
-    
+    print('module planck done!')
