@@ -236,6 +236,7 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
         | No exception is raised.
     """
 
+
     winbins = round(2*(outwinwidth/(inwinwidth*samplingresolution)), 0)
     winbins = winbins if winbins%2==1 else winbins+1
     windowfn=windowtype(winbins)
@@ -257,7 +258,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
 
     figtype = ".png"  # eps, jpg, png
-    figtype = ".eps"  # eps, jpg, png
+    #figtype = ".eps"  # eps, jpg, png
         
     import math
     import sys
@@ -346,13 +347,12 @@ if __name__ == '__main__':
     #then call the function on atmo intervals
     bunsen = bunInterp1(wavenum)
    
-    
-    convplot = ryplot.Plotter(1, 1, 1,figsize=(20,5))
-    convplot.plot(1, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
-                r'1 cm-1', wavenum, tauAtmo[:, 1], ['r-'],['Input'],0.5)
-    convplot.plot(1, "Atmosphere Transmittance", r'Wavenumber cm$^{-1}$',\
-                r'4 cm-1', wavenum, tauAtmo4, ['g-'],['Output'],0.5)
-    convplot.saveFig('convplot02'+figtype)
+    atmoplot = tauAtmo[:, 1].copy()
+    atmoplot =  numpy.vstack((atmoplot, tauAtmo4)) 
+    convplot02 = ryplot.Plotter(1, 1, 1,figsize=(20,5))
+    convplot02.plot(1, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
+                r'Transmittance', wavenum, atmoplot.T, ['r-', 'g-'],['1 cm-1', '4 cm-1' ],0.5)
+    convplot02.saveFig('convplot02'+figtype)
 
     bunsenPlt = ryplot.Plotter(1,3, 2, figsize=(20,7))
     bunsenPlt.plot(1, "Bunsen Flame Measurement 4 cm-1", r'',\
