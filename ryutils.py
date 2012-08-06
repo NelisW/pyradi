@@ -21,7 +21,8 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides various utilityfunctions for radiometry calculations.
+This module provides various utility functions for radiometry calculations.
+Functions are provided for a maximally flat spectral filter, a simple photon detector spectral response, effective value calculation, conversion of spectral domain variables between [um], [cm^-1] and [Hz], conversion of spectral density quantities between [um], [cm^-1] and [Hz] and spectral convolution.
 
 See the __main__ function for examples of use.
 """

@@ -21,8 +21,8 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides functions for file input/output. These are all wrapper functions, based on
-existing functions in other Python classes.
+This module provides functions for file input/output. These are all wrapper 
+functions, based on existing functions in other Python classes. Functions are provided to save a two-dimensional array to a text file, load selected columns of data from a text file, load a column header line, compact strings to include only legal filename characters, and a function from the Python Cookbook to recursively match filename patterns.
 
 See the __main__ function for examples of use.
 """
