@@ -104,6 +104,36 @@ def responsivity(wavelength,lwavepeak, cuton=1, cutoff=20, scaling=1.0):
 
 ################################################################
 ##
+def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
+    """Normalise a spectral quantity to a scalar, using a weighted mapping by another spectral quantity.
+    
+    Effectivevalue =  integral(spectralToProcess * spectralBaseline) / integral( spectralBaseline)
+
+    The data in  spectralToProcess and  spectralBaseline must both be sampled at the same 
+    domain values     as specified in spectraldomain.  
+    
+    The integral is calculated with numpy/scipy trapz trapezoidal integration function.
+    
+    Args:
+        | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
+        | spectralToProcess (np.array[N,] or [N,1]):  spectral quantity to be normalised
+        | spectralBaseline (np.array[N,] or [N,1]):  spectral serving as baseline for normalisation
+
+    Returns:
+        | (float):  effective value 
+        | Returns None if there is a problem
+            
+    Raises:
+        | No exception is raised.
+    """
+
+    num=numpy.trapz(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    den=numpy.trapz(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    return num/den   
+    
+
+################################################################
+##
 def convertSpectralDomain(inspectraldomain,  type=''):
     """Convert spectral domains, i.e. between wavelength [um], wavenummber [cm^-1] and frequency [Hz]
     
@@ -236,7 +266,6 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
         | No exception is raised.
     """
 
-
     winbins = round(2*(outwinwidth/(inwinwidth*samplingresolution)), 0)
     winbins = winbins if winbins%2==1 else winbins+1
     windowfn=windowtype(winbins)
@@ -263,6 +292,7 @@ if __name__ == '__main__':
     import math
     import sys
     from scipy.interpolate import interp1d
+
 
     # demo the spectral density conversions
     wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
@@ -371,7 +401,7 @@ if __name__ == '__main__':
     bunsenPlt.saveFig('bunsenPlt01'+figtype)
 
 
-    bunsenPlt.plot
+    #bunsenPlt.plot
 
     ##++++++++++++++++++++ demo the filter ++++++++++++++++++++++++++++
     ## ----------------------- wavelength------------------------------------------
@@ -426,6 +456,15 @@ if __name__ == '__main__':
     smpleplt.saveFig('filtrespVar'+figtype)
 
     
+    #test and demo effective value function
+    import planck 
+    temperature = 5900
+    spectralBaseline = planck.planckel(wavelength,temperature)
+    # do for each detector in the above example
+    for i in range(responsivities.shape[1]):
+        effRespo = effectiveValue(wavelength,  responsivities[:, i],  spectralBaseline)
+        print('Effective responsivity {0} of detector with parameters {1} '
+             'and source temperature {2} K'.\
+              format(effRespo, params[i], temperature))
+    
     print('module ryutils done!')
-
-

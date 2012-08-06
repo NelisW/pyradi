@@ -18,3 +18,5 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.convertSpectralDensity 
 
+.. autofunction:: pyradi.ryutils.effectiveValue 
+

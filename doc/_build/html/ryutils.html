@@ -222,6 +222,36 @@ or otherwise sampled).</p>
 </dl>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyradi.ryutils.effectiveValue">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">effectiveValue</tt><big>(</big><em>spectraldomain</em>, <em>spectralToProcess</em>, <em>spectralBaseline</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.effectiveValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalise a spectral quantity to a scalar, using a weighted mapping by another spectral quantity.</p>
+<p>Effectivevalue =  integral(spectralToProcess * spectralBaseline) / integral( spectralBaseline)</p>
+<p>The data in  spectralToProcess and  spectralBaseline must both be sampled at the same 
+domain values     as specified in spectraldomain.</p>
+<p>The integral is calculated with numpy/scipy trapz trapezoidal integration function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line">spectralToProcess (np.array[N,] or [N,1]):  spectral quantity to be normalised</div>
+<div class="line">spectralBaseline (np.array[N,] or [N,1]):  spectral serving as baseline for normalisation</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(float):  effective value </div>
+<div class="line">Returns None if there is a problem</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
