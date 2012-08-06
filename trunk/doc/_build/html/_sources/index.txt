@@ -19,7 +19,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
-   planck
+   ryplanck
    
    ryfiles
    
@@ -27,7 +27,7 @@ Contents:
 
    ryutils
 
-   colourcoordinates
+   rychroma
 
    codingguidelines
 

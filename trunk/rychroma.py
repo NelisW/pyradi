@@ -88,7 +88,7 @@ if __name__ == '__main__':
     import math
     import sys
 
-    import pyradi.planck as planck
+    import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
@@ -120,8 +120,8 @@ if __name__ == '__main__':
 
     sources = ryfiles.loadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength, 
                             comment='%', normalize=1)
-    sources = numpy.hstack((sources, planck.planckel(wavelength,5900)))
-    sources = numpy.hstack((sources, planck.planckel(wavelength,2850)))
+    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900)))
+    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850)))
     sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(\
                             'data/LowPressureSodiumLamp.txt', \
                             abscissaOut=wavelength, comment='%', normalize=1)))
