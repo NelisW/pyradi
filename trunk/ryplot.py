@@ -567,7 +567,7 @@ if __name__ == '__main__':
     yLinA = numpy.hstack((yLinA, \
             numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
-    A = Plotter(1, 2, 2,'Array Plots')
+    A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
     A.plot(1, "Array Linear","X", "Y", xLinS, yLinA,\
            label=['A1', 'A2', 'A3'],legendAlpha=0.5, maxNX=10, maxNY=2)
     A.logLog(2, "Array LogLog","X", "Y", xLinS, yLinA,\
@@ -577,8 +577,9 @@ if __name__ == '__main__':
     A.semilogY(4, "Array SemilogY","X", "Y", xLinS, yLinA,\
                label=['A1', 'A2', 'A3'],legendAlpha=0.5)
     A.saveFig('A.png')
+    A.saveFig('A.eps')
     
-    S = Plotter(2, 2, 2,'Single Plots',figsize=(12,9))
+    S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, "Single Linear","X", "Y", xLinS, yLinS,\
            label=['Single'],legendAlpha=0.5)
     S.logLog(2, "Single LogLog","X", "Y", xLinS, yLinS,\
@@ -588,6 +589,7 @@ if __name__ == '__main__':
     S.semilogY(4, "Single SemilogY","X", "Y", xLinS, yLinS,\
                label=['Single'],legendAlpha=0.5)
     S.saveFig('S.png', dpi=300)
+    S.saveFig('S.eps')
 
     r = numpy.arange(0, 3.01, 0.01).reshape(-1, 1)
     theta = 2*numpy.pi*r
@@ -597,12 +599,13 @@ if __name__ == '__main__':
            label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
     P.polar(2, "Array Polar",theta, r2,\
            label=['A', 'B'],legendAlpha=0.5,rscale=[2,6],rgrid=[2,6],\
-           thetagrid=[45])
+           thetagrid=[45], direction=u'clockwise', zerooffset=0)
     P.polar(3, "Single Polar",theta, r,\
-           label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3])
+           label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
+           direction=u'clockwise', zerooffset=numpy.pi/2)
     P.polar(4, "Array Polar",theta, r2,\
            label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
-           thetagrid=[45])
+           thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
     P.saveFig('P.png')
     P.saveFig('P.eps')
     
