@@ -40,8 +40,8 @@ Visit the google group at http://groups.google.com/group/pyradi-dev
 __version__= "$Revision$"
 __author__='CJ Willers'
 
-import chroma
-import planck
+import rychroma
+import ryplanck
 import ryfiles
 import ryplot
 import ryutils

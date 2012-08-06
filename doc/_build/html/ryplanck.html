@@ -56,8 +56,8 @@
             
   <div class="section" id="planck-and-thermal-radiation">
 <h1>Planck and thermal radiation<a class="headerlink" href="#planck-and-thermal-radiation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-pyradi.planck">
-<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.planck" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pyradi.ryplanck">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryplanck" title="Permalink to this headline">¶</a></h2>
 <p>This module provides functions for Planck Law emittance calculations, as well as 
 temperature derivative calculations.
 The functions provide spectral emittance in [W/(m^2.*)] or [q/(s.m^2.*)], given 
@@ -70,8 +70,8 @@ See the __main__ function for examples of use.</p>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="pyradi.planck.planck">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.planck" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplanck.planck">
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck Law spectral emittance.</p>
 <p>Calculates the Planck Law spectral emittance
 from a surface at the stated temperature. Emittance can be given in radiant or
@@ -109,8 +109,8 @@ photon rate units, depending on user input in type.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.planck.dplanck">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">dplanck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.planck.dplanck" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplanck.dplanck">
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplanck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplanck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck Law emittance.</p>
 <p>Calculates the temperature derivative for Planck Law spectral emittance
 from a surface at the stated temperature. dM/dT can be given in radiant or
@@ -148,8 +148,8 @@ photon rate units, depending on user input in type.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.planck.stefanboltzman">
-<tt class="descclassname">pyradi.planck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type=u'e'</em><big>)</big><a class="headerlink" href="#pyradi.planck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplanck.stefanboltzman">
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type=u'e'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stefan-Boltzman wideband integrated emittance.</p>
 <p>Calculates the total Planck Law emittance, integrated over all wavelengths, 
 from a surface at the stated temperature. Emittance can be given in radiant or
@@ -187,7 +187,7 @@ photon rate units, depending on user input in type.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Planck and thermal radiation</a><ul>
-<li><a class="reference internal" href="#module-pyradi.planck">Overview</a></li>
+<li><a class="reference internal" href="#module-pyradi.ryplanck">Overview</a></li>
 <li><a class="reference internal" href="#module-functions">Module functions</a></li>
 </ul>
 </li>
@@ -201,7 +201,7 @@ photon rate units, depending on user input in type.</p>
                         title="next chapter">File reading/writing utility</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/planck.txt"
+    <li><a href="_sources/ryplanck.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">

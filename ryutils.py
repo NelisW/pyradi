@@ -283,7 +283,7 @@ if __name__ == '__init__':
     
 if __name__ == '__main__':
 
-    import pyradi.planck as planck
+    import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
@@ -318,7 +318,7 @@ if __name__ == '__main__':
 
     # now test conversion of spectral density quantities
     #create planck spectral densities at the wavelength interval
-    emittanceRef = planck.planck(wavelenRef, 1000,'el')
+    emittanceRef = ryplanck.planck(wavelenRef, 1000,'el')
     emittance = emittanceRef.copy()
     #convert to frequency density
     print('emittance converted: wf->fn->nw->wn->nf->fw')
@@ -458,9 +458,8 @@ if __name__ == '__main__':
 
     
     #test and demo effective value function
-    import planck 
     temperature = 5900
-    spectralBaseline = planck.planckel(wavelength,temperature)
+    spectralBaseline = ryplanck.planckel(wavelength,temperature)
     # do for each detector in the above example
     for i in range(responsivities.shape[1]):
         effRespo = effectiveValue(wavelength,  responsivities[:, i],  spectralBaseline)

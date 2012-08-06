@@ -7,10 +7,10 @@ Colour coordinates
 Overview
 ----------
 
-.. automodule:: pyradi.chroma
+.. automodule:: pyradi.rychroma
 	
 Module functions
 ------------------
 
-.. autofunction:: pyradi.chroma.chromaticityforSpectralL
+.. autofunction:: pyradi.rychroma.chromaticityforSpectralL
 

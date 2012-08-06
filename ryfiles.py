@@ -41,7 +41,6 @@ from scipy.interpolate import interp1d
 import numpy
 import os.path, fnmatch
 import csv
-import ryplot
 
 ################################################################
 def saveHeaderArrayTextFile(filename,dataArray, header=None, 
@@ -254,7 +253,9 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
-   
+    
+    import ryplot
+
     print ('Test writing and reading numpy array to text file, with header:')
     #create a two-dimensional array of 25 rows and 7 columns as an outer product
     twodA=numpy.outer(numpy.arange(0, 5, .2),numpy.arange(1, 8))
