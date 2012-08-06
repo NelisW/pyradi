@@ -21,11 +21,13 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides functions for Planck Law emitance calculations.
-The functions provide spectral emittance, given the temperature and
-a vector of one of wavelength, wavenumbers or frequency.  The integrated
-emittance can also be calculated by using the Stefan-Boltzman equation.
-
+This module provides functions for Planck Law emittance calculations, as well as 
+temperature derivative calculations.
+The functions provide spectral emittance in [W/(m^2.*)] or [q/(s.m^2.*)], given 
+the temperature and a vector of one of wavelength, wavenumbers or frequency 
+(six combinations each for emittance and temperature derivative). The total 
+emittance can also be calculated by using the Stefan-Boltzman equation, in 
+[W/m^2] or [q/(s.m^2)].
 See the __main__ function for examples of use.
 """
 

@@ -21,9 +21,14 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides functions for plotting cartesian and polar plots. This class provides a 
-basic plotting capability, with a minimum number of lines. These are all wrapper functions, 
+This module provides functions for plotting cartesian and polar plots. 
+This class provides a basic plotting capability, with a minimum 
+number of lines. These are all wrapper functions, 
 based on existing functions in other Python classes.
+Provision is made for combinations of linear and log scales, as well
+as polar plots for two-dimensional graphs.
+The Plotter class can save files to disk in a number of formats.
+
 
 See the __main__ function for examples of use.
 """
@@ -35,7 +40,7 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__='CJ Willers'
-__all__=['plotter']
+__all__=['Plotter']
 
 import numpy
 import math

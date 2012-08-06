@@ -21,7 +21,8 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides functions for colour coordinate processing.
+This module provides rudimentary colour coordinate processing.
+Calculate the CIE 1931 rgb chromaticity coordinates for an arbitrary spectrum.
 
 See the __main__ function for examples of use.
 """
