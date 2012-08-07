@@ -18,7 +18,7 @@
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
-# Contributor(s): ______________________________________.
+# Contributor(s): MS Willers.
 ################################################################
 """
 This module provides functions for plotting cartesian and polar plots. 
@@ -49,7 +49,6 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
-
 
 class Plotter:
     """ Encapsulates a plotting environment, optimized for 
@@ -541,6 +540,29 @@ class Plotter:
                   horizontalalignment='center'      )
 
 
+    ############################################################
+    ##
+    def showImage(self, plotnum, img,  ptitle, cmap=plt.cm.gray):
+        """Creates a subplot and show the image using the colormap provided.
+
+            Args:
+                | plotnum (int): subplot number
+                | img (np.ndarray): numpy 2d array                
+                | ptitle (string): plot title
+                | cmap: matplotlib colormap
+                
+            Returns:
+                | Nothing
+        
+            Raises:
+                | No exception is raised.
+        """
+
+        sbp=plt.subplot(self.nrow, self.ncol, plotnum,title=ptitle) 
+        
+        plt.imshow(img, cmap)
+        plt.axis('off')
+        
 
 #from matplotlib.font_manager import FontProperties
 #
@@ -608,5 +630,15 @@ if __name__ == '__main__':
            thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
     P.saveFig('P.png')
     P.saveFig('P.eps')
+    
+    xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
+    z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
+    P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
+    P.showImage(1, z, 'winter colormap', cmap=plt.cm. winter)
+    P.showImage(2, z, 'prism colormap', cmap=plt.cm. prism)
+    P.showImage(3, z, 'default gray colormap')
+    P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
+    P.saveFig('I.png')
+    P.saveFig('I.eps')
     
     print('module ryplot done!')
