@@ -211,7 +211,7 @@ class Plotter:
     ##
     def plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
         """Cartesian plot on linear scales for abscissa and ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -251,7 +251,7 @@ class Plotter:
     ##
     def logLog(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         
@@ -292,7 +292,7 @@ class Plotter:
     ##
     def semilogX(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -332,7 +332,7 @@ class Plotter:
     ##
     def semilogY(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -411,11 +411,18 @@ class Plotter:
             yy=y.reshape(-1, 1)
 
         plotCol = self.buildPlotCol(plotCol, yy.shape[1])
-
-        sbp=plt.subplot(self.nrow, self.ncol, plotnum,title=ptitle) 
+        
+        #use add_subplot to keep the previous subplot
+        if(ptitle is not None):
+            sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum,title=ptitle) 
+        else:
+            sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum) 
         plt.grid(True)
-        plt.xlabel(xlabel)  
-        plt.ylabel(ylabel)  
+        if xlabel is not None:
+            plt.xlabel(xlabel)  
+        if ylabel is not None:
+            plt.ylabel(ylabel)  
+        
         if maxNX >0:
             sbp.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
         if maxNY >0:
@@ -430,6 +437,17 @@ class Plotter:
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
+        # use scientific format on axes
+        #yfm = sbp.yaxis.get_major_formatter()
+        #yfm.set_powerlimits([ -3, 3])
+
+        formy = None
+
+        formy = plt.ScalarFormatter()
+        formy.set_powerlimits((-3, 4))
+        formy.set_scientific(True)
+        sbp.yaxis.set_major_formatter(formy)
+            
         #scale the axes
         if sum(pltaxis)!=0:
             plt.axis(pltaxis)
@@ -581,13 +599,13 @@ if __name__ == '__main__':
 
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
-    yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    yLinS=1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
 
     yLinA=yLinS
     yLinA = numpy.hstack((yLinA, \
-            numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
+            1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
     yLinA = numpy.hstack((yLinA, \
-            numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
+            1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
     A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
     A.plot(1, "Array Linear","X", "Y", xLinS, yLinA,\
@@ -599,7 +617,7 @@ if __name__ == '__main__':
     A.semilogY(4, "Array SemilogY","X", "Y", xLinS, yLinA,\
                label=['A1', 'A2', 'A3'],legendAlpha=0.5)
     A.saveFig('A.png')
-    A.saveFig('A.eps')
+    #A.saveFig('A.eps')
     
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, "Single Linear","X", "Y", xLinS, yLinS,\
@@ -611,7 +629,7 @@ if __name__ == '__main__':
     S.semilogY(4, "Single SemilogY","X", "Y", xLinS, yLinS,\
                label=['Single'],legendAlpha=0.5)
     S.saveFig('S.png', dpi=300)
-    S.saveFig('S.eps')
+    #S.saveFig('S.eps')
 
     r = numpy.arange(0, 3.01, 0.01).reshape(-1, 1)
     theta = 2*numpy.pi*r
@@ -629,8 +647,27 @@ if __name__ == '__main__':
            label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
            thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
     P.saveFig('P.png')
-    P.saveFig('P.eps')
+    #P.saveFig('P.eps')
     
+
+    
+    #test/demo to show that multiple plots can be done in the same subplot, on top of older plots
+    xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
+    M= Plotter(1, 1, 1,'Multi-plots',figsize=(12,8))
+    #it seems that all attempts to plot in same subplot space must use same ptitle.
+    yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['b'], label=['A1'])
+    yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['g'], label=['A2'])
+    yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['r'], label=['A3'])
+    yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['c'], \
+           label=['A4'],legendAlpha=0.5, maxNX=10, maxNY=2)
+    M.saveFig('M.png')
+    #M.saveFig('M.eps')
+
+
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
     P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
@@ -641,4 +678,5 @@ if __name__ == '__main__':
     P.saveFig('I.png')
     P.saveFig('I.eps')
     
+
     print('module ryplot done!')
