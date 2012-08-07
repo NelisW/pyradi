@@ -182,11 +182,14 @@ def convertSpectralDomain(inspectraldomain,  type=''):
 ################################################################
 ##
 def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
-    """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz)
+    """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.
     
     In string variable type, the 'from' domain and 'to' domains are indicated each with a single letter:
     'f' for temporal frequency, 'w' for wavelength and ''n' for wavenumber
     The 'from' domain is the first letter and the 'to' domain the second letter.
+    
+    The return values from this function are always positive, i.e. not mathematically correct,
+    but positive in the sense of radiance density.
     
     The spectral density quantity input is given as a two vectors: the domain value vector
     and the density quantity vector. The output of the function is also two vectors, i.e.
@@ -227,12 +230,12 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
               
     outspectralquantity = {
-              'wf': lambda inspectralquantity: - constants.c * 1.0e-6 * inspectralquantity /((inspectraldomain * 1.0e-6)**2), 
-              'wn': lambda inspectralquantity: -  inspectralquantity * 1.0e4 / inspectraldomain**2 , 
-              'fw': lambda inspectralquantity: - constants.c * 1.0e-6 * inspectralquantity / ((inspectraldomain * 1.0e-6)**2), 
-              'fn': lambda inspectralquantity: inspectralquantity  / (100 * constants.c), 
-              'nw': lambda inspectralquantity:  - inspectralquantity *1.0e4 / inspectraldomain**2 , 
-              'nf': lambda inspectralquantity: inspectralquantity * 100* constants.c, 
+              'wf': lambda inspectralquantity: inspectralquantity / (constants.c * 1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
+              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
+              'fw': lambda inspectralquantity: inspectralquantity / (constants.c * 1.0e-6  / ((inspectraldomain * 1.0e-6)**2)), 
+              'fn': lambda inspectralquantity: inspectralquantity / (100 * constants.c), 
+              'nw': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
+              'nf': lambda inspectralquantity: inspectralquantity / (100* constants.c), 
               }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
     
     return (outspectraldomain,outspectralquantity )
