@@ -28,6 +28,7 @@ the temperature and a vector of one of wavelength, wavenumbers or frequency
 (six combinations each for emittance and temperature derivative). The total 
 emittance can also be calculated by using the Stefan-Boltzman equation, in 
 [W/m^2] or [q/(s.m^2)].
+
 See the __main__ function for examples of use.
 """
 
@@ -37,7 +38,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 __version__= "$Revision$"
-__author__='CJ Willers'
+__author__='pyradi team'
 __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken', 
 'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf', 
 'dplnckql', 'dplnckqn']

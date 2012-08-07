@@ -38,7 +38,7 @@ Visit the google group at http://groups.google.com/group/pyradi-dev
 
 """
 __version__= "$Revision$"
-__author__='CJ Willers'
+__author__='pyradi team'
 
 import rychroma
 import ryplanck

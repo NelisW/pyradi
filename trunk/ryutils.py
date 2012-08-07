@@ -33,7 +33,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 __version__= "$Revision$"
-__author__= 'CJ Willers'
+__author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity']
 
 import numpy
