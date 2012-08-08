@@ -93,11 +93,11 @@ plot1.plot(1, "Spectral","Wavelength [$\mu$m]", "Relative magnitude", wavel, det
 plot1.plot(1, "Spectral","Wavelength [$\mu$m]", "Relative magnitude", wavel, emis,plotCol=['g'], label=['Emissivity'])
 plot1.plot(1, "Spectral","Wavelength [$\mu$m]", "Relative magnitude", wavel, filter,plotCol=['r'], label=['filter'])
 plot1.plot(1, "Spectral","Wavelength [$\mu$m]", "Relative magnitude", wavel, tauA,plotCol=['c'], \
-       label=['Atmosphere transmittance'],legendAlpha=0.5, maxNX=10, maxNY=10)
+       label=['Atmosphere transmittance'], maxNX=10, maxNY=10)
 #check path radiance against Planck's Law for atmo temperature
 LbbTropical = ryplanck.planck(wavel, 273+27, type='el').reshape(-1, 1)/numpy.pi
 plot1.plot(2, "Radiance","Wavelength [$\mu$m]", "Radiance [W/(m$^2$.sr.$\mu$m)]", wavel, LbbTropical,plotCol=['r'], label=['300 K Planck Law'])
-plot1.plot(2, "Radiance","Wavelength [$\mu$m]", "Radiance [W/(m$^2$.sr.$\mu$m)]", wavel, lpathwl,plotCol=['b'], label=['Tropical path radiance'],legendAlpha=0.5)
+plot1.plot(2, "Radiance","Wavelength [$\mu$m]", "Radiance [W/(m$^2$.sr.$\mu$m)]", wavel, lpathwl,plotCol=['b'], label=['Tropical path radiance'])
 
 ##########################################################
 # define sensor scalar parameters
@@ -135,10 +135,10 @@ print('Path    : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.format(totalir
 (dum, iFlamewl) = ryutils.convertSpectralDensity(waven,  inbandirradianceFlame, type='nw')
 (dum, iPathwl) = ryutils.convertSpectralDensity(waven,  inbandirradiancePath, type='nw')
 plot1.plot(3, "Irradiance","Wavelength [$\mu$m]", "Iradiance [W/(m$^2$.$\mu$m)]", wavel, iFlamewl,plotCol=['r'], label=['Flame'])
-plot1.plot(3, "Irradiance","Wavelength [$\mu$m]", "Iradiance [W/(m$^2$.$\mu$m)]", wavel, iPathwl,plotCol=['b'], label=['Path'],legendAlpha=0.5)
+plot1.plot(3, "Irradiance","Wavelength [$\mu$m]", "Iradiance [W/(m$^2$.$\mu$m)]", wavel, iPathwl,plotCol=['b'], label=['Path'])
 plot1.plot(4, "Irradiance","Wavenumber [cm$^{-1}$]", "Irradiance [W/(m$^2$.cm$^{-1}$)]", waven, inbandirradianceFlame,plotCol=['r'], label=['Flame'])
 plot1.plot(4, "Irradiance","Wavenumber [cm$^{-1}$]", "Irradiance [W/(m$^2$.cm$^{-1}$)]", waven, inbandirradiancePath,plotCol=['b'], \
-       label=['Path'],legendAlpha=0.5, maxNX=10, maxNY=10)
+       label=['Path'], maxNX=10, maxNY=10)
 
 plot1.saveFig('flamesensor01.eps')
 
