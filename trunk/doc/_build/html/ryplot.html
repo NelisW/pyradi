@@ -134,7 +134,7 @@ This function modulus-folds either sequence, in case longer sequences are requir
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -216,7 +216,7 @@ function provided by its user functions.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -340,7 +340,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -383,7 +383,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -422,6 +422,32 @@ for the x and y axes.</p>
 </dd>
 </dl>
 </div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.ryplot.Plotter.showImage">
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x057B64E0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a subplot and show the image using the colormap provided.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">img (np.ndarray): numpy 2d array                </div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">cmap: matplotlib colormap</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">Nothing</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

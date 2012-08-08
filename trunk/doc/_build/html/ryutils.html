@@ -179,10 +179,12 @@ to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
 <dl class="function">
 <dt id="pyradi.ryutils.convertSpectralDensity">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDensity</tt><big>(</big><em>inspectraldomain</em>, <em>inspectralquantity</em>, <em>type=u''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDensity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz)</p>
+<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.</p>
 <p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
 &#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
 The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
+<p>The return values from this function are always positive, i.e. not mathematically correct,
+but positive in the sense of radiance density.</p>
 <p>The spectral density quantity input is given as a two vectors: the domain value vector
 and the density quantity vector. The output of the function is also two vectors, i.e.
 the &#8216;to&#8217; domain value vector and the &#8216;to&#8217; spectral density. Note that the &#8216;to&#8217; domain 
