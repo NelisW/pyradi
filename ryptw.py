@@ -19,7 +19,7 @@
 # Portions created by JJ Calitz are Copyright (C) 2011-2012
 # All Rights Reserved.
 
-#The author wishes to thank  Mr Emmanuel Vanneau from FLIR Inc for the permission 
+#The author wishes to thank FLIR Advanced Thermal Solutions for the permission 
 #to publicly release our Python version of the *.ptw file reader.  Please note that the
 #copyright to the proprietary *.ptw file format remains the property of FLIR Inc.
 
@@ -45,6 +45,11 @@ Returns nothing.  Prints the PTW header content to the screen
 
 getPTWFrame (header, frameindex) :
 Return the raw DL levels of the frame defined by frameindex
+
+The author wishes to thank FLIR Advanced Thermal Solutions for the permission 
+to publicly release our Python version of the *.ptw file reader.  Please note that the
+copyright to the proprietary *.ptw file format remains the property of FLIR Inc.
+
 """
 
 #prepare so long for Python 3
