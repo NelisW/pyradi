@@ -18,7 +18,7 @@
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
-# Contributor(s): ______________________________________.
+# Contributor(s): MS Willers.
 ################################################################
 """
 This module provides functions for file input/output. These are all wrapper 
@@ -34,8 +34,8 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__='pyradi team'
-__all__=['SaveHeaderArrayTextFile', 'LoadColumnTextFile', 'LoadHeaderTextFile', 'CleanFilename', 
-         'listFiles']
+__all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 'cleanFilename', 
+         'listFiles','readRawFrames']
 
 from scipy.interpolate import interp1d
 import numpy
@@ -241,7 +241,78 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     os.path.walk(root, visit, arg)
     return arg.results
 
-
+################################################################
+##
+def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
+    """ Constructs a numpy array from data in a binary file with known data-type.
+    
+    Args:
+        | fname (string): path and filename
+        | rows (int): number of rows in frames
+        | cols (int): number of columns in frames
+        | vartype (numpy.dtype): numpy data type of data to be read
+        |                                      int8, int16, int32, int64
+        |                                      uint8, uint16, uint32, uint64
+        |                                      float16, float32, float64
+        | loadFrames ([int]): optional list of frames to load , empty list (default) loads all frames
+        
+    Returns:
+        | frames (int) : number of frames in the returned data set, 
+        |                      0 if error occurred
+        | rawShaped (numpy.ndarray): vartype numpy array of dimensions (frames,rows,cols), 
+        |                                              None if error occurred
+        
+    Raises:
+        | No exception is raised.
+    """
+        
+    frames = 0
+    rawShaped = None
+    
+    # load all frames in the file
+    
+    if not loadFrames:
+        try:   
+            with open(fname, 'rb') as fin:     
+                data = numpy.fromfile(fin, vartype,-1)  
+                    
+        except IOError:
+            #print('  File not found, returning {0} frames'.format(frames))
+            pass
+        
+    # load only frames requested
+    
+    else:
+        try:   
+            framesize = rows * cols; 
+            lastframe = max(loadFrames)
+            data = None
+            
+            with open(fname, 'rb') as fin:     
+                for frame in range(1, lastframe+1, 1):
+                    dataframe = numpy.fromfile(fin, vartype,framesize)  
+                    if frame in loadFrames:
+                        if data == None:
+                            data = dataframe
+                        else:
+                            data = numpy.concatenate((data, dataframe)) 
+                            
+        except IOError:
+            #print('  File not found, returning {0} frames'.format(frames))
+            pass
+         
+    frames = data.size / (rows * cols)
+    sizeCheck = frames * rows * cols
+            
+    if sizeCheck == data.size: 
+        rawShaped = data.reshape(frames, rows ,cols)
+        #print('  Returning {0} frames of size {1} x {2} and data type {3} '.format(  \
+        #rawShaped.shape[0],rawShaped.shape[1],rawShaped.shape[2],rawShaped.dtype))
+    else:
+        #print('  Calculated size = {0}, actual size = {1}, returning  {3} frames '.format(sizeCheck,data.size,frames) )
+        pass
+         
+    return frames, rawShaped
 
 
 ################################################################
@@ -305,7 +376,30 @@ if __name__ == '__main__':
     print ('\nTest listFiles function:')
     print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
     
-
-
+    ##------------------------- load frames from binary & show ---------------------------
+    import matplotlib.pyplot as plt
     
+    imagefile = 'data/sample.ulong'
+    rows = 100
+    cols = 100
+    vartype = numpy.uint32
+    framesToLoad =  [1, 3, 5, 7]
+    frames, img = readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
+   
+    if frames == len(framesToLoad):
+        
+        P = ryplot.Plotter(1, 2, 2,'Sample frames from binary file', figsize=(4, 4))
+
+        P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
+        P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
+        P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm. bone)
+        P.showImage(4, img[3], 'frame {0}'.format(framesToLoad[3]), cmap=plt.cm.gist_rainbow)
+        P.getPlot().show()
+        P.saveFig('sample.png', dpi=300)
+        print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
+        img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
+        
+    else:
+        print('\nNot all frames read from file') 
+ 
     print('module ryfiles done!')
