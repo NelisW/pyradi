@@ -560,14 +560,15 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle, cmap=plt.cm.gray):
+    def showImage(self, plotnum, img,  ptitle, cmap=plt.cm.gray, fsize=12):
         """Creates a subplot and show the image using the colormap provided.
 
             Args:
                 | plotnum (int): subplot number
                 | img (np.ndarray): numpy 2d array                
                 | ptitle (string): plot title
-                | cmap: matplotlib colormap
+                | cmap: matplotlib colormap, default gray
+                | fsize: title font size, default 12pt
                 
             Returns:
                 | Nothing
@@ -576,10 +577,11 @@ class Plotter:
                 | No exception is raised.
         """
 
-        sbp=plt.subplot(self.nrow, self.ncol, plotnum,title=ptitle) 
+        sbp=plt.subplot(self.nrow, self.ncol, plotnum)   
         
         plt.imshow(img, cmap)
         plt.axis('off')
+        plt.title(ptitle, fontsize=fsize)
         
 
 #from matplotlib.font_manager import FontProperties
@@ -671,12 +673,12 @@ if __name__ == '__main__':
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
     P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    P.showImage(1, z, 'winter colormap', cmap=plt.cm. winter)
-    P.showImage(2, z, 'prism colormap', cmap=plt.cm. prism)
-    P.showImage(3, z, 'default gray colormap')
+    P.showImage(1, z, 'winter colormap, font 10pt', cmap=plt.cm. winter, fsize=10)
+    P.showImage(2, z, 'prism colormap, default font ', cmap=plt.cm. prism)
+    P.showImage(3, z, 'default gray colormap, font 8pt', fsize=8)
     P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
     P.saveFig('I.png')
-    P.saveFig('I.eps')
+#    P.saveFig('I.eps')
     
 
     print('module ryplot done!')

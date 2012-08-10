@@ -404,7 +404,20 @@ if __name__ == '__init__':
     pass
     
 if __name__ == '__main__':
-    
+       
+    #calculate the radiance ratio of aircraft fuselage to MTV flare in 3-5 um band
+    wl=numpy.arange(3.5, 5, 0.001)
+    #flare temperature is 2200 K. emissivity=0.15 at close range 
+    flareEmis = 0.2
+    flareM=flareEmis * numpy.trapz(planckel(wl,2200).reshape(-1, 1),wl, axis=0)
+    #aircraft fuselage temperature is 250 K. emissivity=1, 
+    flareA=  numpy.trapz(planckel(wl,250).reshape(-1, 1),wl, axis=0)
+    print(wl)
+    print(flareM)
+    print(flareA)
+    print('Flare/aircradt ratio: ratio={0} bits required={1}'.format(flareM/flareA,  numpy.log2(flareM/flareA)))
+
+
     #--------------------------------------------------------------------------------------
     #first test at fixed temperature
     # for each function we calculate a spectral emittance and then get the peak and where peak occurs.'
@@ -632,5 +645,6 @@ if __name__ == '__main__':
                     
     #fdplanck.GetPlot().show()
     fdplanck.saveFig('dplanck.png')
+     
     
     print('module planck done!')
