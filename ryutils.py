@@ -222,20 +222,20 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
               'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6), 
-              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
-              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6), 
               'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c , 
               'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
+              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
               'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c, 
+              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6), 
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
               
     outspectralquantity = {
-              'wf': lambda inspectralquantity: inspectralquantity / (constants.c * 1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
-              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
-              'fw': lambda inspectralquantity: inspectralquantity / (constants.c * 1.0e-6  / ((inspectraldomain * 1.0e-6)**2)), 
-              'fn': lambda inspectralquantity: inspectralquantity / (100 * constants.c), 
+              'wf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
+              'fn': lambda inspectralquantity: inspectralquantity * (100 *constants.c), 
               'nw': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
-              'nf': lambda inspectralquantity: inspectralquantity / (100* constants.c), 
+              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
+              'nf': lambda inspectralquantity: inspectralquantity / (100 * constants.c), 
+              'fw': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
               }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
     
     return (outspectraldomain,outspectralquantity )
@@ -302,43 +302,62 @@ if __name__ == '__main__':
     wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
     wavenumRef = numpy.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
     frequenRef = numpy.asarray([  2.99792458e+15,   2.99792458e+14,   2.99792458e+13, 2.99792458e+12])
+    print('Input spectral vectors:')
     print(wavelenRef)
     print(wavenumRef)
     print(frequenRef)
     
     #first we test the conversion between the domains
     # if the spectral domain conversions are correct, all following six statements should print unity vectors
+    print('all following six statements should print unity vectors:')
     print(convertSpectralDomain(frequenRef, 'fw')/wavelenRef)
     print(convertSpectralDomain(wavenumRef, 'nw')/wavelenRef)
     print(convertSpectralDomain(frequenRef, 'fn')/wavenumRef)
     print(convertSpectralDomain(wavelenRef, 'wn')/wavenumRef)
     print(convertSpectralDomain(wavelenRef, 'wf')/frequenRef)
     print(convertSpectralDomain(wavenumRef, 'nf')/frequenRef)
-    #test illegal input type should havw shape (0,0)
+    print('test illegal input type should have shape (0,0)')
     print(convertSpectralDomain(wavenumRef, 'ng').shape)
     print(convertSpectralDomain(wavenumRef, '').shape)
     print(convertSpectralDomain(wavenumRef).shape)
 
     # now test conversion of spectral density quantities
     #create planck spectral densities at the wavelength interval
-    emittanceRef = ryplanck.planck(wavelenRef, 1000,'el')
-    emittance = emittanceRef.copy()
+    emittancewRef = ryplanck.planck(wavelenRef, 1000,'el')
+    emittancefRef = ryplanck.planck(frequenRef, 1000,'ef')
+    emittancenRef = ryplanck.planck(wavenumRef, 1000,'en')
+    emittance = emittancewRef.copy()
     #convert to frequency density
-    print('emittance converted: wf->fn->nw->wn->nf->fw')
+    print('all following eight statements should print (close to) unity vectors:')
     (freq, emittance) = convertSpectralDensity(wavelenRef, emittance, 'wf')
+    print('emittance converted: wf against calculation')
+    print(emittancefRef/emittance)
    #convert to wavenumber density
     (waven, emittance) = convertSpectralDensity(freq, emittance, 'fn')
+    print('emittance converted: wf->fn against calculation')
+    print(emittancenRef/emittance)
     #convert to wavelength density
     (wavel, emittance) = convertSpectralDensity(waven, emittance, 'nw')
     #now repeat in opposite sense
-    #convert to frequency density
+    print('emittance converted: wf->fn->nw against original')
+    print(emittancewRef/emittance)
+    print('spectral variable converted: wf->fn->nw against original')
+    print(wavelenRef/wavel)
+    #convert to wavenumber density
+    emittance = emittancewRef.copy()
     (waven, emittance) = convertSpectralDensity(wavelenRef, emittance, 'wn')
-   #convert to wavenumber density
+    print('emittance converted: wf against calculation')
+    print(emittancenRef/emittance)
+   #convert to frequency density
     (freq, emittance) = convertSpectralDensity(waven, emittance, 'nf')
+    print('emittance converted: wf->fn against calculation')
+    print(emittancefRef/emittance)
     #convert to wavelength density
     (wavel, emittance) = convertSpectralDensity(freq, emittance, 'fw')
     # if the spectral density conversions were correct, the following two should be unity vectors
-    print(emittanceRef/emittance)
+    print('emittance converted: wn->nf->fw against original')
+    print(emittancewRef/emittance)
+    print('spectral variable converted: wn->nf->fw against original')
     print(wavelenRef/wavel)
 
     
