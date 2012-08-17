@@ -91,6 +91,9 @@ def loadColumnTextFile(filename, loadCol=[1],  \
     and any number of ordinate (y-value) vectors in second and 
     later columns.
     
+    Note: leave only single separators (e.g. spaces) between columns!
+    Also watch out for a single sapce at the start of line.
+    
     Args:
         | filename (string): name of the input ASCII flatfile. 
         | loadCol ([int]): the M =len([]) column(s) to be loaded as the ordinate, default value is column 1
