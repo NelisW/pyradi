@@ -315,7 +315,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
         #print('  Calculated size = {0}, actual size = {1}, returning  {3} frames '.format(sizeCheck,data.size,frames) )
         pass
          
-    return frames, rawShaped
+    return int(frames), rawShaped
 
 
 ################################################################
