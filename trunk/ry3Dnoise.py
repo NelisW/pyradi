@@ -355,13 +355,13 @@ def getTotal(imgSeq):
         | No exception is raised.
     """
  
-    nt    = getNT(img)
-    nvh  = getNVH(img)
-    ntv   = getNTV(img)
-    nth   = getNTH(img)
-    nv    = getNV(img)
-    nh    = getNH(img)
-    ntvh = getNTVH(img)
+    nt    = getNT(imgSeq)
+    nvh  = getNVH(imgSeq)
+    ntv   = getNTV(imgSeq)
+    nth   = getNTH(imgSeq)
+    nv    = getNV(imgSeq)
+    nh    = getNH(imgSeq)
+    ntvh = getNTVH(imgSeq)
     
     return  numpy.sqrt(nt**2 + nvh**2 + ntv**2 + nth**2 + nv**2 + nh**2 + ntvh**2)
 
