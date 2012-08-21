@@ -22,7 +22,7 @@
 ################################################################
 """
 This module provides a set of functions to aid in the calculation of 3D noise parameters from 
-noise images. The functions is based on the work done by John D'Agostino and Curtis Webb. 
+noise images. The functions are based on the work done by John D'Agostino and Curtis Webb. 
 For details see "3-D Analysis Framwork and Measurement Methodology for Imaging System 
 Nioise" p110-121 in "Infrared Imaging Systems: Design, Analysis, Modelling, and Testing II",
 Holst, G. C., ed., Volume 1488, SPIE (1991).
@@ -378,6 +378,7 @@ if __name__ == '__main__':
 
     vartype   = numpy.uint16  
     imagefile  = 'data/sensornoise.raw'   
+    outfilename = 'sensornoise.txt'
     
     # load images 
     framesToLoad = range(1, 21, 1)
@@ -391,15 +392,18 @@ if __name__ == '__main__':
         P.getPlot().show()
         P.saveFig('rawframe0.png')
         
-        print('\n{0} Frames read from {1}\n'.format(frames, imagefile))
-        print('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
-        print('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
-        print('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
-        print('---------------------|---------------------|-----------------\n')
-        print('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img),getNTH(img)))
-        print('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img),getNTV(img)))
-        print('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img),getNTVH(img)))
-        print('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)))
+        outfile = open(outfilename, 'w')
+        outfile.write('\n{0} Frames read from {1}\n'.format(frames, imagefile))
+        outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
+        outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
+        outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
+        outfile.write('---------------------|---------------------|-----------------\n')
+        outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img),getNTH(img)))
+        outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img),getNTV(img)))
+        outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img),getNTVH(img)))
+        outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)))
+   
+        print('\n{0} Frames processed from {1} - see results in {2}\n'.format(frames, imagefile, outfilename))
 
     else:
         print('Error in reading noise images data')    
@@ -407,6 +411,7 @@ if __name__ == '__main__':
     #--------------------- Jade ptw file with noise data ------------------------------------------------------------------------
     
     ptwfile  = 'data/PyradiSampleMWIR.ptw'   
+    outfilename = 'PyradiSampleMWIR.txt'
     
     header = ryptw.readPTWHeader(ptwfile)
     #ryptw.showHeader(header)
@@ -428,17 +433,23 @@ if __name__ == '__main__':
     img = data.reshape(frames, rows ,cols)
 
     # show something
-    P = ryplot.Plotter(1, 1, 1,'LWIR noise', figsize=(12, 8))    
+    P = ryplot.Plotter(1, 1, 1,'Measured MWIR noise', figsize=(12, 8))    
     P.showImage(1, img[0])
     P.getPlot().show()
     P.saveFig('ptwframe0.png')
 
-    print('\n{0} Frames read from {1}\n'.format(frames, imagefile))
-    print('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
-    print('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
-    print('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
-    print('---------------------|---------------------|-----------------\n')
-    print('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img),getNTH(img)))
-    print('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img),getNTV(img)))
-    print('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img),getNTVH(img)))
-    print('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)))
+    outfile = open(outfilename, 'w')
+    
+    outfile.write('\n{0} Frames read from {1}\n'.format(frames, ptwfile))
+    outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
+    outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
+    outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
+    outfile.write('---------------------|---------------------|-----------------\n')
+    outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img),getNTH(img)))
+    outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img),getNTV(img)))
+    outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img),getNTVH(img)))
+    outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)))
+
+    outfile.close()
+    
+    print('\n{0} Frames processed from {1} - see results in {2}\n'.format(frames, ptwfile, outfilename))
