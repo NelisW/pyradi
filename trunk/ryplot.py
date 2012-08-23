@@ -49,6 +49,7 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
+from mpl_toolkits.mplot3d import Axes3D
 
 class Plotter:
     """ Encapsulates a plotting environment, optimized for 
@@ -59,7 +60,8 @@ class Plotter:
     were developed to provide well labelled plots by entering only one or two lines.
     
     Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
-    linear scale and log scale plots, and cartesian and polar plots.
+    linear scale and log scale plots, and cartesian and polar plots. 
+    Simple 3D line plots can also be made.
     """
     
     ############################################################
@@ -584,13 +586,58 @@ class Plotter:
         plt.title(ptitle, fontsize=fsize)
         
 
-#from matplotlib.font_manager import FontProperties
-#
-#   fontP = FontProperties()
-#   fontP.set_size('small')
-#   legend([plot1], "title", prop = fontP)
+    def plot3d(self, plotnum, ptitle, xlabel, ylabel, zlabel, x, y, z, \
+               plotCol=[], label=None, legendAlpha=0.0):
+        """3D plot on linear scales for x y z input sets.
+        
+        Given an existing figure, this function plots in a specified subplot position. 
+        The function arguments are described below in some detail. 
+        
+        Note that multiple 3D data sets can be plotted simultaneously by adding additional columns to
+        the input coordinates of vertices, each column representing a different function in the plot. 
+        This is convenient if large arrays of data must be plotted. If more than one column is present,
+        the label argument can contain the legend labels for each of the columns/lines. 
+        
+            Args:
+                | plotnum (int): subplot number
+                | ptitle (string): plot title
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | x (np.array[N,] or [N,M]): x coordinates of vertices
+                | y (np.array[N,] or [N,M]): y coordinates of vertices
+                | z (np.array[N,] or [N,M]): z coordinates of vertices
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | label  ([strings]): legend label for ordinate, list with M entries
+                | legendAlpha (float): transparancy for legend
+        """
+        
+        # if required convert 1D arrays into 2D arrays                
+        if x.ndim < 2:
+            x = x.reshape(-1,1)
+        if y.ndim < 2:
+            y = y.reshape(-1,1)
+        if z.ndim < 2:
+            z = z.reshape(-1,1)
+        
+        plotCol = self.buildPlotCol(plotCol, x.shape[-1])        
+        
+        ax = self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+        
+        for i in range(x.shape[-1]):
+            ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
+        
 
-      
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_zlabel(zlabel)
+        
+        if label:        
+            leg = plt.legend(label, loc='best', fancybox=True)
+            leg.get_frame().set_alpha(legendAlpha)
+            self.bbox_extra_artists.append(leg)
+
+        plt.title(ptitle)
+
      
 ################################################################
 ################################################################
@@ -679,6 +726,46 @@ if __name__ == '__main__':
     P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
     P.saveFig('I.png')
 #    P.saveFig('I.eps')
+
     
+    #3D plot example
+    def parametricCurve(z, param1 = 2, param2 = 1):
+        r = z**param1 + param2
+        theta = numpy.linspace(-4 * numpy.pi, 4 * numpy.pi, 100)
+        return (r * numpy.sin(theta), r * numpy.cos(theta))
+        
+    P3D = Plotter(5, 1, 1,'Plot 3D Single', figsize=(12,8))
+    z = numpy.linspace(-2, 2, 100)
+    x, y = parametricCurve(z)    
+    
+    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T)
+    P3D.saveFig('3D.png')
+    
+    P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
+    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=['parametric curve'], legendAlpha=0.5)
+    P3D.saveFig('3DwithLabel.png')
+
+    P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
+    P3D.plot(1, 'Top View', 'X', 'Y', x.T, y.T)
+    P3D.plot(2, 'Side View Along Y Axis', 'X', 'Z', x.T, z.T)
+    P3D.plot(3, 'Side View Along X Axis', 'Y', 'Z', y.T, z.T)
+    P3D.plot3d(4, '3D View', 'X', 'Y', 'Z', x.T, y.T, z.T)
+    P3D.saveFig('S3D.png')
+
+    P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
+
+    label = ['Param1={} Param2={}'.format(2,1)]
+    for i in range(2):
+        param1 = 2-i
+        param2 = i
+        label.append('Param1={} Param2={}'.format(param1, param2))
+        x1, y1 = parametricCurve(z, param1, param2)
+        x = numpy.vstack((x,x1))
+        y = numpy.vstack((y,y1))
+        
+    z = numpy.vstack((z,z,z))
+
+    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=label, legendAlpha=0.5)
+    P3D.saveFig('M3D.png')
 
     print('module ryplot done!')
