@@ -122,7 +122,8 @@ class Plotter:
             'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--']
         
         self.bbox_extra_artists=[]
-
+        self.subplots={}
+        
         if figuretitle:
             self.figtitle=plt.gcf().text(.5,.95,figuretitle,\
                         horizontalalignment='center',\
@@ -621,7 +622,10 @@ class Plotter:
         
         plotCol = self.buildPlotCol(plotCol, x.shape[-1])        
         
-        ax = self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')           
+            
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
         
         for i in range(x.shape[-1]):
             ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
@@ -743,14 +747,14 @@ if __name__ == '__main__':
     
     P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
     P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=['parametric curve'], legendAlpha=0.5)
-    P3D.saveFig('3DwithLabel.png')
+    P3D.saveFig('3DwithLabel.eps')
 
     P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
     P3D.plot(1, 'Top View', 'X', 'Y', x.T, y.T)
     P3D.plot(2, 'Side View Along Y Axis', 'X', 'Z', x.T, z.T)
     P3D.plot(3, 'Side View Along X Axis', 'Y', 'Z', y.T, z.T)
     P3D.plot3d(4, '3D View', 'X', 'Y', 'Z', x.T, y.T, z.T)
-    P3D.saveFig('S3D.png')
+    P3D.saveFig('S3D.eps')
 
     P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
 
@@ -766,6 +770,6 @@ if __name__ == '__main__':
     z = numpy.vstack((z,z,z))
 
     P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=label, legendAlpha=0.5)
-    P3D.saveFig('M3D.png')
+    P3D.saveFig('M3D.eps')
 
     print('module ryplot done!')
