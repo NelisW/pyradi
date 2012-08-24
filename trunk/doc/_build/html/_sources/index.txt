@@ -26,12 +26,15 @@ Contents:
    ryplot
 
    ryutils
+  
+   ryptw
+   
+   ry3dnoise
 
    rychroma
    
-   ryptw
-
    codingguidelines
+   
 
 Examples of code use
 -----------------------
