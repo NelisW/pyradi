@@ -41,7 +41,7 @@ from string import maketrans
 ##############################################################################
 ##
 def fixHeaders(str):
-    intab = "+-"
+    intab = "++"
     outtab = "pm"
     trantab = maketrans(intab, outtab)
     str=str.translate(trantab)
