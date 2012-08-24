@@ -33,22 +33,25 @@ from __future__ import print_function
 
 __version__= "$Revision: 43 $"
 __author__= 'pyradi team'
-__all__= ['chromaticityforSpectralL']
+__all__= ['fixHeaders', 'loadtape7']
 
 import numpy as np
 from string import maketrans
+import StringIO
 
 ##############################################################################
 ##
 def fixHeaders(str):
-    intab = "++"
+    intab = "+-"
     outtab = "pm"
     trantab = maketrans(intab, outtab)
     str=str.translate(trantab)
     return str
 
 
-def loadtape7SCNFile(filename, colspec = [], delimiter=None ):
+##############################################################################
+##
+def loadtape7(filename, colspec = [], delimiter=None ):
 
     """
     This funciton reads in the tape7 file from MODerate spectral resolution atmospheric 
@@ -70,7 +73,7 @@ def loadtape7SCNFile(filename, colspec = [], delimiter=None ):
     s = ""
 
     #skip the first 10 row that contains tape5 information and leave the header for the different components
-    #of transimissions
+    #of transimissions. for now we assume the header is alway 9 lines long.
     #remove the last row in the file
     for counter in range(10,len(data)-1):
         if counter==10:
@@ -82,13 +85,8 @@ def loadtape7SCNFile(filename, colspec = [], delimiter=None ):
             s = s + columns[colcount] + "  "  
         s = s + "\n"
 
-    #output a newfile containing each column with different component of the transmission. 
-    allData = open('outputfile.txt', 'w')
-    allData.write(s)
-    allData.close()
-    #read in the cleaned text file without the header and last line found in tape7 
-    
-    data = np.ndfromtxt('outputfile.txt', delimiter=' ', dtype=None,  names=True)
+    #read the string in from a StringIO in-memory file
+    data = np.ndfromtxt(StringIO.StringIO(s), delimiter=' ', dtype=None,  names=True)
     data = np.delete(data, (0), axis=0)
     
     coldata= data[colspec[0]].reshape(-1, 1)
@@ -126,10 +124,11 @@ if __name__ == '__main__':
     # wavelength is reshaped to a 2-D  (N,1) column vector
     wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
 
-    tape7= loadtape7SCNFile("ModTrantape7file", ['FREQ', 'COMBIN', 'MOLEC', 'AER+CLD', 'AER-CLD'] )
+    tape7= loadtape7("data/ModTrantape7file", ['FREQ', 'COMBIN', 'MOLEC', 'AER+CLD', 'AER-CLD'] )
     print(tape7)
     print(tape7.shape)
     
+    #write data to file
     s=nparrayToString(tape7)
     file=open('SpectralTransmittance.txt', 'w')
     file.write(s)
