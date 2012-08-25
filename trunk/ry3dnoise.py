@@ -422,15 +422,13 @@ if __name__ == '__main__':
     framesToLoad = range(1, 101, 1)
     frames = len(framesToLoad)
     
-    data = None;
-    for frame in framesToLoad:
-        f = (ryptw.getPTWFrame (header, frame)).conj().transpose()
-        if data == None:
-            data = f
-        else:
-            data = numpy.concatenate((data, f)) 
+    data = ryptw.getPTWFrame (header, framesToLoad[0])
+    for frame in framesToLoad[1:]:
+        f = (ryptw.getPTWFrame (header, frame))
+        data = numpy.concatenate((data, f)) 
 
     img = data.reshape(frames, rows ,cols)
+
 
     # show something
     P = ryplot.Plotter(1, 1, 1,'Measured MWIR noise', figsize=(12, 8))    
