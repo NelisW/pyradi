@@ -23,7 +23,7 @@
 #to publicly release our Python version of the *.ptw file reader.  Please note that the
 #copyright to the proprietary *.ptw file format remains the property of FLIR Inc.
 
-# Contributor(s): ______________________________________.
+# Contributor(s): MS Willers & CJ Willers.
 ################################################################
 """
 This module provides functions to read the contents of files in the
@@ -60,7 +60,7 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__='JJ Calitz'
 __all__=['myint','mylong','myfloat','mybyte',  'ReadPTWHeader', 'sLoadCedip',
-'ShowHeader', 'GetPTWFrame']
+'ShowHeader', 'GetPTWFrame', 'GetPTWFrames']
 
 import struct
 import numpy as np
@@ -546,19 +546,18 @@ def sLoadCedip(s):
     fid.close()  #close file
     return s
 
-#
+ #
 # ========================================================================
 #
-
 def getPTWFrame (s, frameindex):
     """Retrieve a single PTW frame
 
     Args:
         | header (class object)
-        | frameindex (integer) The frame to be extracted
+        | frameindex (integer): The frame to be extracted
 
     Returns:
-        | an array with the frameindex frame DL values
+        | s.data (numpy.ndarray): requested frame DL values, dimensions (rows,cols)
 
     Raises:
         | No exception is raised.
@@ -572,19 +571,59 @@ def getPTWFrame (s, frameindex):
 
     # Check if this is  a cedip file
 
+    errorresult = np.asarray([0])
     if s.h_format!='cedip':
         print('ReadJade Error: file format is not supported')
-        result = -1
+        return errorresult
     if (frameindex <= s.h_lastframe):
         if frameindex>0:
             s.h_framepointer = frameindex
             s = sLoadCedip(s)
         else:
             print ('frameindex smaller than 0')
+            return errorresult
     else:                           # frameindex exceeds no of frames
         print ('ReadJade Error: cannot load frame. Frameindex exceeds sequence length.')
+        return errorresult
 
-    return s.data
+    return s.data.conj().transpose()
+
+    
+#
+# ========================================================================
+#
+def getPTWFrames (s, loadFrames=[]):
+    """Retrieve a number of PTW frames, given in a list of frames.
+
+    Args:
+        | header (class object)
+        | loadFrames ([int]): List of indices for frames to be extracted
+
+    Returns:
+        | data (numpy.ndarray): requested image frame DL values, dimensions (frames,rows,cols)
+
+    Raises:
+        | No exception is raised.
+    """
+
+    # error checking on inputs
+    errorresult = np.asarray([0])
+    # Check if this is  a cedip file
+    if s.h_format!='cedip':
+        print('getPTWFrames Error: file format is not supported')
+        return errorresult
+    #check for legal frame index values
+    npFrames = np.asarray(loadFrames)
+    if np.any( npFrames < 1 ) or np.any ( npFrames > s.h_lastframe ):
+        print('getPTWFrames Error: at least one requested frame not in file')
+        print('legal frames for this file are: {0} to {1}'.format(1,s.h_lastframe))
+        return errorresult
+
+    data = getPTWFrame (s, loadFrames[0])
+    for frame in loadFrames[1:]:
+        data = np.concatenate((data, getPTWFrame (s, frame))) 
+
+    return data.reshape(len(loadFrames), rows ,cols)
 #
 # ========================================================================
 #
@@ -753,3 +792,45 @@ def showHeader(Header):
 #
 # ========================================================================
 #
+
+################################################################
+################################################################
+##
+## 
+
+if __name__ == '__init__':
+    pass
+
+if __name__ == '__main__':
+    
+    ptwfile  = 'data/PyradiSampleMWIR.ptw'   
+    outfilename = 'PyradiSampleMWIR.txt'
+    
+    header = readPTWHeader(ptwfile)
+    showHeader(header)
+    
+    rows = header.h_Rows
+    cols = header.h_Cols
+    
+    #loading sequence of frames
+    framesToLoad = [3,4,10]
+    data = getPTWFrames (header, framesToLoad)
+    print(data.shape)
+      
+    #loading sequence of frames, with an error in request
+    framesToLoad = [0,4,10]
+    data = getPTWFrames (header, framesToLoad)
+    print(data.shape)
+      
+    #loading single frames
+    framesToLoad = range(1, 101, 1)
+    frames = len(framesToLoad)
+    data = getPTWFrame (header, framesToLoad[0])
+    for frame in framesToLoad[1:]:
+        f = (getPTWFrame (header, frame))
+        data = np.concatenate((data, f)) 
+
+    img = data.reshape(frames, rows ,cols)
+    print(img.shape)
+    
+
