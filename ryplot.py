@@ -91,8 +91,8 @@ class Plotter:
                 | No exception is raised.
         """
     
-        __all__ = ['__init__', 'BuildPlotCol', 'SaveFig', 'GetPlot', 'Plot', 
-                   'LogLog', 'SemilogX', 'SemilogY', 'MyPlot', 'Polar']
+        __all__ = ['__init__', 'saveFig', 'getPlot', 'plot', 'logLog', 'semilogX',
+                        'semilogY', 'polar', 'showImage', 'plot3d']
         
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -585,8 +585,10 @@ class Plotter:
         plt.imshow(img, cmap)
         plt.axis('off')
         plt.title(ptitle, fontsize=fsize)
-        
+ 
 
+    ############################################################
+    ##
     def plot3d(self, plotnum, ptitle, xlabel, ylabel, zlabel, x, y, z, \
                plotCol=[], label=None, legendAlpha=0.0):
         """3D plot on linear scales for x y z input sets.
