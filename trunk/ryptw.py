@@ -47,8 +47,8 @@ getPTWFrame (header, frameindex) :
 Return the raw DL levels of the frame defined by frameindex
 
 The author wishes to thank FLIR Advanced Thermal Solutions for the permission 
-to publicly release our Python version of the *.ptw file reader.  Please note that the
-copyright to the proprietary *.ptw file format remains the property of FLIR Inc.
+to publicly release our Python version of the ptw file reader.  Please note that the
+copyright to the proprietary ptw file format remains the property of FLIR Inc.
 
 """
 
