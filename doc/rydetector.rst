@@ -1,0 +1,29 @@
+Bulk detector modelling
+************************
+
+.. include global.rst
+
+
+Overview
+----------
+
+.. automodule:: pyradi.rydetector
+	
+Module functions
+------------------
+
+.. autofunction:: pyradi.rydetector.QuantumEfficiency
+
+.. autofunction:: pyradi.rydetector.Irradiance
+
+.. autofunction:: pyradi.rydetector.Photocurrent
+
+.. autofunction:: pyradi.rydetector.IXV
+
+.. autofunction:: pyradi.rydetector.Responsivity
+
+.. autofunction:: pyradi.rydetector.Detectivity
+
+.. autofunction:: pyradi.rydetector.NEP
+
+

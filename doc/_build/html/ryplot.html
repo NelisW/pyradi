@@ -78,7 +78,8 @@ radiometry plots.</p>
 environment specialised towards radiometry results.  These functions
 were developed to provide well labelled plots by entering only one or two lines.</p>
 <p>Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
-linear scale and log scale plots, and cartesian and polar plots.</p>
+linear scale and log scale plots, and cartesian and polar plots. 
+Simple 3D line plots can also be made.</p>
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.buildPlotCol">
 <tt class="descname">buildPlotCol</tt><big>(</big><em>plotCol</em>, <em>n</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.buildPlotCol" title="Permalink to this definition">¶</a></dt>
@@ -258,6 +259,36 @@ for the x and y axes.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyradi.ryplot.Plotter.plot3d">
+<tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>ptitle</em>, <em>xlabel</em>, <em>ylabel</em>, <em>zlabel</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>plotCol=</em><span class="optional">[</span><span class="optional">]</span>, <em>label=None</em>, <em>legendAlpha=0.0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>3D plot on linear scales for x y z input sets.</p>
+<p>Given an existing figure, this function plots in a specified subplot position. 
+The function arguments are described below in some detail.</p>
+<p>Note that multiple 3D data sets can be plotted simultaneously by adding additional columns to
+the input coordinates of vertices, each column representing a different function in the plot. 
+This is convenient if large arrays of data must be plotted. If more than one column is present,
+the label argument can contain the legend labels for each of the columns/lines.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">plotnum (int): subplot number</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">xlabel (string): x axis label</div>
+<div class="line">ylabel (string): y axis label</div>
+<div class="line">x (np.array[N,] or [N,M]): x coordinates of vertices</div>
+<div class="line">y (np.array[N,] or [N,M]): y coordinates of vertices</div>
+<div class="line">z (np.array[N,] or [N,M]): z coordinates of vertices</div>
+<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
+<div class="line">legendAlpha (float): transparancy for legend</div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar">
 <tt class="descname">polar</tt><big>(</big><em>plotnum, ptitle, theta, r, plotCol=[], label=[], labelLocation=[-0.1, 0.1], legendAlpha=0.0, rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], direction=u'counterclockwise', zerooffset=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a subplot and plot the data in polar coordinates (linear radial orginates only).</p>
@@ -426,7 +457,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x058F5440&gt;</em>, <em>fsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x05722B98&gt;</em>, <em>fsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>

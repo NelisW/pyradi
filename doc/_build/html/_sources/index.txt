@@ -33,6 +33,8 @@ Contents:
 
    rychroma
    
+   rydetector
+   
    codingguidelines
    
 
