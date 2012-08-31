@@ -214,7 +214,8 @@ class Plotter:
     ##
     def plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    powerLimits = [-4,  2,  -4,  2] ):
         """Cartesian plot on linear scales for abscissa and ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -238,6 +239,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 
             Returns:
                 | Nothing
@@ -254,7 +256,8 @@ class Plotter:
     ##
     def logLog(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    powerLimits = [-4,  2,  -4,  2] ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         
@@ -279,6 +282,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 
             Returns:
                 | Nothing
@@ -295,7 +299,8 @@ class Plotter:
     ##
     def semilogX(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    powerLimits = [-4,  2,  -4,  2] ):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -319,6 +324,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 
             Returns:
                 | Nothing
@@ -335,7 +341,8 @@ class Plotter:
     ##
     def semilogY(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10):
+                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    powerLimits = [-4,  2,  -4,  2] ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
         
         Given an existing figure, this function plots in a specified subplot position. 
@@ -359,6 +366,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 
             Returns:
                 | Nothing
@@ -375,7 +383,8 @@ class Plotter:
     ##
     def myPlot(self, plotcommand,plotnum,ptitle,xlabel,ylabel, 
                     x, y, plotCol=[],label=[],legendAlpha=0.0,\
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0):
+                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0,  \
+                    powerLimits = [-4,  2,  -4,  2] ):
         """Low level helper function to create a subplot and plot the data as required.
         
         This function does the actual plotting, labelling etc. It uses the plotting 
@@ -395,6 +404,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 
             Returns:
                 | Nothing
@@ -444,12 +454,16 @@ class Plotter:
         #yfm = sbp.yaxis.get_major_formatter()
         #yfm.set_powerlimits([ -3, 3])
 
+        # set the limits as two when scientific notation is used
         formy = None
-
         formy = plt.ScalarFormatter()
-        formy.set_powerlimits((-3, 4))
+        formy.set_powerlimits([powerLimits[2], powerLimits[3]])
         formy.set_scientific(True)
         sbp.yaxis.set_major_formatter(formy)
+        formx = plt.ScalarFormatter()
+        formx.set_scientific(True)
+        formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+        sbp.xaxis.set_major_formatter(formx)
             
         #scale the axes
         if sum(pltaxis)!=0:
@@ -563,7 +577,7 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, fsize=12):
+    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, fsize=12, showmap=False):
         """Creates a subplot and show the image using the colormap provided.
 
             Args:
@@ -572,6 +586,7 @@ class Plotter:
                 | ptitle (string): plot title (optional)
                 | cmap: matplotlib colormap, default gray (optional)
                 | fsize: title font size, default 12pt (optional)
+                | showmap: if true, the show a color map
                 
             Returns:
                 | Nothing
@@ -584,6 +599,8 @@ class Plotter:
         
         plt.imshow(img, cmap)
         plt.axis('off')
+        if showmap is True:
+            plt.colorbar()
         plt.title(ptitle, fontsize=fsize)
  
 
