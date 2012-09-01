@@ -589,7 +589,7 @@ class Plotter:
                 | fsize (int): title font size, default 12pt (optional)
                 | cbarshow (bool): if true, the show a color bar
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
-                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image units
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
                 | cbarfontsize (int): font size for color bar
                 
             Returns:
@@ -767,8 +767,9 @@ if __name__ == '__main__':
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
     P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    P.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, fsize=10)
-    P.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism)
+    P.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, fsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+    P.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
     P.showImage(3, z, ptitle='default gray colormap, font 8pt', fsize=8)
     P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
     P.saveFig('I.png')
