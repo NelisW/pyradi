@@ -135,7 +135,7 @@ This function modulus-folds either sequence, in case longer sequences are requir
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -160,6 +160,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -178,7 +179,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.myPlot">
-<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting 
 function provided by its user functions.</p>
@@ -199,6 +200,7 @@ function provided by its user functions.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -217,7 +219,7 @@ function provided by its user functions.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -242,6 +244,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -371,7 +374,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -396,6 +399,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -414,7 +418,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position. 
 The function arguments are described below in some detail. Note that the y-values
@@ -439,6 +443,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -457,7 +462,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x05722B98&gt;</em>, <em>fsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x0585F2B0&gt;</em>, <em>fsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -466,7 +471,11 @@ for the x and y axes.</p>
 <div class="line">img (np.ndarray): numpy 2d array                </div>
 <div class="line">ptitle (string): plot title (optional)</div>
 <div class="line">cmap: matplotlib colormap, default gray (optional)</div>
-<div class="line">fsize: title font size, default 12pt (optional)</div>
+<div class="line">fsize (int): title font size, default 12pt (optional)</div>
+<div class="line">cbarshow (bool): if true, the show a color bar</div>
+<div class="line">cbarorientation (string): &#8216;vertical&#8217; (right) or &#8216;horizontal&#8217; (below)</div>
+<div class="line">cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels</div>
+<div class="line">cbarfontsize (int): font size for color bar</div>
 </div>
 </dd>
 <dt>Returns:</dt>
