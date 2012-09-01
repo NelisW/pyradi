@@ -577,7 +577,8 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, fsize=12, showmap=False):
+    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, fsize=12, cbarshow=False, \
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
         """Creates a subplot and show the image using the colormap provided.
 
             Args:
@@ -585,8 +586,11 @@ class Plotter:
                 | img (np.ndarray): numpy 2d array                
                 | ptitle (string): plot title (optional)
                 | cmap: matplotlib colormap, default gray (optional)
-                | fsize: title font size, default 12pt (optional)
-                | showmap: if true, the show a color map
+                | fsize (int): title font size, default 12pt (optional)
+                | cbarshow (bool): if true, the show a color bar
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image units
+                | cbarfontsize (int): font size for color bar
                 
             Returns:
                 | Nothing
@@ -594,15 +598,35 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
+    #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
+    #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
         sbp=plt.subplot(self.nrow, self.ncol, plotnum)   
         
         plt.imshow(img, cmap)
         plt.axis('off')
-        if showmap is True:
-            plt.colorbar()
+        if cbarshow is True:
+            if not cbarcustomticks:
+                cbar = plt.colorbar(orientation=cbarorientation)
+            else:
+                ticks,  ticklabels = zip(*cbarcustomticks)
+                cbar = plt.colorbar(ticks=ticks, orientation=cbarorientation)
+                if cbarorientation == 'vertical':
+                    cbar.ax.set_yticklabels(ticklabels)
+                else:
+                    cbar.ax.set_xticklabels(ticklabels)
+
+            if cbarorientation == 'vertical':
+                for t in cbar.ax.get_yticklabels():
+                     t.set_fontsize(cbarfontsize)
+            else:
+                for t in cbar.ax.get_xticklabels():
+                     t.set_fontsize(cbarfontsize)
+    
         plt.title(ptitle, fontsize=fsize)
  
+
+
 
     ############################################################
     ##
