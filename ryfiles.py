@@ -257,7 +257,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
         |                                      int8, int16, int32, int64
         |                                      uint8, uint16, uint32, uint64
         |                                      float16, float32, float64
-        | loadFrames ([int]): optional list of frames to load , empty list (default) loads all frames
+        | loadFrames ([int]): optional list of frames to load, zero-based , empty list (default) loads all frames
         
     Returns:
         | frames (int) : number of frames in the returned data set, 
@@ -292,7 +292,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
             data = None
             
             with open(fname, 'rb') as fin:     
-                for frame in range(1, lastframe+1, 1):
+                for frame in range(0, lastframe+1, 1):
                     dataframe = numpy.fromfile(fin, vartype,framesize)  
                     if frame in loadFrames:
                         if data == None:
