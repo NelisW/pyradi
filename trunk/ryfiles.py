@@ -281,7 +281,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
                     
         except IOError:
             #print('  File not found, returning {0} frames'.format(frames))
-            pass
+            return int(frames), rawShaped
         
     # load only frames requested
     
@@ -302,7 +302,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
                             
         except IOError:
             #print('  File not found, returning {0} frames'.format(frames))
-            pass
+            return int(frames), rawShaped
          
     frames = data.size / (rows * cols)
     sizeCheck = frames * rows * cols
