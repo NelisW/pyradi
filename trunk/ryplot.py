@@ -695,7 +695,7 @@ if __name__ == '__main__':
 
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
-    yLinS=1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
 
     yLinA=yLinS
     yLinA = numpy.hstack((yLinA, \
@@ -704,8 +704,12 @@ if __name__ == '__main__':
             1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
     A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
-    A.plot(1, "Array Linear","X", "Y", xLinS, yLinA,\
-           label=['A1', 'A2', 'A3'],legendAlpha=0.5, maxNX=10, maxNY=2)
+    A.plot(1, "Array Linear","X", "Y", xLinS, yLinA,
+            plotCol=['c--'],
+           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+           pltaxis=[0, 10, 0, 2000],
+           maxNX=10, maxNY=2,
+           powerLimits = [-4,  2, -5, 5])
     A.logLog(2, "Array LogLog","X", "Y", xLinS, yLinA,\
              label=['A1', 'A2', 'A3'],legendAlpha=0.5)
     A.semilogX(3, "Array SemilogX","X", "Y", xLinS, yLinA,\
@@ -714,6 +718,8 @@ if __name__ == '__main__':
                label=['A1', 'A2', 'A3'],legendAlpha=0.5)
     A.saveFig('A.png')
     #A.saveFig('A.eps')
+
+
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, "Single Linear","X", "Y", xLinS, yLinS,\
