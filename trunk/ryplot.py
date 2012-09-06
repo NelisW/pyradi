@@ -18,7 +18,7 @@
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
-# Contributor(s): MS Willers.
+# Contributor(s): MS Willers, PJ van der Merwe.
 ################################################################
 """
 This module provides functions for plotting cartesian and polar plots.
@@ -103,13 +103,15 @@ class Plotter:
             sys.exit(-1)
 
         self.figurenumber = fignumber
-        self.nrow=subpltnrow
-        self.ncol=subpltncol
-        self.figuretitle = figuretitle
-
         self.fig = plt.figure(self.figurenumber, frameon=False)
         self.fig.set_size_inches(figsize[0], figsize[1])
         self.fig.clear()
+        self.figuretitle = figuretitle
+
+        self.nrow=subpltnrow
+        self.ncol=subpltncol
+        self.subplothandle = [None for i in range(0,self.ncol*self.nrow+1)]
+        self.subplothandle[0] = self.fig
 
         # width reserved for space between subplots
         self.fig.subplots_adjust(wspace=0.25)
@@ -197,7 +199,7 @@ class Plotter:
     ############################################################
     ##
     def getPlot(self):
-        """Returns the current plot
+        """Returns a handle to the current plot
 
             Args:
                 | None
@@ -209,6 +211,29 @@ class Plotter:
                 | No exception is raised.
         """
         return self.fig
+
+
+    ############################################################
+    ##
+    def getSubPlot(self, subplotNum = 1):
+        """Returns a handle the subplot, as requested per subplot number.
+        Subplot numbers range from 1 upwards.
+        If this function is called with subplotNum = 0, a handle to the
+        containing figure is returned.
+
+            Args:
+                | subplotNumer (int) : number of the subplot
+
+            Returns:
+                | A handle to the requested subplot.
+
+            Raises:
+                | No exception is raised.
+        """
+        return self.subplothandle[subplotNum]
+
+
+
 
     ############################################################
     ##
@@ -430,6 +455,9 @@ class Plotter:
             sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum,title=ptitle)
         else:
             sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum)
+        #save handle to this subplot for later
+        self.subplothandle[plotnum] = sbp
+
         plt.grid(True)
         if xlabel is not None:
             plt.xlabel(xlabel)
@@ -601,8 +629,6 @@ class Plotter:
     #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
-        sbp=plt.subplot(self.nrow, self.ncol, plotnum)
-
         plt.imshow(img, cmap)
         plt.axis('off')
         if cbarshow is True:
@@ -719,7 +745,21 @@ if __name__ == '__main__':
     A.saveFig('A.png')
     #A.saveFig('A.eps')
 
-
+    AA = Plotter(1, 1, 1,'Array Plots',figsize=(12,8))
+    AA.plot(1, "","X", "Y", xLinS, yLinA,
+            plotCol=['b--'],
+           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+           pltaxis=[0, 10, 0, 2000],
+           maxNX=10, maxNY=2,
+           powerLimits = [-4,  2, -5, 5])
+    currentP = AA.getSubPlot(1)
+    currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
+                horizontalalignment='center', verticalalignment='center')
+    currentP.text(0.5 * 10, 1300,
+         r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
+         fontsize=20)
+    AA.saveFig('AA.png')
+    #AA.saveFig('AA.eps')
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, "Single Linear","X", "Y", xLinS, yLinS,\
