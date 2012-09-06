@@ -20,6 +20,10 @@ Module functions
 
 .. autofunction:: pyradi.rydetector.IXV
 
+.. autofunction:: pyradi.rydetector.noise
+
+.. autofunction:: pyradi.rydetector.Idark
+
 .. autofunction:: pyradi.rydetector.Responsivity
 
 .. autofunction:: pyradi.rydetector.Detectivity
