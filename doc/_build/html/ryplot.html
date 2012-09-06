@@ -58,9 +58,9 @@
 <h1>Plotting utility<a class="headerlink" href="#plotting-utility" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.ryplot">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryplot" title="Permalink to this headline">¶</a></h2>
-<p>This module provides functions for plotting cartesian and polar plots. 
-This class provides a basic plotting capability, with a minimum 
-number of lines. These are all wrapper functions, 
+<p>This module provides functions for plotting cartesian and polar plots.
+This class provides a basic plotting capability, with a minimum
+number of lines. These are all wrapper functions,
 based on existing functions in other Python classes.
 Provision is made for combinations of linear and log scales, as well
 as polar plots for two-dimensional graphs.
@@ -72,21 +72,21 @@ The Plotter class can save files to disk in a number of formats.</p>
 <dl class="class">
 <dt id="pyradi.ryplot.Plotter">
 <em class="property">class </em><tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">Plotter</tt><big>(</big><em>fignumber=0</em>, <em>subpltnrow=1</em>, <em>subpltncol=1</em>, <em>figuretitle=None</em>, <em>figsize=(9</em>, <em>9)</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encapsulates a plotting environment, optimized for 
+<dd><p>Encapsulates a plotting environment, optimized for
 radiometry plots.</p>
-<p>This class provides a wrapper around Matplotlib to provide a plotting 
+<p>This class provides a wrapper around Matplotlib to provide a plotting
 environment specialised towards radiometry results.  These functions
 were developed to provide well labelled plots by entering only one or two lines.</p>
 <p>Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
-linear scale and log scale plots, and cartesian and polar plots. 
+linear scale and log scale plots, and cartesian and polar plots.
 Simple 3D line plots can also be made.</p>
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.buildPlotCol">
 <tt class="descname">buildPlotCol</tt><big>(</big><em>plotCol</em>, <em>n</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.buildPlotCol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a sequence of default colour styles of 
+<dd><p>Returns a sequence of default colour styles of
 appropriate length.</p>
 <p>The constructor provides a sequence with length 14 pre-defined plot styles.
-The user can define a new sequence if required.  
+The user can define a new sequence if required.
 This function modulus-folds either sequence, in case longer sequences are required.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -113,9 +113,9 @@ This function modulus-folds either sequence, in case longer sequences are requir
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.getPlot">
 <tt class="descname">getPlot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.getPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the current plot</p>
+<dd><p>Returns a handle to the current plot</p>
 <dl class="docutils">
-<dt>Args:        </dt>
+<dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">None</div>
 </div>
@@ -134,15 +134,43 @@ This function modulus-folds either sequence, in case longer sequences are requir
 </dd></dl>
 
 <dl class="method">
+<dt id="pyradi.ryplot.Plotter.getSubPlot">
+<tt class="descname">getSubPlot</tt><big>(</big><em>subplotNum=1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.getSubPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a handle the subplot, as requested per subplot number.
+Subplot numbers range from 1 upwards.
+If this function is called with subplotNum = 0, a handle to the
+containing figure is returned.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">subplotNumer (int) : number of the subplot</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">A handle to the requested subplot.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
 <tt class="descname">logLog</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
 or ordinates can be more than one column, each column representing a different
-line in the plot. This is convenient if large arrays of data must be plotted. If more 
-than one column is present, the label argument can contain the legend labels for 
-each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+line in the plot. This is convenient if large arrays of data must be plotted. If more
+than one column is present, the label argument can contain the legend labels for
+each of the columns/lines.  The pltaxis argument defines the min/max scale values
 for the x and y axes.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -181,13 +209,13 @@ for the x and y axes.</p>
 <dt id="pyradi.ryplot.Plotter.myPlot">
 <tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
-<p>This function does the actual plotting, labelling etc. It uses the plotting 
+<p>This function does the actual plotting, labelling etc. It uses the plotting
 function provided by its user functions.</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotcommand: name of a MatplotLib plotting function </div>
+<div class="line">plotcommand: name of a MatplotLib plotting function</div>
 <div class="line">plotnum (int): subplot number</div>
 <div class="line">ptitle (string): plot title</div>
 <div class="line">xlabel (string): x axis label</div>
@@ -221,12 +249,12 @@ function provided by its user functions.</p>
 <dt id="pyradi.ryplot.Plotter.plot">
 <tt class="descname">plot</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
 or ordinates can be more than one column, each column representing a different
-line in the plot. This is convenient if large arrays of data must be plotted. If more 
-than one column is present, the label argument can contain the legend labels for 
-each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+line in the plot. This is convenient if large arrays of data must be plotted. If more
+than one column is present, the label argument can contain the legend labels for
+each of the columns/lines.  The pltaxis argument defines the min/max scale values
 for the x and y axes.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -265,10 +293,10 @@ for the x and y axes.</p>
 <dt id="pyradi.ryplot.Plotter.plot3d">
 <tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>ptitle</em>, <em>xlabel</em>, <em>ylabel</em>, <em>zlabel</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>plotCol=</em><span class="optional">[</span><span class="optional">]</span>, <em>label=None</em>, <em>legendAlpha=0.0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D plot on linear scales for x y z input sets.</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail.</p>
 <p>Note that multiple 3D data sets can be plotted simultaneously by adding additional columns to
-the input coordinates of vertices, each column representing a different function in the plot. 
+the input coordinates of vertices, each column representing a different function in the plot.
 This is convenient if large arrays of data must be plotted. If more than one column is present,
 the label argument can contain the legend labels for each of the columns/lines.</p>
 <blockquote>
@@ -295,16 +323,16 @@ the label argument can contain the legend labels for each of the columns/lines.<
 <dt id="pyradi.ryplot.Plotter.polar">
 <tt class="descname">polar</tt><big>(</big><em>plotnum, ptitle, theta, r, plotCol=[], label=[], labelLocation=[-0.1, 0.1], legendAlpha=0.0, rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], direction=u'counterclockwise', zerooffset=0</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a subplot and plot the data in polar coordinates (linear radial orginates only).</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the radial values
 or ordinates can be more than one column, each column representing a different
-line in the plot. This is convenient if large arrays of data must be plotted. If more 
-than one column is present, the label argument can contain the legend labels for 
+line in the plot. This is convenient if large arrays of data must be plotted. If more
+than one column is present, the label argument can contain the legend labels for
 each of the columns/lines.  The scale for the radial ordinates can be set with rscale.
-The number of radial grid circles can be set with rgrid - this provides a somewhat 
-better control over the built-in radial grid in matplotlib. thetagrids defines the angular 
+The number of radial grid circles can be set with rgrid - this provides a somewhat
+better control over the built-in radial grid in matplotlib. thetagrids defines the angular
 grid interval.  The angular rotation direction can be set to be clockwise or
-counterclockwise. Likewise the rotation offset where the plot zero angle must be, 
+counterclockwise. Likewise the rotation offset where the plot zero angle must be,
 is set with zerooffset.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -344,15 +372,15 @@ is set with zerooffset.</p>
 <tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to a disk file, using filename, dpi specification and bounding box limits.</p>
 <p>One of matplotlib&#8217;s design choices is a bounding box strategy  which may result in a bounding box
-that is smaller than the size of all the objects on the page.  It took a while to figure this out, 
+that is smaller than the size of all the objects on the page.  It took a while to figure this out,
 but the current default values for bbox_inches and pad_inches seem to create meaningful
-bounding boxes. These are however larger than the true bounding box. You still need a 
+bounding boxes. These are however larger than the true bounding box. You still need a
 tool such as epstools or Adobe Acrobat to trim eps files to the true bounding box.</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename (string): output filename to write plot, file ext </div>
+<div class="line">filename (string): output filename to write plot, file ext</div>
 <div class="line">dpi (int): the resolution of the graph in dots per inch</div>
 <div class="line">bbox_inches: see matplotlib docs for more detail.</div>
 <div class="line">pad_inches: see matplotlib docs for more detail.</div>
@@ -376,12 +404,12 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 <dt id="pyradi.ryplot.Plotter.semilogX">
 <tt class="descname">semilogX</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
 or ordinates can be more than one column, each column representing a different
-line in the plot. This is convenient if large arrays of data must be plotted. If more 
-than one column is present, the label argument can contain the legend labels for 
-each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+line in the plot. This is convenient if large arrays of data must be plotted. If more
+than one column is present, the label argument can contain the legend labels for
+each of the columns/lines.  The pltaxis argument defines the min/max scale values
 for the x and y axes.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -420,12 +448,12 @@ for the x and y axes.</p>
 <dt id="pyradi.ryplot.Plotter.semilogY">
 <tt class="descname">semilogY</tt><big>(</big><em>plotnum, ptitle, xlabel, ylabel, x, y, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
-<p>Given an existing figure, this function plots in a specified subplot position. 
+<p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
 or ordinates can be more than one column, each column representing a different
-line in the plot. This is convenient if large arrays of data must be plotted. If more 
-than one column is present, the label argument can contain the legend labels for 
-each of the columns/lines.  The pltaxis argument defines the min/max scale values 
+line in the plot. This is convenient if large arrays of data must be plotted. If more
+than one column is present, the label argument can contain the legend labels for
+each of the columns/lines.  The pltaxis argument defines the min/max scale values
 for the x and y axes.</p>
 <blockquote>
 <div><dl class="docutils">
@@ -462,13 +490,13 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x056FC508&gt;</em>, <em>fsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=u''</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x0576F3A0&gt;</em>, <em>fsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">plotnum (int): subplot number</div>
-<div class="line">img (np.ndarray): numpy 2d array                </div>
+<div class="line">img (np.ndarray): numpy 2d array</div>
 <div class="line">ptitle (string): plot title (optional)</div>
 <div class="line">cmap: matplotlib colormap, default gray (optional)</div>
 <div class="line">fsize (int): title font size, default 12pt (optional)</div>
