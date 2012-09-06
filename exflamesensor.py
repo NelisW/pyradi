@@ -120,11 +120,11 @@ inbandirradianceFlame = radianceFlame * detR * tauA * emis * filter * fill * opt
 totalirradianceFlame = numpy.trapz(inbandirradianceFlame.reshape(-1, 1),waven, axis=0)[0]
 signalFlame = totalirradianceFlame *transZ*responsivity *opticsArea
 
-print('Optics  : area={0} m^2 FOV={1} [sr]'.format(opticsArea, opticsFOV ))
-print('Aplifier: gain={0} [V/A]'.format(transZ))
-print('Detector: peak responsivity={0} [A/W]'.format(responsivity))
-print('Flame   : temperature={0} [K] area={1} [m^2] distance={2} [m] fill={3} [-]'.format(flameTemperature, flameArea, distance, fill))
-print('Flame   : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.format(totalirradianceFlame, signalFlame))
+print('Optics   : area={0} m^2 FOV={1} [sr]'.format(opticsArea, opticsFOV ))
+print('Amplifier: gain={0} [V/A]'.format(transZ))
+print('Detector : peak responsivity={0} [A/W]'.format(responsivity))
+print('Flame    : temperature={0} [K] area={1} [m^2] distance={2} [m] fill={3} [-]'.format(flameTemperature, flameArea, distance, fill))
+print('Flame    : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.format(totalirradianceFlame, signalFlame))
 
 # now do path
 inbandirradiancePath =  lpathwn * detR * filter * opticsFOV
