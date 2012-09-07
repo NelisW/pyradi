@@ -14,7 +14,7 @@
 
 # The Original Code is part of the PyRadi toolkit.
 
-# The Initial Developer of the Original Code is AE Mudau, 
+# The Initial Developer of the Original Code is AE Mudau,
 # Portions created by AE Mudau are Copyright (C) 2012
 # All Rights Reserved.
 
@@ -54,15 +54,15 @@ def fixHeaders(str):
 def loadtape7(filename, colspec = [], delimiter=None ):
 
     """
-    This funciton reads in the tape7 file from MODerate spectral resolution atmospheric 
-    TRANsmission (MODTRAN) code, that is used to model the propagation of the 
-    electromagnetic radiation through the atmosphere. tape7 is a primary file that contains all the spectral  
-    results of the MODTRAN run. The header information in the tape7 file contains portions of the tape5 
-    information that will be deleted. The header section in tape7 is followed by a list of spectral points 
-    with corresponding transmissions. Each column has a different component of the transmission and 
+    This funciton reads in the tape7 file from MODerate spectral resolution atmospheric
+    TRANsmission (MODTRAN) code, that is used to model the propagation of the
+    electromagnetic radiation through the atmosphere. tape7 is a primary file that contains all the spectral
+    results of the MODTRAN run. The header information in the tape7 file contains portions of the tape5
+    information that will be deleted. The header section in tape7 is followed by a list of spectral points
+    with corresponding transmissions. Each column has a different component of the transmission and
     the total transmittance is always found in the second column.
 
-            | filename (string): name of the input ASCII flatfile. 
+            | filename (string): name of the input ASCII flatfile.
             | colspec output the spectral transmittance data
     """
 
@@ -77,25 +77,25 @@ def loadtape7(filename, colspec = [], delimiter=None ):
     #remove the last row in the file
     for counter in range(10,len(data)-1):
         if counter==10:
-            data[counter]=fixHeaders(data[counter]) 
-            
+            data[counter]=fixHeaders(data[counter])
+
         columns = data[counter].strip("\n").split()
 
         for colcount in range(0, len(columns)):
-            s = s + columns[colcount] + "  "  
+            s = s + columns[colcount] + "  "
         s = s + "\n"
 
     #read the string in from a StringIO in-memory file
     data = np.ndfromtxt(StringIO.StringIO(s), delimiter=' ', dtype=None,  names=True)
     data = np.delete(data, (0), axis=0)
-    
+
     coldata= data[colspec[0]].reshape(-1, 1)
     for colname in colspec[1:]:
         coldata = np.hstack((coldata, data[fixHeaders(colname)].reshape(-1, 1)))
-       
+
     return coldata
- 
-def nparrayToString(coldata): 
+
+def nparrayToString(coldata):
     s=np.str(coldata)
     s=s.replace("'", "")
     s=s.replace("[[", " ")
@@ -108,9 +108,9 @@ def nparrayToString(coldata):
 
 if __name__ == '__init__':
     pass
-    
+
 if __name__ == '__main__':
-        
+
     import math
     import sys
 
@@ -120,16 +120,18 @@ if __name__ == '__main__':
     #figtype = ".eps"  # eps, jpg, png
 
     ## ----------------------- wavelength------------------------------------------
-    #create the wavelength scale to be used in all spectral calculations, 
+    #create the wavelength scale to be used in all spectral calculations,
     # wavelength is reshaped to a 2-D  (N,1) column vector
     wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
 
     tape7= loadtape7("data/ModTrantape7file", ['FREQ', 'COMBIN', 'MOLEC', 'AER+CLD', 'AER-CLD'] )
     print(tape7)
     print(tape7.shape)
-    
+
     #write data to file
     s=nparrayToString(tape7)
     file=open('SpectralTransmittance.txt', 'w')
     file.write(s)
     file.close()
+
+    print('Done!')

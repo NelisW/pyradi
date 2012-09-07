@@ -58,7 +58,7 @@
 <h1>File reading/writing utility<a class="headerlink" href="#file-reading-writing-utility" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.ryfiles">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryfiles" title="Permalink to this headline">¶</a></h2>
-<p>This module provides functions for file input/output. These are all wrapper 
+<p>This module provides functions for file input/output. These are all wrapper
 functions, based on existing functions in other Python classes. Functions are provided to save a two-dimensional array to a text file, load selected columns of data from a text file, load a column header line, compact strings to include only legal filename characters, and a function from the Python Cookbook to recursively match filename patterns.</p>
 <p>See the __main__ function for examples of use.</p>
 </div>
@@ -68,13 +68,13 @@ functions, based on existing functions in other Python classes. Functions are pr
 <dt id="pyradi.ryfiles.saveHeaderArrayTextFile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">saveHeaderArrayTextFile</tt><big>(</big><em>filename</em>, <em>dataArray</em>, <em>header=None</em>, <em>comment=None</em>, <em>delimiter=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.saveHeaderArrayTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a numpy array to a file, included header lines.</p>
-<p>This function saves a two-dimensional array to a text file, with 
+<p>This function saves a two-dimensional array to a text file, with
 an optional user-defined header. This functionality will be part of
 numpy 1.7, when released.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename (string): name of the output ASCII flatfile. </div>
+<div class="line">filename (string): name of the output ASCII flatfile.</div>
 <div class="line">dataArray (np.array[N,M]): a two-dimensional array.</div>
 <div class="line">header (string): the optional header.</div>
 <div class="line">comment (string): the symbol used to comment out lines, default value is None.</div>
@@ -98,18 +98,18 @@ numpy 1.7, when released.</p>
 <dt id="pyradi.ryfiles.loadColumnTextFile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadColumnTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load selected column data from a text file, processing as specified.</p>
-<p>This function loads column data from a text file, 
-manipulating the data read in. The individual vector data 
-must be given in columns in the file, with the 
+<p>This function loads column data from a text file,
+manipulating the data read in. The individual vector data
+must be given in columns in the file, with the
 abscissa (x-value) in first column (col 0 in Python)
-and any number of ordinate (y-value) vectors in second and 
+and any number of ordinate (y-value) vectors in second and
 later columns.</p>
 <p>Note: leave only single separators (e.g. spaces) between columns!
 Also watch out for a single sapce at the start of line.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename (string): name of the input ASCII flatfile. </div>
+<div class="line">filename (string): name of the input ASCII flatfile.</div>
 <div class="line">loadCol ([int]): the M =len([]) column(s) to be loaded as the ordinate, default value is column 1</div>
 <div class="line">comment (string): string, the symbol used to comment out lines, default value is None</div>
 <div class="line">normalize (int): integer, flag to indicate if data must be normalized.</div>
@@ -122,7 +122,7 @@ Also watch out for a single sapce at the start of line.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,M]): The interpolated, M columns of N rows, processed array. </div>
+<div class="line">(np.array[N,M]): The interpolated, M columns of N rows, processed array.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -137,13 +137,13 @@ Also watch out for a single sapce at the start of line.</p>
 <dt id="pyradi.ryfiles.loadHeaderTextFile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadHeaderTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadHeaderTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads column data from a text file, using the csv package.</p>
-<p>Using the csv package, loads column header data from a file, from the firstrow. 
+<p>Using the csv package, loads column header data from a file, from the firstrow.
 Headers must be delimited by commas. The function [LoadColumnTextFile] provides
 more comprehensive capabilties.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">filename (string): the name of the input ASCII flatfile. </div>
+<div class="line">filename (string): the name of the input ASCII flatfile.</div>
 <div class="line">loadCol ([int]): list of numbers, the column headers to be loaded , default value is column 1</div>
 <div class="line">comment (string): the symbol to comment out lines</div>
 </div>
@@ -165,7 +165,7 @@ more comprehensive capabilties.</p>
 <dt id="pyradi.ryfiles.cleanFilename">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">cleanFilename</tt><big>(</big><em>sourcestring</em>, <em>removestring=u' %:/</em>, <em>.\\[]'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.cleanFilename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean a string by removing selected characters.</p>
-<p>Creates a legal and &#8216;clean&#8217; sourcestring from a string by removing some clutter and illegals. 
+<p>Creates a legal and &#8216;clean&#8217; sourcestring from a string by removing some clutter and illegals.
 A default set is given but the user can override the default string.</p>
 <dl class="docutils">
 <dt>Args:</dt>

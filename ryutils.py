@@ -14,7 +14,7 @@
 
 # The Original Code is part of the PyRadi toolkit.
 
-# The Initial Developer of the Original Code is CJ Willers, 
+# The Initial Developer of the Original Code is CJ Willers,
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
@@ -43,32 +43,32 @@ from scipy import constants
 ##
 def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
     """ Calculate a symmetrical filter response of shape exp(-x^n)
-    
+
     Given a number of parameters, calculates maximally flat, symmetrical transmittance.
     The function parameters controls the width, pass-band and stop-band transmittance and
     sharpness of cutoff. This function is not meant to replace the use of properly measured
     filter responses, but rather serves as a starting point if no other information is available.
     This function does not calculate ripple in the pass-band or cut-off band.
-    
+
     Args:
         | spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].
         | center (float): central value for filter passband
         | width (float): proportional to width of filter passband
-        | exponent (float): even integer, define the sharpness of cutoff. 
+        | exponent (float): even integer, define the sharpness of cutoff.
         |                     If exponent=2        then gaussian
-        |                     If exponent=infinity then square 
+        |                     If exponent=infinity then square
         | taupass (float): the transmittance in the pass band (assumed constant)
         | taustop (float): peak transmittance in the stop band (assumed constant)
-        
+
     Returns:
         | transmittance (np.array[N,] or [N,1]):  transmittances at "spectral" intervals.
-        
+
     Raises:
         | No exception is raised.
     """
-    
+
     tau = taustop+(taupass-taustop)*numpy.exp(-(2*(spectral-center)/width)**exponent)
-   
+
     return tau
 
 
@@ -76,30 +76,30 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
 ##
 def responsivity(wavelength,lwavepeak, cuton=1, cutoff=20, scaling=1.0):
     """ Calculate a photon detector wavelength spectral responsisivity
-    
+
     Given a number of parameters, calculates a shape that is somewhat similar to a photon
-    detector spectral response, on wavelength scale. The function parameters controls the 
+    detector spectral response, on wavelength scale. The function parameters controls the
     cutoff wavelength and shape of the response. This function is not meant to replace the use
-    of properly measured  spectral responses, but rather serves as a starting point if no other 
+    of properly measured  spectral responses, but rather serves as a starting point if no other
     information is available.
-    
+
     Args:
         | wavelength (np.array[N,] or [N,1]):  vector in  [um].
         | lwavepeak (float): approximate wavelength  at peak response
         | cutoff (float): cutoff strength  beyond peak, 5 < cutoff < 50
         | cuton (float): cuton sharpness below peak, 0.5 < cuton < 5
         | scaling (float): scaling factor
-         
+
     Returns:
         | responsivity (np.array[N,] or [N,1]):  responsivity at wavelength intervals.
-        
+
     Raises:
         | No exception is raised.
     """
-    
+
     responsivity=scaling *( ( wavelength / lwavepeak) **cuton - ( wavelength / lwavepeak) **cutoff)
     responsivity= responsivity * (responsivity > 0)
-   
+
     return responsivity
 
 
@@ -107,75 +107,75 @@ def responsivity(wavelength,lwavepeak, cuton=1, cutoff=20, scaling=1.0):
 ##
 def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
     """Normalise a spectral quantity to a scalar, using a weighted mapping by another spectral quantity.
-    
+
     Effectivevalue =  integral(spectralToProcess * spectralBaseline) / integral( spectralBaseline)
 
-    The data in  spectralToProcess and  spectralBaseline must both be sampled at the same 
-    domain values     as specified in spectraldomain.  
-    
+    The data in  spectralToProcess and  spectralBaseline must both be sampled at the same
+    domain values     as specified in spectraldomain.
+
     The integral is calculated with numpy/scipy trapz trapezoidal integration function.
-    
+
     Args:
         | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
         | spectralToProcess (np.array[N,] or [N,1]):  spectral quantity to be normalised
         | spectralBaseline (np.array[N,] or [N,1]):  spectral serving as baseline for normalisation
 
     Returns:
-        | (float):  effective value 
+        | (float):  effective value
         | Returns None if there is a problem
-            
+
     Raises:
         | No exception is raised.
     """
 
     num=numpy.trapz(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
     den=numpy.trapz(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
-    return num/den   
-    
+    return num/den
+
 
 ################################################################
 ##
 def convertSpectralDomain(inspectraldomain,  type=''):
     """Convert spectral domains, i.e. between wavelength [um], wavenummber [cm^-1] and frequency [Hz]
-    
+
     In string variable type, the 'from' domain and 'to' domains are indicated each with a single letter:
     'f' for temporal frequency, 'w' for wavelength and ''n' for wavenumber
     The 'from' domain is the first letter and the 'to' domain the second letter.
-    
-    Note that the 'to' domain vector is a direct conversion of the 'from' domain 
+
+    Note that the 'to' domain vector is a direct conversion of the 'from' domain
     to the 'to' domain (not interpolated or otherwise sampled.
-    
+
     Args:
         | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
         |    wavelength vector in  [um]
         |    frequency vector in  [Hz]
         |    wavenumber vector in   [cm^-1]
         | type (string):  specify from and to domains:
-        |    'wf' convert from wavelength to per frequency 
-        |    'wn' convert from wavelength to per wavenumber 
-        |    'fw' convert from frequency to per wavelength 
+        |    'wf' convert from wavelength to per frequency
+        |    'wn' convert from wavelength to per wavenumber
+        |    'fw' convert from frequency to per wavelength
         |    'fn' convert from frequency to per wavenumber
-        |    'nw' convert from wavenumber to per wavelength 
+        |    'nw' convert from wavenumber to per wavelength
         |    'nf' convert from wavenumber to per frequency
-        
+
     Returns:
-        | [N,1]: outspectraldomain 
+        | [N,1]: outspectraldomain
         | Returns zero length array if type is illegal, i.e. not one of the expected values
-            
+
     Raises:
         | No exception is raised.
     """
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
-              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6), 
-              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
-              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6), 
-              'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c , 
-              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
-              'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c, 
+              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
+              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
+              'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
+              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
-              
+
     return outspectraldomain
 
 
@@ -183,20 +183,20 @@ def convertSpectralDomain(inspectraldomain,  type=''):
 ##
 def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
     """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.
-    
+
     In string variable type, the 'from' domain and 'to' domains are indicated each with a single letter:
     'f' for temporal frequency, 'w' for wavelength and ''n' for wavenumber
     The 'from' domain is the first letter and the 'to' domain the second letter.
-    
+
     The return values from this function are always positive, i.e. not mathematically correct,
     but positive in the sense of radiance density.
-    
+
     The spectral density quantity input is given as a two vectors: the domain value vector
     and the density quantity vector. The output of the function is also two vectors, i.e.
-    the 'to' domain value vector and the 'to' spectral density. Note that the 'to' domain 
+    the 'to' domain value vector and the 'to' spectral density. Note that the 'to' domain
     vector is a direct conversion of the 'from' domain to the 'to' domain (not interpolated
-    or otherwise sampled).    
-    
+    or otherwise sampled).
+
     Args:
         | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
         | inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain as domain vector above.
@@ -210,62 +210,62 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
         |    'fn' convert from per frequency interval density to per wavenumber interval density
         |    'nw' convert from per wavenumber interval density to per wavelength interval density
         |    'nf' convert from per wavenumber interval density to per frequency interval density
-        
+
     Returns:
         | ([N,1],[N,1]): outspectraldomain and outspectralquantity
         | Returns zero length arrays is type is illegal, i.e. not one of the expected values
-            
+
     Raises:
         | No exception is raised.
     """
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
-              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6), 
-              'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c , 
-              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
-              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain), 
-              'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c, 
-              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6), 
+              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
+              'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
+              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
+              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
-              
+
     outspectralquantity = {
-              'wf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
-              'fn': lambda inspectralquantity: inspectralquantity * (100 *constants.c), 
-              'nw': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
-              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) , 
-              'nf': lambda inspectralquantity: inspectralquantity / (100 * constants.c), 
-              'fw': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)), 
+              'wf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
+              'fn': lambda inspectralquantity: inspectralquantity * (100 *constants.c),
+              'nw': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
+              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
+              'nf': lambda inspectralquantity: inspectralquantity / (100 * constants.c),
+              'fw': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
               }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
-    
+
     return (outspectraldomain,outspectralquantity )
 
 
 ##############################################################################
 ##
 def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowtype=numpy.bartlett):
-    """ Convolve (non-circular) a spectral variable with a window function, 
+    """ Convolve (non-circular) a spectral variable with a window function,
     given the input resolution and input and output window widths.
-    
+
     This function is normally used on wavenumber-domain spectral data.  The spectral
-    data is assumed sampled at samplingresolution wavenumber intervals. 
+    data is assumed sampled at samplingresolution wavenumber intervals.
     The inwinwidth and outwinwidth window function widths are full width half-max (FWHM)
     for the window functions for the inspectral and returned spectral variables, respectively.
     The Bartlett function is used as default, but the user can use a different function.
-    The Bartlett function is a triangular function reaching zero at the ends. Window functio 
+    The Bartlett function is a triangular function reaching zero at the ends. Window functio
     width is correct for Bartlett and only approximate for other window functions.
-    
+
     Args:
         | inspectral (np.array[N,] or [N,1]):  vector in  [cm-1].
         | samplingresolution (float): wavenumber interval between inspectral samples
         | inwinwidth (float): FWHM window width of the input spectral vector
         | outwinwidth (float): FWHM window width of the output spectral vector
         | windowtype (function): name of a  numpy/scipy function for the window function
-         
+
     Returns:
         | outspectral (np.array[N,]):  input vector, filtered to new window width.
         | windowfn (np.array[N,]):  The window function used.
-        
+
     Raises:
         | No exception is raised.
     """
@@ -283,7 +283,7 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
 
 if __name__ == '__init__':
     pass
-    
+
 if __name__ == '__main__':
 
     import pyradi.ryplanck as ryplanck
@@ -292,7 +292,7 @@ if __name__ == '__main__':
 
     figtype = ".png"  # eps, jpg, png
     #figtype = ".eps"  # eps, jpg, png
-        
+
     import math
     import sys
     from scipy.interpolate import interp1d
@@ -306,7 +306,7 @@ if __name__ == '__main__':
     print(wavelenRef)
     print(wavenumRef)
     print(frequenRef)
-    
+
     #first we test the conversion between the domains
     # if the spectral domain conversions are correct, all following six statements should print unity vectors
     print('all following six statements should print unity vectors:')
@@ -360,8 +360,8 @@ if __name__ == '__main__':
     print('spectral variable converted: wn->nf->fw against original')
     print(wavelenRef/wavel)
 
-    
-    
+
+
     ##++++++++++++++++++++ demo the convolution ++++++++++++++++++++++++++++
     #do a few tests first to check basic functionality. Place single lines and then convolve.
     ## ----------------------- basic functionality------------------------------------------
@@ -378,17 +378,17 @@ if __name__ == '__main__':
     outwinwidth=5
     outspectral,  windowfn = convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth)
     convplot = ryplot.Plotter(1, 1, 1)
-    convplot.plot(1, "Convolution Test", r'Wavenumber cm$^{-1}$',\
-                r'Signal', wavenum, inspectral, ['r-'],['Input'],0.5)
-    convplot.plot(1, "Convolution Test", r'Wavenumber cm$^{-1}$',\
-                r'Signal', wavenum, outspectral, ['g-'],['Output'],0.5)
+    convplot.plot(1, wavenum, inspectral, "Convolution Test", r'Wavenumber cm$^{-1}$',\
+                r'Signal', ['r-'],['Input'],0.5)
+    convplot.plot(1, wavenum, outspectral, "Convolution Test", r'Wavenumber cm$^{-1}$',\
+                r'Signal', ['g-'],['Output'],0.5)
     convplot.saveFig('convplot01'+figtype)
-    
+
     ## ----------------------- spectral convolution practical example ----------
      # loading bunsen spectral radiance file: 4cm-1  spectral resolution, approx 2 cm-1 sampling
     specRad = ryfiles.loadColumnTextFile('data/bunsenspec.txt',  \
                     loadCol=[0,1], comment='%', delimiter=' ')
-    # modtran5 transmittance 5m path, 1 cm-1 spectral resolution, sampled 1cm-1 
+    # modtran5 transmittance 5m path, 1 cm-1 spectral resolution, sampled 1cm-1
     tauAtmo = ryfiles.loadColumnTextFile('data/atmotrans5m.txt',  \
                     loadCol=[0,1], comment='%', delimiter=' ')
     wavenum =  tauAtmo[:, 0]
@@ -400,28 +400,28 @@ if __name__ == '__main__':
     bunInterp1 = interp1d(specRad[:,0], specRad[:,1])
     #then call the function on atmo intervals
     bunsen = bunInterp1(wavenum)
-   
+
     atmoplot = tauA.copy()
-    atmoplot =  numpy.vstack((atmoplot, tauAtmo4)) 
+    atmoplot =  numpy.vstack((atmoplot, tauAtmo4))
     convplot02 = ryplot.Plotter(1, 1, 1,figsize=(20,5))
-    convplot02.plot(1, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
-                r'Transmittance', wavenum, atmoplot.T, ['r-', 'g-'],['1 cm-1', '4 cm-1' ],0.5)
+    convplot02.plot(1, wavenum, atmoplot.T, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
+                r'Transmittance', ['r-', 'g-'],['1 cm-1', '4 cm-1' ],0.5)
     convplot02.saveFig('convplot02'+figtype)
 
     bunsenPlt = ryplot.Plotter(1,3, 2, figsize=(20,7))
-    bunsenPlt.plot(1, "Bunsen Flame Measurement 4 cm-1", r'',\
-                r'Signal', wavenum, bunsen, ['r-'],[], legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
-    bunsenPlt.plot(2, "Bunsen Flame Measurement 4 cm-1", r'',\
-                r'Signal', wavenum, bunsen, ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
-    bunsenPlt.plot(3, "Atmospheric Transmittance 1 cm-1", r'',\
-                r'Transmittance', wavenum, tauA, ['r-'],[],legendAlpha=0.5)
-    bunsenPlt.plot(4, "Atmospheric Transmittance 4 cm-1", r'',\
-                r'Transmittance', wavenum, tauAtmo4, ['r-'],[],legendAlpha=0.5)
-    bunsenPlt.plot(5, "Atmospheric-corrected Bunsen Flame Measurement 1 cm-1", r'Wavenumber cm$^{-1}$',\
-                r'Signal', wavenum, bunsen/tauA, ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
-    bunsenPlt.plot(6, "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
-                r'Signal', wavenum, bunsen/tauAtmo4, ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
-                
+    bunsenPlt.plot(1, wavenum, bunsen, "Bunsen Flame Measurement 4 cm-1", r'',\
+                r'Signal', ['r-'],[], legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+    bunsenPlt.plot(2, wavenum, bunsen, "Bunsen Flame Measurement 4 cm-1", r'',\
+                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+    bunsenPlt.plot(3, wavenum, tauA, "Atmospheric Transmittance 1 cm-1", r'',\
+                r'Transmittance', ['r-'],[],legendAlpha=0.5)
+    bunsenPlt.plot(4, wavenum, tauAtmo4, "Atmospheric Transmittance 4 cm-1", r'',\
+                r'Transmittance', ['r-'],[],legendAlpha=0.5)
+    bunsenPlt.plot(5, wavenum, bunsen/tauA, "Atmospheric-corrected Bunsen Flame Measurement 1 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+    bunsenPlt.plot(6, wavenum, bunsen/tauAtmo4, "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
+                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+
     bunsenPlt.saveFig('bunsenPlt01'+figtype)
 
 
@@ -429,10 +429,10 @@ if __name__ == '__main__':
 
     ##++++++++++++++++++++ demo the filter ++++++++++++++++++++++++++++
     ## ----------------------- wavelength------------------------------------------
-    #create the wavelength scale to be used in all spectral calculations, 
+    #create the wavelength scale to be used in all spectral calculations,
     # wavelength is reshaped to a 2-D  (N,1) column vector
     wavelength=numpy.linspace(0.1, 1.3, 350).reshape(-1, 1)
-   
+
     ##------------------------filter -------------------------------------
     width = 0.5
     center = 0.7
@@ -440,12 +440,12 @@ if __name__ == '__main__':
     filterTxt = ['s={0}'.format(s) for s in filterExp ]
     filters = sfilter(wavelength,center, width, filterExp[0], 0.8,  0.1)
     for exponent in filterExp[1:]:
-        filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1))) 
+        filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(5, 5))
-    smpleplt.plot(1, r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8", r'Wavelength $\mu$m',\
-                r'Transmittance', wavelength, filters, \
+    smpleplt.plot(1, wavelength, filters, r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8", r'Wavelength $\mu$m',\
+                r'Transmittance', \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
     smpleplt.saveFig('sfilterVar'+figtype)
 
@@ -457,12 +457,12 @@ if __name__ == '__main__':
     parameterTxt = ['a={0}, n={1}'.format(s[0], s[1]) for s in params ]
     responsivities = responsivity(wavelength,lwavepeak, params[0][0], params[0][1], 1.0)
     for param in params[1:]:
-        responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0))) 
+        responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
 
     ##------------------------- plot sample detector ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(5, 5))
-    smpleplt.plot(1, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength $\mu$m',\
-               r'Responsivity', wavelength, responsivities, \
+    smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength $\mu$m',\
+               r'Responsivity', \
                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt)
     smpleplt.saveFig('responsivityVar'+figtype)
 
@@ -473,12 +473,12 @@ if __name__ == '__main__':
     parameterTxt = [str(s)+' & '+str(f) for (s, f) in zip(params, filterExp) ]
     ##------------------------- plot filtered detector ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1)
-    smpleplt.plot(1, "Filtered Detector Responsivity", r'Wavelength $\mu$m',\
-               r'Responsivity', wavelength, filtreps, \
+    smpleplt.plot(1, wavelength, filtreps, "Filtered Detector Responsivity", r'Wavelength $\mu$m',\
+               r'Responsivity', \
                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
     smpleplt.saveFig('filtrespVar'+figtype)
 
-    
+
     #test and demo effective value function
     temperature = 5900
     spectralBaseline = ryplanck.planckel(wavelength,temperature)
@@ -488,5 +488,5 @@ if __name__ == '__main__':
         print('Effective responsivity {0} of detector with parameters {1} '
              'and source temperature {2} K'.\
               format(effRespo, params[i], temperature))
-    
+
     print('module ryutils done!')

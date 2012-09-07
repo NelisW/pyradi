@@ -69,9 +69,9 @@ Functions are provided for a maximally flat spectral filter, a simple photon det
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">responsivity</tt><big>(</big><em>wavelength</em>, <em>lwavepeak</em>, <em>cuton=1</em>, <em>cutoff=20</em>, <em>scaling=1.0</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.responsivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a photon detector wavelength spectral responsisivity</p>
 <p>Given a number of parameters, calculates a shape that is somewhat similar to a photon
-detector spectral response, on wavelength scale. The function parameters controls the 
+detector spectral response, on wavelength scale. The function parameters controls the
 cutoff wavelength and shape of the response. This function is not meant to replace the use
-of properly measured  spectral responses, but rather serves as a starting point if no other 
+of properly measured  spectral responses, but rather serves as a starting point if no other
 information is available.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -111,10 +111,10 @@ This function does not calculate ripple in the pass-band or cut-off band.</p>
 <div class="line">spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].</div>
 <div class="line">center (float): central value for filter passband</div>
 <div class="line">width (float): proportional to width of filter passband</div>
-<div class="line">exponent (float): even integer, define the sharpness of cutoff. </div>
+<div class="line">exponent (float): even integer, define the sharpness of cutoff.</div>
 <div class="line-block">
 <div class="line">If exponent=2        then gaussian</div>
-<div class="line">If exponent=infinity then square </div>
+<div class="line">If exponent=infinity then square</div>
 </div>
 <div class="line">taupass (float): the transmittance in the pass band (assumed constant)</div>
 <div class="line">taustop (float): peak transmittance in the stop band (assumed constant)</div>
@@ -140,7 +140,7 @@ This function does not calculate ripple in the pass-band or cut-off band.</p>
 <p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
 &#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
 The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
-<p>Note that the &#8216;to&#8217; domain vector is a direct conversion of the &#8216;from&#8217; domain 
+<p>Note that the &#8216;to&#8217; domain vector is a direct conversion of the &#8216;from&#8217; domain
 to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -153,18 +153,18 @@ to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
 </div>
 <div class="line">type (string):  specify from and to domains:</div>
 <div class="line-block">
-<div class="line">&#8216;wf&#8217; convert from wavelength to per frequency </div>
-<div class="line">&#8216;wn&#8217; convert from wavelength to per wavenumber </div>
-<div class="line">&#8216;fw&#8217; convert from frequency to per wavelength </div>
+<div class="line">&#8216;wf&#8217; convert from wavelength to per frequency</div>
+<div class="line">&#8216;wn&#8217; convert from wavelength to per wavenumber</div>
+<div class="line">&#8216;fw&#8217; convert from frequency to per wavelength</div>
 <div class="line">&#8216;fn&#8217; convert from frequency to per wavenumber</div>
-<div class="line">&#8216;nw&#8217; convert from wavenumber to per wavelength </div>
+<div class="line">&#8216;nw&#8217; convert from wavenumber to per wavelength</div>
 <div class="line">&#8216;nf&#8217; convert from wavenumber to per frequency</div>
 </div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">[N,1]: outspectraldomain </div>
+<div class="line">[N,1]: outspectraldomain</div>
 <div class="line">Returns zero length array if type is illegal, i.e. not one of the expected values</div>
 </div>
 </dd>
@@ -187,7 +187,7 @@ The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domai
 but positive in the sense of radiance density.</p>
 <p>The spectral density quantity input is given as a two vectors: the domain value vector
 and the density quantity vector. The output of the function is also two vectors, i.e.
-the &#8216;to&#8217; domain value vector and the &#8216;to&#8217; spectral density. Note that the &#8216;to&#8217; domain 
+the &#8216;to&#8217; domain value vector and the &#8216;to&#8217; spectral density. Note that the &#8216;to&#8217; domain
 vector is a direct conversion of the &#8216;from&#8217; domain to the &#8216;to&#8217; domain (not interpolated
 or otherwise sampled).</p>
 <dl class="docutils">
@@ -230,7 +230,7 @@ or otherwise sampled).</p>
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">effectiveValue</tt><big>(</big><em>spectraldomain</em>, <em>spectralToProcess</em>, <em>spectralBaseline</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.effectiveValue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalise a spectral quantity to a scalar, using a weighted mapping by another spectral quantity.</p>
 <p>Effectivevalue =  integral(spectralToProcess * spectralBaseline) / integral( spectralBaseline)</p>
-<p>The data in  spectralToProcess and  spectralBaseline must both be sampled at the same 
+<p>The data in  spectralToProcess and  spectralBaseline must both be sampled at the same
 domain values     as specified in spectraldomain.</p>
 <p>The integral is calculated with numpy/scipy trapz trapezoidal integration function.</p>
 <dl class="docutils">
@@ -243,7 +243,7 @@ domain values     as specified in spectraldomain.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(float):  effective value </div>
+<div class="line">(float):  effective value</div>
 <div class="line">Returns None if there is a problem</div>
 </div>
 </dd>

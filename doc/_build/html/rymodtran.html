@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Modtran utility &mdash; pyradi  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyradi  documentation" href="index.html" />
+    <link rel="next" title="Three-Dimensional Noise Calculation" href="ry3dnoise.html" />
+    <link rel="prev" title="Ptw File Functions" href="ryptw.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ry3dnoise.html" title="Three-Dimensional Noise Calculation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ryptw.html" title="Ptw File Functions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="modtran-utility">
+<h1>Modtran utility<a class="headerlink" href="#modtran-utility" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyradi.rymodtran">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.rymodtran" title="Permalink to this headline">¶</a></h2>
+<p>This module provides rudimentary MODTRAN file reading.</p>
+<p>See the __main__ function for examples of use.</p>
+</div>
+<div class="section" id="module-classes">
+<h2>Module classes<a class="headerlink" href="#module-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyradi.rymodtran.fixHeaders">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">fixHeaders</tt><big>(</big><em>str</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.fixHeaders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rymodtran.loadtape7">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">loadtape7</tt><big>(</big><em>filename</em>, <em>colspec=</em><span class="optional">[</span><span class="optional">]</span>, <em>delimiter=None</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.loadtape7" title="Permalink to this definition">¶</a></dt>
+<dd><p>This funciton reads in the tape7 file from MODerate spectral resolution atmospheric
+TRANsmission (MODTRAN) code, that is used to model the propagation of the
+electromagnetic radiation through the atmosphere. tape7 is a primary file that contains all the spectral
+results of the MODTRAN run. The header information in the tape7 file contains portions of the tape5
+information that will be deleted. The header section in tape7 is followed by a list of spectral points
+with corresponding transmissions. Each column has a different component of the transmission and
+the total transmittance is always found in the second column.</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">filename (string): name of the input ASCII flatfile.</div>
+<div class="line">colspec output the spectral transmittance data</div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rymodtran.nparrayToString">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">nparrayToString</tt><big>(</big><em>coldata</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.nparrayToString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Modtran utility</a><ul>
+<li><a class="reference internal" href="#module-pyradi.rymodtran">Overview</a></li>
+<li><a class="reference internal" href="#module-classes">Module classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ryptw.html"
+                        title="previous chapter">Ptw  File Functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ry3dnoise.html"
+                        title="next chapter">Three-Dimensional Noise Calculation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rymodtran.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ry3dnoise.html" title="Three-Dimensional Noise Calculation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ryptw.html" title="Ptw File Functions"
+             >previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, CJ Willers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

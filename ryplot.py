@@ -234,7 +234,7 @@ class Plotter:
 
     ############################################################
     ##
-    def plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
+    def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
@@ -250,17 +250,17 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
                 | x (np.array[N,] or [N,1]): abscissa
                 | y (np.array[N,] or [N,M]): ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list with M entries
-                | legendAlpha (float): transparancy for legend
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label for ordinate, list with M entries (optional)
+                | legendAlpha (float): transparancy for legend (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
 
@@ -271,18 +271,17 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.plot, plotnum, ptitle, xlabel, ylabel, \
-                    x, y,plotCol, label,legendAlpha, pltaxis, \
+        self.myPlot(plt.plot, plotnum, x, y, ptitle, xlabel, ylabel, \
+                    plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, powerLimits)
 
     ############################################################
     ##
-    def logLog(self, plotnum, ptitle, xlabel, ylabel, x, y, \
+    def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on logarithmic scales for abscissa and ordinates.
-
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the y-values
@@ -294,18 +293,18 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
                 | x (np.array[N,] or [N,1]): abscissa
                 | y (np.array[N,] or [N,M]): ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list with M entries
-                | legendAlpha (float): transparancy for legend
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
-                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label for ordinate, list with M entries (optional)
+                | legendAlpha (float): transparancy for legend (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -315,13 +314,13 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.loglog, plotnum, ptitle, xlabel,ylabel,\
-                    x, y,plotCol, label,legendAlpha, pltaxis, \
+        self.myPlot(plt.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
+                    plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, powerLimits)
 
     ############################################################
     ##
-    def semilogX(self, plotnum, ptitle, xlabel, ylabel, x, y, \
+    def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
@@ -337,18 +336,18 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
                 | x (np.array[N,] or [N,1]): abscissa
                 | y (np.array[N,] or [N,M]): ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list with M entries
-                | legendAlpha (float): transparancy for legend
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
-                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label for ordinate, list with M entries (optional)
+                | legendAlpha (float): transparancy for legend (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -358,13 +357,13 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.semilogx, plotnum,ptitle,xlabel,ylabel,\
-                    x, y,plotCol, label,legendAlpha, pltaxis, \
+        self.myPlot(plt.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
+                    plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, powerLimits)
 
     ############################################################
     ##
-    def semilogY(self, plotnum, ptitle, xlabel, ylabel, x, y, \
+    def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
@@ -380,18 +379,18 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
                 | x (np.array[N,] or [N,1]): abscissa
                 | y (np.array[N,] or [N,M]): ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list withM entries
-                | legendAlpha (float): transparancy for legend
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
-                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label for ordinate, list withM entries (optional)
+                | legendAlpha (float): transparancy for legend (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -401,14 +400,14 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.semilogy, plotnum,ptitle,xlabel,ylabel,\
-                    x, y,plotCol, label,legendAlpha, pltaxis, \
+        self.myPlot(plt.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
+                    plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, powerLimits)
 
     ############################################################
     ##
-    def myPlot(self, plotcommand,plotnum,ptitle,xlabel,ylabel,
-                    x, y, plotCol=[],label=[],legendAlpha=0.0,\
+    def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None,ylabel=None,
+                     plotCol=[],label=[],legendAlpha=0.0,\
                     pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0,  \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12 ):
         """Low level helper function to create a subplot and plot the data as required.
@@ -458,10 +457,23 @@ class Plotter:
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
         plt.grid(True)
+
+        # use scientific format on axes
+        #yfm = sbp.yaxis.get_major_formatter()
+        #yfm.set_powerlimits([ -3, 3])
+
         if xlabel is not None:
             plt.xlabel(xlabel)
+            formx = plt.ScalarFormatter()
+            formx.set_scientific(True)
+            formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+            ax.xaxis.set_major_formatter(formx)
         if ylabel is not None:
             plt.ylabel(ylabel)
+            formy = plt.ScalarFormatter()
+            formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+            formy.set_scientific(True)
+            ax.yaxis.set_major_formatter(formy)
 
         if maxNX >0:
             ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
@@ -477,21 +489,6 @@ class Plotter:
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
-        # use scientific format on axes
-        #yfm = sbp.yaxis.get_major_formatter()
-        #yfm.set_powerlimits([ -3, 3])
-
-        # set the limits as two when scientific notation is used
-        formy = None
-        formy = plt.ScalarFormatter()
-        formy.set_powerlimits([powerLimits[2], powerLimits[3]])
-        formy.set_scientific(True)
-        ax.yaxis.set_major_formatter(formy)
-        formx = plt.ScalarFormatter()
-        formx.set_scientific(True)
-        formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-        ax.xaxis.set_major_formatter(formx)
-
         #scale the axes
         if sum(pltaxis)!=0:
             plt.axis(pltaxis)
@@ -501,7 +498,7 @@ class Plotter:
 
     ############################################################
     ##
-    def polar(self, plotnum, ptitle, theta, r, \
+    def polar(self, plotnum, theta, r, ptitle=None, \
                     plotCol=[], label=[],labelLocation=[-0.1, 0.1], \
                     legendAlpha=0.0, \
                     rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], \
@@ -522,18 +519,18 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
                 | theta (np.array[N,] or [N,1]): angular abscissa
                 | r (np.array[N,] or [N,M]): radial ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label, list with M entries
-                | labelLocation ([x,y]): where the legend should located
-                | legendAlpha (float): transparancy for legend
-                | rscale ([rmin, rmax]): plotting limits. default if all 0
-                | rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals.
-                | thetagrids (float): theta grid interval [degrees]
-                | direction (string)= 'counterclockwise' or 'clockwise'
-                | zerooffset (float) = rotation offset where zero should be [rad]
+                | ptitle (string): plot title (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label, list with M entries (optional)
+                | labelLocation ([x,y]): where the legend should located (optional)
+                | legendAlpha (float): transparancy for legend (optional)
+                | rscale ([rmin, rmax]): plotting limits. default if all 0 (optional)
+                | rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals. (optional)
+                | thetagrids (float): theta grid interval [degrees] (optional)
+                | direction (string)= 'counterclockwise' or 'clockwise' (optional)
+                | zerooffset (float) = rotation offset where zero should be [rad] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -614,7 +611,7 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, titlefsize=12, cbarshow=False, \
+    def showImage(self, plotnum, img,  ptitle=None, cmap=plt.cm.gray, titlefsize=12, cbarshow=False, \
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
         """Creates a subplot and show the image using the colormap provided.
 
@@ -671,7 +668,7 @@ class Plotter:
 
     ############################################################
     ##
-    def plot3d(self, plotnum, ptitle, xlabel, ylabel, zlabel, x, y, z, \
+    def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, \
                plotCol=[], label=None, legendAlpha=0.0, titlefsize=12):
         """3D plot on linear scales for x y z input sets.
 
@@ -685,15 +682,15 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
                 | x (np.array[N,] or [N,M]): x coordinates of vertices
                 | y (np.array[N,] or [N,M]): y coordinates of vertices
                 | z (np.array[N,] or [N,M]): z coordinates of vertices
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list with M entries
-                | legendAlpha (float): transparancy for legend
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
+                | label  ([strings]): legend label for ordinate, list with M entries (optional)
+                | legendAlpha (float): transparancy for legend (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -722,12 +719,14 @@ class Plotter:
         for i in range(x.shape[-1]):
             ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
 
+        if xlabel is not None:
+            ax.set_xlabel(xlabel)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel)
+        if zlabel is not None:
+            ax.set_zlabel(zlabel)
 
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_zlabel(zlabel)
-
-        if label:
+        if label is not None:
             leg = plt.legend(label, loc='best', fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
@@ -755,23 +754,23 @@ if __name__ == '__main__':
             1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
     A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
-    A.plot(1, "Array Linear","X", "Y", xLinS, yLinA,
+    A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
             plotCol=['c--'],
            label=['A1', 'A2', 'A3'],legendAlpha=0.5,
            pltaxis=[0, 10, 0, 2000],
            maxNX=10, maxNY=2,
            powerLimits = [-4,  2, -5, 5])
-    A.logLog(2, "Array LogLog","X", "Y", xLinS, yLinA,\
+    A.logLog(2, xLinS, yLinA, "Array LogLog","X", "Y",\
              label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    A.semilogX(3, "Array SemilogX","X", "Y", xLinS, yLinA,\
+    A.semilogX(3, xLinS, yLinA, "Array SemilogX","X", "Y",\
                label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    A.semilogY(4, "Array SemilogY","X", "Y", xLinS, yLinA,\
+    A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
                label=['A1', 'A2', 'A3'],legendAlpha=0.5)
     A.saveFig('A.png')
     #A.saveFig('A.eps')
 
     AA = Plotter(1, 1, 1,'Array Plots',figsize=(12,8))
-    AA.plot(1, "","X", "Y", xLinS, yLinA,
+    AA.plot(1, xLinS, yLinA, "","X", "Y",
             plotCol=['b--'],
            label=['A1', 'A2', 'A3'],legendAlpha=0.5,
            pltaxis=[0, 10, 0, 2000],
@@ -787,13 +786,13 @@ if __name__ == '__main__':
     #AA.saveFig('AA.eps')
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
-    S.plot(1, "Single Linear","X", "Y", xLinS, yLinS,\
+    S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
            label=['Single'],legendAlpha=0.5)
-    S.logLog(2, "Single LogLog","X", "Y", xLinS, yLinS,\
+    S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
              label=['Single'],legendAlpha=0.5)
-    S.semilogX(3, "Single SemilogX","X", "Y", xLinS, yLinS,\
+    S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
                label=['Single'],legendAlpha=0.5)
-    S.semilogY(4, "Single SemilogY","X", "Y", xLinS, yLinS,\
+    S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
                label=['Single'],legendAlpha=0.5)
     S.saveFig('S.png', dpi=300)
     #S.saveFig('S.eps')
@@ -802,15 +801,15 @@ if __name__ == '__main__':
     theta = 2*numpy.pi*r
     r2 = numpy.hstack((r,r**2))
     P = Plotter(3, 2, 2,'Polar Plots', figsize=(12,8))
-    P.polar(1, "Single Polar",theta, r,\
+    P.polar(1,theta, r, "Single Polar",\
            label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
-    P.polar(2, "Array Polar",theta, r2,\
+    P.polar(2,theta, r2, "Array Polar",\
            label=['A', 'B'],legendAlpha=0.5,rscale=[2,6],rgrid=[2,6],\
            thetagrid=[45], direction=u'clockwise', zerooffset=0)
-    P.polar(3, "Single Polar",theta, r,\
+    P.polar(3,theta, r, "Single Polar",\
            label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
            direction=u'clockwise', zerooffset=numpy.pi/2)
-    P.polar(4, "Array Polar",theta, r2,\
+    P.polar(4,theta, r2, "Array Polar",\
            label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
            thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
     P.saveFig('P.png')
@@ -823,13 +822,13 @@ if __name__ == '__main__':
     M= Plotter(1, 1, 1,'Multi-plots',figsize=(12,8))
     #it seems that all attempts to plot in same subplot space must use same ptitle.
     yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['b'], label=['A1'])
+    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['b'], label=['A1'])
     yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['g'], label=['A2'])
+    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['g'], label=['A2'])
     yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['r'], label=['A3'])
+    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['r'], label=['A3'])
     yLinS=numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, None,"X", "Y", xLinS, yLinS,plotCol=['c'], \
+    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['c'], \
            label=['A4'],legendAlpha=0.5, maxNX=10, maxNY=2)
     M.saveFig('M.png')
     #M.saveFig('M.eps')
@@ -842,7 +841,7 @@ if __name__ == '__main__':
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
     P.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
     P.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
-    P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
+    P.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
     P.saveFig('I.png')
 #    P.saveFig('I.eps')
 
@@ -857,18 +856,18 @@ if __name__ == '__main__':
     z = numpy.linspace(-2, 2, 100)
     x, y = parametricCurve(z)
 
-    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z')
     P3D.saveFig('3D.png')
 
     P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
-    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=['parametric curve'], legendAlpha=0.5)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=['parametric curve'], legendAlpha=0.5)
     P3D.saveFig('3DwithLabel.png')
 
     P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
-    P3D.plot(1, 'Top View', 'X', 'Y', x.T, y.T)
-    P3D.plot(2, 'Side View Along Y Axis', 'X', 'Z', x.T, z.T)
-    P3D.plot(3, 'Side View Along X Axis', 'Y', 'Z', y.T, z.T)
-    P3D.plot3d(4, '3D View', 'X', 'Y', 'Z', x.T, y.T, z.T)
+    P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
+    P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
+    P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
+    P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
     P3D.saveFig('S3D.png')
 
     P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
@@ -884,7 +883,7 @@ if __name__ == '__main__':
 
     z = numpy.vstack((z,z,z))
 
-    P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=label, legendAlpha=0.5)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, legendAlpha=0.5)
     P3D.saveFig('M3D.png')
 
     print('module ryplot done!')

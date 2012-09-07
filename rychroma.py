@@ -14,7 +14,7 @@
 
 # The Original Code is part of the PyRadi toolkit.
 
-# The Initial Developer of the Original Code is CJ Willers, 
+# The Initial Developer of the Original Code is CJ Willers,
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
@@ -42,37 +42,37 @@ import numpy
 ##
 def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
     """ Calculate the CIE chromaticity coordinates for an arbitrary spectrum.
-    
-    Given a spectral radiance vector and CIE tristimulus curves, 
-    calculate the CIE chromaticity coordinates. It is assumed that the 
+
+    Given a spectral radiance vector and CIE tristimulus curves,
+    calculate the CIE chromaticity coordinates. It is assumed that the
     radiance spectral density is given in the same units as the spectral
     vector (i.e. [1/um] or [1/cm-1], corresponding to [um] or [cm-1] respectively.
     It is furthermore accepted that the tristimulus curves are also sampled at
-    the same spectral intervals as the radiance. See 
-    http://en.wikipedia.org/wiki/CIE_1931_color_space 
+    the same spectral intervals as the radiance. See
+    http://en.wikipedia.org/wiki/CIE_1931_color_space
     for more information on CIE tristimulus spectral curves.
-    
+
     Args:
         | spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].
         | radiance (np.array[N,] or [N,1]): the spectral radiance (any units), (sampled at spectral).
         | xbar (np.array[N,] or [N,1]): CIE x tristimulus spectral curve (sampled at spectral values).
         | ybar (np.array[N,] or [N,1]): CIE y tristimulus spectral curve (sampled at spectral values).
         | zbar (np.array[N,] or [N,1]): CIE z tristimulus spectral curve (sampled at spectral values).
-        
+
     Returns:
         | [x,y,Y]: color coordinates x, y, and Y.
-        
+
     Raises:
         | No exception is raised.
     """
-    
+
     X=numpy.trapz(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
     Y=numpy.trapz(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
     Z=numpy.trapz(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
-    
+
     x=X/(X+Y+Z)
     y=Y/(X+Y+Z)
-    
+
     return [x[0], y[0], Y[0]]
 
 
@@ -82,9 +82,9 @@ def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
 
 if __name__ == '__init__':
     pass
-    
+
 if __name__ == '__main__':
-        
+
     import math
     import sys
 
@@ -96,29 +96,29 @@ if __name__ == '__main__':
     #figtype = ".eps"  # eps, jpg, png
 
     ## ----------------------- wavelength------------------------------------------
-    #create the wavelength scale to be used in all spectral calculations, 
+    #create the wavelength scale to be used in all spectral calculations,
     # wavelength is reshaped to a 2-D  (N,1) column vector
     wavelength=numpy.linspace(0.38, 0.72, 350).reshape(-1, 1)
 
     ## ----------------------- colour tristimulus ---------------------------------
-    # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).  
+    # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).
     # return values are 2-D  (N,1) column vectors scaled and interpolated.
     xbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
                     loadCol=[1], comment='%', delimiter=',', abscissaScale=1e-3)
     ybar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
                     loadCol=[2],  comment='%', delimiter=',', abscissaScale=1e-3)
-    zbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, 
+    zbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength,
                     loadCol=[3],  comment='%', delimiter=',', abscissaScale=1e-3)
 
     ## ------------------------ sources ------------------------------------------
-    #build a 2-D array with the source radiance values, where each column 
+    #build a 2-D array with the source radiance values, where each column
     #represents a different source. Wavelength extends along columns.
     #Spectral interval for all source spectra is the same, which is 'wavelength'
     #Blackbody radiance spectra are calculated at the required wavelength intervals
-    #Data read from files are interpolated to the required wavelength intervals 
+    #Data read from files are interpolated to the required wavelength intervals
     #Use numpy.hstack to stack columns horizontally.
 
-    sources = ryfiles.loadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength, 
+    sources = ryfiles.loadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength,
                             comment='%', normalize=1)
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900)))
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850)))
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     #normalize the source data (along axis-0, which is along columns)
     #this is not really necessary for CIE xy calc, which normalizes itself.
     #It is however useful for plotting the curves.
-    sources /= numpy.max(sources,axis=0) 
+    sources /= numpy.max(sources,axis=0)
 
     ##------------------------- samples ----------------------------------------
     # read space separated file containing wavelength in um, then samples.
@@ -146,26 +146,26 @@ if __name__ == '__main__':
 
     ##------------------------- plot sample spectra ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1)
-    smpleplt.plot(1, "Sample reflectance", r'Wavelength $\mu$m',\
-                r'Reflectance', wavelength, samples, \
+    smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',\
+                r'Reflectance', \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
     smpleplt.saveFig('SampleReflectance'+figtype)
 
     ##------------------------- plot source spectra ------------------------------
     srceplt = ryplot.Plotter(2, 1, 1)
-    srceplt.plot(1, "Normalized source radiance", \
-                r'Wavelength $\mu$m', r'Radiance', wavelength, sources, \
+    srceplt.plot(1, wavelength, sources, "Normalized source radiance", \
+                r'Wavelength $\mu$m', r'Radiance', \
                 ['k:', 'k-.', 'k--', 'k-'],sourcesTxt,0.5 )
     srceplt.saveFig('SourceRadiance'+figtype)
 
     ##------------------------- plot cie tristimulus spectra ---------------------
     cietriplt = ryplot.Plotter(3, 1, 1)
-    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', wavelength, xbar, 'k-', ['$\\bar{x}$'],0.5)
-    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', wavelength, ybar, 'k-.', ['$\\bar{y}$'],0.5)
-    cietriplt.plot(1,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', wavelength, zbar, 'k--', ['$\\bar{z}$'],0.5)
+    cietriplt.plot(1, wavelength, xbar,"CIE tristimulus values",r'Wavelength $\mu$m',\
+            r'Response', 'k-', ['$\\bar{x}$'],0.5)
+    cietriplt.plot(1, wavelength, ybar,"CIE tristimulus values",r'Wavelength $\mu$m',\
+            r'Response', 'k-.', ['$\\bar{y}$'],0.5)
+    cietriplt.plot(1, wavelength, zbar,"CIE tristimulus values",r'Wavelength $\mu$m',\
+            r'Response', 'k--', ['$\\bar{z}$'],0.5)
     cietriplt.saveFig('tristimulus'+figtype)
 
 
@@ -196,13 +196,13 @@ if __name__ == '__main__':
     ##---------------------- plot chromaticity diagram  ---------------------------
     ciexyplt = ryplot.Plotter(4, 1, 1)
     #plot monochromatic horseshoe
-    ciexyplt.plot(1,"CIE chromaticity diagram", r'x', r'y', \
-            xm, ym, ['k-'])
+    ciexyplt.plot(1, xm, ym,"CIE chromaticity diagram", r'x', r'y', \
+             ['k-'])
     #plot chromaticity loci for samples
     styleSample=['r--', 'g-.', 'y-', 'g-', 'b-', 'k-']
     for iSmpl in range(samples.shape[1]):
-        ciexyplt.plot(1,"CIE chromaticity diagram", r'x', r'y', \
-                xs[iSmpl],ys[iSmpl],[styleSample[iSmpl]] ,[samplesTxt[iSmpl]],0.5 )
+        ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y', \
+                [styleSample[iSmpl]] ,[samplesTxt[iSmpl]],0.5 )
     #plot source markers
     styleSource=['bo', 'yo', 'ro', 'go']
     for iSmpl in range(samples.shape[1]):
@@ -211,10 +211,10 @@ if __name__ == '__main__':
                 legend=[sourcesTxt[iSrc]]
             else:
                 legend=''
-               
-            ciexyplt.plot(1,"CIE chromaticity diagram", r'x',r'y',\
-                    xs[iSmpl,iSrc],ys[iSmpl,iSrc],[styleSource[iSrc]],legend,0.5 )
+
+            ciexyplt.plot(1,xs[iSmpl,iSrc],ys[iSmpl,iSrc],"CIE chromaticity diagram", r'x',r'y',\
+                    [styleSource[iSrc]],legend,0.5 )
 
     ciexyplt.saveFig('chromaticity'+figtype)
-    
+
     print('module chroma done!')
