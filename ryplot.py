@@ -38,9 +38,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-__version__= "$Revision$"
-__author__='pyradi team'
-__all__=['Plotter']
+__version__ = "$Revision$"
+__author__ = 'pyradi team'
+__all__ = ['Plotter']
 
 import numpy
 import math
@@ -110,8 +110,6 @@ class Plotter:
 
         self.nrow=subpltnrow
         self.ncol=subpltncol
-        self.subplothandle = [None for i in range(0,self.ncol*self.nrow+1)]
-        self.subplothandle[0] = self.fig
 
         # width reserved for space between subplots
         self.fig.subplots_adjust(wspace=0.25)
@@ -218,8 +216,6 @@ class Plotter:
     def getSubPlot(self, subplotNum = 1):
         """Returns a handle the subplot, as requested per subplot number.
         Subplot numbers range from 1 upwards.
-        If this function is called with subplotNum = 0, a handle to the
-        containing figure is returned.
 
             Args:
                 | subplotNumer (int) : number of the subplot
@@ -230,9 +226,10 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
-        return self.subplothandle[subplotNum]
-
-
+        if (self.nrow,self.ncol, subplotNum) in self.subplots.keys():
+            return self.subplots[(self.nrow,self.ncol, subplotNum)]
+        else:
+            return None
 
 
     ############################################################
@@ -240,7 +237,7 @@ class Plotter:
     def plot(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
-                    powerLimits = [-4,  2,  -4,  2] ):
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -265,6 +262,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -282,7 +280,7 @@ class Plotter:
     def logLog(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
-                    powerLimits = [-4,  2,  -4,  2] ):
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
 
@@ -308,6 +306,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -325,7 +324,7 @@ class Plotter:
     def semilogX(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
-                    powerLimits = [-4,  2,  -4,  2] ):
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -350,6 +349,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -367,7 +367,7 @@ class Plotter:
     def semilogY(self, plotnum, ptitle, xlabel, ylabel, x, y, \
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
-                    powerLimits = [-4,  2,  -4,  2] ):
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -392,6 +392,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -409,7 +410,7 @@ class Plotter:
     def myPlot(self, plotcommand,plotnum,ptitle,xlabel,ylabel,
                     x, y, plotCol=[],label=[],legendAlpha=0.0,\
                     pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0,  \
-                    powerLimits = [-4,  2,  -4,  2] ):
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12 ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -430,6 +431,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -450,13 +452,10 @@ class Plotter:
 
         plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
-        #use add_subplot to keep the previous subplot
-        if(ptitle is not None):
-            sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum,title=ptitle)
-        else:
-            sbp=self.fig.add_subplot(self.nrow, self.ncol, plotnum)
-        #save handle to this subplot for later
-        self.subplothandle[plotnum] = sbp
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
         plt.grid(True)
         if xlabel is not None:
@@ -465,9 +464,9 @@ class Plotter:
             plt.ylabel(ylabel)
 
         if maxNX >0:
-            sbp.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
         if maxNY >0:
-            sbp.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
         if not label:
             for i in range(yy.shape[1]):
                 plotcommand(xx, yy[:, i], plotCol[i],label=None)
@@ -487,15 +486,18 @@ class Plotter:
         formy = plt.ScalarFormatter()
         formy.set_powerlimits([powerLimits[2], powerLimits[3]])
         formy.set_scientific(True)
-        sbp.yaxis.set_major_formatter(formy)
+        ax.yaxis.set_major_formatter(formy)
         formx = plt.ScalarFormatter()
         formx.set_scientific(True)
         formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-        sbp.xaxis.set_major_formatter(formx)
+        ax.xaxis.set_major_formatter(formx)
 
         #scale the axes
         if sum(pltaxis)!=0:
             plt.axis(pltaxis)
+
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
 
     ############################################################
     ##
@@ -503,7 +505,7 @@ class Plotter:
                     plotCol=[], label=[],labelLocation=[-0.1, 0.1], \
                     legendAlpha=0.0, \
                     rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], \
-                    direction='counterclockwise', zerooffset=0):
+                    direction='counterclockwise', zerooffset=0, titlefsize=12):
         """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -532,6 +534,7 @@ class Plotter:
                 | thetagrids (float): theta grid interval [degrees]
                 | direction (string)= 'counterclockwise' or 'clockwise'
                 | zerooffset (float) = rotation offset where zero should be [rad]
+                | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
                 | Nothing
@@ -552,7 +555,12 @@ class Plotter:
 
         plotCol = self.buildPlotCol(plotCol, rr.shape[1])
 
-        sbplt=plt.subplot(self.nrow,self.ncol,plotnum,polar=True)
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
+
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
         plt.grid(True)
 
         rmax=0
@@ -579,8 +587,8 @@ class Plotter:
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
-        sbplt.set_theta_direction(direction)
-        sbplt.set_theta_offset(zerooffset)
+        ax.set_theta_direction(direction)
+        ax.set_theta_offset(zerooffset)
 
         #set up the grids
         plt.thetagrids(range(0, 360, thetagrid[0]))
@@ -596,16 +604,17 @@ class Plotter:
                 plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
         #Set increment and maximum radial limits
         if sum(rscale)!=0:
-            sbplt.set_rmin(rscale[1])
-            sbplt.set_rmax(rscale[0])
+            ax.set_rmin(rscale[1])
+            ax.set_rmax(rscale[0])
 
-        sbplt.set_title(ptitle, verticalalignment ='bottom',\
-                  horizontalalignment='center'      )
+        if(ptitle is not None):
+            ax.set_title(ptitle, fontsize=titlefsize, \
+                verticalalignment ='bottom', horizontalalignment='center')
 
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, fsize=12, cbarshow=False, \
+    def showImage(self, plotnum, img,  ptitle="", cmap=plt.cm.gray, titlefsize=12, cbarshow=False, \
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
         """Creates a subplot and show the image using the colormap provided.
 
@@ -629,6 +638,10 @@ class Plotter:
     #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+
         plt.imshow(img, cmap)
         plt.axis('off')
         if cbarshow is True:
@@ -649,7 +662,9 @@ class Plotter:
                 for t in cbar.ax.get_xticklabels():
                      t.set_fontsize(cbarfontsize)
 
-        plt.title(ptitle, fontsize=fsize)
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
 
 
 
@@ -657,7 +672,7 @@ class Plotter:
     ############################################################
     ##
     def plot3d(self, plotnum, ptitle, xlabel, ylabel, zlabel, x, y, z, \
-               plotCol=[], label=None, legendAlpha=0.0):
+               plotCol=[], label=None, legendAlpha=0.0, titlefsize=12):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -679,6 +694,13 @@ class Plotter:
                 | plotCol ([strings]): plot line style, list with M entries, use default if []
                 | label  ([strings]): legend label for ordinate, list with M entries
                 | legendAlpha (float): transparancy for legend
+                | titlefsize (int): title font size, default 12pt (optional)
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
         """
 
         # if required convert 1D arrays into 2D arrays
@@ -692,7 +714,8 @@ class Plotter:
         plotCol = self.buildPlotCol(plotCol, x.shape[-1])
 
         if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
@@ -709,7 +732,9 @@ class Plotter:
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
-        plt.title(ptitle)
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
 
 
 ################################################################
@@ -813,10 +838,10 @@ if __name__ == '__main__':
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
     P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    P.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, fsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    P.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
     P.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
-    P.showImage(3, z, ptitle='default gray colormap, font 8pt', fsize=8)
+    P.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
     P.plot(4, "Array Linear","x", "z", xv[:, 1],  z)
     P.saveFig('I.png')
 #    P.saveFig('I.eps')
@@ -837,14 +862,14 @@ if __name__ == '__main__':
 
     P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
     P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=['parametric curve'], legendAlpha=0.5)
-    P3D.saveFig('3DwithLabel.eps')
+    P3D.saveFig('3DwithLabel.png')
 
     P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
     P3D.plot(1, 'Top View', 'X', 'Y', x.T, y.T)
     P3D.plot(2, 'Side View Along Y Axis', 'X', 'Z', x.T, z.T)
     P3D.plot(3, 'Side View Along X Axis', 'Y', 'Z', y.T, z.T)
     P3D.plot3d(4, '3D View', 'X', 'Y', 'Z', x.T, y.T, z.T)
-    P3D.saveFig('S3D.eps')
+    P3D.saveFig('S3D.png')
 
     P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
 
@@ -860,6 +885,6 @@ if __name__ == '__main__':
     z = numpy.vstack((z,z,z))
 
     P3D.plot3d(1, 'Parametric Curve', 'X', 'Y', 'Z', x.T, y.T, z.T, label=label, legendAlpha=0.5)
-    P3D.saveFig('M3D.eps')
+    P3D.saveFig('M3D.png')
 
     print('module ryplot done!')
