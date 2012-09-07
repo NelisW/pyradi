@@ -58,12 +58,12 @@
 <h1>Planck and thermal radiation<a class="headerlink" href="#planck-and-thermal-radiation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.ryplanck">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryplanck" title="Permalink to this headline">¶</a></h2>
-<p>This module provides functions for Planck Law emittance calculations, as well as 
+<p>This module provides functions for Planck Law emittance calculations, as well as
 temperature derivative calculations.
-The functions provide spectral emittance in [W/(m^2.*)] or [q/(s.m^2.*)], given 
-the temperature and a vector of one of wavelength, wavenumbers or frequency 
-(six combinations each for emittance and temperature derivative). The total 
-emittance can also be calculated by using the Stefan-Boltzman equation, in 
+The functions provide spectral emittance in [W/(m^2.*)] or [q/(s.m^2.*)], given
+the temperature and a vector of one of wavelength, wavenumbers or frequency
+(six combinations each for emittance and temperature derivative). The total
+emittance can also be calculated by using the Stefan-Boltzman equation, in
 [W/m^2] or [q/(s.m^2)].</p>
 <p>See the __main__ function for examples of use.</p>
 </div>
@@ -81,7 +81,7 @@ photon rate units, depending on user input in type.</p>
 <dd><div class="first last line-block">
 <div class="line">spectral (np.array[N,]):  spectral vector.</div>
 <div class="line">temperature (float):  Temperature scalar in [K].</div>
-<div class="line">type (string): </div>
+<div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/m^2.*].</div>
 <div class="line">&#8216;q&#8217; signifies photon rate values  [quanta/(s.m^2.*)].</div>
@@ -120,7 +120,7 @@ photon rate units, depending on user input in type.</p>
 <dd><div class="first last line-block">
 <div class="line">spectral (np.array[N,]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
 <div class="line">temperature (float):  Temperature scalar in [K].</div>
-<div class="line">type (string): </div>
+<div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/(m^2.K)].</div>
 <div class="line">&#8216;q&#8217; signifies photon rate values  [quanta/(s.m^2.K)].</div>
@@ -151,7 +151,7 @@ photon rate units, depending on user input in type.</p>
 <dt id="pyradi.ryplanck.stefanboltzman">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type=u'e'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stefan-Boltzman wideband integrated emittance.</p>
-<p>Calculates the total Planck Law emittance, integrated over all wavelengths, 
+<p>Calculates the total Planck Law emittance, integrated over all wavelengths,
 from a surface at the stated temperature. Emittance can be given in radiant or
 photon rate units, depending on user input in type.</p>
 <dl class="docutils">

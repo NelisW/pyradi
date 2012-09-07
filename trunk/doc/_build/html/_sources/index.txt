@@ -29,6 +29,8 @@ Contents:
   
    ryptw
    
+   rymodtran
+   
    ry3dnoise
 
    rychroma

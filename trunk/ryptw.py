@@ -19,7 +19,7 @@
 # Portions created by JJ Calitz are Copyright (C) 2011-2012
 # All Rights Reserved.
 
-#The author wishes to thank FLIR Advanced Thermal Solutions for the permission 
+#The author wishes to thank FLIR Advanced Thermal Solutions for the permission
 #to publicly release our Python version of the *.ptw file reader.  Please note that the
 #copyright to the proprietary *.ptw file format remains the property of FLIR Inc.
 
@@ -46,7 +46,7 @@ Returns nothing.  Prints the PTW header content to the screen
 getPTWFrame (header, frameindex) :
 Return the raw DL levels of the frame defined by frameindex
 
-The author wishes to thank FLIR Advanced Thermal Solutions for the permission 
+The author wishes to thank FLIR Advanced Thermal Solutions for the permission
 to publicly release our Python version of the ptw file reader.  Please note that the
 copyright to the proprietary ptw file format remains the property of FLIR Inc.
 
@@ -588,7 +588,7 @@ def getPTWFrame (s, frameindex):
 
     return s.data.conj().transpose()
 
-    
+
 #
 # ========================================================================
 #
@@ -621,7 +621,7 @@ def getPTWFrames (s, loadFrames=[]):
 
     data = getPTWFrame (s, loadFrames[0])
     for frame in loadFrames[1:]:
-        data = np.concatenate((data, getPTWFrame (s, frame))) 
+        data = np.concatenate((data, getPTWFrame (s, frame)))
 
     return data.reshape(len(loadFrames), rows ,cols)
 #
@@ -796,41 +796,41 @@ def showHeader(Header):
 ################################################################
 ################################################################
 ##
-## 
+##
 
 if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
-    
-    ptwfile  = 'data/PyradiSampleMWIR.ptw'   
+
+    ptwfile  = 'data/PyradiSampleMWIR.ptw'
     outfilename = 'PyradiSampleMWIR.txt'
-    
+
     header = readPTWHeader(ptwfile)
     showHeader(header)
-    
+
     rows = header.h_Rows
     cols = header.h_Cols
-    
+
     #loading sequence of frames
     framesToLoad = [3,4,10]
     data = getPTWFrames (header, framesToLoad)
     print(data.shape)
-      
+
     #loading sequence of frames, with an error in request
     framesToLoad = [0,4,10]
     data = getPTWFrames (header, framesToLoad)
     print(data.shape)
-      
+
     #loading single frames
     framesToLoad = range(1, 101, 1)
     frames = len(framesToLoad)
     data = getPTWFrame (header, framesToLoad[0])
     for frame in framesToLoad[1:]:
         f = (getPTWFrame (header, frame))
-        data = np.concatenate((data, f)) 
+        data = np.concatenate((data, f))
 
     img = data.reshape(frames, rows ,cols)
     print(img.shape)
-    
 
+    print('Done!')
