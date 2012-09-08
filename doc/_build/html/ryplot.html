@@ -331,7 +331,7 @@ the label argument can contain the legend labels for each of the columns/lines.<
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar">
-<tt class="descname">polar</tt><big>(</big><em>plotnum, theta, r, ptitle=None, plotCol=[], label=[], labelLocation=[-0.1, 0.1], legendAlpha=0.0, rscale=[0, 0], rgrid=[0, 0], thetagrid=[30], direction=u'counterclockwise', zerooffset=0, titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar</tt><big>(</big><em>plotnum, theta, r, ptitle=None, plotCol=[], label=[], labelLocation=[-0.1, 0.1], highlightNegative=False, highlightCol=u'#ffff00', highlightWidth=4, legendAlpha=0.0, rscale=None, rgrid=None, thetagrid=[30], direction=u'counterclockwise', zerooffset=0, titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a subplot and plot the data in polar coordinates (linear radial orginates only).</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the radial values
@@ -355,6 +355,9 @@ is set with zerooffset.</p>
 <div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label, list with M entries (optional)</div>
 <div class="line">labelLocation ([x,y]): where the legend should located (optional)</div>
+<div class="line">highlightNegative (bool): indicate if negative data be highlighted (optional)</div>
+<div class="line">highlightCol (string): highlighted colour string (optional)</div>
+<div class="line">highlightWidth (int): highlighted line width(optional)</div>
 <div class="line">legendAlpha (float): transparancy for legend (optional)</div>
 <div class="line">rscale ([rmin, rmax]): plotting limits. default if all 0 (optional)</div>
 <div class="line">rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals. (optional)</div>
@@ -503,7 +506,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x057492D8&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x058F5198&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
