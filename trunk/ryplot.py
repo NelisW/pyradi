@@ -451,25 +451,28 @@ class Plotter:
 
         plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        ax = None
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+        ax = self.subplots[pkey]
 
-        plt.grid(True)
+        ax.grid(True)
 
         # use scientific format on axes
         #yfm = sbp.yaxis.get_major_formatter()
         #yfm.set_powerlimits([ -3, 3])
 
         if xlabel is not None:
-            plt.xlabel(xlabel)
+            ax.set_xlabel(xlabel)
             formx = plt.ScalarFormatter()
             formx.set_scientific(True)
             formx.set_powerlimits([powerLimits[0], powerLimits[1]])
             ax.xaxis.set_major_formatter(formx)
         if ylabel is not None:
-            plt.ylabel(ylabel)
+            ax.set_ylabel(ylabel)
             formy = plt.ScalarFormatter()
             formy.set_powerlimits([powerLimits[2], powerLimits[3]])
             formy.set_scientific(True)
@@ -481,20 +484,22 @@ class Plotter:
             ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
         if not label:
             for i in range(yy.shape[1]):
-                plotcommand(xx, yy[:, i], plotCol[i],label=None)
+                #plotcommand(xx, yy[:, i], plotCol[i],label=None)
+                ax.plot(xx, yy[:, i], plotCol[i],label=None)
         else:
             for i in range(yy.shape[1]):
-                plotcommand(xx,yy[:,i],plotCol[i],label=label[i])
-            leg = plt.legend(loc='best', fancybox=True)
+                #plotcommand(xx,yy[:,i],plotCol[i],label=label[i])
+                ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
+            leg = ax.legend(loc='best', fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
         #scale the axes
         if sum(pltaxis)!=0:
-            plt.axis(pltaxis)
+            ax.axis(pltaxis)
 
         if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+            ax.set_title(ptitle, fontsize=titlefsize)
 
     ############################################################
     ##
@@ -552,13 +557,15 @@ class Plotter:
 
         plotCol = self.buildPlotCol(plotCol, rr.shape[1])
 
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
+        ax = None
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
 
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+        ax = self.subplots[pkey]
 
-        plt.grid(True)
+        ax.grid(True)
 
         rmax=0
         if not label:
@@ -566,19 +573,19 @@ class Plotter:
                 # negative val :forcing positive and phase shifting
                 ttt = tt + numpy.pi*(rr[:, i] < 0).reshape(-1, 1)
                 rrr = numpy.abs(rr[:, i])
-                plt.polar(ttt, rrr, plotCol[i],)
+                ax.plot(ttt, rrr, plotCol[i],)
                 rmax=numpy.maximum(rrr.max(), rmax)
         else:
             for i in range(rr.shape[1]):
                 # negative val :forcing positive and phase shifting
                 ttt = tt + numpy.pi*(rr[:, i] < 0).reshape(-1, 1)
                 rrr = numpy.abs(rr[:, i])
-                plt.polar(ttt,rrr,plotCol[i],label=label[i])
+                ax.plot(ttt,rrr,plotCol[i],label=label[i])
                 rmax=numpy.maximum(rrr.max(), rmax)
 
             fontP = mpl.font_manager.FontProperties()
             fontP.set_size('small')
-            leg = plt.legend(loc='upper left',
+            leg = ax.legend(loc='upper left',
                     bbox_to_anchor=(labelLocation[0], labelLocation[1]),
                     prop = fontP, fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
@@ -635,18 +642,21 @@ class Plotter:
     #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
-        plt.imshow(img, cmap)
-        plt.axis('off')
+        ax = self.subplots[pkey]
+
+        cimage = ax.imshow(img, cmap)
+        ax.axis('off')
         if cbarshow is True:
             if not cbarcustomticks:
-                cbar = plt.colorbar(orientation=cbarorientation)
+                cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
             else:
                 ticks,  ticklabels = zip(*cbarcustomticks)
-                cbar = plt.colorbar(ticks=ticks, orientation=cbarorientation)
+                cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
                 if cbarorientation == 'vertical':
                     cbar.ax.set_yticklabels(ticklabels)
                 else:
@@ -660,7 +670,7 @@ class Plotter:
                      t.set_fontsize(cbarfontsize)
 
         if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+            ax.set_title(ptitle, fontsize=titlefsize)
 
 
 
@@ -743,9 +753,12 @@ class Plotter:
 
 if __name__ == '__main__':
 
+
+
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
     yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    yLinSS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
 
     yLinA=yLinS
     yLinA = numpy.hstack((yLinA, \
@@ -769,14 +782,16 @@ if __name__ == '__main__':
     A.saveFig('A.png')
     #A.saveFig('A.eps')
 
-    AA = Plotter(1, 1, 1,'Array Plots',figsize=(12,8))
-    AA.plot(1, xLinS, yLinA, "","X", "Y",
-            plotCol=['b--'],
+    AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
+    AA.plot(1, xLinS, yLinA, plotCol=['b--'],
            label=['A1', 'A2', 'A3'],legendAlpha=0.5,
            pltaxis=[0, 10, 0, 2000],
            maxNX=10, maxNY=2,
            powerLimits = [-4,  2, -5, 5])
     currentP = AA.getSubPlot(1)
+    currentP.set_xlabel('X Label')
+    currentP.set_ylabel('Y Label')
+    currentP.set_title('The figure title')
     currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
                 horizontalalignment='center', verticalalignment='center')
     currentP.text(0.5 * 10, 1300,
@@ -787,15 +802,26 @@ if __name__ == '__main__':
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
-           label=['Single'],legendAlpha=0.5)
+           label=['Original'],legendAlpha=0.5)
     S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
-             label=['Single'],legendAlpha=0.5)
+             label=['Original'],legendAlpha=0.5)
     S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
-               label=['Single'],legendAlpha=0.5)
+               label=['Original'],legendAlpha=0.5)
     S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
-               label=['Single'],legendAlpha=0.5)
+               label=['Original'],legendAlpha=0.5)
     S.saveFig('S.png', dpi=300)
     #S.saveFig('S.eps')
+    #plot again on top of the existing graphs
+    S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
+               plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
+    S.logLog(2, xLinS, 1.3*yLinSS, "Single LogLog","X", "Y",\
+              plotCol='g',label=['Repeat on top'],legendAlpha=0.5)
+    S.semilogX(3, xLinS, 0.5*yLinSS, "Single SemilogX","X", "Y",\
+               plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
+    S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
+               plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
+    S.saveFig('SS.png', dpi=300)
+    #S.saveFig('SS.eps')
 
     r = numpy.arange(0, 3.01, 0.01).reshape(-1, 1)
     theta = 2*numpy.pi*r
@@ -814,6 +840,22 @@ if __name__ == '__main__':
            thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
     P.saveFig('P.png')
     #P.saveFig('P.eps')
+    #plot again on top of existing graphs
+    rr = numpy.arange(0.1, 3.11, 0.01).reshape(-1, 1)
+    thetar = 2*numpy.pi*rr
+    P.polar(1,thetar, 0.5 * rr, "Single Polar",\
+           plotCol='r',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
+    P.polar(2,thetar, 0.75 * rr, "Array Polar",\
+           plotCol='g',label=['A', 'B'],legendAlpha=0.5,rscale=[0,6],rgrid=[2,6],\
+           thetagrid=[45], direction=u'clockwise', zerooffset=0)
+    P.polar(3,thetar, 1.2 * rr, "Single Polar",\
+           plotCol='k',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
+           direction=u'clockwise', zerooffset=numpy.pi/2)
+    P.polar(4,thetar, 1.5 * rr, "Array Polar",\
+           plotCol='y',label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
+           thetagrid=[45], direction=u'counterclockwise', zerooffset=-numpy.pi/2)
+    P.saveFig('PP.png')
+    #P.saveFig('PP.eps')
 
 
 
@@ -836,14 +878,22 @@ if __name__ == '__main__':
 
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
-    P = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    P.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    I = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
+    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
-    P.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
-    P.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
-    P.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-    P.saveFig('I.png')
-#    P.saveFig('I.eps')
+    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
+    I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
+    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+    I.saveFig('I.png')
+#    I.saveFig('I.eps')
+    #do new plots on top of existing images/plots
+    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
+    I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
+    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+    I.saveFig('II.png')
+#    I.saveFig('II.eps')
 
 
     #3D plot example
@@ -860,8 +910,10 @@ if __name__ == '__main__':
     P3D.saveFig('3D.png')
 
     P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=['parametric curve'], legendAlpha=0.5)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', plotCol='r', label=['parametric curve'], legendAlpha=0.5)
     P3D.saveFig('3DwithLabel.png')
+    P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', plotCol='b', label=['parametric curve'], legendAlpha=0.5)
+    P3D.saveFig('3DwithLabelRepeat.png')
 
     P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
     P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
