@@ -798,73 +798,73 @@ if __name__ == '__main__':
 
 
 
-    # ##create some data
-    # xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
-    # yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
-    # yLinSS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    ##create some data
+    xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
+    yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
+    yLinSS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
 
-    # yLinA=yLinS
-    # yLinA = numpy.hstack((yLinA, \
-    #         1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
-    # yLinA = numpy.hstack((yLinA, \
-    #         1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
+    yLinA=yLinS
+    yLinA = numpy.hstack((yLinA, \
+            1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
+    yLinA = numpy.hstack((yLinA, \
+            1.0e7 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
-    # A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
-    # A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
-    #         plotCol=['c--'],
-    #        label=['A1', 'A2', 'A3'],legendAlpha=0.5,
-    #        pltaxis=[0, 10, 0, 2000],
-    #        maxNX=10, maxNY=2,
-    #        powerLimits = [-4,  2, -5, 5])
-    # A.logLog(2, xLinS, yLinA, "Array LogLog","X", "Y",\
-    #          label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    # A.semilogX(3, xLinS, yLinA, "Array SemilogX","X", "Y",\
-    #            label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    # A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
-    #            label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    # A.saveFig('A.png')
-    # #A.saveFig('A.eps')
+    A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
+    A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
+            plotCol=['c--'],
+           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+           pltaxis=[0, 10, 0, 2000],
+           maxNX=10, maxNY=2,
+           powerLimits = [-4,  2, -5, 5])
+    A.logLog(2, xLinS, yLinA, "Array LogLog","X", "Y",\
+             label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+    A.semilogX(3, xLinS, yLinA, "Array SemilogX","X", "Y",\
+               label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+    A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
+               label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+    A.saveFig('A.png')
+    #A.saveFig('A.eps')
 
-    # AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
-    # AA.plot(1, xLinS, yLinA, plotCol=['b--'],
-    #        label=['A1', 'A2', 'A3'],legendAlpha=0.5,
-    #        pltaxis=[0, 10, 0, 2000],
-    #        maxNX=10, maxNY=2,
-    #        powerLimits = [-4,  2, -5, 5])
-    # currentP = AA.getSubPlot(1)
-    # currentP.set_xlabel('X Label')
-    # currentP.set_ylabel('Y Label')
-    # currentP.set_title('The figure title')
-    # currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
-    #             horizontalalignment='center', verticalalignment='center')
-    # currentP.text(0.5 * 10, 1300,
-    #      r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
-    #      fontsize=20)
-    # AA.saveFig('AA.png')
-    # #AA.saveFig('AA.eps')
+    AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
+    AA.plot(1, xLinS, yLinA, plotCol=['b--'],
+           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+           pltaxis=[0, 10, 0, 2000],
+           maxNX=10, maxNY=2,
+           powerLimits = [-4,  2, -5, 5])
+    currentP = AA.getSubPlot(1)
+    currentP.set_xlabel('X Label')
+    currentP.set_ylabel('Y Label')
+    currentP.set_title('The figure title')
+    currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
+                horizontalalignment='center', verticalalignment='center')
+    currentP.text(0.5 * 10, 1300,
+         r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
+         fontsize=20)
+    AA.saveFig('AA.png')
+    #AA.saveFig('AA.eps')
 
-    # S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
-    # S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
-    #        label=['Original'],legendAlpha=0.5)
-    # S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
-    #          label=['Original'],legendAlpha=0.5)
-    # S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
-    #            label=['Original'],legendAlpha=0.5)
-    # S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
-    #            label=['Original'],legendAlpha=0.5)
-    # S.saveFig('S.png', dpi=300)
-    # #S.saveFig('S.eps')
-    # #plot again on top of the existing graphs
-    # S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
-    #            plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
-    # S.logLog(2, xLinS, 1.3*yLinSS, "Single LogLog","X", "Y",\
-    #           plotCol='g',label=['Repeat on top'],legendAlpha=0.5)
-    # S.semilogX(3, xLinS, 0.5*yLinSS, "Single SemilogX","X", "Y",\
-    #            plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
-    # S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
-    #            plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
-    # S.saveFig('SS.png', dpi=300)
-    # #S.saveFig('SS.eps')
+    S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
+    S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
+           label=['Original'],legendAlpha=0.5)
+    S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
+             label=['Original'],legendAlpha=0.5)
+    S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
+               label=['Original'],legendAlpha=0.5)
+    S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
+               label=['Original'],legendAlpha=0.5)
+    S.saveFig('S.png', dpi=300)
+    #S.saveFig('S.eps')
+    #plot again on top of the existing graphs
+    S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
+               plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
+    S.logLog(2, xLinS, 1.3*yLinSS, "Single LogLog","X", "Y",\
+              plotCol='g',label=['Repeat on top'],legendAlpha=0.5)
+    S.semilogX(3, xLinS, 0.5*yLinSS, "Single SemilogX","X", "Y",\
+               plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
+    S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
+               plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
+    S.saveFig('SS.png', dpi=300)
+    #S.saveFig('SS.eps')
 
     r = numpy.arange(0, 3.01, 0.01).reshape(-1, 1)
     theta = 2*numpy.pi*r
@@ -915,8 +915,6 @@ if __name__ == '__main__':
            legendAlpha=0.5,rscale=[-1.5,1.5],rgrid=[0.5,1.5],highlightNegative=True)
     PN.saveFig('PN.png')
     #PN.saveFig('PN.eps')
-
-    exit()
 
     #test/demo to show that multiple plots can be done in the same subplot, on top of older plots
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
