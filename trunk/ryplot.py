@@ -271,9 +271,15 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.plot, plotnum, x, y, ptitle, xlabel, ylabel, \
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        ax = self.subplots[pkey]
+
+        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, \
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits)
+                    maxNX, maxNY, powerLimits,titlefsize)
 
     ############################################################
     ##
@@ -314,9 +320,15 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        ax = self.subplots[pkey]
+
+        self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits)
+                    maxNX, maxNY, powerLimits,titlefsize)
 
     ############################################################
     ##
@@ -357,9 +369,15 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        ax = self.subplots[pkey]
+
+        self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits)
+                    maxNX, maxNY, powerLimits,titlefsize)
 
     ############################################################
     ##
@@ -400,9 +418,15 @@ class Plotter:
                 | No exception is raised.
        """
         ## see self.MyPlot for parameter details.
-        self.myPlot(plt.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in self.subplots.keys():
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+        ax = self.subplots[pkey]
+
+        self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits)
+                    maxNX, maxNY, powerLimits,titlefsize)
 
     ############################################################
     ##
@@ -451,12 +475,7 @@ class Plotter:
 
         plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
-        ax = None
         pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
-            self.subplots[pkey] = \
-                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
-
         ax = self.subplots[pkey]
 
         ax.grid(True)
@@ -484,12 +503,12 @@ class Plotter:
             ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
         if not label:
             for i in range(yy.shape[1]):
-                #plotcommand(xx, yy[:, i], plotCol[i],label=None)
-                ax.plot(xx, yy[:, i], plotCol[i],label=None)
+                plotcommand(xx, yy[:, i], plotCol[i],label=None)
+                #ax.plot(xx, yy[:, i], plotCol[i],label=None)
         else:
             for i in range(yy.shape[1]):
-                #plotcommand(xx,yy[:,i],plotCol[i],label=label[i])
-                ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
+                plotcommand(xx,yy[:,i],plotCol[i],label=label[i])
+                #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
             leg = ax.legend(loc='best', fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
