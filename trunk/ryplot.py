@@ -162,7 +162,7 @@ class Plotter:
     ############################################################
     ##
     def saveFig(self, filename='mpl.png',dpi=100,bbox_inches='tight',\
-                pad_inches=0.1):
+                pad_inches=0.1, useTrueType = True):
         """Save the plot to a disk file, using filename, dpi specification and bounding box limits.
 
         One of matplotlib's design choices is a bounding box strategy  which may result in a bounding box
@@ -176,6 +176,7 @@ class Plotter:
                 | dpi (int): the resolution of the graph in dots per inch
                 | bbox_inches: see matplotlib docs for more detail.
                 | pad_inches: see matplotlib docs for more detail.
+                | useTrueType: if True, truetype fonts are used in eps/pdf files, otherwise Type3
 
 
             Returns:
@@ -184,6 +185,15 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
+
+        # http://matplotlib.1069221.n5.nabble.com/TrueType-font-embedding-in-eps-problem-td12691.html
+        # http://stackoverflow.com/questions/5956182/cannot-edit-text-in-chart-exported-by-matplotlib-and-opened-in-illustrator
+        #http://newsgroups.derkeiler.com/Archive/Comp/comp.soft-sys.matlab/2008-07/msg02038.html
+        if useTrueType:
+            mpl.rcParams['pdf.fonttype'] = 42
+            mpl.rcParams['ps.fonttype'] = 42
+
+
         if len(filename)>0:
             if self.bbox_extra_artists:
                 plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
@@ -955,9 +965,9 @@ if __name__ == '__main__':
     xv,yv = numpy.mgrid[-5:5:21j, -5:5:21j]
     z = numpy.sin(numpy.sqrt(xv**2 + yv**2))
     I = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm.winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
-    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
+    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
     I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
     I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
     I.saveFig('I.png')
