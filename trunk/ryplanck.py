@@ -563,12 +563,12 @@ if __name__ == '__main__':
     f=numpy.logspace(numpy.log10(c/ (100*1e-6)),numpy. log10(c/ (0.1*1e-6)), num=100).reshape(-1, 1)
     temperature=[280,300,450,650,1000,1800,3000,6000]
 
-    Mel = planck(wl, temperature[0], type='el').reshape(-1, 1)
-    Mql = planck(wl, temperature[0], type='ql').reshape(-1, 1)
-    Men = planck(n, temperature[0], type='en').reshape(-1, 1)
-    Mqn = planck(n, temperature[0], type='qn').reshape(-1, 1)
-    Mef = planck(f, temperature[0], type='ef').reshape(-1, 1)
-    Mqf = planck(f, temperature[0], type='qf').reshape(-1, 1)
+    Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
+    Mql = planck(wl, temperature[0], type='ql').reshape(-1, 1) # [q/(s.m$^2$.$\mu$m)]
+    Men = planck(n, temperature[0], type='en').reshape(-1, 1)  # [W/(m$^2$.cm$^{-1}$)]
+    Mqn = planck(n, temperature[0], type='qn').reshape(-1, 1)  # [q/(s.m$^2$.cm$^{-1}$)]
+    Mef = planck(f, temperature[0], type='ef').reshape(-1, 1)  # [W/(m$^2$.Hz)]
+    Mqf = planck(f, temperature[0], type='qf').reshape(-1, 1)  # [q/(s.m$^2$.Hz)]
 
     legend = ["{0:.0f} K".format(temperature[0])]
 
@@ -607,12 +607,12 @@ if __name__ == '__main__':
 
 
     #now plot temperature derivatives
-    Mel = dplanck(wl, temperature[0], type='el').reshape(-1, 1)
-    Mql = dplanck(wl, temperature[0], type='ql').reshape(-1, 1)
-    Men = dplanck(n, temperature[0], type='en').reshape(-1, 1)
-    Mqn = dplanck(n, temperature[0], type='qn').reshape(-1, 1)
-    Mef = dplanck(f, temperature[0], type='ef').reshape(-1, 1)
-    Mqf = dplanck(f, temperature[0], type='qf').reshape(-1, 1)
+    Mel = dplanck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m.K)]
+    Mql = dplanck(wl, temperature[0], type='ql').reshape(-1, 1) # [q/(s.m$^2$.$\mu$m.K)]
+    Men = dplanck(n, temperature[0], type='en').reshape(-1, 1)  # [W/(m$^2$.cm$^{-1}$.K)]
+    Mqn = dplanck(n, temperature[0], type='qn').reshape(-1, 1)  # [q/(s.m$^2$.cm$^{-1}$.K)]
+    Mef = dplanck(f, temperature[0], type='ef').reshape(-1, 1)  # [W/(m$^2$.Hz.K)]
+    Mqf = dplanck(f, temperature[0], type='qf').reshape(-1, 1)  # [q/(s.m$^2$.Hz.K)]
 
     for temp in temperature[1:] :
         Mel = numpy.hstack((Mel, dplanck(wl,temp, type='el').reshape(-1, 1)))
