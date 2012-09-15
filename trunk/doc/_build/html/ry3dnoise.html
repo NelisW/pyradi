@@ -58,9 +58,9 @@
 <h1>Three-Dimensional Noise Calculation<a class="headerlink" href="#three-dimensional-noise-calculation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.ry3dnoise">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ry3dnoise" title="Permalink to this headline">¶</a></h2>
-<p>This module provides a set of functions to aid in the calculation of 3D noise parameters from 
-noise images. The functions are based on the work done by John D&#8217;Agostino and Curtis Webb. 
-For details see &#8220;3-D Analysis Framwork and Measurement Methodology for Imaging System 
+<p>This module provides a set of functions to aid in the calculation of 3D noise parameters from
+noise images. The functions are based on the work done by John D&#8217;Agostino and Curtis Webb.
+For details see &#8220;3-D Analysis Framwork and Measurement Methodology for Imaging System
 Nioise&#8221; p110-121 in &#8220;Infrared Imaging Systems: Design, Analysis, Modelling, and Testing II&#8221;,
 Holst, G. C., ed., Volume 1488, SPIE (1991).</p>
 <p>See the __main__ function for examples of use.</p>
@@ -139,7 +139,8 @@ Holst, G. C., ed., Volume 1488, SPIE (1991).</p>
 <dl class="function">
 <dt id="pyradi.ry3dnoise.oprSDT">
 <tt class="descclassname">pyradi.ry3dnoise.</tt><tt class="descname">oprSDT</tt><big>(</big><em>imgSeq</em><big>)</big><a class="headerlink" href="#pyradi.ry3dnoise.oprSDT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Operator SDT first averages over frames for each pixel. The result is subtracted from all images.</p>
+<dd><p>Operator SDT first averages over frames for each pixel. The result is
+subtracted from all images.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -231,7 +232,7 @@ Holst, G. C., ed., Volume 1488, SPIE (1991).</p>
 <dl class="function">
 <dt id="pyradi.ry3dnoise.getNT">
 <tt class="descclassname">pyradi.ry3dnoise.</tt><tt class="descname">getNT</tt><big>(</big><em>imgSeq</em><big>)</big><a class="headerlink" href="#pyradi.ry3dnoise.getNT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Average for each pixel over all frames.  
+<dd><p>Average for all pixels as a function of time/frames.
 Represents noise which consists of fluctuations in the temporal direction affecting
 the mean of each frame.</p>
 <dl class="docutils">
@@ -304,8 +305,8 @@ Represents variations in row averages that are fixed in time.</p>
 <dl class="function">
 <dt id="pyradi.ry3dnoise.getNVH">
 <tt class="descclassname">pyradi.ry3dnoise.</tt><tt class="descname">getNVH</tt><big>(</big><em>imgSeq</em><big>)</big><a class="headerlink" href="#pyradi.ry3dnoise.getNVH" title="Permalink to this definition">¶</a></dt>
-<dd><p>Average for each frame over all pixels.  
-Represents spatial noise that does not change from frame-to-frame.</p>
+<dd><p>Average over all frames, for each pixel. Represents non-uniformity
+spatial noise that does not change from frame-to-frame.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -377,7 +378,7 @@ Represents variations in column averages that change from frame-to-frame.</p>
 <dt id="pyradi.ry3dnoise.getNTVH">
 <tt class="descclassname">pyradi.ry3dnoise.</tt><tt class="descname">getNTVH</tt><big>(</big><em>imgSeq</em><big>)</big><a class="headerlink" href="#pyradi.ry3dnoise.getNTVH" title="Permalink to this definition">¶</a></dt>
 <dd><p>Noise for each row,  frame &amp; column.
-Represents random 3D noise.</p>
+Represents random noise in the detector and electronics.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">

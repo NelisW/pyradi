@@ -139,7 +139,7 @@ def convertSpectralDomain(inspectraldomain,  type=''):
     """Convert spectral domains, i.e. between wavelength [um], wavenummber [cm^-1] and frequency [Hz]
 
     In string variable type, the 'from' domain and 'to' domains are indicated each with a single letter:
-    'f' for temporal frequency, 'w' for wavelength and ''n' for wavenumber
+    'f' for temporal frequency, 'l' for wavelength and 'n' for wavenumber
     The 'from' domain is the first letter and the 'to' domain the second letter.
 
     Note that the 'to' domain vector is a direct conversion of the 'from' domain
@@ -151,11 +151,11 @@ def convertSpectralDomain(inspectraldomain,  type=''):
         |    frequency vector in  [Hz]
         |    wavenumber vector in   [cm^-1]
         | type (string):  specify from and to domains:
-        |    'wf' convert from wavelength to per frequency
-        |    'wn' convert from wavelength to per wavenumber
-        |    'fw' convert from frequency to per wavelength
+        |    'lf' convert from wavelength to per frequency
+        |    'ln' convert from wavelength to per wavenumber
+        |    'fl' convert from frequency to per wavelength
         |    'fn' convert from frequency to per wavenumber
-        |    'nw' convert from wavenumber to per wavelength
+        |    'nl' convert from wavenumber to per wavelength
         |    'nf' convert from wavenumber to per frequency
 
     Returns:
@@ -168,11 +168,11 @@ def convertSpectralDomain(inspectraldomain,  type=''):
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
-              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
-              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain),
-              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
+              'lf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
+              'ln': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'fl': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
               'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
-              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'nl': lambda inspectraldomain:  (1.0e4/inspectraldomain),
               'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
 
@@ -204,11 +204,11 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
         |    frequency vector in  [Hz]
         |    wavenumber vector in   [cm^-1]
         | type (string):  specify from and to domains:
-        |    'wf' convert from per wavelength interval density to per frequency interval density
-        |    'wn' convert from per wavelength interval density to per wavenumber interval density
-        |    'fw' convert from per frequency interval density to per wavelength interval density
+        |    'lf' convert from per wavelength interval density to per frequency interval density
+        |    'ln' convert from per wavelength interval density to per wavenumber interval density
+        |    'fl' convert from per frequency interval density to per wavelength interval density
         |    'fn' convert from per frequency interval density to per wavenumber interval density
-        |    'nw' convert from per wavenumber interval density to per wavelength interval density
+        |    'nl' convert from per wavenumber interval density to per wavelength interval density
         |    'nf' convert from per wavenumber interval density to per frequency interval density
 
     Returns:
@@ -221,21 +221,21 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
-              'wf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
+              'lf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
               'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
-              'nw': lambda inspectraldomain:  (1.0e4/inspectraldomain),
-              'wn': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'nl': lambda inspectraldomain:  (1.0e4/inspectraldomain),
+              'ln': lambda inspectraldomain:  (1.0e4/inspectraldomain),
               'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
-              'fw': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
+              'fl': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
               }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
 
     outspectralquantity = {
-              'wf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
+              'lf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
               'fn': lambda inspectralquantity: inspectralquantity * (100 *constants.c),
-              'nw': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
-              'wn': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
+              'nl': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
+              'ln': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
               'nf': lambda inspectralquantity: inspectralquantity / (100 * constants.c),
-              'fw': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
+              'fl': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
               }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
 
     return (outspectraldomain,outspectralquantity )
@@ -310,11 +310,11 @@ if __name__ == '__main__':
     #first we test the conversion between the domains
     # if the spectral domain conversions are correct, all following six statements should print unity vectors
     print('all following six statements should print unity vectors:')
-    print(convertSpectralDomain(frequenRef, 'fw')/wavelenRef)
-    print(convertSpectralDomain(wavenumRef, 'nw')/wavelenRef)
+    print(convertSpectralDomain(frequenRef, 'fl')/wavelenRef)
+    print(convertSpectralDomain(wavenumRef, 'nl')/wavelenRef)
     print(convertSpectralDomain(frequenRef, 'fn')/wavenumRef)
-    print(convertSpectralDomain(wavelenRef, 'wn')/wavenumRef)
-    print(convertSpectralDomain(wavelenRef, 'wf')/frequenRef)
+    print(convertSpectralDomain(wavelenRef, 'ln')/wavenumRef)
+    print(convertSpectralDomain(wavelenRef, 'lf')/frequenRef)
     print(convertSpectralDomain(wavenumRef, 'nf')/frequenRef)
     print('test illegal input type should have shape (0,0)')
     print(convertSpectralDomain(wavenumRef, 'ng').shape)
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     emittance = emittancewRef.copy()
     #convert to frequency density
     print('all following eight statements should print (close to) unity vectors:')
-    (freq, emittance) = convertSpectralDensity(wavelenRef, emittance, 'wf')
+    (freq, emittance) = convertSpectralDensity(wavelenRef, emittance, 'lf')
     print('emittance converted: wf against calculation')
     print(emittancefRef/emittance)
    #convert to wavenumber density
@@ -337,7 +337,7 @@ if __name__ == '__main__':
     print('emittance converted: wf->fn against calculation')
     print(emittancenRef/emittance)
     #convert to wavelength density
-    (wavel, emittance) = convertSpectralDensity(waven, emittance, 'nw')
+    (wavel, emittance) = convertSpectralDensity(waven, emittance, 'nl')
     #now repeat in opposite sense
     print('emittance converted: wf->fn->nw against original')
     print(emittancewRef/emittance)
@@ -345,7 +345,7 @@ if __name__ == '__main__':
     print(wavelenRef/wavel)
     #convert to wavenumber density
     emittance = emittancewRef.copy()
-    (waven, emittance) = convertSpectralDensity(wavelenRef, emittance, 'wn')
+    (waven, emittance) = convertSpectralDensity(wavelenRef, emittance, 'ln')
     print('emittance converted: wf against calculation')
     print(emittancenRef/emittance)
    #convert to frequency density
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     print('emittance converted: wf->fn against calculation')
     print(emittancefRef/emittance)
     #convert to wavelength density
-    (wavel, emittance) = convertSpectralDensity(freq, emittance, 'fw')
+    (wavel, emittance) = convertSpectralDensity(freq, emittance, 'fl')
     # if the spectral density conversions were correct, the following two should be unity vectors
     print('emittance converted: wn->nf->fw against original')
     print(emittancewRef/emittance)
