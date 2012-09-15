@@ -92,8 +92,8 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
-    figtype = ".png"  # eps, jpg, png
-    #figtype = ".eps"  # eps, jpg, png
+    #figtype = ".png"  # eps, jpg, png
+    figtype = ".eps"  # eps, jpg, png
 
     ## ----------------------- wavelength------------------------------------------
     #create the wavelength scale to be used in all spectral calculations,

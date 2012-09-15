@@ -383,7 +383,7 @@ is set with zerooffset.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.saveFig">
-<tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em>, <em>useTrueType=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to a disk file, using filename, dpi specification and bounding box limits.</p>
 <p>One of matplotlib&#8217;s design choices is a bounding box strategy  which may result in a bounding box
 that is smaller than the size of all the objects on the page.  It took a while to figure this out,
@@ -398,6 +398,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 <div class="line">dpi (int): the resolution of the graph in dots per inch</div>
 <div class="line">bbox_inches: see matplotlib docs for more detail.</div>
 <div class="line">pad_inches: see matplotlib docs for more detail.</div>
+<div class="line">useTrueType: if True, truetype fonts are used in eps/pdf files, otherwise Type3</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -506,7 +507,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x058F5198&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x056A4D28&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>

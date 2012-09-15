@@ -17,8 +17,9 @@ Module classes
 
 .. autofunction:: pyradi.rymodtran.loadtape7	
 
-.. autofunction:: pyradi.rymodtran.nparrayToString	
+.. autofunction:: pyradi.rymodtran.fixHeadersList	
 
+.. autofunction:: pyradi.rymodtran.savetape7data	
 
 
 	
