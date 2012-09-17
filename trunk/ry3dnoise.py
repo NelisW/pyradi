@@ -484,7 +484,7 @@ if __name__ == '__main__':
     NH = getNH(img)[1].reshape(cols).reshape(1,cols)
     NTH = getNTH(img)[1].reshape(frames*cols).reshape(frames,cols)
     NV = getNV(img)[1].reshape(rows).reshape(rows,1)
-    NTV = getNTV(img)[1].reshape(frames*rows).reshape(rows,frames)
+    NTV = getNTV(img)[1].reshape(frames*rows).reshape(frames,rows)
     NVH = getNVH(img)[1].reshape(rows*cols).reshape(rows,cols)
     NTVH = getNTVH(img)[1][0,:,:]
     NT = getNT(img)[1].reshape(frames).reshape(frames,1)
