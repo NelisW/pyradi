@@ -102,14 +102,14 @@ if __name__ == '__main__':
 
     ## ----------------------- colour tristimulus ---------------------------------
     # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).
-    # return values are 2-D  (N,3 column vectors scaled and interpolated.
+    # return values are 2-D (N,3) array scaled and interpolated.
     bar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength,
                     loadCol=[1,2,3],  comment='%', delimiter=',', abscissaScale=1e-3)
 
 
     ## ------------------------ sources ------------------------------------------
     #build a 2-D array with the source radiance values, where each column
-    #represents a different source. Wavelength extends along columns.
+    #represents a different source. Wavelength extends along rows.
     #Spectral interval for all source spectra is the same, which is 'wavelength'
     #Blackbody radiance spectra are calculated at the required wavelength intervals
     #Data read from files are interpolated to the required wavelength intervals
