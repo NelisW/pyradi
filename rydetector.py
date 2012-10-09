@@ -56,7 +56,7 @@ from scipy.constants import codata
 import matplotlib.pyplot as plt
 import numpy as np
 import pyradi.ryplot as ryplot
-
+import matplotlib as mpl
 
 
 ################################################################################
@@ -626,28 +626,46 @@ if __name__ == '__main__':
     print ("I_noise_rogalski= {0} ".format(I_noise_rogalski))
 
 
+    mpl.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['ps.fonttype'] = 42
     plt.figure()
     plt.plot(lambda_vector*1e6,a_vector)
     plt.xlabel('Wavelength (microns)'); plt.ylabel('Absorption Coefficient'); plt.title('Absorption Coefficient')
+    plt.savefig('AbsorptionCoefficient.png', dpi=300)
+
     plt.figure()
     plt.plot(lambda_vector*1e6,etha_vector)
     plt.xlabel('Wavelength (micr2ons)'); plt.ylabel('Quantum Efficiency'); plt.title('Spectral Quantum Efficiency')
+    plt.savefig('SpectralQuantumEfficiency.png', dpi=300)
+
     plt.figure()
     plt.plot(V,IXV_vector1,'b',V,IXV_vector2,'r')
     plt.xlabel('Bias (V)'); plt.ylabel('Current (A)'); plt.title('IXV Characteristic');
+    plt.savefig('IXVCharacteristic.png', dpi=300)
+
     plt.figure()
     plt.plot(V,I_dark_dereniak,'b',V,I_dark_rogalski,'r')
     plt.xlabel('Bias (V)'); plt.ylabel('Current (A)'); plt.title('Dark Current');
+    plt.savefig('DarkCurrent.png', dpi=300)
+
     plt.figure()
     plt.plot(lambda_vector*1e6,Responsivity_vector)
     plt.title('Spectral Responsivity');plt.xlabel('Wavelength (microns)');plt.ylabel('Responsivity (A/W)');
+    plt.savefig('Responsivity.png', dpi=300)
+
     plt.figure()
     plt.plot(lambda_vector*1e6,Detectivity_vector)
     plt.title('Spectral Detectivity');plt.xlabel('Wavelength (microns)');plt.ylabel('Detectivity (cm Hz^1/2 W^-1)')
+    plt.savefig('Detectivity.png', dpi=300)
+
     plt.figure()
     plt.plot(lambda_vector2*1e6,NEPower)
     plt.title('Spectral Noise Equivalent Power');plt.xlabel('Wavelength (microns)');plt.ylabel('NEP (W)');
+    plt.savefig('NEP.png', dpi=300)
+
     plt.show()
 
 
     print('Done!')
+
+

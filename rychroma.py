@@ -102,13 +102,10 @@ if __name__ == '__main__':
 
     ## ----------------------- colour tristimulus ---------------------------------
     # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).
-    # return values are 2-D  (N,1) column vectors scaled and interpolated.
-    xbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
-                    loadCol=[1], comment='%', delimiter=',', abscissaScale=1e-3)
-    ybar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength, \
-                    loadCol=[2],  comment='%', delimiter=',', abscissaScale=1e-3)
-    zbar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength,
-                    loadCol=[3],  comment='%', delimiter=',', abscissaScale=1e-3)
+    # return values are 2-D  (N,3 column vectors scaled and interpolated.
+    bar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength,
+                    loadCol=[1,2,3],  comment='%', delimiter=',', abscissaScale=1e-3)
+
 
     ## ------------------------ sources ------------------------------------------
     #build a 2-D array with the source radiance values, where each column
@@ -122,8 +119,8 @@ if __name__ == '__main__':
                             comment='%', normalize=1)
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900)))
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850)))
-    sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(\
-                            'data/LowPressureSodiumLamp.txt', \
+    sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(
+                            'data/LowPressureSodiumLamp.txt',
                             abscissaOut=wavelength, comment='%', normalize=1)))
     #label sources in order of appearance
     sourcesTxt=['Fluorescent', 'Planck 5900 K', 'Planck 2850 K', 'Sodium']
@@ -133,39 +130,33 @@ if __name__ == '__main__':
     #It is however useful for plotting the curves.
     sources /= numpy.max(sources,axis=0)
 
-    ##------------------------- samples ----------------------------------------
-    # read space separated file containing wavelength in um, then samples.
+    ##------------------------- sample data ----------------------------------------
+    # read space separated file containing wavelength in um, then sample data.
     # select the samples to be read in and then load all in one call!
     # first line in file contains labels for columns.
     samplesSelect = [1,2,3,8,10,11]
-
-    samples = ryfiles.loadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
+    samples = ryfiles.loadColumnTextFile('data/samples.txt', abscissaOut=wavelength,
                 loadCol=samplesSelect,  comment='%')
-    samplesTxt=ryfiles.loadHeaderTextFile('data/samples.txt',\
+    samplesTxt=ryfiles.loadHeaderTextFile('data/samples.txt',
                 loadCol=samplesSelect, comment='%')
 
     ##------------------------- plot sample spectra ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1)
-    smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',\
-                r'Reflectance', \
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
+    smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
+                r'Reflectance', ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
     smpleplt.saveFig('SampleReflectance'+figtype)
 
     ##------------------------- plot source spectra ------------------------------
     srceplt = ryplot.Plotter(2, 1, 1)
-    srceplt.plot(1, wavelength, sources, "Normalized source radiance", \
-                r'Wavelength $\mu$m', r'Radiance', \
+    srceplt.plot(1, wavelength, sources, "Normalized source radiance",
+                r'Wavelength $\mu$m', r'Radiance',
                 ['k:', 'k-.', 'k--', 'k-'],sourcesTxt,0.5 )
     srceplt.saveFig('SourceRadiance'+figtype)
 
     ##------------------------- plot cie tristimulus spectra ---------------------
     cietriplt = ryplot.Plotter(3, 1, 1)
-    cietriplt.plot(1, wavelength, xbar,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', 'k-', ['$\\bar{x}$'],0.5)
-    cietriplt.plot(1, wavelength, ybar,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', 'k-.', ['$\\bar{y}$'],0.5)
-    cietriplt.plot(1, wavelength, zbar,"CIE tristimulus values",r'Wavelength $\mu$m',\
-            r'Response', 'k--', ['$\\bar{z}$'],0.5)
+    cietriplt.plot(1, wavelength, bar,"CIE tristimulus values",r'Wavelength $\mu$m',
+            r'Response', 'k--', ['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],0.5)
     cietriplt.saveFig('tristimulus'+figtype)
 
 
@@ -175,10 +166,10 @@ if __name__ == '__main__':
     for iSmpl in range(samples.shape[1]):
         for iSrc in range(sources.shape[1]):
             [ xs[iSmpl,iSrc], ys[iSmpl,iSrc], Y]=\
-                chromaticityforSpectralL(wavelength,\
-                (samples[:,iSmpl]*sources[:,iSrc]).reshape(-1, 1) \
-                ,xbar,ybar,zbar)
-            #print('{0:15s} {1:15s} ({2:.4f},{3:.4f})'.format(samplesTxt[iSmpl], \
+                chromaticityforSpectralL(wavelength,
+                (samples[:,iSmpl]*sources[:,iSrc]).reshape(-1, 1),
+                bar[:,0], bar[:,1], bar[:,2])
+            #print('{0:15s} {1:15s} ({2:.4f},{3:.4f})'.format(samplesTxt[iSmpl],
             #    sourcesTxt[iSrc], xs[iSmpl,iSrc], ys[iSmpl,iSrc]))
 
     ##---------------------- calculate cie xy for monochromatic  -----------------
@@ -189,19 +180,18 @@ if __name__ == '__main__':
         monospectrum=numpy.zeros(wavelength.shape)
         monospectrum[iWavel] = 1
         #calc xy for single mono wavelength point
-        [xm[iWavel],ym[iWavel],Y]=chromaticityforSpectralL(wavelength,\
-                monospectrum,xbar,ybar,zbar)
+        [xm[iWavel],ym[iWavel],Y]=chromaticityforSpectralL(wavelength,
+                monospectrum, bar[:,0], bar[:,1], bar[:,2])
         #print('{0} um ({1},{2})'.format(wavelength[iWavel],xm[iWavel],ym[iWavel]))
 
     ##---------------------- plot chromaticity diagram  ---------------------------
     ciexyplt = ryplot.Plotter(4, 1, 1)
     #plot monochromatic horseshoe
-    ciexyplt.plot(1, xm, ym,"CIE chromaticity diagram", r'x', r'y', \
-             ['k-'])
+    ciexyplt.plot(1, xm, ym,"CIE chromaticity diagram", r'x', r'y', ['k-'])
     #plot chromaticity loci for samples
     styleSample=['r--', 'g-.', 'y-', 'g-', 'b-', 'k-']
     for iSmpl in range(samples.shape[1]):
-        ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y', \
+        ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y',
                 [styleSample[iSmpl]] ,[samplesTxt[iSmpl]],0.5 )
     #plot source markers
     styleSource=['bo', 'yo', 'ro', 'go']
@@ -211,7 +201,6 @@ if __name__ == '__main__':
                 legend=[sourcesTxt[iSrc]]
             else:
                 legend=''
-
             ciexyplt.plot(1,xs[iSmpl,iSrc],ys[iSmpl,iSrc],"CIE chromaticity diagram", r'x',r'y',\
                     [styleSource[iSrc]],legend,0.5 )
 
