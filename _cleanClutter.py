@@ -47,7 +47,7 @@ def QueryDelete(recurse,dir,patn):
 
 #we take the conservative approach and do not do blanket erase,
 #rather do it by type, asking the user first
-QueryDelete(1,'.', '*.eps;*.png')
+QueryDelete(0,'.', '*.eps;*.png')
 
 
 
