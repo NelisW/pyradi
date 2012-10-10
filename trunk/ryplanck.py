@@ -55,13 +55,13 @@ def planckef(frequency, temperature):
         | temperature (float):  Temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]): spectral radiant emitance in W/(m^2.Hz)
+        | (np.array[N,]): spectral radiant emittance in W/(m^2.Hz)
 
     Raises:
         | No exception is raised.
     """
-    return 4.6323506e-50 * frequency**3 / (numpy.exp(4.79927e-11 * frequency/\
-            temperature)-1);
+    return 4.6323506e-50 * frequency**3 / (numpy.exp(4.79927e-11 * \
+        frequency / temperature)-1);
 
 ################################################################
 ##
@@ -73,13 +73,13 @@ def planckel(wavelength, temperature):
         | temperature (float):  Temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in W/(m^2.um)
+        | (np.array[N,]):  spectral radiant emittance in W/(m^2.um)
 
     Raises:
         | No exception is raised.
     """
-    return 3.7418301e8 / (wavelength ** 5 * ( numpy.exp(14387.86 /\
-                (wavelength * temperature))-1));
+    return 3.7418301e8 / (wavelength ** 5 * ( numpy.exp(14387.86 \
+                / (wavelength * temperature))-1));
 
 ################################################################
 ##
@@ -91,13 +91,13 @@ def plancken(wavenumber, temperature):
         | temperature (float):  Temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  W/(m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emittance in  W/(m^2.cm^-1)
 
     Raises:
         | No exception is raised.
     """
-    return 3.7418e-8 * wavenumber**3 / (numpy.exp(1.438786 * wavenumber /\
-            temperature)-1);
+    return 3.7418e-8 * wavenumber**3 / (numpy.exp(1.438786 * wavenumber \
+            / temperature)-1);
 
 ################################################################
 ##
@@ -109,13 +109,13 @@ def planckqf(frequency, temperature):
         | temperature (float):  Temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in q/(s.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emittance in q/(s.m^2.Hz)
 
     Raises:
         | No exception is raised.
     """
-    return 6.9911e-17 * frequency**2 / (numpy.exp(4.79927e-11 * frequency /\
-            temperature)-1);
+    return 6.9911e-17 * frequency**2 / (numpy.exp(4.79927e-11 * frequency \
+            / temperature)-1);
 
 ################################################################
 ##
@@ -127,13 +127,13 @@ def planckql(wavelength, temperature):
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.um)
+        | (np.array[N,]):  spectral radiant emittance in  q/(s.m^2.um)
 
     Raises:
         | No exception is raised.
     """
-    return 1.88365e27 / (wavelength**4 * ( numpy.exp(14387.86 /\
-                (wavelength * temperature))-1));
+    return 1.88365e27 / (wavelength**4 * ( numpy.exp(14387.86 \
+                / (wavelength * temperature))-1));
 
 ################################################################
 ##
@@ -145,138 +145,144 @@ def planckqn(wavenumber, temperature):
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emittance in  q/(s.m^2.cm^-1)
 
     Raises:
         | No exception is raised.
     """
-    return 1.883635e15 * wavenumber**2 / (numpy.exp(1.438786 * wavenumber /\
-            temperature)-1);
+    return 1.883635e15 * wavenumber**2 / (numpy.exp(1.438786 * wavenumber \
+            / temperature)-1);
 
 ################################################################
 ##
 def dplnckef(frequency, temperature):
-    """Temperative derivative of Planck function in frequency domain for radiant emittance.
+    """Temperature derivative of Planck function in frequency domain
+    for radiant emittance.
 
     Args:
         | frequency (np.array[N,]): frequency vector in  [Hz]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance/K in W/(K.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emittance/K in W/(K.m^2.Hz)
 
     Raises:
         | No exception is raised.
     """
     xx=(4.79927e-11 * frequency /temperature);
     f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=4.6323506e-50 * frequency**3 / (numpy.exp(4.79927e-11 * frequency /\
-            temperature)-1);
+    y=4.6323506e-50 * frequency**3 / (numpy.exp(4.79927e-11 * frequency \
+            / temperature)-1);
     return f*y;
 
 
 ################################################################
 ##
 def dplnckel(wavelength, temperature):
-    """Temperative derivative of Planck function in wavelength domain for radiant emittance.
+    """Temperature derivative of Planck function in wavelength domain for
+    radiant emittance.
 
     Args:
         | wavelength (np.array[N,]):  wavelength vector in  [um]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in W/(K.m^2.um)
+        | (np.array[N,]):  spectral radiant emittance in W/(K.m^2.um)
 
     Raises:
         | No exception is raised.
     """
     # if xx > 350, then we get overflow
     xx=14387.86 /(wavelength * temperature)
-    return (3.7418301e8 * xx * numpy.exp(xx) )/\
-        (temperature* wavelength ** 5 * (numpy.exp(xx)-1) **2 )
+    # return (3.7418301e8 * xx * numpy.exp(xx) ) \
+    #     / (temperature* wavelength ** 5 * (numpy.exp(xx)-1) **2 )
+    # refactor (numpy.exp(xx)-1)**2 to prevent overflow problem
+    return (3.7418301e8 * xx * numpy.exp(xx) / (numpy.exp(xx)-1) ) \
+        / (temperature* wavelength ** 5 * (numpy.exp(xx)-1) )
+
 
 ################################################################
 ##
 def dplncken(wavenumber, temperature):
-    """Temperative derivative of Planck function in wavenumber domain for radiance emittance.
+    """Temperature derivative of Planck function in wavenumber domain for radiance emittance.
 
     Args:
         | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  W/(K.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emittance in  W/(K.m^2.cm^-1)
 
     Raises:
         | No exception is raised.
     """
     xx=(1.438786 * wavenumber /temperature)
     f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=(3.7418e-8 * wavenumber **3 / (numpy.exp(1.438786 * wavenumber /\
-            temperature)-1))
+    y=(3.7418e-8 * wavenumber **3 / (numpy.exp(1.438786 * wavenumber \
+            / temperature)-1))
     return f*y
 
 ################################################################
 ##
 def dplnckqf(frequency, temperature):
-    """Temperative derivative of Planck function in frequency domain for photon rate.
+    """Temperature derivative of Planck function in frequency domain for photon rate.
 
     Args:
         | frequency (np.array[N,]): frequency vector in  [Hz]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in q/(K.s.m^2.Hz)
+        | (np.array[N,]):  spectral radiant emittance in q/(K.s.m^2.Hz)
 
     Raises:
         | No exception is raised.
     """
     xx=(4.79927e-11 * frequency /temperature)
     f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=6.9911e-17 * frequency **2 / (numpy.exp(4.79927e-11 * frequency /\
-            temperature)-1)
+    y=6.9911e-17 * frequency **2 / (numpy.exp(4.79927e-11 * frequency \
+            / temperature)-1)
     return f*y
 
 ################################################################
 ##
 def dplnckql(wavelength, temperature):
-    """Temperative derivative of Planck function in wavenumber domain for radiance emittance.
+    """Temperature derivative of Planck function in wavenumber domain for radiance emittance.
 
     Args:
         | wavelength (np.array[N,]):  wavelength vector in  [um]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  q/(K.s.m^2.um)
+        | (np.array[N,]):  spectral radiant emittance in  q/(K.s.m^2.um)
 
     Raises:
         | No exception is raised.
     """
     xx=(14387.86 /(wavelength * temperature))
     f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=1.88365e27 / (wavelength ** 4 * ( numpy.exp(14387.86 /\
-            (temperature * wavelength))-1))
+    y=1.88365e27 / (wavelength ** 4 * ( numpy.exp(14387.86 \
+            / (temperature * wavelength))-1))
     return f*y
 
 ################################################################
 ##
 def dplnckqn(wavenumber, temperature):
-    """Temperative derivative of Planck function in wavenumber domain for photon rate.
+    """Temperature derivative of Planck function in wavenumber domain for photon rate.
 
     Args:
         | wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]
         | temperature (float):  temperature scalar in [K]
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance in  q/(s.m^2.cm^-1)
+        | (np.array[N,]):  spectral radiant emittance in  q/(s.m^2.cm^-1)
 
     Raises:
         | No exception is raised.
     """
     xx=(1.438786 * wavenumber /temperature)
     f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=1.883635e15 * wavenumber **2 / (numpy.exp(1.438786 * wavenumber /\
-            temperature)-1)
+    y=1.883635e15 * wavenumber **2 / (numpy.exp(1.438786 * wavenumber \
+            / temperature)-1)
     return f*y
 
 
@@ -295,7 +301,7 @@ def stefanboltzman(temperature, type='e'):
         | type (string):  'e' for radiant or 'q' for photon rate emittance.
 
     Returns:
-        | (float): integrated radiant emitance in  [W/m^2] or [q/(s.m^2)].
+        | (float): integrated radiant emittance in  [W/m^2] or [q/(s.m^2)].
         | Returns a -1 if the type is not 'e' or 'q'
 
     Raises:
@@ -338,7 +344,7 @@ def planck(spectral, temperature, type='el'):
         |  'f' signifies frequency spectral vecor [Hz].
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance (not radiance) in units selected.
+        | (np.array[N,]):  spectral radiant emittance (not radiance) in units selected.
         | For type = 'el' units will be [W/(m^2.um)].
         | For type = 'qf' units will be [q/(s.m^2.Hz)].
         | Other return types are similarly defined as above.
@@ -378,7 +384,7 @@ def dplanck(spectral, temperature, type='el'):
         |  'f' signifies frequency spectral vecor [Hz].
 
     Returns:
-        | (np.array[N,]):  spectral radiant emitance (not radiance) in units selected.
+        | (np.array[N,]):  spectral radiant emittance (not radiance) in units selected.
         | For type = 'el' units will be [W/(m2.um.K)]
         | For type = 'qf' units will be [q/(s.m2.Hz.K)]
         | Other return types are similarly defined as above.
@@ -647,4 +653,4 @@ if __name__ == '__main__':
     fdplanck.saveFig('dplanck.png')
 
 
-    print('module planck done!')
+    print('\n\nmodule planck done!')
