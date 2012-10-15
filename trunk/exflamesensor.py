@@ -68,7 +68,7 @@ import ryutils
 # the transmittance is specified in the wavenumber domain with
 # 5 cm-1 intervals, but we want to work in wavelength with 2.5 cm-1
 waven = numpy.arange(2000.0,  3300.0,  2.5).reshape(-1, 1)
-wavel= ryutils.convertSpectralDomain(waven,  type='nw')
+wavel= ryutils.convertSpectralDomain(waven,  type='nl')
 
 #remove comment lines, and scale path radiance from W/cm2.sr.cm-1  to W/m2.sr.cm-1
 tauA = ryfiles.loadColumnTextFile('data/path1kmflamesensor.txt',
@@ -78,7 +78,7 @@ lpathwn = ryfiles.loadColumnTextFile('data/pathspaceflamesensor.txt',
 
 #convert path radiance spectral density from 1/cm^-1 to 1/um, at the sample
 #wavenumber points
-(dum, lpathwl) = ryutils.convertSpectralDensity(waven,  lpathwn, type='nw')
+(dum, lpathwl) = ryutils.convertSpectralDensity(waven,  lpathwn, type='nl')
 
 #load the detector file in wavelengths, and interpolate on required values
 detR = ryfiles.loadColumnTextFile('data/detectorflamesensor.txt',
@@ -93,27 +93,25 @@ sfilter = ryutils.sfilter(wavel,center=4.3, width=0.8, exponent=12,
 taupass=0.9, taustop=0.0001)
 
 #plot the data
-plot1= ryplot.Plotter(1, 2, 2,'Flame sensor',figsize=(12,8))
+plot1= ryplot.Plotter(1, 2, 2,'Flame sensor',figsize=(24,16))
 
-#it seems that all attempts to plot in same subplot space must use same #ptitle.
 
-plot1.plot(1, wavel, detR, "Spectral","Wavelength [$\mu$m]", "Relative magnitude",
-    plotCol=['b'], label=['Detector'])
-
-plot1.plot(1, wavel, emis, "Spectral","Wavelength [$\mu$m]", "Relative magnitude",
-    plotCol=['g'], label=['Emissivity'])
-
-plot1.plot(1, wavel, sfilter, "Spectral","Wavelength [$\mu$m]", "Relative magnitude",
-    plotCol=['r'], label=['filter'])
-
-plot1.plot(1, wavel, tauA, "Spectral","Wavelength [$\mu$m]", "Relative magnitude",
-    plotCol=['c'], \
-       label=['Atmosphere transmittance'], maxNX=10, maxNY=10)
+plotdata = detR
+plotdata = numpy.hstack((plotdata,emis))
+plotdata = numpy.hstack((plotdata,sfilter))
+plotdata = numpy.hstack((plotdata,tauA))
+label = ['Detector','Emissivity','Filter','Atmosphere transmittance']
+plot1.plot(1, wavel, plotdata, "Spectral","Wavelength [$\mu$m]",
+    "Relative magnitude",
+    label = label, maxNX=10, maxNY=10)
 
 #check path radiance against Planck's Law for atmo temperature
 LbbTropical = ryplanck.planck(wavel, 273+27, type='el').reshape(-1, 1)/numpy.pi
-plot1.plot(2, wavel, LbbTropical, plotCol=['r'], label=['300 K Planck Law'])
-plot1.plot(2, wavel, lpathwl, plotCol=['b'], label=['Tropical path radiance'])
+plotdata = LbbTropical
+plotdata = numpy.hstack((plotdata,lpathwl))
+label=['300 K Planck Law','Tropical path radiance']
+plot1.plot(2, wavel, plotdata, label = label)
+
 currentP = plot1.getSubPlot(2)
 currentP.set_xlabel('Wavelength [$\mu$m]')
 currentP.set_ylabel('Radiance [W/(m$^2$.sr.$\mu$m)]')
@@ -133,7 +131,13 @@ distance = 1000  # [m]
 fill = (flameArea /distance**2) /  opticsFOV # how much of FOV is filled
 fill = 1 if fill > 1 else fill # limit target solid angle to sensor FOV
 
-# first do for flame
+
+# do case path
+inbandirradiancePath =  lpathwn * detR * sfilter * opticsFOV
+totalirradiancePath = numpy.trapz(inbandirradiancePath.reshape(-1, 1),waven, axis=0)[0]
+signalPath = totalirradiancePath * transZ*responsivity *opticsArea
+
+# do case flame
 # get spectral radiance in  W/m^2.sr.cm-1
 radianceFlame = ryplanck.planck(waven, flameTemperature,  type='en')\
     .reshape(-1, 1)/numpy.pi
@@ -141,26 +145,28 @@ inbandirradianceFlame = radianceFlame * detR * tauA * emis * sfilter *\
     fill * opticsFOV
 totalirradianceFlame = numpy.trapz(inbandirradianceFlame.reshape(-1, 1),
     waven, axis=0)[0]
-signalFlame = totalirradianceFlame *transZ*responsivity *opticsArea
+totalirradiancePathremainder = totalirradiancePath * (1-fill)
+signalFlameOnly = totalirradianceFlame *transZ*responsivity *opticsArea
+signalFlame = (totalirradianceFlame + totalirradiancePathremainder ) *\
+    transZ*responsivity *opticsArea
 
 
-print('Optics   : area={0} m^2 FOV={1} [sr]'.format(opticsArea, opticsFOV ))
-print('Amplifier: gain={0} [V/A]'.format(transZ))
-print('Detector : peak responsivity={0} [A/W]'.format(responsivity))
-print('Flame    : temperature={0} [K] area={1} [m^2] distance={2} [m] fill={3} [-]'.\
-    format(flameTemperature, flameArea, distance, fill))
-print('Flame    : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.\
-    format(totalirradianceFlame, signalFlame))
-
-# now do path
-inbandirradiancePath =  lpathwn * detR * sfilter * opticsFOV
-totalirradiancePath = numpy.trapz(inbandirradiancePath.reshape(-1, 1),waven, axis=0)[0]
-signalPath = totalirradiancePath * transZ*responsivity *opticsArea
-print('Path    : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.\
+print('Optics    : area={0} m^2 FOV={1} [sr]'.format(opticsArea, opticsFOV ))
+print('Amplifier : gain={0} [V/A]'.format(transZ))
+print('Detector  : peak responsivity={0} [A/W]'.format(responsivity))
+print('Flame     : temperature={0} [K] area={1} [m^2] distance={2} [m]'.\
+    format(flameTemperature, flameArea, distance))
+print('          : fill={0} [-]'.format(fill))
+print('Flame only: irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.\
+    format(totalirradianceFlame, signalFlameOnly))
+print('Path      : irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.\
     format(totalirradiancePath, signalPath))
+print('Flame+Path: irradiance={0:9.2e} [W/m^2] signal={1:7.4f} [V]'.\
+    format(totalirradianceFlame + totalirradiancePathremainder , \
+        signalFlame))
 
-(dum, iFlamewl) = ryutils.convertSpectralDensity(waven,  inbandirradianceFlame, type='nw')
-(dum, iPathwl) = ryutils.convertSpectralDensity(waven,  inbandirradiancePath, type='nw')
+(dum, iFlamewl) = ryutils.convertSpectralDensity(waven,  inbandirradianceFlame, type='nl')
+(dum, iPathwl) = ryutils.convertSpectralDensity(waven,  inbandirradiancePath, type='nl')
 plot1.plot(3, wavel, iFlamewl, "Irradiance","Wavelength [$\mu$m]",
     "Iradiance [W/(m$^2$.$\mu$m)]",plotCol=['r'], label=['Flame'])
 plot1.plot(3, wavel, iPathwl, "Irradiance","Wavelength [$\mu$m]",
