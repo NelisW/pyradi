@@ -75,7 +75,7 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
 ##############################################################################
 ##
 def responsivity(wavelength,lwavepeak, cuton=1, cutoff=20, scaling=1.0):
-    """ Calculate a photon detector wavelength spectral responsisivity
+    """ Calculate a photon detector wavelength spectral responsivity
 
     Given a number of parameters, calculates a shape that is somewhat similar to a photon
     detector spectral response, on wavelength scale. The function parameters controls the
@@ -443,7 +443,7 @@ if __name__ == '__main__':
         filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
 
     ##------------------------- plot sample filters ------------------------------
-    smpleplt = ryplot.Plotter(1, 1, 1, figsize=(5, 5))
+    smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
     smpleplt.plot(1, wavelength, filters, r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8", r'Wavelength $\mu$m',\
                 r'Transmittance', \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
@@ -460,7 +460,7 @@ if __name__ == '__main__':
         responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
 
     ##------------------------- plot sample detector ------------------------------
-    smpleplt = ryplot.Plotter(1, 1, 1, figsize=(5, 5))
+    smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
     smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength $\mu$m',\
                r'Responsivity', \
                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt)

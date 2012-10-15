@@ -935,13 +935,18 @@ if __name__ == '__main__':
     PN = Plotter(3, 2, 2,'Negative Polar Plots', figsize=(12,8))
     PN.polar(1,theta, r, "sin(3.3x)",\
            legendAlpha=0.5,rscale=[0,1.5],rgrid=[0.5,1.5],highlightNegative=True)
-    PN.polar(2,theta, r, "sin(3.3x)",\
-           legendAlpha=0.5,rscale=[0,1.5],rgrid=[0.5,1.5],highlightNegative=True,
+    tt = numpy.linspace(0,24*numpy.pi,3000)
+    rr = numpy.exp(numpy.cos(tt)) - 2 * numpy.cos(4 * tt) + (numpy.sin(tt / 12))**5
+    PN.polar(2,tt, rr, "Math function",\
+           legendAlpha=0.5,rscale=[0,5],rgrid=[0.5,5.0],highlightNegative=True,
            highlightCol='r',highlightWidth=4)
     PN.polar(3,theta, r, "sin(3.3x)", \
            legendAlpha=0.5,rscale=[-1.5,1.5],rgrid=[0.5,1.5],highlightNegative=True)
-    PN.polar(4,theta, numpy.abs(r), "abs(sin(3.3x))", \
-           legendAlpha=0.5,rscale=[-1.5,1.5],rgrid=[0.5,1.5],highlightNegative=True)
+    tt = numpy.linspace(0,2 * numpy.pi,360)
+    rr = 1 + 3 * numpy.sin(tt)
+    PN.polar(4,tt,rr, "1 + 3sin(x)", \
+           legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction=u'clockwise',
+           zerooffset=numpy.pi/2,highlightCol='r',highlightWidth=2)
     PN.saveFig('PN.png')
     #PN.saveFig('PN.eps')
 
