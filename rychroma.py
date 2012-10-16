@@ -103,7 +103,7 @@ if __name__ == '__main__':
     ## ----------------------- colour tristimulus ---------------------------------
     # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).
     # return values are 2-D (N,3) array scaled and interpolated.
-    bar = ryfiles.loadColumnTextFile('data/ciexyz31_1.txt', abscissaOut=wavelength,
+    bar = ryfiles.loadColumnTextFile('data/colourcoordinates/ciexyz31_1.txt', abscissaOut=wavelength,
                     loadCol=[1,2,3],  comment='%', delimiter=',', abscissaScale=1e-3)
 
 
@@ -115,12 +115,12 @@ if __name__ == '__main__':
     #Data read from files are interpolated to the required wavelength intervals
     #Use numpy.hstack to stack columns horizontally.
 
-    sources = ryfiles.loadColumnTextFile('data/fluorescent.txt', abscissaOut=wavelength,
-                            comment='%', normalize=1)
+    sources = ryfiles.loadColumnTextFile('data/colourcoordinates/fluorescent.txt',
+        abscissaOut=wavelength,comment='%', normalize=1)
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900)))
     sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850)))
     sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(
-                            'data/LowPressureSodiumLamp.txt',
+                            'data/colourcoordinates/LowPressureSodiumLamp.txt',
                             abscissaOut=wavelength, comment='%', normalize=1)))
     #label sources in order of appearance
     sourcesTxt=['Fluorescent', 'Planck 5900 K', 'Planck 2850 K', 'Sodium']
@@ -135,9 +135,9 @@ if __name__ == '__main__':
     # select the samples to be read in and then load all in one call!
     # first line in file contains labels for columns.
     samplesSelect = [1,2,3,8,10,11]
-    samples = ryfiles.loadColumnTextFile('data/samples.txt', abscissaOut=wavelength,
-                loadCol=samplesSelect,  comment='%')
-    samplesTxt=ryfiles.loadHeaderTextFile('data/samples.txt',
+    samples = ryfiles.loadColumnTextFile('data/colourcoordinates/samples.txt',
+         abscissaOut=wavelength, loadCol=samplesSelect,  comment='%')
+    samplesTxt=ryfiles.loadHeaderTextFile('data/colourcoordinates/samples.txt',
                 loadCol=samplesSelect, comment='%')
 
     ##------------------------- plot sample spectra ------------------------------
