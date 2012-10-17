@@ -24,6 +24,8 @@ Contents:
    ryfiles
    
    ryplot
+   
+   ryplotspherical
 
    ryutils
   
