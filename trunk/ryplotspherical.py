@@ -49,10 +49,37 @@ be used. it does not have to be equi-sampled spheres.
 The data must be in the OFF wireframe format.
 
 There are two possible trajectory file types:
- * Stationary sensor and object with the target rotating.
+ * 'Rotate' Stationary sensor and object with the target rotating.
    In this case the trajectory file specifies the target trajectory.
- * stationary object with orbiting sensor.
+ * 'Orbit' Stationary object with orbiting sensor.
    In this case the trajectory file specifies the sensor trajectory.
+
+The sphere data available in pyradi/data/plotspherical are:
+
+===============  ===========
+Filename         Resolution
+                  (degrees)
+===============  ===========
+sphere_0_12       56.9
+sphere_1_42       28.5
+sphere_2_162      14.2
+sphere_3_642      7.1
+sphere_4_2562     3.56
+sphere_5_10242    1.78
+===============  ===========
+
+The workflow is as follows:
+ #. Use writeRotatingTargetOssimTrajFile (or your own equivalent) to
+    calculate the appropriate trajectory file.
+    At the same time, there are two additional files created
+    (vertices and triangles) - keep these safe.
+ #. Create your data set (e.g. run simulation) using the trajectory
+    file. Collect the simulation data in a format for plotting.
+ #. Use the simulation data, together with the triangles and
+    vertices file, to plot the data. The triangles and vertices
+    are require to set up the plotting environment, consider this
+    the three-dimensional 'grid', while the simulation data
+    provides the data to be plotted in this grid.
 
 This tool was originally developed to create trajectory files for the
 Denel/CSIR OSSIM simulation.  The code was restructured for greater
@@ -68,7 +95,8 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['makerotatetrajfromoff']
+__all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
+        'writeRotatingTargetOssimTrajFile']
 
 import os.path, fnmatch
 import numpy
@@ -103,16 +131,26 @@ def readOffFile(filename):
         vertexCount = int(counts[0])
         faceCount = int(counts[1])
         edgeCount =  int(counts[2])
-        print('vertexCount={0} faceCount={1} edgeCount={2}'.format(vertexCount, faceCount, edgeCount))
+        print('vertexCount={0} faceCount={1} edgeCount={2}'.format(vertexCount,
+            faceCount, edgeCount))
+        #calculate the approx sampling density as surface of sphere divided by
+        #number of faces, then size of each face, then angle from size
+        areaFace = 4 * (numpy.pi)**2 / faceCount
+        sizeFace = numpy.sqrt(areaFace / 2)
+        resAngle = sizeFace
+        print('sampling density is approx {0:.2f} mrad or {1:.3f} degrees.'.format(
+            1000 * resAngle,resAngle * 180 / numpy.pi))
         # then follows vertices from lines[2] to lines[2+vertexCount]
         vertices = numpy.asarray([float(s) for s in lines[2].split()])
         for line in lines[3:2+vertexCount]:
-            vertices = numpy.vstack((vertices,numpy.asarray([float(s) for s in line.split()])))
+            vertices = numpy.vstack((vertices,numpy.asarray([float(s) \
+                for s in line.split()])))
         # now extract the triangles lines[2+vertexCount] to lines(-1)
         triangles = numpy.asarray([int(s) for s in lines[2+vertexCount].split()[1:]])
         for line in lines[3+vertexCount:2+vertexCount+faceCount]:
             if len(line) > 0:
-                triangles = numpy.vstack((triangles,numpy.asarray([int(s) for s in line.split()[1:]])))
+                triangles = numpy.vstack((triangles,numpy.asarray([int(s) \
+                    for s in line.split()[1:]])))
 
         if triangles.shape[0] != faceCount or vertices.shape[0] != vertexCount:
             return (None,None)
@@ -126,9 +164,8 @@ def readOffFile(filename):
 def getRotateFromOffFile(filename, xPos, yPos, zPos):
     """ Reads an OFF file and returns object attitude and position.
 
-    Reads an OFF format file wireframe description, and calculate the pitch
-    and yaw angles to point the object's X-axis towards the OFF file vertex
-    directions.
+    Calculate the pitch and yaw angles to point the object's X-axis towards
+    the OFF file vertex directions.
 
     Euler order is yaw-pitch-roll, with roll equal to zero.
     Yaw is defined in xy plane.
@@ -153,24 +190,27 @@ def getRotateFromOffFile(filename, xPos, yPos, zPos):
         | roll(numpy.array()): array of roll values
         | pitch(numpy.array()): array of pitch values
         | yaw(numpy.array()): array of yaw values
+        | vertices(numpy.array([])): array of vertices as [x y z]
+        | triangles(numpy.array([])): array of triangles as []
 
     Raises:
         | No exception is raised.
     """
 
-    (geodesic, triangles) = readOffFile(filename)
+    (vertices, triangles) = readOffFile(filename)
 
-    if geodesic is not None:
+    if vertices is not None:
 
-        ysign = (1 * (geodesic[:,1] < 0) - 1 * (geodesic[:,1] >= 0)).reshape(-1, 1)
+        ysign = (1 * (vertices[:,1] < 0) - 1 * (vertices[:,1] >= 0)).reshape(-1, 1)
 
-        xyradial = (numpy.sqrt((geodesic[:,0]) ** 2 + (geodesic[:,1]) ** 2)).reshape(-1, 1)
+        xyradial = (numpy.sqrt((vertices[:,0]) ** 2 + \
+            (vertices[:,1]) ** 2)).reshape(-1, 1)
 
-        deltaX = (-geodesic[:,0]).reshape(-1, 1)
+        deltaX = (-vertices[:,0]).reshape(-1, 1)
         #the strange '+ (xyradial==0)' below is to prevent divide by zero
         cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
         yaw = ysign * numpy.arccos(cosyaw)
-        pitch = - numpy.arctan2((-geodesic[:,2]).reshape(-1, 1), xyradial).reshape(-1, 1)
+        pitch = - numpy.arctan2((-vertices[:,2]).reshape(-1, 1), xyradial).reshape(-1, 1)
         roll = numpy.zeros(yaw.shape).reshape(-1, 1)
 
         onesv = numpy.ones(yaw.shape).reshape(-1, 1)
@@ -178,48 +218,123 @@ def getRotateFromOffFile(filename, xPos, yPos, zPos):
         y = yPos * onesv
         z = zPos * onesv
 
-        return (x, y, z, roll, pitch, yaw)
+        return (x, y, z, roll, pitch, yaw, vertices, triangles)
     else:
-        return (None, None, None, None, None, None)
+        return (None, None, None, None, None, None, None, None)
+
+##############################################################################
+##
+def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
+    """ Reads an OFF file and returns sensor attitude and position.
+
+    Calculate the sensor attitude and position such that the sensor always
+    look at the object located at ( xTargPos, yTargPos, zTargPos), at
+    a constant distance.
+
+    Euler order is yaw-pitch-roll, with roll equal to zero.
+    Yaw is defined in xy plane.
+    Pitch is defined in xz plane.
+    Roll is defined in yz plane.
+
+    The object is assumed to stationary at the position
+    (xTargPos, yTargPos, zTargPos).
+
+    Args:
+        | filename (string): OFF file filename
+        | xTargPos (double): x target object position (fixed)
+        | yTargPos (double): y target object position (fixed)
+        | zTargPos (double): z target object position (fixed)
+        | distance (double): range at which sensor orbits the target
+
+    Returns:
+        | x(numpy.array()): array of x values
+        | y(numpy.array()): array of y values
+        | z(numpy.array()): array of z values
+        | roll(numpy.array()): array of roll values
+        | pitch(numpy.array()): array of pitch values
+        | yaw(numpy.array()): array of yaw values
+        | vertices(numpy.array([])): array of vertices as [x y z]
+        | triangles(numpy.array([])): array of triangles as []
+
+    Raises:
+        | No exception is raised.
+    """
+
+
+    (vertices, triangles) = readOffFile(filename)
+
+    if vertices is not None:
+
+        targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
+
+        sensorPos = distance * vertices
+        sensorPos[:,0] = sensorPos[:,0] + xTargPos
+        sensorPos[:,1] = sensorPos[:,1] + yTargPos
+        sensorPos[:,2] = sensorPos[:,2] + zTargPos
+
+        ysign = (1 * (sensorPos[:,1] < 0) - 1 * (sensorPos[:,1] >= 0)).reshape(-1, 1)
+        xyradial = (numpy.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
+            (targPosition[1]-sensorPos[:,1]) ** 2)).reshape(-1, 1)
+        deltaX = (targPosition[0]-sensorPos[:,0]).reshape(-1, 1)
+        #the strange '+ (xyradial==0)' below is to prevent divide by zero
+        cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
+        yaw = ysign * numpy.arccos(cosyaw)
+        pitch = - numpy.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
+            xyradial).reshape(-1, 1)
+        roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+
+        return (sensorPos[:,0].reshape(-1, 1), sensorPos[:,1].reshape(-1, 1), \
+            sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw, vertices, triangles)
+    else:
+        return (None, None, None, None, None, None, None, None)
 
 
 ##############################################################################
 ##
 def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     yTargPos, zTargPos, xVel, yVel, zVel, engine, deltaTime ):
-    """ Reads OFF file and create OSSIM trajectory file for target rotation
-        according to OFF file directions.
+    """ Reads OFF file and create OSSIM trajectory files for rotating object
+    or orbiting sensor.
 
     This function writes a file in the custom OSSIM trajectory file format.
     Use this function as an example on how to use the ryplotspherical
     functionality in your application.
 
-    This function reads an OFF format file wireframe description, in order
-    calculate pitch and yaw angles to orientate an object's x-axis along the
-    vertices in the OFF file.
+    Two different types of trajectory files are created:
+     #. **trajType = 'Rotate'**
+        Calculate attitude (pitch and yaw angles only, roll is zero) to
+        orientate an object's x-axis along the vertices in the OFF file.
+        The location of the object is fixed at (xTargPos,yTargPos,zTargPos).
 
-    The trajectory file is written with the assumption that the rotating test
-    target is located at (rangeTarget,0,altitude) while the observer
-    is stationary at (0,0,0), looking along the x-axis.
+     #. **trajType = 'Orbit'**
+        Calculate location and attitude (pitch and yaw angles only, roll is
+        zero) of an orbiting sensor looking a a fixed location
+        (xTargPos, TargPos, zTargPos) from a given distance.
 
-    The velocity and engine setting are constant for all views.
+    The velocity and engine settings are constant for all views at the
+    values specified.
 
-    Two additional files are also written to assist with the subsequent viewing.
+    The deltaTime parameter is used to define the time increment to be
+    used in the trajectory file.
 
-    1)
-    The directions file contains the normalised vectors to from where the
-    observer viewed the target for each view.  Hence these vectors are the
-    direction of sampled intensity values.
+    Two additional files are also written to assist with the subsequent
+    viewing.
 
-    2)
-    The triangles file defines triangles that provides the spatial linking when
-    plotting the data. In essence, do we plot the complex hull comprising the
-    triangles, with vertices along the direction vectors.
+     #. The **directions** file contains the normalised direction vectors
+        between the object and observer. Depending on the trajectory type
+        (see above), the sensor and object switch locations for these
+        vectors. These vectors are the directions of sampled intensity values.
 
-    OSSIM Users: For an example of how to use these trajectory files, see
-    test point tp01m. The scenario files are present in the the appropriate
-    subtest directory (m) and the plotting routines are in the utils dicectory
-    in tp01.
+     #. The **triangles** file defines triangles that provides the spatial
+        linking between adjacent vectors, used when plotting the data.
+        We plot the complex hull comprising these triangles, with vertices
+        along the direction vectors, with length given by the simulated
+        data set.
+
+    OSSIM Users: For examples of how to use these trajectory files, see
+    test points tp01l (that is lowercase L) and tp01m. The scenario files
+    are present in the the appropriate test point directory (l and m) and
+    the plotting routines are in the tp01 utils directory.
 
     Args:
         | filename (string): OFF file filename
@@ -242,16 +357,20 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     """
 
     if trajType == 'Rotate':
-        (x, y, z, roll, pitch, yaw) = getRotateFromOffFile(filename, xTargPos, yTargPos, zTargPos)
+        (x, y, z, roll, pitch, yaw, vertices, triangles) = \
+        getRotateFromOffFile(filename, xTargPos, yTargPos, zTargPos)
+    elif trajType == 'Orbit':
+        (x, y, z, roll, pitch, yaw,vertices, triangles) = \
+        getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance)
     else:
-        (x, y, z, roll, pitch, yaw) = getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance)
-
-    (geodesic, triangles) = readOffFile(filename)
+        print('Unkown trajectory type')
+        return
 
     zerov = numpy.zeros(yaw.shape).reshape(-1, 1)
     onesv = numpy.ones(yaw.shape).reshape(-1, 1)
 
-    time = deltaTime * numpy.asarray([i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
+    time = numpy.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
+    #time = numpy.around(time,2) # rounding does not help. internal representation!!
 
     outp = time
     outp = numpy.hstack((outp, x))
@@ -273,7 +392,7 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
-    numpy.savetxt( fid , outp )
+    numpy.savetxt(fid , outp)
     fid.close()
 
     fid = open('Triangles{0}{1}.txt'.format(trajType,outfile), 'w' )
@@ -281,74 +400,11 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     fid.close()
 
     fid = open('Directions{0}{1}.txt'.format(trajType,outfile), 'w' )
-    numpy.savetxt( fid , geodesic )
+    numpy.savetxt( fid , vertices )
     fid.close()
 
-##############################################################################
-##
-def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
-    """ Reads an OFF file and returns sensor attitude and position.
-
-    Reads an OFF format file wireframe description, and calculate the sensor
-    attitude and position such that the sensor always look at the object
-    located at ( xTargPos, yTargPos, zTargPos), at a constant range.
-
-    Euler order is yaw-pitch-roll, with roll equal to zero.
-    Yaw is defined in xy plane.
-    Pitch is defined in xz plane.
-    Roll is defined in yz plane.
-
-    The object is assumed to stationary at the position
-    (xTargPos, yTargPos, zTargPos).
-
-    Args:
-        | filename (string): OFF file filename
-        | xTargPos (double): x target object position (fixed)
-        | yTargPos (double): y target object position (fixed)
-        | zTargPos (double): z target object position (fixed)
-        | distance (double): range at which sensor orbits the target
-
-
-
-    Returns:
-        | x(numpy.array()): array of x values
-        | y(numpy.array()): array of y values
-        | z(numpy.array()): array of z values
-        | roll(numpy.array()): array of roll values
-        | pitch(numpy.array()): array of pitch values
-        | yaw(numpy.array()): array of yaw values
-
-    Raises:
-        | No exception is raised.
-    """
-
-
-    (geodesic, triangles) = readOffFile(filename)
-
-    if geodesic is not None:
-
-        targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
-
-        mislPosition = distance * geodesic
-        mislPosition[:,0] = mislPosition[:,0] + xTargPos
-        mislPosition[:,1] = mislPosition[:,1] + yTargPos
-        mislPosition[:,2] = mislPosition[:,2] + zTargPos
-
-        # rotate missile in Euler angles, order ypr
-        # yaw defined in xy plane
-        #rrange = numpy.sqrt((targPosition[0]-mislPosition[:,0]) ** 2 + (targPosition[1]-mislPosition[:,1]) ** 2 + (targPosition[2]-mislPosition[:,2]) ** 2)
-        ysign = (1 * (mislPosition[:,1] < 0) - 1 * (mislPosition[:,1] >= 0)).reshape(-1, 1)
-        xyradial = (numpy.sqrt((targPosition[0]-mislPosition[:,0]) ** 2 + (targPosition[1]-mislPosition[:,1]) ** 2)).reshape(-1, 1)
-        deltaX = (targPosition[0]-mislPosition[:,0]).reshape(-1, 1)
-        #the strange '+ (xyradial==0)' below is to prevent divide by zero
-        cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
-        yaw = ysign * numpy.arccos(cosyaw)
-        pitch = - numpy.arctan2((targPosition[2]-mislPosition[:,2]).reshape(-1, 1), xyradial).reshape(-1, 1)
-        roll = numpy.zeros(yaw.shape).reshape(-1, 1)
-
-        return (mislPosition[:,0].reshape(-1, 1), mislPosition[:,1].reshape(-1, 1), mislPosition[:,2].reshape(-1, 1), roll, pitch, yaw)
-    else:
-        return (None, None, None, None, None, None)
+    print('Set OSSIM clock to {0} increments and max time {1}\n'.\
+        format(deltaTime, deltaTime * yaw.shape[0]))
 
 ################################################################
 ##
@@ -372,10 +428,9 @@ if __name__ == '__main__':
     #use the OFF file with 10242 vertices.
     #the time increment  is 0.01 for each new position, velocity is zero here and
     #engine setting is 1. In this context the distance is irrelevant.
-    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_5_10242.off', 'Rotate',
+    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Rotate',
         None, 1000, 0, -1500,0, 0, 0, 1, 0.01)
 
-    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_5_10242.off', 'Orbit',
+    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Orbit',
         1000, 0, 0, -1500,0, 0, 0, 0, 0.01)
-
 
