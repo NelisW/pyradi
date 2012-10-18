@@ -82,11 +82,64 @@ be used. it does not have to be equi-sampled spheres.</p>
 <dl class="docutils">
 <dt>There are two possible trajectory file types:</dt>
 <dd><ul class="first last simple">
-<li>Stationary sensor and object with the target rotating.
+<li>&#8216;Rotate&#8217; Stationary sensor and object with the target rotating.
 In this case the trajectory file specifies the target trajectory.</li>
-<li>stationary object with orbiting sensor.
+<li>&#8216;Orbit&#8217; Stationary object with orbiting sensor.
 In this case the trajectory file specifies the sensor trajectory.</li>
 </ul>
+</dd>
+</dl>
+<p>The sphere data available in pyradi/data/plotspherical are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="58%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Filename</th>
+<th class="head"><dl class="first last docutils">
+<dt>Resolution</dt>
+<dd>(degrees)</dd>
+</dl>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>sphere_0_12</td>
+<td>56.9</td>
+</tr>
+<tr class="row-odd"><td>sphere_1_42</td>
+<td>28.5</td>
+</tr>
+<tr class="row-even"><td>sphere_2_162</td>
+<td>14.2</td>
+</tr>
+<tr class="row-odd"><td>sphere_3_642</td>
+<td>7.1</td>
+</tr>
+<tr class="row-even"><td>sphere_4_2562</td>
+<td>3.56</td>
+</tr>
+<tr class="row-odd"><td>sphere_5_10242</td>
+<td>1.78</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>The workflow is as follows:</dt>
+<dd><ol class="first last arabic simple">
+<li>Use writeRotatingTargetOssimTrajFile (or your own equivalent) to
+calculate the appropriate trajectory file.
+At the same time, there are two additional files created
+(vertices and triangles) - keep these safe.</li>
+<li>Create your data set (e.g. run simulation) using the trajectory
+file. Collect the simulation data in a format for plotting.</li>
+<li>Use the simulation data, together with the triangles and
+vertices file, to plot the data. The triangles and vertices
+are require to set up the plotting environment, consider this
+the three-dimensional &#8216;grid&#8217;, while the simulation data
+provides the data to be plotted in this grid.</li>
+</ol>
 </dd>
 </dl>
 <p>This tool was originally developed to create trajectory files for the
@@ -94,8 +147,8 @@ Denel/CSIR OSSIM simulation.  The code was restructured for greater
 universal application, but the final example is still an OSSIM case.</p>
 <p>See the __main__ function for examples of use.</p>
 </div>
-<div class="section" id="module-classes">
-<h2>Module classes<a class="headerlink" href="#module-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-functions">
+<h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pyradi.ryplotspherical.readOffFile">
 <tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">readOffFile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.readOffFile" title="Permalink to this definition">¶</a></dt>
@@ -126,9 +179,8 @@ This is a fairly trivial reading task.</p>
 <dt id="pyradi.ryplotspherical.getRotateFromOffFile">
 <tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">getRotateFromOffFile</tt><big>(</big><em>filename</em>, <em>xPos</em>, <em>yPos</em>, <em>zPos</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.getRotateFromOffFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an OFF file and returns object attitude and position.</p>
-<p>Reads an OFF format file wireframe description, and calculate the pitch
-and yaw angles to point the object&#8217;s X-axis towards the OFF file vertex
-directions.</p>
+<p>Calculate the pitch and yaw angles to point the object&#8217;s X-axis towards
+the OFF file vertex directions.</p>
 <p>Euler order is yaw-pitch-roll, with roll equal to zero.
 Yaw is defined in xy plane.
 Pitch is defined in xz plane.
@@ -153,6 +205,8 @@ but all values in each individual array are all the same.</p>
 <div class="line">roll(numpy.array()): array of roll values</div>
 <div class="line">pitch(numpy.array()): array of pitch values</div>
 <div class="line">yaw(numpy.array()): array of yaw values</div>
+<div class="line">vertices(numpy.array([])): array of vertices as [x y z]</div>
+<div class="line">triangles(numpy.array([])): array of triangles as []</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -167,9 +221,9 @@ but all values in each individual array are all the same.</p>
 <dt id="pyradi.ryplotspherical.getOrbitFromOffFile">
 <tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">getOrbitFromOffFile</tt><big>(</big><em>filename</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>distance</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.getOrbitFromOffFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an OFF file and returns sensor attitude and position.</p>
-<p>Reads an OFF format file wireframe description, and calculate the sensor
-attitude and position such that the sensor always look at the object
-located at ( xTargPos, yTargPos, zTargPos), at a constant range.</p>
+<p>Calculate the sensor attitude and position such that the sensor always
+look at the object located at ( xTargPos, yTargPos, zTargPos), at
+a constant distance.</p>
 <p>Euler order is yaw-pitch-roll, with roll equal to zero.
 Yaw is defined in xy plane.
 Pitch is defined in xz plane.
@@ -194,6 +248,8 @@ Roll is defined in yz plane.</p>
 <div class="line">roll(numpy.array()): array of roll values</div>
 <div class="line">pitch(numpy.array()): array of pitch values</div>
 <div class="line">yaw(numpy.array()): array of yaw values</div>
+<div class="line">vertices(numpy.array([])): array of vertices as [x y z]</div>
+<div class="line">triangles(numpy.array([])): array of triangles as []</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -207,31 +263,48 @@ Roll is defined in yz plane.</p>
 <dl class="function">
 <dt id="pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile">
 <tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">writeRotatingTargetOssimTrajFile</tt><big>(</big><em>filename</em>, <em>trajType</em>, <em>distance</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>xVel</em>, <em>yVel</em>, <em>zVel</em>, <em>engine</em>, <em>deltaTime</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads OFF file and create OSSIM trajectory file for target rotation
-according to OFF file directions.</p>
+<dd><p>Reads OFF file and create OSSIM trajectory files for rotating object
+or orbiting sensor.</p>
 <p>This function writes a file in the custom OSSIM trajectory file format.
 Use this function as an example on how to use the ryplotspherical
 functionality in your application.</p>
-<p>This function reads an OFF format file wireframe description, in order
-calculate pitch and yaw angles to orientate an object&#8217;s x-axis along the
-vertices in the OFF file.</p>
-<p>The trajectory file is written with the assumption that the rotating test
-target is located at (rangeTarget,0,altitude) while the observer
-is stationary at (0,0,0), looking along the x-axis.</p>
-<p>The velocity and engine setting are constant for all views.</p>
-<p>Two additional files are also written to assist with the subsequent viewing.</p>
-<p>1)
-The directions file contains the normalised vectors to from where the
-observer viewed the target for each view.  Hence these vectors are the
-direction of sampled intensity values.</p>
-<p>2)
-The triangles file defines triangles that provides the spatial linking when
-plotting the data. In essence, do we plot the complex hull comprising the
-triangles, with vertices along the direction vectors.</p>
-<p>OSSIM Users: For an example of how to use these trajectory files, see
-test point tp01m. The scenario files are present in the the appropriate
-subtest directory (m) and the plotting routines are in the utils dicectory
-in tp01.</p>
+<dl class="docutils">
+<dt>Two different types of trajectory files are created:</dt>
+<dd><ol class="first last arabic simple">
+<li><strong>trajType = &#8216;Rotate&#8217;</strong>
+Calculate attitude (pitch and yaw angles only, roll is zero) to
+orientate an object&#8217;s x-axis along the vertices in the OFF file.
+The location of the object is fixed at (xTargPos,yTargPos,zTargPos).</li>
+<li><strong>trajType = &#8216;Orbit&#8217;</strong>
+Calculate location and attitude (pitch and yaw angles only, roll is
+zero) of an orbiting sensor looking a a fixed location
+(xTargPos, TargPos, zTargPos) from a given distance.</li>
+</ol>
+</dd>
+</dl>
+<p>The velocity and engine settings are constant for all views at the
+values specified.</p>
+<p>The deltaTime parameter is used to define the time increment to be
+used in the trajectory file.</p>
+<p>Two additional files are also written to assist with the subsequent
+viewing.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>The <strong>directions</strong> file contains the normalised direction vectors
+between the object and observer. Depending on the trajectory type
+(see above), the sensor and object switch locations for these
+vectors. These vectors are the directions of sampled intensity values.</li>
+<li>The <strong>triangles</strong> file defines triangles that provides the spatial
+linking between adjacent vectors, used when plotting the data.
+We plot the complex hull comprising these triangles, with vertices
+along the direction vectors, with length given by the simulated
+data set.</li>
+</ol>
+</div></blockquote>
+<p>OSSIM Users: For examples of how to use these trajectory files, see
+test points tp01l (that is lowercase L) and tp01m. The scenario files
+are present in the the appropriate test point directory (l and m) and
+the plotting routines are in the tp01 utils directory.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -274,7 +347,7 @@ in tp01.</p>
   <ul>
 <li><a class="reference internal" href="#">Spherical Plotting utility</a><ul>
 <li><a class="reference internal" href="#module-pyradi.ryplotspherical">Overview</a></li>
-<li><a class="reference internal" href="#module-classes">Module classes</a></li>
+<li><a class="reference internal" href="#module-functions">Module functions</a></li>
 </ul>
 </li>
 </ul>

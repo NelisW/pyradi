@@ -9,7 +9,7 @@ Overview
 
 .. automodule:: pyradi.ryplotspherical
 
-Module classes
+Module functions
 ------------------
 
 .. autofunction:: pyradi.ryplotspherical.readOffFile	
