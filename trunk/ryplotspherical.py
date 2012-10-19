@@ -46,6 +46,12 @@ on the unit sphere:  12, 42, 162, 642, 2562 or 10242.
 Any object, with the required vertices and spatial relationships can
 be used. it does not have to be equi-sampled spheres.
 
+Note that the spherical plot has no way to discriminate between negative
+values and a pi phase shift: there is confusion between sign and
+direction.  This is inherent in the conversion between cartesian
+and spherical coordinates. The user has to make provision for this,
+possibly by plotting only negative or only positive values.
+
 The data must be in the OFF wireframe format.
 
 There are two possible trajectory file types:
@@ -456,6 +462,10 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
     The triangle set defines how the surfrace must be structured between the samples.
     The data set defines, for each direction cosine, the length of the vector.
 
+    There is no means to discriminate between negative and pi phase shift.
+    In this function we plot colour ratio values initially in absolute form,
+    then only positive and then only negative values. In between these two
+    shells the values are going through zero.
 
     Args:
         | nColours ([int]): selection of colours to display
@@ -481,13 +491,38 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
 
     #calculate colour ratio
     #   log() to compress the scales
-    colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(1-2um/3-5 um)')
+    #   abs() to not loose negative values
+    colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,5]))
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(3-5 um/8-12 um))')
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
-    colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(1.5-2.5um/3-5 um)')
+    colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,7]))
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(3-5 um/1-2 um))')
     plotSpherical(colourratio, vertices, triangles, ptitle)
+
+    colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(+(1-2 um/3-5 um)')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+    colourratio = numpy.log(-radianArray[:,7]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(-(1-2 um/3-5 um))')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+
+    colourratio = numpy.log(numpy.abs(radianArray[:,8]/radianArray[:,6]))
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(1.5-2.5 um/3-5 um))')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+
+    colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(+1.5-2.5 um/3-5 um)')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+    colourratio = numpy.log(-radianArray[:,8]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(-(1.5-2.5 um/3-5 um))')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+
 
 ################################################################
 ##

@@ -78,6 +78,11 @@ There are 6 possible input files, each with different number of samples
 on the unit sphere:  12, 42, 162, 642, 2562 or 10242.</p>
 <p>Any object, with the required vertices and spatial relationships can
 be used. it does not have to be equi-sampled spheres.</p>
+<p>Note that the spherical plot has no way to discriminate between negative
+values and a pi phase shift: there is confusion between sign and
+direction.  This is inherent in the conversion between cartesian
+and spherical coordinates. The user has to make provision for this,
+possibly by plotting only negative or only positive values.</p>
 <p>The data must be in the OFF wireframe format.</p>
 <dl class="docutils">
 <dt>There are two possible trajectory file types:</dt>
@@ -374,6 +379,10 @@ the plotting routines are in the tp01 utils directory.</p>
 <p>The vertex set defines the direction cosines of the individual samples.
 The triangle set defines how the surfrace must be structured between the samples.
 The data set defines, for each direction cosine, the length of the vector.</p>
+<p>There is no means to discriminate between negative and pi phase shift.
+In this function we plot colour ratio values initially in absolute form,
+then only positive and then only negative values. In between these two
+shells the values are going through zero.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
