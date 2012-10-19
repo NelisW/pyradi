@@ -261,6 +261,37 @@ Roll is defined in yz plane.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pyradi.ryplotspherical.plotSpherical">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotSpherical</tt><big>(</big><em>dataset</em>, <em>vertices</em>, <em>triangles</em>, <em>ptitle=u''</em>, <em>tsize=0.4</em>, <em>theight=0.95</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotSpherical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the spherical data given a data set, triangle set and vertex set.</p>
+<p>The vertex set defines the direction cosines of the individual samples.
+The triangle set defines how the surfrace must be structured between the samples.
+The data set defines, for each direction cosine, the length of the vector.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">dataset(numpy.array(double)): array of data set values</div>
+<div class="line">vertices(numpy.array([])): array of direction cosine vertices as [x y z]</div>
+<div class="line">triangles(numpy.array([])): array of triangles as []</div>
+<div class="line">ptitle(string): title or header for this display</div>
+<div class="line">tsize(double): title size (units not quite clear)</div>
+<div class="line">theight(double): title height (y value) (units not quite clear)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">provides and mlab figure.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile">
 <tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">writeRotatingTargetOssimTrajFile</tt><big>(</big><em>filename</em>, <em>trajType</em>, <em>distance</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>xVel</em>, <em>yVel</em>, <em>zVel</em>, <em>engine</em>, <em>deltaTime</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads OFF file and create OSSIM trajectory files for rotating object
@@ -323,7 +354,39 @@ the plotting routines are in the tp01 utils directory.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">nothing</div>
+<div class="line">writes a trajectory file</div>
+<div class="line">writes a triangles file</div>
+<div class="line">writes a vertices file</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.plotOSSIMSpherical">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotOSSIMSpherical</tt><big>(</big><em>nColours</em>, <em>plottitle</em>, <em>datafile</em>, <em>vertexfile</em>, <em>trianglefile</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotOSSIMSpherical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the spherical data given a data set, triangle set and vertex set.</p>
+<p>The vertex set defines the direction cosines of the individual samples.
+The triangle set defines how the surfrace must be structured between the samples.
+The data set defines, for each direction cosine, the length of the vector.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">nColours ([int]): selection of colours to display</div>
+<div class="line">plottitle (string): plot title or header</div>
+<div class="line">datafile (string): dataset file filename</div>
+<div class="line">vertexfile (string): vertex file filename</div>
+<div class="line">trianglefile (string): triangles file filename</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">provides and mlab figure.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
