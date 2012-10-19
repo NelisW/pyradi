@@ -442,7 +442,7 @@ def plotSpherical(dataset, vertices, triangles, ptitle='', tsize=0.4, theight=0.
 
     # Visualize the points
     pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
-    mlab.title(ptitle,size,height)
+    mlab.title(ptitle, size=tsize, height=theight)
     mlab.show()
 
 
