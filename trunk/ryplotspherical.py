@@ -101,6 +101,7 @@ __all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
 import os.path, fnmatch
 import numpy
 from scipy.interpolate import interp1d
+from mayavi import mlab
 
 ##############################################################################
 ##
@@ -350,7 +351,9 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
         | deltaTime (double): sampling time increment in output file
 
     Returns:
-        | nothing
+        | writes a trajectory file
+        | writes a triangles file
+        | writes a vertices file
 
     Raises:
         | No exception is raised.
@@ -395,16 +398,94 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     numpy.savetxt(fid , outp)
     fid.close()
 
-    fid = open('Triangles{0}{1}.txt'.format(trajType,outfile), 'w' )
+    fid = open('triangles{0}.txt'.format(outfile), 'w' )
     numpy.savetxt( fid , triangles )
     fid.close()
 
-    fid = open('Directions{0}{1}.txt'.format(trajType,outfile), 'w' )
+    fid = open('vertex{0}.txt'.format(outfile), 'w' )
     numpy.savetxt( fid , vertices )
     fid.close()
 
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
         format(deltaTime, deltaTime * yaw.shape[0]))
+
+################################################################
+##
+def plotSpherical(dataset, vertices, triangles, ptitle='',tsize=0.4,theight=0.95):
+    """Plot the spherical data given a data set, triangle set and vertex set.
+
+    The vertex set defines the direction cosines of the individual samples.
+    The triangle set defines how the surfrace must be structured between the samples.
+    The data set defines, for each direction cosine, the length of the vector.
+
+    Args:
+        | dataset(numpy.array(double)): array of data set values
+        | vertices(numpy.array([])): array of direction cosine vertices as [x y z]
+        | triangles(numpy.array([])): array of triangles as []
+        | ptitle(string): title or header for this display
+        | tsize(double): title size (units not quite clear)
+        | theight(double): title height (y value) (units not quite clear)
+
+    Returns:
+        | provides and mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+
+    #calculate a (x,y,z) data set from the direction vectors
+    x =  dataset * vertices[:,0]
+    y =  dataset * vertices[:,1]
+    z =  dataset * vertices[:,2]
+
+    mlab.figure(1, fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
+
+    # Visualize the points
+    pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
+    mlab.title(ptitle,size=0.5,height=0.95)
+    mlab.show()
+
+
+
+################################################################
+##
+def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
+    """Plot the spherical data given a data set, triangle set and vertex set.
+
+    The vertex set defines the direction cosines of the individual samples.
+    The triangle set defines how the surfrace must be structured between the samples.
+    The data set defines, for each direction cosine, the length of the vector.
+
+
+    Args:
+        | datafile (string): dataset file filename
+        | vertexfile (string): vertex file filename
+        | trianglefile (string): triangles file filename
+
+    Returns:
+        | provides and mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+    vertices = numpy.genfromtxt(vertexfile, autostrip=True,comments='%')
+    triangles = numpy.genfromtxt(trianglefile, autostrip=True,comments='%')
+    radianArray = numpy.loadtxt(datafile, skiprows=1, dtype = float)
+    specBand = ['8-12 um', '3-5 um', '1-2 um', '1.5-2.5 um']
+    for i in nColours:
+        dataset = radianArray[:,5+i]
+        ptitle = '{0} {1}'.format(plottitle,specBand[i])
+        plotSpherical(dataset, vertices, triangles, ptitle)
+
+    #calculate colour ratio
+    #   log() to compress the scales
+    colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(1-2um/3-5 um)')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
+
+    colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
+    ptitle = '{0} {1}'.format(plottitle,'log(1.5-2.5um/3-5 um)')
+    plotSpherical(colourratio, vertices, triangles, ptitle)
 
 ################################################################
 ##
@@ -433,4 +514,14 @@ if __name__ == '__main__':
 
     writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Orbit',
         1000, 0, 0, -1500,0, 0, 0, 0, 0.01)
+
+    #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
+    plotOSSIMSpherical([0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
+        'data/plotspherical/vertexsphere_4_2562.txt',
+        'data/plotspherical/trianglessphere_4_2562.txt')
+
+    plotOSSIMSpherical([0,1,2,3],'Rotating','data/plotspherical/rotateIntensity2562.txt',
+        'data/plotspherical/vertexsphere_4_2562.txt',
+        'data/plotspherical/trianglessphere_4_2562.txt')
+
 
