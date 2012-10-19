@@ -18,7 +18,11 @@ Module functions
 
 .. autofunction:: pyradi.ryplotspherical.getOrbitFromOffFile	
 
+.. autofunction:: pyradi.ryplotspherical.plotSpherical	
+
 .. autofunction:: pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile	
+
+.. autofunction:: pyradi.ryplotspherical.plotOSSIMSpherical	
 
 
 

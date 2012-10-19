@@ -411,7 +411,7 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
 
 ################################################################
 ##
-def plotSpherical(dataset, vertices, triangles, ptitle='',tsize=0.4,theight=0.95):
+def plotSpherical(dataset, vertices, triangles, ptitle='', tsize=0.4, theight=0.95):
     """Plot the spherical data given a data set, triangle set and vertex set.
 
     The vertex set defines the direction cosines of the individual samples.
@@ -442,7 +442,7 @@ def plotSpherical(dataset, vertices, triangles, ptitle='',tsize=0.4,theight=0.95
 
     # Visualize the points
     pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
-    mlab.title(ptitle,size=0.5,height=0.95)
+    mlab.title(ptitle,size,height)
     mlab.show()
 
 
@@ -458,6 +458,8 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
 
 
     Args:
+        | nColours ([int]): selection of colours to display
+        | plottitle (string): plot title or header
         | datafile (string): dataset file filename
         | vertexfile (string): vertex file filename
         | trianglefile (string): triangles file filename
