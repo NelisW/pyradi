@@ -216,6 +216,45 @@ continue into sub-directories.  A list of matching names is returned.</p>
 </dl>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyradi.ryfiles.readRawFrames">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">readRawFrames</tt><big>(</big><em>fname</em>, <em>rows</em>, <em>cols</em>, <em>vartype</em>, <em>loadFrames=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pyradi.ryfiles.readRawFrames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a numpy array from data in a binary file with known data-type.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">fname (string): path and filename</div>
+<div class="line">rows (int): number of rows in frames</div>
+<div class="line">cols (int): number of columns in frames</div>
+<div class="line">vartype (numpy.dtype): numpy data type of data to be read</div>
+<div class="line-block">
+<div class="line">int8, int16, int32, int64</div>
+<div class="line">uint8, uint16, uint32, uint64</div>
+<div class="line">float16, float32, float64</div>
+</div>
+<div class="line">loadFrames ([int]): optional list of frames to load, zero-based , empty list (default) loads all frames</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">frames (int) : number of frames in the returned data set,</div>
+<div class="line-block">
+<div class="line">0 if error occurred</div>
+</div>
+<div class="line">rawShaped (numpy.ndarray): vartype numpy array of dimensions (frames,rows,cols),</div>
+<div class="line-block">
+<div class="line">None if error occurred</div>
+</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 

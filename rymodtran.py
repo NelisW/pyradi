@@ -36,7 +36,7 @@ from __future__ import print_function
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['fixHeaders', 'loadtape7']
+__all__= ['fixHeaders', 'loadtape7','fixHeadersList', 'savetape7data']
 
 import numpy as np
 from string import maketrans

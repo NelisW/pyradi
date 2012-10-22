@@ -50,7 +50,7 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['QuantumEfficiency','Irradiance', 'Photocurrent', 'IXV,Responsivity', 'Detectivity', 'NEP']
+__all__= ['QuantumEfficiency','Irradiance', 'Photocurrent', 'IXV', 'Detectivity', 'NEP', 'Noise', 'Idark', 'Responsivity']
 
 from scipy.constants import codata
 import matplotlib.pyplot as plt

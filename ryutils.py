@@ -22,7 +22,10 @@
 ################################################################
 """
 This module provides various utility functions for radiometry calculations.
-Functions are provided for a maximally flat spectral filter, a simple photon detector spectral response, effective value calculation, conversion of spectral domain variables between [um], [cm^-1] and [Hz], conversion of spectral density quantities between [um], [cm^-1] and [Hz] and spectral convolution.
+Functions are provided for a maximally flat spectral filter, a simple photon
+detector spectral response, effective value calculation, conversion of spectral
+domain variables between [um], [cm^-1] and [Hz], conversion of spectral
+density quantities between [um], [cm^-1] and [Hz] and spectral convolution.
 
 See the __main__ function for examples of use.
 """
@@ -34,7 +37,9 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['sfilter', 'responsivity']
+__all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
+         'convertSpectralDensity','convolve'
+]
 
 import numpy
 from scipy import constants
