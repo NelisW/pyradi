@@ -10,13 +10,15 @@ Overview
 Module functions
 ------------------
 
-.. autofunction:: pyradi.ryutils.responsivity  
+.. autofunction:: pyradi.ryutils.sfilter  
 
-.. autofunction:: pyradi.ryutils.sfilter 
+.. autofunction:: pyradi.ryutils.responsivity 
+
+.. autofunction:: pyradi.ryutils.effectiveValue 
 
 .. autofunction:: pyradi.ryutils.convertSpectralDomain 
 
 .. autofunction:: pyradi.ryutils.convertSpectralDensity 
 
-.. autofunction:: pyradi.ryutils.effectiveValue 
+.. autofunction:: pyradi.ryutils.convolve 
 
