@@ -41,7 +41,7 @@ __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken',
 'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf',
-'dplnckql', 'dplnckqn']
+'dplnckql', 'dplnckqn','an']
 
 import numpy
 import scipy.constants as const
@@ -62,6 +62,8 @@ class PlanckConstants:
         Reference: http://www.spectralcalc.com/blackbody/appendixC.html
         """
 
+        import scipy.optimize
+
         self.c1em = 2 * numpy.pi * const.h * const.c * const.c
         self.c1el = self.c1em * (1.0e6)**(5-1) # 5 for lambda power and -1 for density
         self.c1en = self.c1em * (100)**3 * 100 # 3 for wavenumber, 1 for density
@@ -78,9 +80,25 @@ class PlanckConstants:
         self.c2f = const.h / const.k
 
         self.sigmae = const.sigma
-        zeta3 = 1.2020569031595942853
-        self.sigmaq = 4 * numpy.pi * zeta3 * const.k ** 3 \
+        self.zeta3 = 1.2020569031595942853
+        self.sigmaq = 4 * numpy.pi * self.zeta3 * const.k ** 3 \
                / (const.h ** 3 * const.c ** 2)
+
+        self.a2 = scipy.optimize.brentq(self.an, 1, 2, (2) )
+        self.a3 = scipy.optimize.brentq(self.an, 2, 3, (3) )
+        self.a4 = scipy.optimize.brentq(self.an, 3.5, 4, (4) )
+        self.a5 = scipy.optimize.brentq(self.an, 4.5, 5, (5) )
+
+        self.wel = 1e6 * const.h * const.c /(const.k * self.a5)
+        self.wql = 1e6 * const.h * const.c /(const.k * self.a4)
+        self.wen = self.a3 * const.k /(100 * const.h * const.c )
+        self.wqn = self.a2 * const.k /(100 * const.h * const.c )
+        self.wef = self.a3 * const.k /(const.h )
+        self.wqf = self.a2 * const.k /(const.h )
+
+
+    def an(self,x,n):
+        return n * (1-numpy.exp(-x)) - x
 
     def printConstants(self):
         """Print Planck function constants.
@@ -98,6 +116,17 @@ class PlanckConstants:
         print('c = {:.14e} m/s'.format(const.c))
         print('k = {:.14e} J/K'.format(const.k))
         print('q = {:.14e} C'.format(const.e))
+
+        print(' ')
+        print('pi = {:.14e}'.format(const.pi))
+        print('e = {:.14e}'.format(numpy.exp(1)))
+        print('zeta(3) = {:.14e}'.format(self.zeta3 ))
+        print('a2 = {:.14e}, root of 2(1-exp(-x))-x'.format(self.a2 ))
+        print('a3 = {:.14e}, root of 3(1-exp(-x))-x'.format(self.a3 ))
+        print('a4 = {:.14e}, root of 4(1-exp(-x))-x'.format(self.a4 ))
+        print('a5 = {:.14e}, root of 5(1-exp(-x))-x'.format(self.a5 ))
+
+        print(' ')
         print('sigmae = {:.14e} W/(m^2 K^4)'.format(self.sigmae))
         print('sigmaq = {:.14e} q/(s m^2 K^3)'.format(self.sigmaq))
         print(' ')
@@ -117,9 +146,15 @@ class PlanckConstants:
         print('c1nf = {:.14e} with frequency in Hz'.format(self.c1nf))
         print('c2f = {:.14e} with frequency in Hz'.format(self.c2f))
         print(' ')
+        print('wel = {:.14e} um.K'.format(self.wel))
+        print('wql = {:.14e} um.K'.format(self.wql))
+        print('wen = {:.14e} cm-1/K'.format(self.wen))
+        print('wqn = {:.14e} cm-1/K'.format(self.wqn))
+        print('wef = {:.14e} Hz/K'.format(self.wef))
+        print('wqf = {:.14e} Hz/K'.format(self.wqf))
+        print(' ')
 
 pconst = PlanckConstants()
-
 
 ################################################################
 ##
