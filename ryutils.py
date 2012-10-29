@@ -296,7 +296,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
 
     figtype = ".png"  # eps, jpg, png
-    #figtype = ".eps"  # eps, jpg, png
+    figtype = ".eps"  # eps, jpg, png
 
     import math
     import sys
@@ -449,8 +449,9 @@ if __name__ == '__main__':
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
-    smpleplt.plot(1, wavelength, filters, r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8", r'Wavelength $\mu$m',\
-                r'Transmittance', \
+    smpleplt.plot(1, wavelength, filters,
+        r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8",
+        r'Wavelength [$\mu$m]', r'Transmittance', \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
     smpleplt.saveFig('sfilterVar'+figtype)
 
@@ -466,7 +467,7 @@ if __name__ == '__main__':
 
     ##------------------------- plot sample detector ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
-    smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength $\mu$m',\
+    smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength [$\mu$m]',\
                r'Responsivity', \
                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt)
     smpleplt.saveFig('responsivityVar'+figtype)

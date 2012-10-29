@@ -279,19 +279,58 @@ if __name__ == '__main__':
     # tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
     # savetape7data('tape7-04.txt',tape7)
 
-    colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
-          'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
-    tape7= loadtape7("data/tape7VISNIR5kmTrop23Vis", colSelect )
+    # colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
+    #       'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
+    # tape7= loadtape7("data/tape7VISNIR5kmTrop23Vis", colSelect )
+    # wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
+    # mT = ryplot.Plotter(1, 1, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
+    #                    + ", 5 km Path Length",figsize=(12,6))
+    # mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\mu$m]", "Transmittance",
+    #        label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
+    #        maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    # mT.saveFig('ModtranPlot.png')
+    # #mT.saveFig('ModtranPlot.eps')
+
+    # this example plots the individual trnansmittance components
+    wavelength=np.linspace(0.2, 15, 500).reshape(-1, 1)
+    colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
+       'O3_TRANS', 'O2_TRANS', 'N2O_TRANS', 'AER+CLD_TRANS', 'SO2_TRANS']
+    tape7= loadtape7("data/horizon5kmtropical.fl7", colSelect )
     wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
-    mT = ryplot.Plotter(1, 1, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
-                       + ", 5 km Path Length",figsize=(12,6))
-    mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\mu$m]", "Transmittance",
-           label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
+    mT = ryplot.Plotter(1, 9, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
+                       + ", 5 km Path Length",figsize=(6,12))
+    mT.semilogX(1, wavelen, tape7[:,1], '','', '',
+           label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
            maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.saveFig('ModtranPlot.png')
-    #mT.saveFig('ModtranPlot.eps')
+    mT.semilogX(2, wavelen, tape7[:,2], '','', '',
+           label=colSelect[2:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    mT.semilogX(3, wavelen, tape7[:,10], '','', '',
+           label=colSelect[10:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    mT.semilogX(4, wavelen, tape7[:,4] , '','', '',
+           label=colSelect[4:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
-    print('rymodtran done!')
+    mT.semilogX(5, wavelen, tape7[:,5] , '','', '',
+           label=colSelect[5:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
+    mT.semilogX(6, wavelen, tape7[:,3]  , '','', '',
+           label=colSelect[3:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    mT.semilogX(7, wavelen, tape7[:,6]  , '','', '',
+           label=colSelect[6:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    mT.semilogX(8, wavelen, tape7[:,7] * tape7[:,8] , '','', '',
+           label=colSelect[7:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+    mT.semilogX(9, wavelen, tape7[:,9]  , '','', '',
+           label=colSelect[9:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+
+
+    mT.saveFig('ModtranSpec.png')
+    mT.saveFig('ModtranSpec.eps')
 
 
