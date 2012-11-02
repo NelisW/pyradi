@@ -68,6 +68,30 @@ density quantities between [um], [cm^-1] and [Hz] and spectral convolution.</p>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="pyradi.ryutils.abshumidity">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">abshumidity</tt><big>(</big><em>T</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.abshumidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.</p>
+<p><a class="reference external" href="http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf">http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf</a></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">temperature (np.array[N,] or [N,1]):  in  [K].</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">absolute humidity (np.array[N,] or [N,1]):  abs humidity in [g/m3]</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyradi.ryutils.sfilter">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">sfilter</tt><big>(</big><em>spectral</em>, <em>center</em>, <em>width</em>, <em>exponent=6</em>, <em>taupass=1.0</em>, <em>taustop=0.0</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.sfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a symmetrical filter response of shape exp(-x^n)</p>
@@ -260,7 +284,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04502530&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x040DD4B0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral

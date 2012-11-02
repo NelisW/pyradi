@@ -38,11 +38,31 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
-         'convertSpectralDensity','convolve'
+         'convertSpectralDensity','convolve','abshumidity'
 ]
 
 import numpy
 from scipy import constants
+
+##############################################################################
+##
+def abshumidity(T):
+    """ Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.
+
+    http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf
+
+    Args:
+        | temperature (np.array[N,] or [N,1]):  in  [K].
+
+    Returns:
+        | absolute humidity (np.array[N,] or [N,1]):  abs humidity in [g/m3]
+
+    Raises:
+        | No exception is raised.
+    """
+
+    return (100*2.16679 * 6.1162 * 10 **(7.5892*(T - 273.15)/(T + 240.71 - 273.15)))/T
+
 
 ##############################################################################
 ##
@@ -75,6 +95,7 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
     tau = taustop+(taupass-taustop)*numpy.exp(-(2*(spectral-center)/width)**exponent)
 
     return tau
+
 
 
 ##############################################################################
@@ -494,5 +515,32 @@ if __name__ == '__main__':
         print('Effective responsivity {0} of detector with parameters {1} '
              'and source temperature {2} K'.\
               format(effRespo, params[i], temperature))
+
+    print(' ')
+    #http://rolfb.ch/tools/thtable.php?tmin=-25&tmax=50&tstep=5&hmin=10&hmax=100&hstep=10&acc=2&calculate=calculate
+    # check absolute humidity function. temperature in C and humudity in g/m3
+    data=numpy.asarray([
+    [   50  ,   82.78  ]   ,
+    [   45  ,   65.25    ]   ,
+    [   40  ,   50.98    ]   ,
+    [   35  ,   39.47    ]   ,
+    [   30  ,   30.26    ]   ,
+    [   25  ,   22.97  ]   ,
+    [   20  ,   17.24    ]   ,
+    [   15  ,   12.8    ]   ,
+    [   10  ,   9.38 ]   ,
+    [   5   ,   6.79 ]   ,
+    [   0   ,   4.85 ]   ,
+    [   -5  ,   3.41 ]   ,
+    [   -10 ,   2.36 ]   ,
+    [   -15 ,   1.61 ]   ,
+    [   -20 ,   1.08 ]   ,
+    [   -25 ,   0.71 ] ])
+    temperature = data[:,0]+273.15
+    absh = abshumidity(temperature).reshape(-1,1)
+    data = numpy.hstack((data,absh))
+    data = numpy.hstack((data, 100 * numpy.reshape((data[:,1]-data[:,2])/data[:,2],(-1,1))))
+    print('        deg C          Testvalue           Fn value       \% Error')
+    print(data)
 
     print('module ryutils done!')

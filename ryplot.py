@@ -246,7 +246,7 @@ class Plotter:
     ##
     def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
@@ -295,7 +295,7 @@ class Plotter:
     ##
     def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
@@ -344,7 +344,7 @@ class Plotter:
     ##
     def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
@@ -393,7 +393,7 @@ class Plotter:
     ##
     def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
                     plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, \
+                    pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
@@ -442,7 +442,7 @@ class Plotter:
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None,ylabel=None,
                      plotCol=[],label=[],legendAlpha=0.0,\
-                    pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0,  \
+                    pltaxis=None, maxNX=0, maxNY=0,  \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12 ):
         """Low level helper function to create a subplot and plot the data as required.
 
@@ -524,7 +524,7 @@ class Plotter:
             self.bbox_extra_artists.append(leg)
 
         #scale the axes
-        if sum(pltaxis)!=0:
+        if pltaxis is not None:
             ax.axis(pltaxis)
 
         if(ptitle is not None):
@@ -1028,5 +1028,12 @@ if __name__ == '__main__':
 
     P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, legendAlpha=0.5)
     P3D.saveFig('M3D.png')
+
+
+    #demonstrate setting axis values
+    x=numpy.linspace(-3,3,20)
+    p = Plotter(1)
+    p.plot(1,x,x,pltaxis=[-2,1,-3,2])
+    p.saveFig('testaxis.png')
 
     print('module ryplot done!')
