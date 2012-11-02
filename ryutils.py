@@ -46,10 +46,11 @@ from scipy import constants
 
 ##############################################################################
 ##
-def abshumidity(T):
+def abshumidity(T, equationSelect = 1):
     """ Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.
 
-    http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf
+    This function provides two similar equations, but with different constants.
+
 
     Args:
         | temperature (np.array[N,] or [N,1]):  in  [K].
@@ -61,7 +62,15 @@ def abshumidity(T):
         | No exception is raised.
     """
 
-    return (100*2.16679 * 6.1162 * 10 **(7.5892*(T - 273.15)/(T + 240.71 - 273.15)))/T
+    #there are two options, the fist one seems more accurate (relative to test set)
+    if equationSelect == 1:
+        #http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf
+        return ( 1325.2520998 * 10 **(7.5892*(T - 273.15)/(T -32.44)))/T
+
+    else:
+        #http://www.see.ed.ac.uk/~shs/Climate%20change/Data%20sources/Humidity%20with%20altidude.pdf
+        return (1324.37872 * 2.718281828459046 **(17.67*(T - 273.16)/(T - 29.66)))/T
+
 
 
 ##############################################################################
@@ -542,5 +551,11 @@ if __name__ == '__main__':
     data = numpy.hstack((data, 100 * numpy.reshape((data[:,1]-data[:,2])/data[:,2],(-1,1))))
     print('        deg C          Testvalue           Fn value       \% Error')
     print(data)
+
+    p=ryplot.Plotter(1)
+    temperature = numpy.linspace(-20,70,90)
+    abshum = abshumidity(temperature + 273.15).reshape(-1,1)
+    p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
+    p.saveFig('abshum.eps')
 
     print('module ryutils done!')
