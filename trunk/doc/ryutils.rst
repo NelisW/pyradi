@@ -10,6 +10,8 @@ Overview
 Module functions
 ------------------
 
+.. autofunction:: pyradi.ryutils.abshumidity  
+
 .. autofunction:: pyradi.ryutils.sfilter  
 
 .. autofunction:: pyradi.ryutils.responsivity 

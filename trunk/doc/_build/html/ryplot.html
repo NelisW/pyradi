@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="pyradi  documentation" href="index.html" />
-    <link rel="next" title="Plotting utility" href="ryplotspherical.html" />
+    <link rel="next" title="Spherical Plotting utility" href="ryplotspherical.html" />
     <link rel="prev" title="File reading/writing utility" href="ryfiles.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ryplotspherical.html" title="Plotting utility"
+          <a href="ryplotspherical.html" title="Spherical Plotting utility"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ryfiles.html" title="File reading/writing utility"
@@ -159,7 +159,7 @@ Subplot numbers range from 1 upwards.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -204,7 +204,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.myPlot">
-<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=0, maxNY=0, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting
 function provided by its user functions.</p>
@@ -245,7 +245,7 @@ function provided by its user functions.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -417,7 +417,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -462,7 +462,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=[0, 0, 0, 0], maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -507,7 +507,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x05702170&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap instance at 0x056B9AA8&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -561,7 +561,7 @@ for the x and y axes.</p>
                         title="previous chapter">File reading/writing utility</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ryplotspherical.html"
-                        title="next chapter">Plotting utility</a></p>
+                        title="next chapter">Spherical Plotting utility</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/ryplot.txt"
@@ -594,7 +594,7 @@ for the x and y axes.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="ryplotspherical.html" title="Plotting utility"
+          <a href="ryplotspherical.html" title="Spherical Plotting utility"
              >next</a> |</li>
         <li class="right" >
           <a href="ryfiles.html" title="File reading/writing utility"

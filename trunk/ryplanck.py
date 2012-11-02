@@ -729,6 +729,15 @@ if __name__ == '__main__':
     #now plot a number of graphs
     import ryplot
 
+    #plot a single planck curve on linear scale for 300K source
+    wl=numpy.logspace(numpy.log10(0.2), numpy.log10(20), num=100).reshape(-1, 1)
+    Mel = planck(wl, 300, type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
+    lp = ryplot.Plotter(1)
+    lp.semilogX(1,wl,Mel,"Planck law emittance for 300 K source","Wavelength [$\mu$m]",
+        "Emittance [W/(m$^2$.$\mu$m)]")
+    lp.saveFig('M300k.eps')
+
+    #plot all the planck functions.
     wl=numpy.logspace(numpy.log10(0.1), numpy.log10(100), num=100).reshape(-1, 1)
     n=numpy.logspace(numpy.log10(1e4/100),numpy. log10(1e4/0.1), num=100).reshape(-1, 1)
     f=numpy.logspace(numpy.log10(const.c/ (100*1e-6)),numpy. log10(const.c/ (0.1*1e-6)), num=100).reshape(-1, 1)
