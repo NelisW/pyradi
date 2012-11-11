@@ -196,11 +196,11 @@ class Plotter:
 
         if len(filename)>0:
             if self.bbox_extra_artists:
-                plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
+                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
                             pad_inches=pad_inches,\
                             bbox_extra_artists= self.bbox_extra_artists)
             else:
-                plt.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
+                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
                             pad_inches=pad_inches)
 
 
@@ -224,7 +224,7 @@ class Plotter:
     ############################################################
     ##
     def getSubPlot(self, subplotNum = 1):
-        """Returns a handle the subplot, as requested per subplot number.
+        """Returns a handle to the subplot, as requested per subplot number.
         Subplot numbers range from 1 upwards.
 
             Args:
@@ -1035,5 +1035,21 @@ if __name__ == '__main__':
     p = Plotter(1)
     p.plot(1,x,x,pltaxis=[-2,1,-3,2])
     p.saveFig('testaxis.png')
+
+
+    #test the ability to return to existing plots and add new lines
+    x = numpy.linspace(0,10,10)
+    a = Plotter(1)
+    b = Plotter(2)
+    c = Plotter(3)
+    for i in [1,2]:
+        a.plot(1,x,x ** i, str(i))
+        b.plot(1,x,(-x) ** i,str(i))
+        c.plot(1,x,(5-x) ** i,str(i))
+    a.saveFig('ma.png')
+    b.saveFig('mb.png')
+    c.saveFig('mc.png')
+
+
 
     print('module ryplot done!')

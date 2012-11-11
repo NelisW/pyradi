@@ -558,4 +558,9 @@ if __name__ == '__main__':
     p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
     p.saveFig('abshum.eps')
 
+
+    #highest ever recorded absolute humidity was at dew point of 34C
+    print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
+        format(abshumidity(numpy.asarray([34 + 273.15]))[0],34))
+
     print('module ryutils done!')
