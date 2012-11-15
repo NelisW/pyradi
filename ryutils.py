@@ -75,14 +75,25 @@ def abshumidity(T, equationSelect = 1):
 
 ##############################################################################
 ##
-def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
+def sfilter(spectral,center, width, exponent=6, taupass=1.0,  \
+            taustop=0.0, filtertype = 'bandpass' ):
     """ Calculate a symmetrical filter response of shape exp(-x^n)
 
-    Given a number of parameters, calculates maximally flat, symmetrical transmittance.
-    The function parameters controls the width, pass-band and stop-band transmittance and
-    sharpness of cutoff. This function is not meant to replace the use of properly measured
-    filter responses, but rather serves as a starting point if no other information is available.
-    This function does not calculate ripple in the pass-band or cut-off band.
+
+    Given a number of parameters, calculates maximally flat,
+    symmetrical transmittance.  The function parameters controls
+    the width, pass-band and stop-band transmittance and sharpness
+    of cutoff. This function is not meant to replace the use of
+    properly measured filter responses, but rather serves as a
+    starting point if no other information is available.
+    This function does not calculate ripple in the pass-band
+    or cut-off band.
+
+    Filter types supported include band pass, high (long) pass and
+    low (short) pass filters. High pass filters have maximal
+    transmittance for all spectral values higher than the central
+    value. Low pass filters have maximal transmittance for all
+    spectral values lower than the central value.
 
     Args:
         | spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].
@@ -93,15 +104,28 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  taustop=0.0 ):
         |                     If exponent=infinity then square
         | taupass (float): the transmittance in the pass band (assumed constant)
         | taustop (float): peak transmittance in the stop band (assumed constant)
+        | filtertype (string): filter type, one of 'bandpass', 'lowpass' or 'highpass'
 
     Returns:
         | transmittance (np.array[N,] or [N,1]):  transmittances at "spectral" intervals.
 
     Raises:
         | No exception is raised.
+        | If an invalid filter type is specified, return None.
     """
 
     tau = taustop+(taupass-taustop)*numpy.exp(-(2*(spectral-center)/width)**exponent)
+    maxtau=numpy.max(tau)
+    if filtertype == 'bandpass':
+        pass
+    elif filtertype == 'lowpass':
+        tau = tau * numpy.greater(spectral,center) + \
+                maxtau * numpy.ones(spectral.shape) * numpy.less(spectral,center)
+    elif filtertype == 'highpass':
+        tau = tau * numpy.less(spectral,center) + \
+                maxtau * numpy.ones(spectral.shape) * numpy.greater(spectral,center)
+    else:
+        return None
 
     return tau
 
@@ -469,9 +493,35 @@ if __name__ == '__main__':
     wavelength=numpy.linspace(0.1, 1.3, 350).reshape(-1, 1)
 
     ##------------------------filter -------------------------------------
+    #test the different filter types
+    width = 0.4
+    center = 0.9
+    filterExp=[2, 2,  4, 6,  8, 12, 1000]
+    filterPass=[0.4, 0.5,  0.6, 0.7,  0.8, 0.9, 0.99]
+    filterSupp = numpy.asarray(filterPass) * 0.1
+    filterType=['bandpass', 'lowpass', 'highpass', 'bandpass', 'lowpass', 'highpass', 'bandpass']
+    filterTxt = [r's={0}, $\tau_p$={2}, {1}'.format(s,y,z) for s,y,z in zip(filterExp, filterType, filterPass) ]
+    filters = sfilter(wavelength,center, width, filterExp[0], filterPass[0],  filterSupp[0], filterType[0])
+    i = 1
+    for exponent in filterExp[1:]:
+        tau=sfilter(wavelength,center, width, filterExp[i],filterPass[i],  filterSupp[i], filterType[i])
+        filters =  numpy.hstack((filters,tau))
+        i = i + 1
+
+    ##------------------------- plot sample filters ------------------------------
+    smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
+    smpleplt.plot(1, wavelength, filters,
+        r"Optical filter for $\lambda_c$={0}, $\Delta\lambda$={1}".format(center,width),
+        r'Wavelength [$\mu$m]', r'Transmittance', \
+                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
+
+    smpleplt.saveFig('sfilterVar2'+figtype)
+
+    #all passband, different shapes
     width = 0.5
     center = 0.7
     filterExp=[2,  4, 6,  8, 12, 1000]
+
     filterTxt = ['s={0}'.format(s) for s in filterExp ]
     filters = sfilter(wavelength,center, width, filterExp[0], 0.8,  0.1)
     for exponent in filterExp[1:]:
@@ -484,6 +534,7 @@ if __name__ == '__main__':
         r'Wavelength [$\mu$m]', r'Transmittance', \
                 ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
     smpleplt.saveFig('sfilterVar'+figtype)
+
 
 
     ##++++++++++++++++++++ demo the detector ++++++++++++++++++++++++++++

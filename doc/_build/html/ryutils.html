@@ -93,13 +93,21 @@ density quantities between [um], [cm^-1] and [Hz] and spectral convolution.</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.sfilter">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">sfilter</tt><big>(</big><em>spectral</em>, <em>center</em>, <em>width</em>, <em>exponent=6</em>, <em>taupass=1.0</em>, <em>taustop=0.0</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.sfilter" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">sfilter</tt><big>(</big><em>spectral</em>, <em>center</em>, <em>width</em>, <em>exponent=6</em>, <em>taupass=1.0</em>, <em>taustop=0.0</em>, <em>filtertype=u'bandpass'</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.sfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a symmetrical filter response of shape exp(-x^n)</p>
-<p>Given a number of parameters, calculates maximally flat, symmetrical transmittance.
-The function parameters controls the width, pass-band and stop-band transmittance and
-sharpness of cutoff. This function is not meant to replace the use of properly measured
-filter responses, but rather serves as a starting point if no other information is available.
-This function does not calculate ripple in the pass-band or cut-off band.</p>
+<p>Given a number of parameters, calculates maximally flat,
+symmetrical transmittance.  The function parameters controls
+the width, pass-band and stop-band transmittance and sharpness
+of cutoff. This function is not meant to replace the use of
+properly measured filter responses, but rather serves as a
+starting point if no other information is available.
+This function does not calculate ripple in the pass-band
+or cut-off band.</p>
+<p>Filter types supported include band pass, high (long) pass and
+low (short) pass filters. High pass filters have maximal
+transmittance for all spectral values higher than the central
+value. Low pass filters have maximal transmittance for all
+spectral values lower than the central value.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -113,6 +121,7 @@ This function does not calculate ripple in the pass-band or cut-off band.</p>
 </div>
 <div class="line">taupass (float): the transmittance in the pass band (assumed constant)</div>
 <div class="line">taustop (float): peak transmittance in the stop band (assumed constant)</div>
+<div class="line">filtertype (string): filter type, one of &#8216;bandpass&#8217;, &#8216;lowpass&#8217; or &#8216;highpass&#8217;</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -123,6 +132,7 @@ This function does not calculate ripple in the pass-band or cut-off band.</p>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
 <div class="line">No exception is raised.</div>
+<div class="line">If an invalid filter type is specified, return None.</div>
 </div>
 </dd>
 </dl>
@@ -284,7 +294,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x041EE630&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x044404F0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
