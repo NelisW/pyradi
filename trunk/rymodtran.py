@@ -159,6 +159,10 @@ def loadtape7(filename, colspec = [], delimiter=None ):
     is also  additional column (assumed to be depth in this code).  The
     columns available are ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH']
 
+    The tape7.scn file has missing columns, so this function does not work for
+    tape7.scn files.  If you need a tape7.scn file with all the columns populated
+    you would have to use the regular tape7 file and convolve this to lower resolution.
+
     """
 
     infile = open(filename, 'r')
@@ -257,6 +261,7 @@ if __name__ == '__main__':
 
     import math
     import sys
+    import numpy
 
     #import pyradi.ryplot as ryplot
 
@@ -291,7 +296,7 @@ if __name__ == '__main__':
     mT.saveFig('ModtranPlot.png')
     #mT.saveFig('ModtranPlot.eps')
 
-    # this example plots the individual trnansmittance components
+    # this example plots the individual transmittance components
     wavelength=np.linspace(0.2, 15, 500).reshape(-1, 1)
     colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
        'O3_TRANS', 'O2_TRANS', 'N2O_TRANS', 'AER+CLD_TRANS', 'SO2_TRANS']
@@ -333,4 +338,23 @@ if __name__ == '__main__':
     mT.saveFig('ModtranSpec.png')
     mT.saveFig('ModtranSpec.eps')
 
+    # calculate the total path radiance over a spectral band
+    #read the tape7 file with path radiance components, plot and integrate.
+    colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
+    skyrad= loadtape7("data/NIRscat.fl7", colSelect )
+    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,6))
+    # plot the for components separately
+    for i in [1,2,3,4]:
+      sr.plot(i,  skyrad[:,0], skyrad[:,i], "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr)]",
+             label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
+             maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
+      #convert from /cm^2 to /m2 and integrate using the wavenumber vector
+      #normally you would multiply with a sensor spectral response before integration
+      #this calculation is over the whole band, equally weighted.
+      totinband = 1.0e4 * numpy.trapz(skyrad[:,i].reshape(-1, 1),skyrad[:,0], axis=0)[0]
+      print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+    sr.saveFig('NIRPathradiance.png')
+    print('Note that multiple scatter contributes significantly to the total path radiance')
+
+    print('Done!')
