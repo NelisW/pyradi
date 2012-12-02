@@ -26,3 +26,7 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.rangeEquation
 
+.. autofunction:: pyradi.ryutils.detectThresholdToNoise
+
+.. autofunction:: pyradi.ryutils.detectSignalToNoise
+
