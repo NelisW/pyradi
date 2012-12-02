@@ -427,7 +427,6 @@ if __name__ == '__main__':
     import sys
     from scipy.interpolate import interp1d
 
-
     #demonstrate the range equation solver
     #create a range table and its associated transmittance table
     rangeTab = numpy.linspace(0, 10000, 1000)
@@ -441,9 +440,8 @@ if __name__ == '__main__':
     irrad = Intensity * tauTable(r) / r ** 2
 
     print('Range equation solver: at range {0} the irradiance is {1}, error is {2}'.format(
-        r,irrad, (irrad - Irradiance) / Irradiance ))
-
-    exit(0)
+        r[0],irrad[0], (irrad[0] - Irradiance) / Irradiance ))
+    print(' ')
 
     # demo the spectral density conversions
     wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
