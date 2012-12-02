@@ -38,11 +38,76 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
-         'convertSpectralDensity', 'convolve', 'abshumidity', 'rangeEquation'
-]
+         'convertSpectralDensity', 'convolve', 'abshumidity', 'rangeEquation',
+         'detectThresholdToNoise','detectSignalToNoise'
+         ]
 
 import numpy
 from scipy import constants
+
+
+##############################################################################
+##
+def detectThresholdToNoise(pulseWidth, FAR):
+    """ Solve for threshold to noise ratio, given pulse width and FAR, for matched filter.
+
+    Using the theory of matched filter design, calculate the
+    threshold to noise ratio, to achieve a required false alarm rate.
+
+    References:
+
+    "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
+
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+
+    Args:
+        | pulseWidth (float): the signal pulse width in [s].
+        | FAR (float): the false alarm rate in [alarms/s]
+
+    Returns:
+        | range (float): threshold to noise ratio
+
+    Raises:
+        | No exception is raised.
+    """
+
+    ThresholdToNoise = numpy.sqrt(-2 * numpy.log (2 * pulseWidth * numpy.sqrt(3) * FAR ))
+
+    return ThresholdToNoise
+
+
+
+##############################################################################
+##
+def detectSignalToNoise(ThresholdToNoise, pD):
+    """ Solve for signal to noise ratio, given the threshold to noise ratio and
+    probability of detection.
+
+    Using the theory of matched filter design, calculate the
+    signal to noise ratio, to achieve a required probability of detection.
+
+    References:
+
+    "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
+
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+
+    Args:
+        | ThresholdToNoise (float): the threshold to noise ratio [-]
+        | pD (float): the probability of detection [-]
+
+    Returns:
+        | range (float): signal to noise ratio
+
+    Raises:
+        | No exception is raised.
+    """
+
+    import scipy.special
+
+    SignalToNoise = numpy.sqrt(2) * scipy.special.erfinv(2 * pD -1) + ThresholdToNoise
+
+    return SignalToNoise
 
 
 ##############################################################################
@@ -416,6 +481,9 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
+    import math
+    import sys
+    from scipy.interpolate import interp1d
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
@@ -423,9 +491,21 @@ if __name__ == '__main__':
     figtype = ".png"  # eps, jpg, png
     figtype = ".eps"  # eps, jpg, png
 
-    import math
-    import sys
-    from scipy.interpolate import interp1d
+
+    #demonstrate the pulse detection algorithms
+    pulsewidth = 100e-9
+    FAR = 15
+    probDetection = 0.999
+    ThresholdToNoise = detectThresholdToNoise(pulsewidth,FAR)
+    SignalToNoise = detectSignalToNoise(ThresholdToNoise, probDetection)
+    print('For a laser pulse with width={0}, a FAR={1} and Pd={2},'.format(pulsewidth,FAR,probDetection))
+    print('the Threshold to Noise ratio must be {0}'.format(ThresholdToNoise))
+    print('and the Signal to Noise ratio must be {0}'.format(SignalToNoise))
+    print(' ')
+
+
+
+    exit(0)
 
     #demonstrate the range equation solver
     #create a range table and its associated transmittance table
