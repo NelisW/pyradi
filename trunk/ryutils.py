@@ -38,11 +38,83 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
-         'convertSpectralDensity','convolve','abshumidity'
+         'convertSpectralDensity', 'convolve', 'abshumidity', 'rangeEquation'
 ]
 
 import numpy
 from scipy import constants
+
+
+##############################################################################
+##
+def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2):
+    """ Solve the range equation for arbitrary transmittance vs range.
+
+    This function solve for the range :math:`R` in the range equation
+
+    .. math::
+
+     E = \\frac{I\\tau_a(R)}{R^n}
+
+    where :math:`E` is the threshold irradiance in [W/m2],
+    and :math:`I` is the intensity in [W/sr].
+    The range :math:`R` must be in [m], and :math:`\\tau_a(R)`
+    is calculated from a lookup table of atmospheric transmittance vs. range.
+    The transmittance lookup table  can be calculated from the simple Bouguer law,
+    or it can have any abritrary shape, provided it decreases with increasing range.
+    The user supplies the lookup table in the form of an array of range values and
+    an associated array of transmittance values.  The range values need not be on
+    constant linear range increment.
+
+    The parameter :math:`n` has a default value of 2 for the general
+    case of a source with inherent intensity :math:`I`.
+    The parameter :math:`n` must be set to a value of 4 for the special
+    case of a laser range finder actively irradiating a passive reflector.
+
+
+    If the range solution is doubtful (e.g. not a trustworthy solution) the
+    returned value is made negative.
+
+    Args:
+        | Intensity (float or np.array[N,] or [N,1]):  in  [W/sr].
+        | Irradiance (float or np.array[N,] or [N,1]):  in  [W/m2].
+        | rangeTab (np.array[N,] or [N,1]):  range vector for lookup
+        | tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup
+        | rangeGuess (float): starting value range estimate
+        | n (float): range power (2 or 4)
+
+    Returns:
+        | range (float or np.array[N,] or [N,1]): Solution to the range equation [m], value is negative if doubtful.
+
+    Raises:
+        | No exception is raised.
+    """
+
+    from scipy.interpolate import  interp1d
+    from scipy.optimize import fsolve
+
+    tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
+
+    Range = fsolve(_rangeEquationCalc, rangeGuess,
+        args = (Intensity,Irradiance,tauTable,n,numpy.max(rangeTab),))
+
+    if(Range < rangeTab[2] ):
+        print('\n\n***** range estimate of {0} might be invalid,'.format(Range[0])
+            + ' increase lookup table resolution at close range\n\n')
+        Range = - Range
+
+    return Range
+
+
+##############################################################################
+##
+def _rangeEquationCalc(r,i,e,tauTable,n,rMax):
+    if r > rMax:
+        print('\n\n***** range estimate of {0} exceed the lookup table range of {1}\n\n'.format(r[0],rMax))
+        return 0
+    return i * tauTable(r) / (r ** n) - e
+
+
 
 ##############################################################################
 ##
@@ -344,7 +416,6 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
-
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
@@ -356,6 +427,23 @@ if __name__ == '__main__':
     import sys
     from scipy.interpolate import interp1d
 
+
+    #demonstrate the range equation solver
+    #create a range table and its associated transmittance table
+    rangeTab = numpy.linspace(0, 10000, 1000)
+    tauTab = numpy.exp(- 0.00015 * rangeTab)
+    Intensity=200
+    Irradiance=10e-6
+    r = rangeEquation(Intensity = Intensity, Irradiance = Irradiance, rangeTab = rangeTab,
+          tauTab = tauTab, rangeGuess = 1, n = 2)
+    #test the solution by calculating the irradiance at this range.
+    tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
+    irrad = Intensity * tauTable(r) / r ** 2
+
+    print('Range equation solver: at range {0} the irradiance is {1}, error is {2}'.format(
+        r,irrad, (irrad - Irradiance) / Irradiance ))
+
+    exit(0)
 
     # demo the spectral density conversions
     wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um

@@ -294,7 +294,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x044304F0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x043215B0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -318,6 +318,52 @@ width is correct for Bartlett and only approximate for other window functions.</
 <dd><div class="first last line-block">
 <div class="line">outspectral (np.array[N,]):  input vector, filtered to new window width.</div>
 <div class="line">windowfn (np.array[N,]):  The window function used.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.rangeEquation">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">rangeEquation</tt><big>(</big><em>Intensity</em>, <em>Irradiance</em>, <em>rangeTab</em>, <em>tauTab</em>, <em>rangeGuess=1</em>, <em>n=2</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.rangeEquation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the range equation for arbitrary transmittance vs range.</p>
+<p>This function solve for the range <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> in the range equation</p>
+<div class="math">
+<p><img src="_images/math/61589a3b975e14a795d3e7b5c77c8612392117eb.png" alt="E = \frac{I\tau_a(R)}{R^n}"/></p>
+</div><p>where <img class="math" src="_images/math/fa2fa899f0afb05d6837885523503a2d4df434f9.png" alt="E"/> is the threshold irradiance in [W/m2],
+and <img class="math" src="_images/math/027f4a11d6090f9eac0ce2488df6384dad1263ea.png" alt="I"/> is the intensity in [W/sr].
+The range <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> must be in [m], and <img class="math" src="_images/math/29afed83cb4950ecab4c1cb519353550d56ea11e.png" alt="\tau_a(R)"/>
+is calculated from a lookup table of atmospheric transmittance vs. range.
+The transmittance lookup table  can be calculated from the simple Bouguer law,
+or it can have any abritrary shape, provided it decreases with increasing range.
+The user supplies the lookup table in the form of an array of range values and
+an associated array of transmittance values.  The range values need not be on
+constant linear range increment.</p>
+<p>The parameter <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> has a default value of 2 for the general
+case of a source with inherent intensity <img class="math" src="_images/math/027f4a11d6090f9eac0ce2488df6384dad1263ea.png" alt="I"/>.
+The parameter <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> must be set to a value of 4 for the special
+case of a laser range finder actively irradiating a passive reflector.</p>
+<p>If the range solution is doubtful (e.g. not a trustworthy solution) the
+returned value is made negative.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">Intensity (float or np.array[N,] or [N,1]):  in  [W/sr].</div>
+<div class="line">Irradiance (float or np.array[N,] or [N,1]):  in  [W/m2].</div>
+<div class="line">rangeTab (np.array[N,] or [N,1]):  range vector for lookup</div>
+<div class="line">tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup</div>
+<div class="line">rangeGuess (float): starting value range estimate</div>
+<div class="line">n (float): range power (2 or 4)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">range (float or np.array[N,] or [N,1]): Solution to the range equation [m], value is negative if doubtful.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
