@@ -353,9 +353,9 @@ if __name__ == '__main__':
     # first line in file contains labels for columns.
     wavelength=numpy.linspace(0.38, 0.72, 350).reshape(-1, 1)
     samplesSelect = [1,2,3,8,10,11]
-    samples = loadColumnTextFile('data/samples.txt', abscissaOut=wavelength, \
+    samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength, \
                 loadCol=samplesSelect,  comment='%')
-    samplesTxt=loadHeaderTextFile('data/samples.txt',\
+    samplesTxt=loadHeaderTextFile('data/colourcoordinates/samples.txt',\
                 loadCol=samplesSelect, comment='%')
     #print(samples)
     print(samplesTxt)
