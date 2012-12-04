@@ -505,8 +505,6 @@ if __name__ == '__main__':
 
 
 
-    exit(0)
-
     #demonstrate the range equation solver
     #create a range table and its associated transmittance table
     rangeTab = numpy.linspace(0, 10000, 1000)

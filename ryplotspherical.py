@@ -501,11 +501,11 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(+(1-2 um/3-5 um)')
+    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(1-2 um/3-5 um)')
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(-radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(-(1-2 um/3-5 um))')
+    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1-2 um/3-5 um))')
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
 
@@ -515,11 +515,11 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
 
 
     colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(+1.5-2.5 um/3-5 um)')
+    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +1.5-2.5 um/3-5 um)')
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(-radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(-(1.5-2.5 um/3-5 um))')
+    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1.5-2.5 um/3-5 um))')
     plotSpherical(colourratio, vertices, triangles, ptitle)
 
 
