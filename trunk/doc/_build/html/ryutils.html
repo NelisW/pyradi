@@ -294,7 +294,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x043615B0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x0440C670&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -336,18 +336,25 @@ width is correct for Bartlett and only approximate for other window functions.</
 <div class="math">
 <p><img src="_images/math/61589a3b975e14a795d3e7b5c77c8612392117eb.png" alt="E = \frac{I\tau_a(R)}{R^n}"/></p>
 </div><p>where <img class="math" src="_images/math/fa2fa899f0afb05d6837885523503a2d4df434f9.png" alt="E"/> is the threshold irradiance in [W/m2],
-and <img class="math" src="_images/math/027f4a11d6090f9eac0ce2488df6384dad1263ea.png" alt="I"/> is the intensity in [W/sr].
-The range <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> must be in [m], and <img class="math" src="_images/math/29afed83cb4950ecab4c1cb519353550d56ea11e.png" alt="\tau_a(R)"/>
+and <img class="math" src="_images/math/027f4a11d6090f9eac0ce2488df6384dad1263ea.png" alt="I"/> is the intensity in [W/sr]. This range equation holds for
+the case where the target is smaller than the field of view.</p>
+<p>The range <img class="math" src="_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> must be in [m], and <img class="math" src="_images/math/29afed83cb4950ecab4c1cb519353550d56ea11e.png" alt="\tau_a(R)"/>
 is calculated from a lookup table of atmospheric transmittance vs. range.
 The transmittance lookup table  can be calculated from the simple Bouguer law,
 or it can have any abritrary shape, provided it decreases with increasing range.
 The user supplies the lookup table in the form of an array of range values and
 an associated array of transmittance values.  The range values need not be on
 constant linear range increment.</p>
-<p>The parameter <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> has a default value of 2 for the general
-case of a source with inherent intensity <img class="math" src="_images/math/027f4a11d6090f9eac0ce2488df6384dad1263ea.png" alt="I"/>.
-The parameter <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> must be set to a value of 4 for the special
-case of a laser range finder actively irradiating a passive reflector.</p>
+<p>The parameter <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/></p>
+<ul class="simple">
+<li><img class="math" src="_images/math/6cb7ae00764b56ee2adf59e78a1ffde9685b80db.png" alt="n=2"/> (default value) the general case of a radiating source
+smaller than the field of view.</li>
+<li><img class="math" src="_images/math/39cf3e35a4981583288d2a7c4b34989916fb7360.png" alt="n=4"/> the special case of a laser rangefinder illuminating a target
+smaller than the field of view, viewed against the sky. In this case there
+is an <img class="math" src="_images/math/62623d70eaa11458b42450ab31277cc88f4dbd6b.png" alt="R^2"/> attenuation from the laser to the source and another
+<img class="math" src="_images/math/62623d70eaa11458b42450ab31277cc88f4dbd6b.png" alt="R^2"/> attenuation from the source to the receiver, hence
+<img class="math" src="_images/math/8bf6fce95a2f97b3c3640d16b8cfa111245e7c33.png" alt="R^4"/> overall.</li>
+</ul>
 <p>If the range solution is doubtful (e.g. not a trustworthy solution) the
 returned value is made negative.</p>
 <dl class="docutils">

@@ -62,17 +62,17 @@ There are two possible trajectory file types:
 
 The sphere data available in pyradi/data/plotspherical are:
 
-===============  ===========
-Filename         Resolution
-                  (degrees)
-===============  ===========
-sphere_0_12       56.9
-sphere_1_42       28.5
-sphere_2_162      14.2
-sphere_3_642      7.1
-sphere_4_2562     3.56
-sphere_5_10242    1.78
-===============  ===========
+===============  =========== ==============
+Filename         Resolution    Number
+   .              (degrees)    points
+===============  =========== ==============
+sphere_0_12       56.9              12
+sphere_1_42       28.5              42
+sphere_2_162      14.2             162
+sphere_3_642      7.1             642
+sphere_4_2562     3.56           2562
+sphere_5_10242    1.78          10242
+===============  =========== ==============
 
 The workflow is as follows:
  #. Use writeRotatingTargetOssimTrajFile (or your own equivalent) to

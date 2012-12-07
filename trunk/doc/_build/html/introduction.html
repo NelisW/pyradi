@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; pyradi  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyradi  documentation" href="index.html" />
+    <link rel="next" title="Planck and thermal radiation" href="ryplanck.html" />
+    <link rel="prev" title="Welcome to pyradi’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryplanck.html" title="Planck and thermal radiation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyradi’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Electro-optical system design, data analysis and modelling involve a significant
+amount of calculation and processing. Many of these calculations are of a
+repetitive and general nature, suitable for including in a generic toolkit.
+The availability of such a toolkit facilitates and increases productivity
+during subsequent tool devel-opment: <a href="#id1"><span class="problematic" id="id2">`</span></a>develop once and use many times&#8217;. The
+concept of an extendible toolkit lends itself naturally to the open-source
+philosophy, where the toolkit user-base develops the capability cooperatively,
+for mutual benefit. This paper covers the underlying philosophy to the toolkit
+development, brief descriptions and examples of the various tools and an
+overview of the electro-optical toolkit.</p>
+<p>The pyradi toolbox can be applied towards many different applications. An example
+is included in the pyradi website (see the file exflamesensor.py). This example
+was first published in a SPIE conference paper <a class="reference internal" href="#spie8543pyradi">[SPIE8543Pyradi]</a>.</p>
+</div>
+<div class="section" id="toolkit-approach">
+<h2>Toolkit approach<a class="headerlink" href="#toolkit-approach" title="Permalink to this headline">¶</a></h2>
+<p>The development of this toolkit is following the Unix philosophy for software
+development, summarised in the words of Doug McIlroy: <a href="#id4"><span class="problematic" id="id5">`</span></a>Write programs that do
+one thing and do it well. Write programs to work together.&#8217; In broader terms the
+philosophy was stated by Eric Raymond, but only selected items shown here
+(<a class="reference external" href="http://en.wikipedia.org/wiki/Unix_philosophy">http://en.wikipedia.org/wiki/Unix_philosophy</a>):</p>
+<ol class="arabic simple">
+<li>Rule of Modularity: Write simple parts connected by clean interfaces.</li>
+<li>Rule of Clarity: Clarity is better than cleverness.</li>
+<li>Rule of Composition: Design programs to be connected to other programs.</li>
+<li>Rule of Simplicity: Design for simplicity; add complexity only where you must.</li>
+<li>Rule of Parsimony: Write a big program only when it is clear by demonstration
+that nothing else will do.</li>
+<li>Rule of Transparency: Design for visibility to make inspection and
+debugging easier.</li>
+<li>Rule of Robustness: Robustness is the child of transparency and simplicity.</li>
+<li>Rule of Representation: Fold knowledge into data so program logic can
+be stupid and robust.</li>
+<li>Rule of Economy: Programmer time is expensive; conserve it in preference
+to machine time.</li>
+<li>Rule of Generation: Avoid hand-hacking; write programs to write programs
+when you can.</li>
+<li>Rule of Optimisation: Prototype before polishing. Get it working before
+you optimise it.</li>
+<li>Rule of Extensibility: Design for the future, because it will be here sooner
+than you think.</li>
+</ol>
+</div>
+<div class="section" id="example-application">
+<h2>Example application<a class="headerlink" href="#example-application" title="Permalink to this headline">¶</a></h2>
+<p>A typical radiometry toolkit requirement (very much simplified) is the calculation
+of the detector current of an electro-optical sensor viewing a target object.
+The system can be conceptually modelled as shown in the figure below,
+comprising a radiating source with
+spectral radiance, an intervening medium (e.g. the atmosphere), a spectral filter,
+optics, a detector and an amplifier.</p>
+<a class="reference internal image-reference" href="_images/simplesystem.png"><img alt="pyradi logo" class="align-center" src="_images/simplesystem.png" style="width: 406.0px; height: 122.0px;" /></a>
+<p>The amplifier output signal
+can be calculated in the following equation,  by integrating  over
+all wavelengths, over the full source area <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/> and over the optical
+aperture area <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>,</p>
+<div class="math">
+<p><img src="_images/math/f9790aa7e35afe92ea6566eaa8386c6b0d692813.png" alt="v=
+Z_t
+\int_{A_0}
+\int_{A_1}
+\frac{1}{r_{01}^2}
+\int_0^\infty
+\epsilon_\lambda L_\lambda(T,A_0)\tau_{a\lambda}\tau_{s\lambda}(A_1){\cal R}_\lambda
+\;d\lambda
+\;d(\cos\theta_0 A_0)
+\;d(\cos\theta_1 A_1)"/></p>
+</div><p>where
+<img class="math" src="_images/math/a9f23bf124b6b2b2a993eb313c72e678664ac74a.png" alt="v"/> is the output signal voltage,
+<img class="math" src="_images/math/2578318e6a590c44184e29ec314984cb1e90a9af.png" alt="r_{01}"/> is the distance between elemental areas
+<img class="math" src="_images/math/5f6b27dd2ed33ce6fdb86bcb45981e4acd4905df.png" alt="d(\cos\theta_0 A_0)"/> and
+<img class="math" src="_images/math/a2762cca0a78b381a01c7b0c4744af1288fee868.png" alt="d(\cos\theta_1 A_1)"/>,
+<img class="math" src="_images/math/57a2eb38e8462d7ccb40e45b22d7aba2e157cb27.png" alt="\epsilon_\lambda"/> is the source spectral emissivity,
+<img class="math" src="_images/math/de756d4362816023d48e10f4bb7e2f2ea95745fb.png" alt="L_\lambda(T,A_0)"/> is the Planck Law radiation at temperature
+<img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/> at location <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/>,
+<img class="math" src="_images/math/1f0d4f93e19c3a8b66031d9636dc2f68d5249852.png" alt="\tau_{a\lambda}"/> is the atmospheric spectral transmittance,
+<img class="math" src="_images/math/b8844e835156f12552e9040a9de25387a6a9a781.png" alt="\tau_{s\lambda}(A_1)"/> is the sensor spectral transmittance at location <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>,
+<img class="math" src="_images/math/c794e72873651a891622e6425332d998a6682837.png" alt="{\cal R}_\lambda"/> is the spectral detector responsivity in [A/W],
+<img class="math" src="_images/math/f36c4acfc99e87fda6f21ee2d4e651fc49ddb5ac.png" alt="Z_t"/> is the amplifier transimpedance gain in [V/A].
+The spectral integral <img class="math" src="_images/math/6867e5c6e080961a6c4b37df719fdf489a218138.png" alt="\int_0^\infty d\lambda"/> accounts for the total
+flux for all wavelengths, the spatial integral
+<img class="math" src="_images/math/5fa53f8450816ae155074f7877ec8cd6800145c1.png" alt="\int_{A_0}d(\cos\theta_0 A_0)"/>
+accounts for flux over the total area of the source, and
+the spatial integral
+<img class="math" src="_images/math/131e3f42cc4c54e972644a75f9208f60ec6ddde7.png" alt="\int_{A_1}d(\cos\theta_1 A_1)"/> accounts for the total area of the receiving area.</p>
+<p>The top graphic in the following figure illustrates the
+reasoning behind the spectral integral as a product, followed by an integral (summation),</p>
+<a class="reference internal image-reference" href="_images/multispectral.png"><img alt="pyradi logo" class="align-center" src="_images/multispectral.png" style="width: 398.5px; height: 292.0px;" /></a>
+<div class="math">
+<p><img src="_images/math/8d66a2f99a44f9312c2dc4d7a799b2da8838ed85.png" alt="\int_0^\infty
+\epsilon_\lambda L_\lambda(T)\tau_{a\lambda}\tau_{s\lambda}{\cal R}_\lambda
+\;d\lambda,"/></p>
+</div><p>where the spectral variability of the  source, medium and sensor parameters
+are multiplied as spectral variables and afterwards integrated over all wavelengths
+to yield the total in-band signal. The domain of spectral quantities can be
+stated in terms of a wavelength, wavenumber, or less often, temporal frequency.</p>
+<p>Likewise, the source radiance is integrated over the two respective areas of the
+target <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/>, and the sensor aperture <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>.  Note that if the
+sensor field of  view footprint at the source is smaller than the physical
+source area, only the flux emanating from the footprint area is integrated.</p>
+<p>This example is a relatively complete worked example. The objective is to
+calculate the signal of a simple sensor, detecting the presence or absence of
+a flame in the sensor field of view. The sensor is pointed to an area just
+outside a furnace smokestack, against a clear sky background. The sensor
+must detect a change in signal, to indicate the presence or absence of a flame.</p>
+<p>The sensor has an aperture area of <img class="math" src="_images/math/49091217ee7a3082b26d3f8f050595eef45e52cb.png" alt="7.8 \times 10^{-3}"/> <img class="math" src="_images/math/a78af942dd4b30f8a6f2212d192dbd3765ab8dcd.png" alt="{\rm m}^2"/>
+and  a field of view of <img class="math" src="_images/math/357956fc9f4ae4f4a31eb63acb09915750c5ceea.png" alt="1 \times 10^{-4}"/> sr. The sensor filter spectral
+transmittance is shown below. The InSb detector has a peak responsivity of 2.5
+A/W and normalised spectral response shown below. The preamplifier transimpedance
+is 10000 V/A.</p>
+<p>The flame area is  1 <img class="math" src="_images/math/a78af942dd4b30f8a6f2212d192dbd3765ab8dcd.png" alt="{\rm m}^2"/>, the flame temperature is
+<img class="math" src="_images/math/01b34c83fa77c944317aae27d8d8967f33c5d398.png" alt="1000^\circ"/> C, and the emissivity is shown below. The emissivity
+is 0.1 over most of the spectral band, due to carbon particles in the flame.
+At 4.3 <img class="math" src="_images/math/ea05a23b3e0774aec4c3a6129210ba4fa898567d.png" alt="\mu{\rm m}"/> there is a strong emissivity rise due to the hot
+carbon dioxide <img class="math" src="_images/math/720c6963e78225ee7eb02c1e8796566e1a276b51.png" alt="{\rm CO}_2"/> in the flame.</p>
+<p>The distance between the flame and the sensor is 1000~m. The atmospheric
+properties are calculated with the Modtran Tropical climatic model. The
+path is oriented such that the sensor stares out to space, at a zenith angle
+of <img class="math" src="_images/math/61d3ebe18286879645c8eaba83a9accb9fc2fda3.png" alt="88^\circ"/>. The spectral transmittance and path radiance along this
+path is shown in below.</p>
+<p>The peak in the flame emissivity and the dip in atmospheric transmittance are
+both centered around the <img class="math" src="_images/math/31aca95cb0a46c8517e18a2d85e8284daf6f23d0.png" alt="4.3\mu{\rm m}"/> <img class="math" src="_images/math/720c6963e78225ee7eb02c1e8796566e1a276b51.png" alt="{\rm CO}_2"/> band. The calculation
+of flux
+radiative transfer through the atmosphere must account for the strong spectral
+variation, by using a spectral integral.</p>
+<p>The signal caused by the flame is given by the equation above, where the
+integrals over the surfaces of the flame and sensor are just their respective
+areas. The signal caused by the atmospheric path radiance is given by</p>
+<div class="math">
+<p><img src="_images/math/e3c4dd6a2240a6d6287615be1854b76bdccd4194.png" alt="v=
+Z_t
+\omega_{\rm optics}
+A_{\rm optics}
+\int_0^\infty
+L_{{\rm path}\lambda}
+\tau_{s\lambda}{\cal R}_\lambda
+\;d\lambda,"/></p>
+</div><p>where
+<img class="math" src="_images/math/8a8b3cb05419f728d47219704dbbadf5fea8a2f9.png" alt="\omega_{\rm optics}"/> is the sensor field of view,
+<img class="math" src="_images/math/2cd468b1f6a7f307f0640cc9502000ce33c4b160.png" alt="A_{\rm optics}"/> is the optical aperture area,
+<img class="math" src="_images/math/7bc3d9b6c3495e64eb29c4986fe18fc7c0eb55d5.png" alt="L_{{\rm path}\lambda}"/> is the spectral path radiance
+and the rest of the symbols are as defined above.</p>
+<a class="reference internal image-reference" href="_images/flamesensor.png"><img alt="pyradi logo" class="align-center" src="_images/flamesensor.png" style="width: 515.2px; height: 378.0px;" /></a>
+<p>The pyradi code to model this sensor is available as <a class="reference external" href="http://code.google.com/p/pyradi/source/browse/trunk/exflamesensor.py">exflamesensor.py</a>.
+The output from this script is as follows:</p>
+<div class="highlight-python"><pre>Optics   : area=0.0078 m^2 FOV=0.0001 [sr]
+Amplifier: gain=10000.0 [V/A]
+Detector : peak responsivity=2.5 [A/W]
+Flame    : temperature=1273.16 [K] area=1 [m^2] distance=1000 [m] fill=0.01 [-]
+Flame    : irradiance= 3.29e-04 [W/m^2] signal= 0.0641 [V]
+Path     : irradiance= 5.45e-05 [W/m^2] signal= 0.0106 [V]</pre>
+</div>
+<p>It is clear that the flame signal is six times larger than the path radiance
+signal, even though the flame fills only 0.01 of the sensor field of view.</p>
+<table class="docutils citation" frame="void" id="spie8543pyradi" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[SPIE8543Pyradi]</a></td><td><em>Pyradi: an open-source toolkit for infrared calculation
+and data processing</em>,  SPIE Proceedings Vol 8543, Security+Defence 2011,
+Technologies for Optical Countermeasures, Edinburgh, 24-27 September,
+C.J. Willers, M. S. Willers, R.A.T. Santos, P.J. van der Merwe, J.J. Calitz,
+A de Waal and A.E. Mudau.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#toolkit-approach">Toolkit approach</a></li>
+<li><a class="reference internal" href="#example-application">Example application</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pyradi&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ryplanck.html"
+                        title="next chapter">Planck and thermal radiation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/introduction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryplanck.html" title="Planck and thermal radiation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyradi’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, CJ Willers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
