@@ -122,7 +122,9 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
      E = \\frac{I\\tau_a(R)}{R^n}
 
     where :math:`E` is the threshold irradiance in [W/m2],
-    and :math:`I` is the intensity in [W/sr].
+    and :math:`I` is the intensity in [W/sr]. This range equation holds for
+    the case where the target is smaller than the field of view.
+
     The range :math:`R` must be in [m], and :math:`\\tau_a(R)`
     is calculated from a lookup table of atmospheric transmittance vs. range.
     The transmittance lookup table  can be calculated from the simple Bouguer law,
@@ -131,11 +133,16 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     an associated array of transmittance values.  The range values need not be on
     constant linear range increment.
 
-    The parameter :math:`n` has a default value of 2 for the general
-    case of a source with inherent intensity :math:`I`.
-    The parameter :math:`n` must be set to a value of 4 for the special
-    case of a laser range finder actively irradiating a passive reflector.
+    The parameter :math:`n`
 
+    * :math:`n=2` (default value) the general case of a radiating source
+      smaller than the field of view.
+
+    * :math:`n=4` the special case of a laser rangefinder illuminating a target
+      smaller than the field of view, viewed against the sky. In this case there
+      is an :math:`R^2` attenuation from the laser to the source and another
+      :math:`R^2` attenuation from the source to the receiver, hence
+      :math:`R^4` overall.
 
     If the range solution is doubtful (e.g. not a trustworthy solution) the
     returned value is made negative.

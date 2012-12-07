@@ -171,7 +171,7 @@ htmlhelp_basename = 'pyradidoc'
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+'papersize': 'a4paper',
 
 # The font size ('10pt', '11pt' or '12pt').
 #'pointsize': '10pt',
@@ -184,7 +184,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'pyradi.tex', u'pyradi Documentation',
-   u'CJ Willers', 'manual'),
+   u'pyradi team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

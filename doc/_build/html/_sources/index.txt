@@ -13,11 +13,11 @@ Welcome to pyradi's documentation!
 
 .. automodule:: pyradi
 
-Contents:
----------
 
 .. toctree::
    :maxdepth: 2
+   
+   introduction
    
    ryplanck
    
