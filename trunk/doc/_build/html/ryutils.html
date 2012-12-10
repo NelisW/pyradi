@@ -294,7 +294,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x0440C670&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x043A3670&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -370,7 +370,9 @@ returned value is made negative.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">range (float or np.array[N,] or [N,1]): Solution to the range equation [m], value is negative if doubtful.</div>
+<div class="line">range (float or np.array[N,] or [N,1]): Solution to the range equation in [m].
+Value is negative if calculated range exceeds the top value in range table,
+or if calculated range is too near the lower resolution limit.</div>
 </div>
 </dd>
 <dt>Raises:</dt>

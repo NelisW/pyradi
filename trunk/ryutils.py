@@ -156,7 +156,9 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
         | n (float): range power (2 or 4)
 
     Returns:
-        | range (float or np.array[N,] or [N,1]): Solution to the range equation [m], value is negative if doubtful.
+        | range (float or np.array[N,] or [N,1]): Solution to the range equation in [m].
+          Value is negative if calculated range exceeds the top value in range table,
+          or if calculated range is too near the lower resolution limit.
 
     Raises:
         | No exception is raised.
@@ -170,9 +172,12 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     Range = fsolve(_rangeEquationCalc, rangeGuess,
         args = (Intensity,Irradiance,tauTable,n,numpy.max(rangeTab),))
 
+    #near the bottom (minimum) range of the table
     if(Range < rangeTab[2] ):
-        print('\n\n***** range estimate of {0} might be invalid,'.format(Range[0])
-            + ' increase lookup table resolution at close range\n\n')
+        Range = - Range
+
+        # beyond the top of the range table
+    if(Range >  rangeTab[-1] ):
         Range = - Range
 
     return Range
@@ -182,7 +187,6 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
 ##
 def _rangeEquationCalc(r,i,e,tauTable,n,rMax):
     if r > rMax:
-        print('\n\n***** range estimate of {0} exceed the lookup table range of {1}\n\n'.format(r[0],rMax))
         return 0
     return i * tauTable(r) / (r ** n) - e
 
@@ -517,15 +521,28 @@ if __name__ == '__main__':
     rangeTab = numpy.linspace(0, 10000, 1000)
     tauTab = numpy.exp(- 0.00015 * rangeTab)
     Intensity=200
-    Irradiance=10e-6
-    r = rangeEquation(Intensity = Intensity, Irradiance = Irradiance, rangeTab = rangeTab,
-          tauTab = tauTab, rangeGuess = 1, n = 2)
-    #test the solution by calculating the irradiance at this range.
-    tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
-    irrad = Intensity * tauTable(r) / r ** 2
+    Irradiancetab=[10e-100, 10e-6, 10e-1]
+    for Irradiance in Irradiancetab:
+        r = rangeEquation(Intensity = Intensity, Irradiance = Irradiance, rangeTab = rangeTab,
+              tauTab = tauTab, rangeGuess = 1, n = 2)
 
-    print('Range equation solver: at range {0} the irradiance is {1}, error is {2}'.format(
-        r[0],irrad[0], (irrad[0] - Irradiance) / Irradiance ))
+        #test the solution by calculating the irradiance at this range.
+        tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
+
+        if numpy.abs(r[0]) < rangeTab[2]:
+            rr = rangeTab[2]
+            strError = "Check range resolution in lookup table"
+        elif numpy.abs(r[0]) > rangeTab[-1]:
+            rr = rangeTab[-1]
+            strError = "Check maximum range in lookup table"
+        else:
+            rr = r[0]
+            strError = ""
+
+        irrad = Intensity * tauTable(rr) / rr ** 2
+
+        print('Range equation solver: at range {0} the irradiance is {1}, error is {2}. {3}'.format(
+            r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
     print(' ')
 
     # demo the spectral density conversions
