@@ -57,10 +57,10 @@ __version__= "$Revision$"
 __author__='CJ Willers'
 
 import numpy
-import ryfiles
-import ryplot
-import ryplanck
-import ryutils
+import pyradi.ryfiles as ryfiles
+import pyradi.ryplot as ryplot
+import pyradi.ryplanck as ryplanck
+import pyradi.ryutils as ryutils
 
 #this example is somewhat contrived, but serves to show toolkit use
 
@@ -71,9 +71,9 @@ waven = numpy.arange(2000.0,  3300.0,  2.5).reshape(-1, 1)
 wavel= ryutils.convertSpectralDomain(waven,  type='nl')
 
 #remove comment lines, and scale path radiance from W/cm2.sr.cm-1  to W/m2.sr.cm-1
-tauA = ryfiles.loadColumnTextFile('data/path1kmflamesensor.txt',
+tauA = ryfiles.loadColumnTextFile('../data/path1kmflamesensor.txt',
     [1],abscissaOut=waven,  comment='%')
-lpathwn = ryfiles.loadColumnTextFile('data/pathspaceflamesensor.txt',
+lpathwn = ryfiles.loadColumnTextFile('../data/pathspaceflamesensor.txt',
     [9],abscissaOut=waven,  ordinateScale=1.0e4,  comment='%')
 
 #convert path radiance spectral density from 1/cm^-1 to 1/um, at the sample
@@ -81,7 +81,7 @@ lpathwn = ryfiles.loadColumnTextFile('data/pathspaceflamesensor.txt',
 (dum, lpathwl) = ryutils.convertSpectralDensity(waven,  lpathwn, type='nl')
 
 #load the detector file in wavelengths, and interpolate on required values
-detR = ryfiles.loadColumnTextFile('data/detectorflamesensor.txt',
+detR = ryfiles.loadColumnTextFile('../data/detectorflamesensor.txt',
     [1],abscissaOut=wavel,  comment='%')
 
 #construct the flame emissivity from parameters
