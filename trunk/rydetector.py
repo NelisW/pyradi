@@ -38,6 +38,9 @@ The code in this file does not conform to the minimum quality standards set out 
 but it is offered here because its value, and coding standards should not prevent  release.
 The user will have to expend some effort to make it work in his situation.
 
+This module uses the CODATA physical constants. For more details see
+http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf
+ 
 The example suggested here uses InSb parameters found in the literature. For every
 compound or material, all the parameters, as well as the bandgap equation must be
 changed.
