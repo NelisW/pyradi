@@ -69,19 +69,20 @@ import pyradi.ryplot as ryplot
 
 ################################################################################
 #
-def QuantumEfficiency(E,Eg,lx,T_detector,lambda_vector,theta1,a0,a0p):
+def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMaterial):
     """
     Calculate the spectral quantum efficiency (QE) and absorption coefficient
     for a semiconductor material with given values
 
     Args:
-        | E: energy in Ev;
+        | lambda_vector: wavelength in m.
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
-        | lambda_vector: wavelength in m.
         | a0: absorption coefficient in cm-1 (Dereniak Eq 3.5 & 3.6)
         | a0p:  absorption coefficient in cm-1 (Dereniak Eq 3.5 & 3.6)
+        | nFront:  index of refraction of the material in front of detector
+        | nMaterial:  index of refraction of the detector material
 
     Returns:
         | a_vector: spectral absorption coefficient in cm-1
@@ -89,33 +90,35 @@ def QuantumEfficiency(E,Eg,lx,T_detector,lambda_vector,theta1,a0,a0p):
     """
 
     # CALCULATING THE SEMICONDUCTOR'S OPTICAL REFLECTANCE
-    theta2=np.arcsin(np.sin(theta1)*n1/n2)         # Snell's equation
+    theta2=np.arcsin(np.sin(theta1)*nFront/nMaterial) # Snell's equation
     # Reflectance for perpendicular polarization
-    RS=np.abs((n1*np.cos(theta1)-n2*np.cos(theta2))/(n1*np.cos(theta1)+n2*np.cos(theta2)))**2
+    RS=np.abs((nFront*np.cos(theta1)-nMaterial*np.cos(theta2))/\
+        (nFront*np.cos(theta1)+nMaterial*np.cos(theta2)))**2
     # Reflectance for parallel polarization
-    RP=np.abs((n1*np.cos(theta2)-n2*np.cos(theta1))/(n1*np.cos(theta1)+n2*np.cos(theta2)))**2
+    RP=np.abs((nFront*np.cos(theta2)-nMaterial*np.cos(theta1))/\
+        (nFront*np.cos(theta1)+nMaterial*np.cos(theta2)))**2
     R=(RS+RP)/2
 
-    a_vector=[]
-    etha_vector=[]
-    for i in range(0,np.size(lambda_vector)):      # Calculating the absorption coefficient and QE
+    #wavelength expressed as energy in Ev
+    E = const.h * const.c / (lambda_vector * const.e )
+
+    a_vector = np.zeros(E.shape)
+    for i in range(0,np.size(lambda_vector)):
         if E[i]>Eg:
-            a=(a0 * np.sqrt(E[i]-Eg))+a0p
-            a_vector=np.r_[a_vector,a]             # Absorption coef - eq. 3.5 - [1]
-            etha1=(1-R)*(1-np.exp(-a*lx))           # QE - eq. 3.4 - [1]
-            etha_vector=np.r_[etha_vector,etha1]
+            # Absorption coef - eq. 3.6- [1]
+            a_vector[i]=(a0 * np.sqrt(E[i]-Eg))+a0p
         else:
-            a=a0p*np.exp((E[i]-Eg)/(const.k*T_detector))   # Absorption coef - eq. 3.6- [1]
-            a_vector=np.r_[a_vector,a]
-            etha1=(1-R)*(1-np.exp(-a*lx))
-            etha_vector=np.r_[etha_vector,etha1]
+            # Absorption coef - eq. 3.6- [1]
+            a_vector[i]=a0p*np.exp((E[i]-Eg)/(const.k*T_detector))
+    # QE - eq. 3.4 - [1]
+    etha_vector = (1-R)*(1-np.exp(-a_vector*lx))
 
     return (a_vector,etha_vector)
 
 
 ################################################################################
 #
-def Responsivity(lambda_vector,E,Eg,lx,T_detector, etha_vector):
+def Responsivity(lambda_vector,Eg,lx,T_detector, etha_vector):
     """
     Responsivity quantifies the amount of output seen per watt of radiant optical
     power input [1]. But, for this application it is interesting to define spectral
@@ -124,11 +127,9 @@ def Responsivity(lambda_vector,E,Eg,lx,T_detector, etha_vector):
 
     Args:
         | lambda_vector: wavelength in m;
-        | E: energy in Ev;
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
-        | lambda_vector: wavelength in m.
         | etha_vector: spectral quantum efficiency
 
     Returns:
@@ -145,7 +146,7 @@ def Responsivity(lambda_vector,E,Eg,lx,T_detector, etha_vector):
 
 ################################################################################
 #
-def Detectivity(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak, Responsivity_vector):
+def Detectivity(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak, Responsivity_vector):
     """
     Detectivity can be interpreted as an SNR out of a detector when 1 W of radiant
     power is incident on the detector, given an area equal to 1 cm2 and noise-
@@ -156,7 +157,6 @@ def Detectivity(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,
 
     Args:
         | lambda_vector: wavelength in m;
-        | E: energy in Ev;
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
@@ -180,13 +180,12 @@ def Detectivity(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,
 
 ################################################################################
 #
-def NEP(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector):
+def NEP(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector):
     """
     NEP is the radiant power incident on detector that yields SNR=1 [1].
 
     Args:
         | lambda_vector: wavelength in m;
-        | E: energy in Ev;
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
@@ -300,8 +299,6 @@ def Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,
     in the calculation or measurement)
 
     Args:
-
-        | E: energy in Ev;
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
@@ -341,7 +338,7 @@ def Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,
 
 ################################################################################
 # IxV Characteristic Calculation
-def IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,E,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2):
+def IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2):
     """
     This module provides the diode curve for a given irradiance.
 
@@ -513,7 +510,6 @@ if __name__ == '__main__':
     #material properties for InSb
     etha2=0.45                               # quantum efficieny table 3.3 dereniak's book [3]
     E0=0.24                                  # semiconductor bandgap at room temp in Ev [3]
-    nr=3.42                                  # refraction index of the semiconcuctor being simulated [3]
     n2=3.42                                  # refraction index of the semiconductor being analyzed [3]
     a0=1.9e4                                 #absorption coefficient , Equation 3.5 & 3.6 Dereniak
     a0p=800                                  #absorption coefficient , Equation 3.5 & 3.6 Dereniak
@@ -550,15 +546,7 @@ if __name__ == '__main__':
     final_trans=1.0
 
     # DEFINIG THE BIAS TO BE USED IN THE SIMULATIONS (IF NECESSARY)
-
     V=np.linspace(-250e-3,100e-3,np.size(lambda_vector))
-
-    # CALCULATING THE FREQUENCY RANGE GIVEN THE WAVELENGTH'S RANGE AND CHANGING IT TO
-    # ENERGY
-
-    f=const.c/lambda_vector                              # frequency in Hz
-    E=const.h*f                                          # Einstein's equation in Joules
-    E=E/const.e                                          # Energy in Ev
 
     # CALCULATING THE SEMICONDUCTOR BANDGAP
     # IT IS IMPORTANT TO NOTICE THAT FOR EACH SEMICONDUCTOR BANGAP CALCULATED HERE
@@ -568,7 +556,7 @@ if __name__ == '__main__':
 
     ######################################################################
 
-    (a_vector,etha_vector) = QuantumEfficiency(E,Eg,lx,T_detector,lambda_vector,theta1,a0,a0p)
+    (a_vector,etha_vector) = QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,n1,n2)
 
     avg_qe=np.mean(etha_vector)
 
@@ -576,18 +564,18 @@ if __name__ == '__main__':
 
     (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)=Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,avg_qe)
 
-    (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)=IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,E,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2)
+    (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)=IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2)
 
     (I_noise_dereniak,I_noise_rogalski)=Noise(I0_rogalski,T_detector,A_det,Detector_irradiance_bkg,delta_f,avg_qe,R0,I1_bkg)
 
     (I_dark_dereniak,I_dark_rogalski)=Idark(I0_dereniak,I0_rogalski,V,T_detector)
 
-    Responsivity_vector = Responsivity(lambda_vector,E,Eg,lx,T_detector,etha_vector)
+    Responsivity_vector = Responsivity(lambda_vector,Eg,lx,T_detector,etha_vector)
 
-    Detectivity_vector = Detectivity(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Responsivity_vector)
+    Detectivity_vector = Detectivity(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Responsivity_vector)
     Detectivity_vector=Detectivity_vector*1e2       # units in cm
 
-    (NEPower,lambda_vector2)=NEP(lambda_vector,E,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector)
+    (NEPower,lambda_vector2)=NEP(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector)
 
 
     print ("Detector_irradiance_source=  {0}".format(Detector_irradiance_source))
