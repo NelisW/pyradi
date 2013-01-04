@@ -73,7 +73,7 @@ import numpy as np
 # --------------------------------------------------------------------
 
 def myint(x):
-    """Temperative derivative of Planck function in wavenumber domain for radiance emittance.
+    """Read in integer.
 
     Args:
         | wavelength (np.array[N,]):  wavelength vector in  [um]

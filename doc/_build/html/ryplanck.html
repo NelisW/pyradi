@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="pyradi  documentation" href="index.html" />
     <link rel="next" title="File reading/writing utility" href="ryfiles.html" />
-    <link rel="prev" title="Welcome to pyradi’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
   </head>
   <body>
     <div class="related">
@@ -43,7 +43,7 @@
           <a href="ryfiles.html" title="File reading/writing utility"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to pyradi’s documentation!"
+          <a href="introduction.html" title="Introduction"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
       </ul>
@@ -58,13 +58,15 @@
 <h1>Planck and thermal radiation<a class="headerlink" href="#planck-and-thermal-radiation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.ryplanck">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryplanck" title="Permalink to this headline">¶</a></h2>
-<p>This module provides functions for Planck Law emittance calculations, as well as
+<p>This module provides functions for Planck law exitance calculations, as well as
 temperature derivative calculations.
-The functions provide spectral emittance in [W/(m^2.*)] or [q/(s.m^2.*)], given
+The functions provide spectral exitance in [W/(m^2.*)] or [q/(s.m^2.*)], given
 the temperature and a vector of one of wavelength, wavenumbers or frequency
-(six combinations each for emittance and temperature derivative). The total
-emittance can also be calculated by using the Stefan-Boltzman equation, in
-[W/m^2] or [q/(s.m^2)].</p>
+(six combinations each for exitance and temperature derivative). The total
+exitance can also be calculated by using the Stefan-Boltzman equation, in
+[W/m^2] or [q/(s.m^2)].  &#8216;Exitance&#8217; is the CIE/ISO term for the older term &#8216;emittance&#8217;.</p>
+<p>This module uses the CODATA physical constants. For more details see
+<a class="reference external" href="http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf">http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf</a></p>
 <p>See the __main__ function for testing and examples of use.</p>
 </div>
 <div class="section" id="module-classes">
@@ -75,6 +77,8 @@ emittance can also be calculated by using the Stefan-Boltzman equation, in
 <dd><p>Precalculate the Planck function constants using the values in
 scipy.constants.  Presumbly these constants are up to date and
 will be kept up to date.</p>
+<p>This module uses the CODATA physical constants. For more details see
+<a class="reference external" href="http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf">http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf</a></p>
 <blockquote>
 <div>Reference: <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/constants.html">http://docs.scipy.org/doc/scipy/reference/constants.html</a></div></blockquote>
 <dl class="method">
@@ -108,9 +112,9 @@ will be kept up to date.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planck">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planck" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck Law spectral emittance.</p>
-<p>Calculates the Planck Law spectral emittance
-from a surface at the stated temperature. Emittance can be given in radiant or
+<dd><p>Planck law spectral exitance.</p>
+<p>Calculates the Planck law spectral exitance
+from a surface at the stated temperature. Exitance can be given in radiant or
 photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -129,7 +133,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance (not radiance) in units selected.</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m^2.um)].</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m^2.Hz)].</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -147,8 +151,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.dplanck">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplanck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplanck" title="Permalink to this definition">¶</a></dt>
-<dd><p>Temperature derivative of Planck Law emittance.</p>
-<p>Calculates the temperature derivative for Planck Law spectral emittance
+<dd><p>Temperature derivative of Planck law exitance.</p>
+<p>Calculates the temperature derivative for Planck law spectral exitance
 from a surface at the stated temperature. dM/dT can be given in radiant or
 photon rate units, depending on user input in type.</p>
 <dl class="docutils">
@@ -168,7 +172,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance (not radiance) in units selected.</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m2.um.K)]</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m2.Hz.K)]</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -186,20 +190,20 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.stefanboltzman">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">stefanboltzman</tt><big>(</big><em>temperature</em>, <em>type=u'e'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.stefanboltzman" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stefan-Boltzman wideband integrated emittance.</p>
-<p>Calculates the total Planck Law emittance, integrated over all wavelengths,
-from a surface at the stated temperature. Emittance can be given in radiant or
+<dd><p>Stefan-Boltzman wideband integrated exitance.</p>
+<p>Calculates the total Planck law exitance, integrated over all wavelengths,
+from a surface at the stated temperature. Exitance can be given in radiant or
 photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">temperature (float):  temperature scalar in [K].</div>
-<div class="line">type (string):  &#8216;e&#8217; for radiant or &#8216;q&#8217; for photon rate emittance.</div>
+<div class="line">type (string):  &#8216;e&#8217; for radiant or &#8216;q&#8217; for photon rate exitance.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(float): integrated radiant emittance in  [W/m^2] or [q/(s.m^2)].</div>
+<div class="line">(float): integrated radiant exitance in  [W/m^2] or [q/(s.m^2)].</div>
 <div class="line">Returns a -1 if the type is not &#8216;e&#8217; or &#8216;q&#8217;</div>
 </div>
 </dd>
@@ -214,7 +218,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planckel">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckel</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in wavelength for radiant emittance.</p>
+<dd><p>Planck function in wavelength for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -224,7 +228,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in W/(m^2.um)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in W/(m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -238,7 +242,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.plancken">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">plancken</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.plancken" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in wavenumber for radiant emittance.</p>
+<dd><p>Planck function in wavenumber for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -248,7 +252,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  W/(m^2.cm^-1)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  W/(m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -262,7 +266,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planckef">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckef</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckef" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in frequency for radiant emittance.</p>
+<dd><p>Planck function in frequency for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -272,7 +276,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]): spectral radiant emittance in W/(m^2.Hz)</div>
+<div class="line">(np.array[N,]): spectral radiant exitance in W/(m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -286,7 +290,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planckql">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckql</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckql" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in wavelength domain for photon rate emittance.</p>
+<dd><p>Planck function in wavelength domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -296,7 +300,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  q/(s.m^2.um)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -310,7 +314,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planckqn">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqn</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in wavenumber domain for photon rate emittance.</p>
+<dd><p>Planck function in wavenumber domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -320,7 +324,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  q/(s.m^2.cm^-1)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -334,7 +338,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.planckqf">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqf</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Planck function in frequency domain for photon rate emittance.</p>
+<dd><p>Planck function in frequency domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -344,7 +348,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in q/(s.m^2.Hz)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in q/(s.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -359,7 +363,7 @@ photon rate units, depending on user input in type.</p>
 <dt id="pyradi.ryplanck.dplnckel">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckel</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in wavelength domain for
-radiant emittance.</p>
+radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -369,7 +373,7 @@ radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in W/(K.m^2.um)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in W/(K.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -383,7 +387,7 @@ radiant emittance.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.dplncken">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplncken</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplncken" title="Permalink to this definition">¶</a></dt>
-<dd><p>Temperature derivative of Planck function in wavenumber domain for radiance emittance.</p>
+<dd><p>Temperature derivative of Planck function in wavenumber domain for radiance exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -393,7 +397,7 @@ radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  W/(K.m^2.cm^-1)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  W/(K.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -408,7 +412,7 @@ radiant emittance.</p>
 <dt id="pyradi.ryplanck.dplnckef">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckef</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in frequency domain
-for radiant emittance.</p>
+for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -418,7 +422,7 @@ for radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance/K in W/(K.m^2.Hz)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance/K in W/(K.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -432,7 +436,7 @@ for radiant emittance.</p>
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckql">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckql</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckql" title="Permalink to this definition">¶</a></dt>
-<dd><p>Temperature derivative of Planck function in wavenumber domain for radiance emittance.</p>
+<dd><p>Temperature derivative of Planck function in wavenumber domain for radiance exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -442,7 +446,7 @@ for radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  q/(K.s.m^2.um)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(K.s.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -466,7 +470,7 @@ for radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in  q/(s.m^2.cm^-1)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -490,7 +494,7 @@ for radiant emittance.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant emittance in q/(K.s.m^2.Hz)</div>
+<div class="line">(np.array[N,]):  spectral radiant exitance in q/(K.s.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -521,8 +525,8 @@ for radiant emittance.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to pyradi&#8217;s documentation!</a></p>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">Introduction</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ryfiles.html"
                         title="next chapter">File reading/writing utility</a></p>
@@ -561,7 +565,7 @@ for radiant emittance.</p>
           <a href="ryfiles.html" title="File reading/writing utility"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to pyradi’s documentation!"
+          <a href="introduction.html" title="Introduction"
              >previous</a> |</li>
         <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
       </ul>

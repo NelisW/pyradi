@@ -570,40 +570,40 @@ if __name__ == '__main__':
 
     # now test conversion of spectral density quantities
     #create planck spectral densities at the wavelength interval
-    emittancewRef = ryplanck.planck(wavelenRef, 1000,'el')
-    emittancefRef = ryplanck.planck(frequenRef, 1000,'ef')
-    emittancenRef = ryplanck.planck(wavenumRef, 1000,'en')
-    emittance = emittancewRef.copy()
+    exitancewRef = ryplanck.planck(wavelenRef, 1000,'el')
+    exitancefRef = ryplanck.planck(frequenRef, 1000,'ef')
+    exitancenRef = ryplanck.planck(wavenumRef, 1000,'en')
+    exitance = exitancewRef.copy()
     #convert to frequency density
     print('all following eight statements should print (close to) unity vectors:')
-    (freq, emittance) = convertSpectralDensity(wavelenRef, emittance, 'lf')
-    print('emittance converted: wf against calculation')
-    print(emittancefRef/emittance)
+    (freq, exitance) = convertSpectralDensity(wavelenRef, exitance, 'lf')
+    print('exitance converted: wf against calculation')
+    print(exitancefRef/exitance)
    #convert to wavenumber density
-    (waven, emittance) = convertSpectralDensity(freq, emittance, 'fn')
-    print('emittance converted: wf->fn against calculation')
-    print(emittancenRef/emittance)
+    (waven, exitance) = convertSpectralDensity(freq, exitance, 'fn')
+    print('exitance converted: wf->fn against calculation')
+    print(exitancenRef/exitance)
     #convert to wavelength density
-    (wavel, emittance) = convertSpectralDensity(waven, emittance, 'nl')
+    (wavel, exitance) = convertSpectralDensity(waven, exitance, 'nl')
     #now repeat in opposite sense
-    print('emittance converted: wf->fn->nw against original')
-    print(emittancewRef/emittance)
+    print('exitance converted: wf->fn->nw against original')
+    print(exitancewRef/exitance)
     print('spectral variable converted: wf->fn->nw against original')
     print(wavelenRef/wavel)
     #convert to wavenumber density
-    emittance = emittancewRef.copy()
-    (waven, emittance) = convertSpectralDensity(wavelenRef, emittance, 'ln')
-    print('emittance converted: wf against calculation')
-    print(emittancenRef/emittance)
+    exitance = exitancewRef.copy()
+    (waven, exitance) = convertSpectralDensity(wavelenRef, exitance, 'ln')
+    print('exitance converted: wf against calculation')
+    print(exitancenRef/exitance)
    #convert to frequency density
-    (freq, emittance) = convertSpectralDensity(waven, emittance, 'nf')
-    print('emittance converted: wf->fn against calculation')
-    print(emittancefRef/emittance)
+    (freq, exitance) = convertSpectralDensity(waven, exitance, 'nf')
+    print('exitance converted: wf->fn against calculation')
+    print(exitancefRef/exitance)
     #convert to wavelength density
-    (wavel, emittance) = convertSpectralDensity(freq, emittance, 'fl')
+    (wavel, exitance) = convertSpectralDensity(freq, exitance, 'fl')
     # if the spectral density conversions were correct, the following two should be unity vectors
-    print('emittance converted: wn->nf->fw against original')
-    print(emittancewRef/emittance)
+    print('exitance converted: wn->nf->fw against original')
+    print(exitancewRef/exitance)
     print('spectral variable converted: wn->nf->fw against original')
     print(wavelenRef/wavel)
 
