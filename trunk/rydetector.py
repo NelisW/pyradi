@@ -65,6 +65,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyradi.ryplot as ryplot
 
+# IMPORTANT CONSTANTS
+sigma = codata.value(u'Stefan-Boltzmann constant')   #W/(m2 K4)
+sigma_photon=1.52e15    # boltzmann constant for photons- photons/(s.m2.K3)
 
 
 ################################################################################
@@ -72,13 +75,16 @@ import pyradi.ryplot as ryplot
 def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMaterial):
     """
     Calculate the spectral quantum efficiency (QE) and absorption coefficient
-    for a semiconductor material with given values
+    for a semiconductor material with given material values.
+
+    The model used here is based on Equations 3.4, 3.5, 3.6 in Dereniaks book.
 
     Args:
         | lambda_vector: wavelength in m.
         | Eg: bandgap energy in Ev;
         | lx: detector thickness in m;
         | T_detector: detector's temperature in K;
+        | theta1: angle between the surface's normal and the radiation path
         | a0: absorption coefficient in cm-1 (Dereniak Eq 3.5 & 3.6)
         | a0p:  absorption coefficient in cm-1 (Dereniak Eq 3.5 & 3.6)
         | nFront:  index of refraction of the material in front of detector
@@ -89,7 +95,7 @@ def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMater
         | etha_vector: spectral quantum efficiency
     """
 
-    # CALCULATING THE SEMICONDUCTOR'S OPTICAL REFLECTANCE
+    # calculate the semiconductor's optical reflectance
     theta2=np.arcsin(np.sin(theta1)*nFront/nMaterial) # Snell's equation
     # Reflectance for perpendicular polarization
     RS=np.abs((nFront*np.cos(theta1)-nMaterial*np.cos(theta2))/\
@@ -102,34 +108,35 @@ def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMater
     #wavelength expressed as energy in Ev
     E = const.h * const.c / (lambda_vector * const.e )
 
-    a_vector = np.zeros(E.shape)
-    for i in range(0,np.size(lambda_vector)):
-        if E[i]>Eg:
-            # Absorption coef - eq. 3.6- [1]
-            a_vector[i]=(a0 * np.sqrt(E[i]-Eg))+a0p
-        else:
-            # Absorption coef - eq. 3.6- [1]
-            a_vector[i]=a0p*np.exp((E[i]-Eg)/(const.k*T_detector))
+    # the np.abs() in the following code is to prevent nan and inf values
+    # the effect of the abs() is corrected further down when we select
+    # only the appropriate values based on E >= Eg and E < Eg
+
+    # Absorption coef - eq. 3.5- Dereniak
+    a35 = (a0 * np.sqrt(np.abs(E-Eg)))+a0p
+    # Absorption coef - eq. 3.6- Dereniak
+    a36 = a0p*np.exp((-np.abs(E-Eg))/(const.k*T_detector))
+    a_vector = a35 * (E >= Eg) + a36 * (E < Eg)
+
     # QE - eq. 3.4 - [1]
     etha_vector = (1-R)*(1-np.exp(-a_vector*lx))
 
     return (a_vector,etha_vector)
 
 
+
 ################################################################################
 #
-def Responsivity(lambda_vector,Eg,lx,T_detector, etha_vector):
+def Responsivity(lambda_vector,etha_vector):
     """
     Responsivity quantifies the amount of output seen per watt of radiant optical
     power input [1]. But, for this application it is interesting to define spectral
-    responsivity that is the output per watt of monochromatic radiation. This is
-    calculated in this function [1].
+    responsivity that is the output per watt of monochromatic radiation.
+
+    The model used here is based on Equations 7.114 in Dereniak's book.
 
     Args:
         | lambda_vector: wavelength in m;
-        | Eg: bandgap energy in Ev;
-        | lx: detector thickness in m;
-        | T_detector: detector's temperature in K;
         | etha_vector: spectral quantum efficiency
 
     Returns:
@@ -137,16 +144,11 @@ def Responsivity(lambda_vector,Eg,lx,T_detector, etha_vector):
 
     """
 
-    Responsivity_vector=[]
-    for i in range(0,np.size(lambda_vector)):
-        Responsivity_vector1=(const.e*lambda_vector[i]*etha_vector[i])/(const.h*const.c)              #  responsivity model from dereniak's book eq. 7.114
-        Responsivity_vector=np.r_[Responsivity_vector,Responsivity_vector1]
-
-    return (Responsivity_vector)
+    return (const.e*lambda_vector*etha_vector)/(const.h*const.c)
 
 ################################################################################
 #
-def Detectivity(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak, Responsivity_vector):
+def Detectivity(lambda_vector,A_det,delta_f,I_noise, Responsivity_vector):
     """
     Detectivity can be interpreted as an SNR out of a detector when 1 W of radiant
     power is incident on the detector, given an area equal to 1 cm2 and noise-
@@ -157,64 +159,198 @@ def Detectivity(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak, R
 
     Args:
         | lambda_vector: wavelength in m;
-        | Eg: bandgap energy in Ev;
-        | lx: detector thickness in m;
-        | T_detector: detector's temperature in K;
         | A_det: detector's area in m2;
         | delta_f: measurement or desirable bandwidth - Hertz;
-        | I_noise_dereniak: noise prediction using Dereniaki's model in A.
-        | etha_vector: spectral quantum efficiency
+        | I_noise: noise prediction using Dereniaki's model in A.
+        | Responsivity_vector: spectral responsivity in [A/W]
 
     Returns
         | (Detectivity_vector)
 
     """
 
-    Detectivity_vector=[]
-    for i in range(0,np.size(lambda_vector)):
-        Detectivity_vector1=(Responsivity_vector[i]*np.sqrt(A_det*delta_f))/(I_noise_dereniak)       #I_noise_rogalski - Callie's model
-        Detectivity_vector=np.r_[Detectivity_vector,Detectivity_vector1]
-
-    return (Detectivity_vector)
+    return (Responsivity_vector*np.sqrt(A_det*delta_f))/(I_noise)
 
 
 ################################################################################
 #
-def NEP(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector):
+def NEP(detectivity):
     """
     NEP is the radiant power incident on detector that yields SNR=1 [1].
 
     Args:
         | lambda_vector: wavelength in m;
-        | Eg: bandgap energy in Ev;
-        | lx: detector thickness in m;
-        | T_detector: detector's temperature in K;
-        | A_det: detector's area in m2;
-        | delta_f: measurement or desirable bandwidth - Hertz;
         | I_noise_dereniak: noise prediction using Dereniaki's model in A.
-        | Detectivity_vector: spectral detectivity
+        | dtectivity: spectral detectivity
 
     Returns
         | NEPower(spectral_nep)
-
     """
 
-    NEPower=[]
-    lambda_vector2=[]
-    for i in range(0,np.size(lambda_vector)):
-        if Detectivity_vector[i]>0:
-           NEPower1=1/Detectivity_vector[i]
-           NEPower=np.r_[NEPower,NEPower1]
-           lambda_vector2=np.r_[lambda_vector2,lambda_vector[i]]
-        else:
-            break
+    #     #the strange '+ (detectivity==0)' code below is to prevent divide by zero
+    nep = ((1/(detectivity + (detectivity==0))) * (detectivity!=0) + 0 * (detectivity==0))
 
-    return (NEPower,lambda_vector2)
+    return nep
+
+################################################################################
+#
+def Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg):
+    """
+    The photocurrent is the the current generated by a photodetector given its
+    quantum efficiency, irradiance and area.
+
+    The result is given in current or tension (dependant on the transipedance used
+    in the calculation or measurement)
+
+    Args:
+        | A_det: detector´s area in m2;
+        | Etha: quantum efficiency
+        | etha2: average theoretical QE given by the literature;
+        | Ebkg: background irradiance on the detector
+        | Etotal: total irradiance on the detector
+
+    Returns:
+        | Photocurrent_vector(I1_wide,I1_wide_thoeretical,V1_wide)
+    """
+
+    I1_wide=avg_qe*Etotal*A_det*const.e      # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
+
+    I1_wide_theoretical=etha2*Etotal*A_det*const.e
+
+    I1_bkg=avg_qe*Ebkg*A_det*const.e        # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
+
+    I1_bkg_theoretical=etha2*Ebkg*A_det*const.e      # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
+
+    V1_wide=np.mean(transipedance*I1_wide)
+
+    return (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)
 
 
 ################################################################################
-# CALCULATING THE RADIANCE FROM A SOURCE AND FROM THE BACKGROUND
-def Irradiance(epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg):
+# IxV Characteristic Calculation
+def IXV(e_mob,tau_e,me,mh,na,V,b,Eg,T_detector,lambda_vector,A_det,I_bkg1,I_bkg2):
+    """
+    This module provides the diode curve for a given irradiance.
+
+    Args:
+        | e_mob: electron mobility in m2/V.s;
+        | tau_e: electron lifetime in s;
+        | me: electron effective mass in kg;
+        | mh: hole effective mass in kg;
+        | na: dopping concentration in m-3;
+        | V: bias in V;
+        | b: diode equation non linearity factor;
+        | Eg: energy bandgap in Ev;
+        | T_detector: detector's temperature in K;
+        | lambda_vector: wavenlength in m;
+        | A_det: detector's area in m2;
+
+    Returns:
+        | (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
+
+    """
+
+    # saturation reverse current calculation.
+    # note: in this procedure the bandgap calculation must be a specific equation for the used semiconductor.
+    #It means, for each different semiconductor material used the equation must be changed.
+
+    # diffusion length [m] Dereniak p250
+    Le=np.sqrt(const.k*T_detector*e_mob*tau_e/const.e)
+
+    # intrinsic carrier concentration - dereniak`s book eq. 7.1 - m-3
+    ni=(np.sqrt(4*(2*np.pi*const.k*T_detector/const.h**2)**3*np.exp(-(Eg*const.e)/(const.k*T_detector))*(me*mh)**1.5))
+    # donor concentration in m-3
+    nd=(ni**2/na)
+
+    # reverse saturation current - dereniak eq. 7.34 - Ampère
+    I0_dereniak=A_det*const.e*(Le/tau_e)*nd
+
+    # carrier diffusion coefficient - rogalski's book pg. 164
+    De=const.k*T_detector*e_mob/const.e
+    # reverse saturation current - rogalski's book eq. 8.118
+    I0_rogalski=const.e*De*nd*A_det/Le
+
+
+    # IxV CHARACTERISTIC
+    I_vector=[]
+    for i in range(0,np.size(lambda_vector)):
+        I=I0_dereniak*(np.exp(const.e*V[i]/(b*const.k*T_detector))-1)     # diode equation from dereniak'book eq. 7.23
+        I_vector=np.r_[I_vector,I]
+
+    IXV_vector1=I_vector-I_bkg1
+    IXV_vector2=I_vector-I_bkg2
+
+    return (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
+
+
+################################################################################
+# NOISE CALCULUS
+def Noise(I0_rogalski,T_detector,A_det,Ebkg,delta_f,avg_qe,R0,I1_bkg):
+    """
+    This module calculate the total noise produced in the diode using the models
+    given in the references.
+
+    Args:
+        | I0_rogalski: reverse saturation current in A;
+        | T_detector: detector's temperature in K;
+        | A_det: detector's area in m2;
+        | Ebkg: irradiance generated by the background in W/m2;
+        | delta_f: measurement or desirable bandwidth - Hertz;
+        | avg_etha: calculated average quantum efficiency;
+        | R0: resistivity in Ohm;
+        | I1_bkg: photocurrent generated by the background in A.
+
+    Returns:
+        | (I_noise_dereniak,I_noise_rogalski)
+
+    """
+
+
+    # TOTAL NOISE MODELING FROM DERENIAK'S BOOK
+    # JOHNSON NOISE
+    i_johnson=np.sqrt(4*const.k*T_detector*delta_f/R0)   # Dereniaki's book - eq. 5.58
+
+    # SHOT NOISE
+    i_shot=np.sqrt(2*const.e*I1_bkg*delta_f)          # Dereniaki's book - eq. 5.69
+
+    # TOTAL NOISE
+    I_noise_dereniak=np.sqrt(i_johnson**2+i_shot**2)    # Dereniaki's book - eq. 5.75
+
+
+    # % TOTAL NOISE MODELING FROM ROGALSKI'S BOOK (V=0)
+    R1=const.k*T_detector/(const.e*I0_rogalski)
+
+    I_noise_rogalski=np.sqrt((2*const.e**2*avg_qe*Ebkg*A_det*delta_f)+(4*const.k*T_detector*delta_f/R1)) # Rogalski's book - eq. 8.111  -> the amount generated by the background was desconsidered.
+
+    return (I_noise_dereniak,I_noise_rogalski)
+
+
+################################################################################
+## DARK CURRENT CALCULUS
+def Idark(I0_dereniak,I0_rogalski,V,T_detector):
+    """
+    This module calculates the dark current from a photodiode in order to predict
+    if the detector is submited to work under BLIP or not.
+
+    Args:
+        | I0_derinak: saturation reverse current from Dereniaki's model in A;
+        | I0_rogalski: saturation reverse current from Rogalski's model in A;
+        | V: applied bias in V;
+        | T_detector: detector's temperature in K
+
+    Returns:
+        | (I_dark_derinak,I_dark_rogalski)
+    """
+
+    I_dark_dereniak=I0_dereniak*(np.exp(const.e*V/(1*const.k*T_detector))-1)
+    I_dark_rogalski=I0_rogalski*(np.exp(const.e*V/(1*const.k*T_detector))-1)
+
+    return (I_dark_dereniak,I_dark_rogalski)
+
+
+################################################################################
+# calculate the radiance from a source and from the background
+def Irradiance(lambda_vector,epsilon,T_source,T_bkg,A_source,A_bkg):
     """
     This module calculates the quantity of energy produced by a source and the
     background for a specific temperature in terms of number of photons and in
@@ -231,16 +367,18 @@ def Irradiance(epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg)
     All the equations used here are easily found in the literature.
 
     Args:
+        | lambda_vector: wavenlength in m;
         | epsilon: source emissivity (non-dimensional);
-        | sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);
         | T_source: source's temperature in K;
         | T_kbg: background's temperature in K;
-        | lambda_vector: wavenlength in m;
         | A_source: soource's area in m2;
         | A_bkg: background's area in m2.
 
     Returns:
-        | tuple of numpy arrays: (Detector_irradiance_source,Detector_irradiance_bkg,Detector_total)
+        | tuple of numpy arrays:
+        | Esource: source irradiance on the detector
+        | Ebkg: background irradiance on the detector
+        | Etotal: total irradiance on the detector
 
     """
 
@@ -277,197 +415,15 @@ def Irradiance(epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg)
     Radiance_total=Radiance_final_source+Radiance_final_bkg
 
     # IRRADIANCE CALCULUS
-    Detector_irradiance_source=(Radiance_final_source*A_source)/(d**2)     # photons/m2
+    Esource=(Radiance_final_source*A_source)/(d**2)     # photons/m2
 
-    Detector_irradiance_bkg=(Radiance_final_bkg*A_bkg)/(d**2)#;epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg
+    Ebkg=(Radiance_final_bkg*A_bkg)/(d**2)
 
-    Detector_irradiance_total=Detector_irradiance_source+Detector_irradiance_bkg;
+    Etotal=Esource+Ebkg;
 
-    #Irradiance_vector=np.r_[Detector_irradiance_source,Detector_irradiance_bkg,Detector_irradiance_total]
+    #Irradiance_vector=np.r_[Esource,Ebkg,Etotal]
 
-    return (Detector_irradiance_source,Detector_irradiance_bkg,Detector_irradiance_total)
-
-
-################################################################################
-#
-def Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,avg_qe):
-    """
-    The photocurrent is the the current generated by a photodetector given its
-    quantum efficiency, irradiance and area.
-
-    The result is given in current or tension (dependant on the transipedance used
-    in the calculation or measurement)
-
-    Args:
-        | Eg: bandgap energy in Ev;
-        | lx: detector thickness in m;
-        | T_detector: detector's temperature in K;
-        | lambda_vector: wavenlength in m;
-        | epsilon: source emissivity (non-dimensional);
-        | sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);
-        | T_source: source´s temperature in K;
-        | T_kbg: background´s temperature in K;
-        | A_source: soource´s area in m2;
-        | A_bkg: background´s area in m2.
-        | A_det: detector´s area in m2;
-        | Etha: quantum efficiency
-        | etha2: average theoretical QE given by the literature;
-
-    Returns:
-        | Photocurrent_vector(I1_wide,I1_wide_thoeretical,V1_wide)
-    """
-
-    Irradiance_vector=Irradiance(epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg)
-
-    Detector_irradiance_total=Irradiance_vector[2]
-
-    Detector_irradiance_bkg=Irradiance_vector[1]
-
-    I1_wide=avg_qe*Detector_irradiance_total*A_det*const.e      # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
-
-    I1_wide_theoretical=etha2*Detector_irradiance_total*A_det*const.e
-
-    I1_bkg=avg_qe*Detector_irradiance_bkg*A_det*const.e        # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
-
-    I1_bkg_theoretical=etha2*Detector_irradiance_bkg*A_det*const.e      # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
-
-    V1_wide=np.mean(transipedance*I1_wide)
-
-    return (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)
-
-
-################################################################################
-# IxV Characteristic Calculation
-def IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2):
-    """
-    This module provides the diode curve for a given irradiance.
-
-    Args:
-        | e_mob: electron mobility in m2/V.s;
-        | tau_e: electron lifetime in s;
-        | me: electron effective mass in kg;
-        | mh: hole effective mass in kg;
-        | na: dopping concentration in m-3;
-        | V: bias in V;
-        | b: diode equation non linearity factor;
-        | alfa: first fitting parameter for the Varshini's Equation
-        | B: second fitting parameter for the Varshini's Equation
-        | Eg: energy bandgap in Ev;
-        | lx: detector thickness in m;
-        | T_detector: detector's temperature in K;
-        | lambda_vector: wavenlength in m;
-        | epsilon: source emissivity (non-dimensional);
-        | sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);
-        | T_source: source's temperature in K;
-        | T_kbg: background's temperature in K;
-        | A_source: soource's area in m2;
-        | A_bkg: background's area in m2.
-        | A_det: detector's area in m2;
-        | Etha: quantum efficiency
-        | etha2: average theoretical QE given by the literature;
-
-    Returns:
-        | (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
-
-    """
-
-    # SATURATION REVERSE CURRENT CALCULATION
-    # note: in this procedure the bandgap calculation must be a specific equation for the used semiconductor. It means, for each different semiconductor material used the equation must be changed.
-
-    Photocurrent_vector=Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,avg_qe)
-    I_bkg1=Photocurrent_vector[2]
-    I_bkg2=Photocurrent_vector[3]
-
-    # DIFFUSION lENGTH
-    Le=np.sqrt(const.k*T_detector*e_mob*tau_e/const.e)                  # diffusion length - m - calculated using dereniak's book page 250
-
-    ni=(np.sqrt(4*(2*np.pi*const.k*T_detector/const.h**2)**3*np.exp(-(Eg*const.e)/(const.k*T_detector))*(me*mh)**1.5)) # intrinsic carrier concentration - dereniak`s book eq. 7.1 - m-3
-    nd=(ni**2/na)                                           # donnors concentration in m-3
-
-    # REVERSE CURRENT USING DERENIAK'S MODEL
-    I0_dereniak=A_det*const.e*(Le/tau_e)*nd                       # reverse saturation current - dereniak eq. 7.34 - Ampère
-
-
-    # REVERSE CURRENT USING ROGALSKI'S MODEL
-    De=const.k*T_detector*e_mob/const.e                               # carrier diffusion coefficient - rogalski's book pg. 164
-    I0_rogalski=const.e*De*nd*A_det/Le                            # reverse saturation current - rogalski's book eq. 8.118
-
-
-    # IxV CHARACTERISTIC
-    I_vector=[]
-    for i in range(0,np.size(lambda_vector)):
-        I=I0_dereniak*(np.exp(const.e*V[i]/(b*const.k*T_detector))-1)     # diode equation from dereniak'book eq. 7.23
-        I_vector=np.r_[I_vector,I]
-
-    IXV_vector1=I_vector-I_bkg1
-    IXV_vector2=I_vector-I_bkg2
-
-    return (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
-
-
-################################################################################
-# NOISE CALCULUS
-def Noise(I0_rogalski,T_detector,A_det,Detector_irradiance_bkg,delta_f,avg_qe,R0,I1_bkg):
-    """
-    This module calculate the total noise produced in the diode using the models
-    given in the references.
-
-    Args:
-        | I0_rogalski: reverse saturation current in A;
-        | T_detector: detector's temperature in K;
-        | A_det: detector's area in m2;
-        | Detector_irradiance_bkg: irradiance generated by the background in W/m2;
-        | delta_f: measurement or desirable bandwidth - Hertz;
-        | avg_etha: calculated average quantum efficiency;
-        | R0: resistivity in Ohm;
-        | I1_bkg: photocurrent generated by the background in A.
-
-    Returns:
-        | (I_noise_dereniak,I_noise_rogalski)
-
-    """
-
-
-    # TOTAL NOISE MODELING FROM DERENIAK'S BOOK
-    # JOHNSON NOISE
-    i_johnson=np.sqrt(4*const.k*T_detector*delta_f/R0)   # Dereniaki's book - eq. 5.58
-
-    # SHOT NOISE
-    i_shot=np.sqrt(2*const.e*I1_bkg*delta_f)          # Dereniaki's book - eq. 5.69
-
-    # TOTAL NOISE
-    I_noise_dereniak=np.sqrt(i_johnson**2+i_shot**2)    # Dereniaki's book - eq. 5.75
-
-
-    # % TOTAL NOISE MODELING FROM ROGALSKI'S BOOK (V=0)
-    R1=const.k*T_detector/(const.e*I0_rogalski)
-
-    I_noise_rogalski=np.sqrt((2*const.e**2*avg_qe*Detector_irradiance_bkg*A_det*delta_f)+(4*const.k*T_detector*delta_f/R1)) # Rogalski's book - eq. 8.111  -> the amount generated by the background was desconsidered.
-
-    return (I_noise_dereniak,I_noise_rogalski)
-
-
-################################################################################
-## DARK CURRENT CALCULUS
-def Idark(I0_dereniak,I0_rogalski,V,T_detector):
-    """
-    This module calculates the dark current from a photodiode in order to predict
-    if the detector is submited to work under BLIP or not.
-
-    Args:
-        | I0_derinak: saturation reverse current from Dereniaki's model in A;
-        | I0_rogalski: saturation reverse current from Rogalski's model in A;
-        | V: applied bias in V;
-        | T_detector: detector's temperature in K
-
-    Returns:
-        | (I_dark_derinak,I_dark_rogalski)
-    """
-
-    I_dark_dereniak=I0_dereniak*(np.exp(const.e*V/(1*const.k*T_detector))-1)
-    I_dark_rogalski=I0_rogalski*(np.exp(const.e*V/(1*const.k*T_detector))-1)
-
-    return (I_dark_dereniak,I_dark_rogalski)
+    return (Esource,Ebkg,Etotal)
 
 
 ################################################################################
@@ -491,6 +447,7 @@ if __name__ == '__main__':
     """
 
     T_source=0.1                             #source temperature in K
+    epsilon=1.0                              # source emissivity
     T_bkg=280.0                              #background temperature in K
     T_detector=80.0                          # detector temperature in K
     lambda_initial=1e-6                      # wavelength in meter- can start in 0
@@ -525,10 +482,6 @@ if __name__ == '__main__':
     s=5e4                                    # surface recombination velocity -> http://www.ioffe.ru/SVA/NSM/Semicond/InSb/electric.html#Recombination
     R0=1e10                                  # measured resistivity  - ohm
 
-    # IMPORTANT CONSTANTS
-    sigma = codata.value(u'Stefan-Boltzmann constant')   #W/(m2 K4)
-    sigma_photon=1.52e15                     # boltzmann constant for photons- photons/(s.m2.K3)
-    epsilon=1.0                                # source emissivity
 
     if T_source> T_bkg:
         r=np.sqrt(A_source/np.pi)            # source radius if it is a circle and plane source
@@ -560,27 +513,27 @@ if __name__ == '__main__':
 
     avg_qe=np.mean(etha_vector)
 
-    (Detector_irradiance_source,Detector_irradiance_bkg,Detector_irradiance_total) = Irradiance(epsilon,sigma_photon,T_source,T_bkg,lambda_vector,A_source,A_bkg)
+    (Esource,Ebkg,Etotal) = Irradiance(lambda_vector,epsilon,T_source,T_bkg,A_source,A_bkg)
 
-    (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)=Photocurrent(epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2,avg_qe)
+    (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)=Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg)
 
-    (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)=IXV(e_mob,tau_e,me,mh,na,V,b,alfa,B,Eg,lx,T_detector,lambda_vector,epsilon,sigma_photon,T_source,T_bkg,A_source,A_bkg,A_det,etha2)
+    (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)=IXV(e_mob,tau_e,me,mh,na,V,b,Eg,T_detector,lambda_vector,A_det,I1_bkg,I1_bkg_theoretical)
 
-    (I_noise_dereniak,I_noise_rogalski)=Noise(I0_rogalski,T_detector,A_det,Detector_irradiance_bkg,delta_f,avg_qe,R0,I1_bkg)
+    (I_noise_dereniak,I_noise_rogalski)=Noise(I0_rogalski,T_detector,A_det,Ebkg,delta_f,avg_qe,R0,I1_bkg)
 
     (I_dark_dereniak,I_dark_rogalski)=Idark(I0_dereniak,I0_rogalski,V,T_detector)
 
-    Responsivity_vector = Responsivity(lambda_vector,Eg,lx,T_detector,etha_vector)
+    Responsivity_vector = Responsivity(lambda_vector,etha_vector)
 
-    Detectivity_vector = Detectivity(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Responsivity_vector)
+    Detectivity_vector = Detectivity(lambda_vector,A_det,delta_f,I_noise_dereniak,Responsivity_vector)
     Detectivity_vector=Detectivity_vector*1e2       # units in cm
 
-    (NEPower,lambda_vector2)=NEP(lambda_vector,Eg,lx,T_detector,A_det,delta_f,I_noise_dereniak,Detectivity_vector)
+    NEPower=NEP(Detectivity_vector)
 
 
-    print ("Detector_irradiance_source=  {0}".format(Detector_irradiance_source))
-    print ("Detector_irradiance_bkg= {0} ".format(Detector_irradiance_bkg))
-    print ("Detector_irradiance_total= {0} ".format(Detector_irradiance_total))
+    print ("Detector irradiance source=  {0}".format(Esource))
+    print ("Detector irradiance background= {0} ".format(Ebkg))
+    print ("Detector irradiance total= {0} ".format(Etotal))
     print ("I1_wide= {0} ".format(I1_wide))
     print ("I1_wide_theoretical= {0} ".format(I1_wide_theoretical))
     print ("I0_dereniak= {0} ".format(I0_dereniak))
@@ -598,11 +551,11 @@ if __name__ == '__main__':
         r'Wavelength [$\mu$m]','Quantum Efficiency')
     QE.saveFig('QE.eps')
 
-    IXV = ryplot.Plotter(1,1,1)
-    IXV.plot(1,V,IXV_vector1,plotCol=['b'])
-    IXV.plot(1,V,IXV_vector2,'IxV Curve',\
+    IXVplot = ryplot.Plotter(1,1,1)
+    IXVplot.plot(1,V,IXV_vector1,plotCol=['b'])
+    IXVplot.plot(1,V,IXV_vector2,'IxV Curve',\
         'Voltage [V]','Current [A]',plotCol=['r'])
-    IXV.saveFig('IXV.eps')
+    IXVplot.saveFig('IXVplot.eps')
 
     IDark = ryplot.Plotter(1,1,1)
     IDark.plot(1,V,I_dark_dereniak,plotCol=['b'])
@@ -621,7 +574,7 @@ if __name__ == '__main__':
     Detect.saveFig('Detectivity.eps')
 
     NEPf = ryplot.Plotter(1,1,1)
-    NEPf.plot(1,lambda_vector2*1e6,NEPower,'Spectral Noise Equivalent Power',\
+    NEPf.plot(1,lambda_vector*1e6,NEPower,'Spectral Noise Equivalent Power',\
         r'Wavelength [$\mu$m]','NEP [W]')
     NEPf.saveFig('NEP.eps')
 
