@@ -16,8 +16,8 @@
 
 # The Original Code is part of the PyRadi toolkit.
 
-# The Initial Developer of the Original Code is Ricardo Augusto Tavares Santos, D.Sc.
-# Instituto Tecnologico de Aeronautica - Laboratorio de Guerra Eletronica - Brazil
+# Initial Dev of the Original Code is Ricardo Augusto Tavares Santos, D.Sc.
+# Instituto Tecnologico de Aeronautica Laboratorio de Guerra Eletronica - Brazil
 # Portions created by Ricardo Augusto Tavares Santos are Copyright (C) 2012
 # All Rights Reserved.
 
@@ -25,30 +25,31 @@
 ###############################################################
 
 """
-This module was built to give the user a simple but reliable tool to simulate or
-to understand main parameters used to design a infrared photodetector.
-
-All the work done in this module was based in classical equations found in the
-literature but the used references are:
+This model was built to give the user a simple but reliable tool to simulate or
+to understand main parameters used to design a photovoltaic (PV) infrared
+photodetector.  All the work done in this model was based in classical equations
+found in the literature.
 
 See the __main__ function for examples of use.
-
 
 The code in this file does not conform to the minimum quality standards set out
 in pyradi but it is offered here because its value, and coding standards should
 not prevent  release. The user will have to expend some effort to make it work
 in his situation.
 
-This module uses the CODATA physical constants. For more details see
+The example suggested here uses InSb parameters found in the literature. For
+every compound or material, all the parameters, as well as the bandgap equation
+must be changed.
+
+This code uses the CODATA physical constants. For more details see
 http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf
 
 References:
 
-[1] Infrared Detectors and Systems, E L Dereniak & G D Boreman, Wiley.
+[1] Infrared Detectors and Systems, EL Dereniak & GD Boreman, Wiley
+[2] Infrared Detectors, A Rogalski (1st or 2nd Edition), CRC Press
+[3] ???
 
-The example suggested here uses InSb parameters found in the literature. For
-every compound or material, all the parameters, as well as the bandgap equation
-must be changed.
 """
 
 #prepare so long for Python 3
@@ -59,14 +60,15 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['QuantumEfficiency','Irradiance', 'Photocurrent', 'IXV', 'EgTemp' \
-          'Detectivity', 'NEP', 'NoiseBasic', 'NoiseRogalski', 'Idark', \
-          'Responsivity','I0']
+          'Detectivity', 'NEP', 'NoiseBasic', 'NoiseRogalski', \
+          'Idark', 'Responsivity','I0']
 
 from scipy.constants import codata
 import scipy.constants as const
 import matplotlib.pyplot as plt
 import numpy as np
 import pyradi.ryplot as ryplot
+import sys
 
 # IMPORTANT CONSTANTS
 sigma = codata.value(u'Stefan-Boltzmann constant')   #W/(m2 K4)
@@ -193,8 +195,8 @@ def NEP(detectivity):
     """
 
     #the strange '+ (detectivity==0)' code below is to prevent divide by zero
-    nep = ((1 / (detectivity + (detectivity == 0))) * (detectivity != 0) + \
-                0 * (detectivity == 0))
+    nep = ((1 / (detectivity + (detectivity == 0))) * (detectivity != 0))  + \
+                 sys.float_info.max/10 * (detectivity == 0)
 
     return nep
 
@@ -258,13 +260,13 @@ def EgTemp(E0, alpha, B, T_detector):
         | Eg: bandgap at stated temperature
     """
 
-    return (E0-(alpha*(T_detector**2/(T_detector+B))))
+    return (E0 - (alpha * (T_detector ** 2 / (T_detector + B))))
 
 ################################################################################
 #
 def IXV(V, IVbeta, tDetec, iPhoto,I0):
     """
-    This module provides the diode curve for a given photocurrent.
+    This function provides the diode curve for a given photocurrent.
 
     Args:
         | V: bias in V;
@@ -284,7 +286,7 @@ def IXV(V, IVbeta, tDetec, iPhoto,I0):
 #
 def NoiseBasic(T_detector, delta_f, R0, I1_bkg):
     """
-    This module calculate the total noise produced in the diode using the
+    This function calculate the total noise produced in the diode using the
     basic physical models given in the references.
 
     Args:
@@ -311,9 +313,9 @@ def NoiseBasic(T_detector, delta_f, R0, I1_bkg):
 
 ################################################################################
 #
-def NoiseRogalski(I0current, T_detector, A_det, Ebkg, delta_f, avg_qe, IVbeta=1):
+def NoiseRogalski(I0current, T_detector, A_det, Ebkg, delta_f, avg_qe,IVbeta=1):
     """
-    This module calculate the total noise produced in the diode using the model
+    This function calculate the total noise produced in the diode using the model
     given in Rogalski.
 
     Args:
@@ -335,7 +337,7 @@ def NoiseRogalski(I0current, T_detector, A_det, Ebkg, delta_f, avg_qe, IVbeta=1)
     R1 = IVbeta * const.k * T_detector / (const.e * I0current)
 
     # Rogalski eq. 8.111  (Eq 9.99 in 2nd Edition)
-    #-> noise generated by the background is ignored
+    # -> noise generated by the background is ignored
     noise = np.sqrt((2 * const.e ** 2 * avg_qe * Ebkg * A_det * delta_f)\
            + (4 * const.k * T_detector * delta_f / R1))
 
@@ -346,7 +348,7 @@ def NoiseRogalski(I0current, T_detector, A_det, Ebkg, delta_f, avg_qe, IVbeta=1)
 ##
 def Idark(I0,V,T_detector):
     """
-    This module calculates the dark current, i.e. zwero kelvin background
+    This function calculates the dark current, i.e. zwero kelvin background
      from a photodiode in order to predict if the detector is working under
      BLIP or not.
 
@@ -402,7 +404,7 @@ def Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg):
 # calculate the radiance from a source and from the background
 def Irradiance(lambda_vector,epsilon,T_source,T_bkg,A_source,A_bkg):
     """
-    This module calculates the quantity of energy produced by a source and the
+    This function calculates the quantity of energy produced by a source and the
     background for a specific temperature in terms of number of photons and in
     terms of Watt for the inverval among the wavelengths defined by lambda_inicial
     and lambda_final. Must be understood that this amount of energy is only a fraction
@@ -617,7 +619,8 @@ if __name__ == '__main__':
 
     NEPf = ryplot.Plotter(1,1,1)
     NEPf.plot(1,lambda_vector*1e6,NEPower,'Spectral Noise Equivalent Power',\
-        r'Wavelength [$\mu$m]','NEP [W]')
+        r'Wavelength [$\mu$m]','NEP [W]',\
+        pltaxis=[lambda_initial*1e6, lambda_final*1e6, 0,NEPower[0]])
     NEPf.saveFig('NEP.eps')
 
     print('Done!')
