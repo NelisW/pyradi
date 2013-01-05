@@ -34,9 +34,10 @@ literature but the used references are:
 See the __main__ function for examples of use.
 
 
-The code in this file does not conform to the minimum quality standards set out in pyradi
-but it is offered here because its value, and coding standards should not prevent  release.
-The user will have to expend some effort to make it work in his situation.
+The code in this file does not conform to the minimum quality standards set out
+in pyradi but it is offered here because its value, and coding standards should
+not prevent  release. The user will have to expend some effort to make it work
+in his situation.
 
 This module uses the CODATA physical constants. For more details see
 http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf
@@ -45,9 +46,9 @@ References:
 
 [1] Infrared Detectors and Systems, E L Dereniak & G D Boreman, Wiley.
 
-The example suggested here uses InSb parameters found in the literature. For every
-compound or material, all the parameters, as well as the bandgap equation must be
-changed.
+The example suggested here uses InSb parameters found in the literature. For
+every compound or material, all the parameters, as well as the bandgap equation
+must be changed.
 """
 
 #prepare so long for Python 3
@@ -57,7 +58,9 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['QuantumEfficiency','Irradiance', 'Photocurrent', 'IXV', 'Detectivity', 'NEP', 'Noise', 'Idark', 'Responsivity']
+__all__= ['QuantumEfficiency','Irradiance', 'Photocurrent', 'IXV', 'EgTemp' \
+          'Detectivity', 'NEP', 'NoiseBasic', 'NoiseRogalski', 'Idark', \
+          'Responsivity','I0']
 
 from scipy.constants import codata
 import scipy.constants as const
@@ -72,7 +75,8 @@ sigma_photon=1.52e15    # boltzmann constant for photons- photons/(s.m2.K3)
 
 ################################################################################
 #
-def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMaterial):
+def QuantumEfficiency(lambda_vector, Eg, lx, T_detector, theta1, a0, a0p, \
+                       nFront, nMaterial):
     """
     Calculate the spectral quantum efficiency (QE) and absorption coefficient
     for a semiconductor material with given material values.
@@ -96,14 +100,14 @@ def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMater
     """
 
     # calculate the semiconductor's optical reflectance
-    theta2=np.arcsin(np.sin(theta1)*nFront/nMaterial) # Snell's equation
+    theta2 = np.arcsin(np.sin(theta1) * nFront / nMaterial) # Snell's equation
     # Reflectance for perpendicular polarization
-    RS=np.abs((nFront*np.cos(theta1)-nMaterial*np.cos(theta2))/\
-        (nFront*np.cos(theta1)+nMaterial*np.cos(theta2)))**2
+    RS = np.abs((nFront * np.cos(theta1) - nMaterial * np.cos(theta2)) / \
+        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) **2
     # Reflectance for parallel polarization
-    RP=np.abs((nFront*np.cos(theta2)-nMaterial*np.cos(theta1))/\
-        (nFront*np.cos(theta1)+nMaterial*np.cos(theta2)))**2
-    R=(RS+RP)/2
+    RP = np.abs((nFront * np.cos(theta2) - nMaterial * np.cos(theta1)) / \
+        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) ** 2
+    R = (RS + RP) / 2
 
     #wavelength expressed as energy in Ev
     E = const.h * const.c / (lambda_vector * const.e )
@@ -113,25 +117,26 @@ def QuantumEfficiency(lambda_vector,Eg,lx,T_detector,theta1,a0,a0p,nFront,nMater
     # only the appropriate values based on E >= Eg and E < Eg
 
     # Absorption coef - eq. 3.5- Dereniak
-    a35 = (a0 * np.sqrt(np.abs(E-Eg)))+a0p
+    a35 = (a0 * np.sqrt(np.abs(E - Eg))) + a0p
     # Absorption coef - eq. 3.6- Dereniak
-    a36 = a0p*np.exp((-np.abs(E-Eg))/(const.k*T_detector))
+    a36 = a0p * np.exp((- np.abs(E - Eg)) / (const.k * T_detector))
     a_vector = a35 * (E >= Eg) + a36 * (E < Eg)
 
     # QE - eq. 3.4 - [1]
-    etha_vector = (1-R)*(1-np.exp(-a_vector*lx))
+    etha_vector = (1 - R) * (1 - np.exp( - a_vector * lx))
 
-    return (a_vector,etha_vector)
+    return (a_vector, etha_vector)
 
 
 
 ################################################################################
 #
-def Responsivity(lambda_vector,etha_vector):
+def Responsivity(lambda_vector, etha_vector):
     """
-    Responsivity quantifies the amount of output seen per watt of radiant optical
-    power input [1]. But, for this application it is interesting to define spectral
-    responsivity that is the output per watt of monochromatic radiation.
+    Responsivity quantifies the amount of output seen per watt of radiant
+    optical power input [1]. But, for this application it is interesting to
+    define spectral responsivity that is the output per watt of monochromatic
+    radiation.
 
     The model used here is based on Equations 7.114 in Dereniak's book.
 
@@ -144,18 +149,18 @@ def Responsivity(lambda_vector,etha_vector):
 
     """
 
-    return (const.e*lambda_vector*etha_vector)/(const.h*const.c)
+    return (const.e * lambda_vector * etha_vector) / (const.h * const.c)
 
 ################################################################################
 #
-def Detectivity(lambda_vector,A_det,delta_f,I_noise, Responsivity_vector):
+def Detectivity(lambda_vector, A_det, delta_f, I_noise, responsivity):
     """
-    Detectivity can be interpreted as an SNR out of a detector when 1 W of radiant
-    power is incident on the detector, given an area equal to 1 cm2 and noise-
-    equivalent bandwidth of 1 Hz. The spectral responsivity is the rms signal-to-
-    noise output when 1 W of monochromatic radiant flux is incident on 1 cm2
-    detector area, within a noise-equivalent bandwidth of 1 Hz. Its maximum value
-    (called the peak spectral D*) corresponds to the largest potential SNR.
+    Detectivity can be interpreted as an SNR out of a detector when 1 W of
+    radiant     power is incident on the detector, given an area equal to 1 cm2
+    and noise-equivalent bandwidth of 1 Hz. The spectral responsivity is the rms
+    signal-to-noise output when 1 W of monochromatic radiant flux is incident on
+    1 cm2 detector area, within a noise-equivalent bandwidth of 1 Hz. Its
+    maximum value (peak spectral D*) corresponds to the largest potential SNR.
 
     Args:
         | lambda_vector: wavelength in m;
@@ -169,7 +174,7 @@ def Detectivity(lambda_vector,A_det,delta_f,I_noise, Responsivity_vector):
 
     """
 
-    return (Responsivity_vector*np.sqrt(A_det*delta_f))/(I_noise)
+    return (responsivity * np.sqrt(A_det * delta_f)) / (I_noise)
 
 
 ################################################################################
@@ -187,10 +192,174 @@ def NEP(detectivity):
         | NEPower(spectral_nep)
     """
 
-    #     #the strange '+ (detectivity==0)' code below is to prevent divide by zero
-    nep = ((1/(detectivity + (detectivity==0))) * (detectivity!=0) + 0 * (detectivity==0))
+    #the strange '+ (detectivity==0)' code below is to prevent divide by zero
+    nep = ((1 / (detectivity + (detectivity == 0))) * (detectivity != 0) + \
+                0 * (detectivity == 0))
 
     return nep
+
+
+################################################################################
+#
+def I0(e_mob, tau_e, me, mh, na, Eg, tDetec, A_det, equation='d'):
+    """
+    This function calculates the reverse saturation current.
+
+    Args:
+        | e_mob: electron mobility in m2/V.s;
+        | tau_e: electron lifetime in s;
+        | me: electron effective mass in kg;
+        | mh: hole effective mass in kg;
+        | na: dopping concentration in m-3;
+        | Eg: energy bandgap in Ev;
+        | tDetec: detector's temperature in K;
+        | A_det: detector's area in m2;
+        | equation: 'd' for dereniak and 'r' for rogalski equations
+
+    Returns:
+        | I0: reverse sat current by rogalski equation
+    """
+
+    # diffusion length [m] Dereniak Eq7.20
+    Le=np.sqrt(const.k * tDetec * e_mob * tau_e / const.e)
+    # intrinsic carrier concentration - dereniak`s book eq. 7.1 - m-3
+    # Eg here in eV units, multiply with q
+    ni = (np.sqrt(4 * (2 * np.pi * const.k * tDetec / const.h ** 2) ** 3 *\
+        np.exp( - (Eg * const.e) / (const.k * tDetec)) * (me * mh) ** 1.5))
+    # donor concentration in m-3
+    nd = (ni ** 2 / na)
+
+    if equation == 'd': # dereniak's equations
+        # reverse saturation current - dereniak eq. 7.34 - Ampère
+        I0 = A_det * const.e * (Le / tau_e) * nd
+    else: # rogalski equations
+        # carrier diffusion coefficient - rogalski's book pg. 164
+        De = const.k * tDetec * e_mob / const.e
+        # reverse saturation current - rogalski's book eq. 8.118
+        I0 = A_det * const.e * De * nd / Le
+
+    return (I0)
+
+
+################################################################################
+#
+def EgTemp(E0, alpha, B, T_detector):
+    """
+    This function calculates the bandgap at detector temperature, using the
+    Varshini equation ref [3]
+
+    Args:
+        | E0: band gap at room temperature
+        | alpha: Varshini parameter
+        | B: Varshini parameter
+        | T_detector: detector operating temperature
+
+    Returns:
+        | Eg: bandgap at stated temperature
+    """
+
+    return (E0-(alpha*(T_detector**2/(T_detector+B))))
+
+################################################################################
+#
+def IXV(V, IVbeta, tDetec, iPhoto,I0):
+    """
+    This module provides the diode curve for a given photocurrent.
+
+    Args:
+        | V: bias in V;
+        | IVbeta: diode equation non linearity factor;
+        | tDetec: detector's temperature in K;
+        | iPhoto: photo-induced current, added to diode curve
+        | I0: reverse sat current
+
+    Returns:
+        | I_vector: current from detector
+    """
+
+    # diode equation from dereniak's book eq. 7.23
+    return I0 * (np.exp(const.e * V / (IVbeta * const.k * tDetec)) - 1) - iPhoto
+
+################################################################################
+#
+def NoiseBasic(T_detector, delta_f, R0, I1_bkg):
+    """
+    This module calculate the total noise produced in the diode using the
+    basic physical models given in the references.
+
+    Args:
+        | T_detector: detector's temperature in K;
+        | delta_f: measurement or desirable bandwidth - Hertz;
+        | R0: resistivity in Ohm;
+        | I1_bkg: photocurrent generated by the background in A.
+
+    Returns:
+        | noise: noise calculated from basics
+    """
+
+    # johnson noise Dereniaki's book - eq. 5.58
+    i_johnson = np.sqrt(4 * const.k * T_detector * delta_f / R0)
+
+    # shot noise Dereniaki's book - eq. 5.69
+    i_shot = np.sqrt(2 * const.e * I1_bkg * delta_f)
+
+    # total noise Dereniaki's book - eq. 5.75
+    noise = np.sqrt(i_johnson ** 2 + i_shot ** 2)
+
+    return (noise)
+
+
+################################################################################
+#
+def NoiseRogalski(I0current, T_detector, A_det, Ebkg, delta_f, avg_qe, IVbeta=1):
+    """
+    This module calculate the total noise produced in the diode using the model
+    given in Rogalski.
+
+    Args:
+        | I0current: reverse saturation current in A;
+        | T_detector: detector's temperature in K;
+        | A_det: detector's area in m2;
+        | Ebkg: irradiance generated by the background in W/m2;
+        | delta_f: measurement or desirable bandwidth - Hertz;
+        | avg_qe: calculated average quantum efficiency;
+        | IVbeta: 1 for only diffusion, 2 if GR current dominates(Dereniak p253)
+
+    Returns:
+        | (I_noise_dereniak,I_noise_rogalski)
+
+    """
+
+    # % TOTAL NOISE MODELING FROM ROGALSKI'S BOOK (V=0)
+    # rogalski Eq 9.83 (2ndEdition)
+    R1 = IVbeta * const.k * T_detector / (const.e * I0current)
+
+    # Rogalski eq. 8.111  (Eq 9.99 in 2nd Edition)
+    #-> noise generated by the background is ignored
+    noise = np.sqrt((2 * const.e ** 2 * avg_qe * Ebkg * A_det * delta_f)\
+           + (4 * const.k * T_detector * delta_f / R1))
+
+    return noise
+
+
+################################################################################
+##
+def Idark(I0,V,T_detector):
+    """
+    This module calculates the dark current, i.e. zwero kelvin background
+     from a photodiode in order to predict if the detector is working under
+     BLIP or not.
+
+    Args:
+        | I0: saturation reverse current in A;
+        | V: applied bias in V;
+        | T_detector: detector's temperature in K
+
+    Returns:
+        | I_dark: dark current
+    """
+
+    return I0*(np.exp(const.e*V/(1*const.k*T_detector))-1)
 
 ################################################################################
 #
@@ -199,8 +368,8 @@ def Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg):
     The photocurrent is the the current generated by a photodetector given its
     quantum efficiency, irradiance and area.
 
-    The result is given in current or tension (dependant on the transipedance used
-    in the calculation or measurement)
+    The result is given in current or tension (dependant on the transipedance
+    used     in the calculation or measurement)
 
     Args:
         | A_det: detector´s area in m2;
@@ -210,7 +379,10 @@ def Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg):
         | Etotal: total irradiance on the detector
 
     Returns:
-        | Photocurrent_vector(I1_wide,I1_wide_thoeretical,V1_wide)
+        | I1_wide: wideband total signal current, using model data
+        | I1_wide_theoretical:  wideband total signal current, using theoretical data
+        | I1_bkg: wideband background current, using model data
+        | I1_bkg_theoretical: wideband background  current, using theoretical data
     """
 
     I1_wide=avg_qe*Etotal*A_det*const.e      # Photocurrent - eq. 3.10 - Infrared Detectors and Systems - Dereniak and Boreman
@@ -224,128 +396,6 @@ def Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg):
     V1_wide=np.mean(transipedance*I1_wide)
 
     return (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)
-
-
-################################################################################
-# IxV Characteristic Calculation
-def IXV(e_mob,tau_e,me,mh,na,V,b,Eg,T_detector,lambda_vector,A_det,I_bkg1,I_bkg2):
-    """
-    This module provides the diode curve for a given irradiance.
-
-    Args:
-        | e_mob: electron mobility in m2/V.s;
-        | tau_e: electron lifetime in s;
-        | me: electron effective mass in kg;
-        | mh: hole effective mass in kg;
-        | na: dopping concentration in m-3;
-        | V: bias in V;
-        | b: diode equation non linearity factor;
-        | Eg: energy bandgap in Ev;
-        | T_detector: detector's temperature in K;
-        | lambda_vector: wavenlength in m;
-        | A_det: detector's area in m2;
-
-    Returns:
-        | (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
-
-    """
-
-    # saturation reverse current calculation.
-    # note: in this procedure the bandgap calculation must be a specific equation for the used semiconductor.
-    #It means, for each different semiconductor material used the equation must be changed.
-
-    # diffusion length [m] Dereniak p250
-    Le=np.sqrt(const.k*T_detector*e_mob*tau_e/const.e)
-
-    # intrinsic carrier concentration - dereniak`s book eq. 7.1 - m-3
-    ni=(np.sqrt(4*(2*np.pi*const.k*T_detector/const.h**2)**3*np.exp(-(Eg*const.e)/(const.k*T_detector))*(me*mh)**1.5))
-    # donor concentration in m-3
-    nd=(ni**2/na)
-
-    # reverse saturation current - dereniak eq. 7.34 - Ampère
-    I0_dereniak=A_det*const.e*(Le/tau_e)*nd
-
-    # carrier diffusion coefficient - rogalski's book pg. 164
-    De=const.k*T_detector*e_mob/const.e
-    # reverse saturation current - rogalski's book eq. 8.118
-    I0_rogalski=const.e*De*nd*A_det/Le
-
-
-    # IxV CHARACTERISTIC
-    I_vector=[]
-    for i in range(0,np.size(lambda_vector)):
-        I=I0_dereniak*(np.exp(const.e*V[i]/(b*const.k*T_detector))-1)     # diode equation from dereniak'book eq. 7.23
-        I_vector=np.r_[I_vector,I]
-
-    IXV_vector1=I_vector-I_bkg1
-    IXV_vector2=I_vector-I_bkg2
-
-    return (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)
-
-
-################################################################################
-# NOISE CALCULUS
-def Noise(I0_rogalski,T_detector,A_det,Ebkg,delta_f,avg_qe,R0,I1_bkg):
-    """
-    This module calculate the total noise produced in the diode using the models
-    given in the references.
-
-    Args:
-        | I0_rogalski: reverse saturation current in A;
-        | T_detector: detector's temperature in K;
-        | A_det: detector's area in m2;
-        | Ebkg: irradiance generated by the background in W/m2;
-        | delta_f: measurement or desirable bandwidth - Hertz;
-        | avg_etha: calculated average quantum efficiency;
-        | R0: resistivity in Ohm;
-        | I1_bkg: photocurrent generated by the background in A.
-
-    Returns:
-        | (I_noise_dereniak,I_noise_rogalski)
-
-    """
-
-
-    # TOTAL NOISE MODELING FROM DERENIAK'S BOOK
-    # JOHNSON NOISE
-    i_johnson=np.sqrt(4*const.k*T_detector*delta_f/R0)   # Dereniaki's book - eq. 5.58
-
-    # SHOT NOISE
-    i_shot=np.sqrt(2*const.e*I1_bkg*delta_f)          # Dereniaki's book - eq. 5.69
-
-    # TOTAL NOISE
-    I_noise_dereniak=np.sqrt(i_johnson**2+i_shot**2)    # Dereniaki's book - eq. 5.75
-
-
-    # % TOTAL NOISE MODELING FROM ROGALSKI'S BOOK (V=0)
-    R1=const.k*T_detector/(const.e*I0_rogalski)
-
-    I_noise_rogalski=np.sqrt((2*const.e**2*avg_qe*Ebkg*A_det*delta_f)+(4*const.k*T_detector*delta_f/R1)) # Rogalski's book - eq. 8.111  -> the amount generated by the background was desconsidered.
-
-    return (I_noise_dereniak,I_noise_rogalski)
-
-
-################################################################################
-## DARK CURRENT CALCULUS
-def Idark(I0_dereniak,I0_rogalski,V,T_detector):
-    """
-    This module calculates the dark current from a photodiode in order to predict
-    if the detector is submited to work under BLIP or not.
-
-    Args:
-        | I0_derinak: saturation reverse current from Dereniaki's model in A;
-        | I0_rogalski: saturation reverse current from Rogalski's model in A;
-        | V: applied bias in V;
-        | T_detector: detector's temperature in K
-
-    Returns:
-        | (I_dark_derinak,I_dark_rogalski)
-    """
-
-    I_dark_dereniak=I0_dereniak*(np.exp(const.e*V/(1*const.k*T_detector))-1)
-    I_dark_rogalski=I0_rogalski*(np.exp(const.e*V/(1*const.k*T_detector))-1)
-
-    return (I_dark_dereniak,I_dark_rogalski)
 
 
 ################################################################################
@@ -433,43 +483,49 @@ if __name__ == '__init__':
 if __name__ == '__main__':
     pass
 
-    # OPERATIONAL PARAMETERS
-
     """
     In this step, all the parameters referring to the semiconductor material used
     to build the photodetector must be defined. Must be remembered that each material
     has its own paramenters, and each time the material is changed, the parameters
     must be changed as well.
-    In the same step, the important classical constants and semiconductors basic
+    In the same step, the important semiconductors basic
     parameters are also calculated and defined.
-    Finally, there is loop to establish if the radiance comes from a source or from
-    only the background.
     """
 
-    T_source=0.1                             #source temperature in K
-    epsilon=1.0                              # source emissivity
-    T_bkg=280.0                              #background temperature in K
-    T_detector=80.0                          # detector temperature in K
     lambda_initial=1e-6                      # wavelength in meter- can start in 0
     lambda_final=5.5e-6                      # wavelength in meter
-    A_det=(200e-6)**2                        # detector area in m2
+    lambda_vector=np.linspace(lambda_initial,lambda_final,200)
+
+
+    #source properties
+    T_source=0.1                             # source temperature in K
+    epsilon=1.0                              # source emissivity
     A_source=0.000033                        # source area in m2
+
+    #background properties
+    T_bkg=280.0                              # background temperature in K
     A_bkg=2*np.pi*(0.0055)**2                # bkg area in m2 - this area must be considered equals to the window area
+
+    #test setup parameters
     d=0.01                                   # distance between source and detector or between window and detector
     delta_f=100.0                            # measurement or desirable bandwidth - Hertz
-    alfa=6e-4                                # first fitting parameter for the Varshini's Equation [3]
-    B=500.0                                  # second fitting parameter for the Varshini's Equation [3]
-    n1=1.0                                   # refraction index of the air
     theta1=0.01                              # radiation incident angle in degrees - angle between the surface's normal and the radiation path
-    lx=5e-4                                  # detector thickness in meter
     transipedance=10e7                       # transimpedance value used during the measurement
+    final_trans=1.0                          # medium/filter/optics transmittance
 
-    #material properties for InSb
+    # detector device parameters
+    T_detector=80.0                          # detector temperature in K
+    A_det=(200e-6)**2                        # detector area in m2
+    lx=5e-4                                  # detector thickness in meter
+    n1=1.0                                   # refraction index of the air
+    V=np.linspace(-250e-3,100e-3,100)        # bias voltage range
+
+    # detector material properties for InSb
     etha2=0.45                               # quantum efficieny table 3.3 dereniak's book [3]
     E0=0.24                                  # semiconductor bandgap at room temp in Ev [3]
     n2=3.42                                  # refraction index of the semiconductor being analyzed [3]
-    a0=1.9e4                                 #absorption coefficient , Equation 3.5 & 3.6 Dereniak
-    a0p=800                                  #absorption coefficient , Equation 3.5 & 3.6 Dereniak
+    a0=1.9e4                                 # absorption coefficient , Equation 3.5 & 3.6 Dereniak
+    a0p=800                                  # absorption coefficient , Equation 3.5 & 3.6 Dereniak
     e_mob=120.0                              # electron mobility - m2/V.s [3]
     h_mob=1.0                                # hole mobility - m2/V.s  [3]
     tau_e=1e-10                              # electron lifetime - s [3]
@@ -478,34 +534,14 @@ if __name__ == '__main__':
     me=0.014*m0                              # used semiconductor electron effective mass [3]
     mh=0.43*m0                               # used semiconductor hole effective mass [3]
     na=1e16                                  # positive or negative dopping - m-3
-    b=1.0                                    # b=1 when the diffusion current is dominantand b=2 when the recombination current dominates - Derinaki's book page 251
+    IVbeta=1.0                               # 1 when the diffusion current is dominantand 2 when the recombination current dominates - Derinaki's book page 251
     s=5e4                                    # surface recombination velocity -> http://www.ioffe.ru/SVA/NSM/Semicond/InSb/electric.html#Recombination
     R0=1e10                                  # measured resistivity  - ohm
+    alpha=6e-4                                # first fitting parameter for the Varshini's Equation [3]
+    B=500.0                                  # second fitting parameter for the Varshini's Equation [3]
+    Eg = EgTemp(E0, alpha, B, T_detector)    # bandgap at operating termperature
 
 
-    if T_source> T_bkg:
-        r=np.sqrt(A_source/np.pi)            # source radius if it is a circle and plane source
-    else:
-        r=np.sqrt(A_bkg/np.pi)               # source radius if it is a circle and plane source
-
-
-    # DEFINING THE WAVELENGTH VECTOR
-    lambda_vector=np.linspace(lambda_initial,lambda_final,1000)
-
-    # OPTICS TRANSMITTANCE PLUS THE ATMOSPHERIC TRANSMITTANCE
-    # IN THIS CASE THE SPECTRAL TRANSMITTANCE OR THE AVERAGE TRANSMITTANCE VALUE MUST
-    #BE USED OR ASSUMED EQUALS TO 1 IF IT IS DESCONSIDERED
-
-    final_trans=1.0
-
-    # DEFINIG THE BIAS TO BE USED IN THE SIMULATIONS (IF NECESSARY)
-    V=np.linspace(-250e-3,100e-3,np.size(lambda_vector))
-
-    # CALCULATING THE SEMICONDUCTOR BANDGAP
-    # IT IS IMPORTANT TO NOTICE THAT FOR EACH SEMICONDUCTOR BANGAP CALCULATED HERE
-    # THE EQUATION AS WELL AS IT PARAMETERS MUST BE CHANGED
-
-    Eg=(E0-(alfa*(T_detector**2/(T_detector+B))))  # Varshini's Equation to calculate the bandgap dependant on the temp - eV [3]
 
     ######################################################################
 
@@ -517,11 +553,17 @@ if __name__ == '__main__':
 
     (I1_wide,I1_wide_theoretical,I1_bkg,I1_bkg_theoretical)=Photocurrent(A_det,etha2,avg_qe,Etotal,Ebkg)
 
-    (IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)=IXV(e_mob,tau_e,me,mh,na,V,b,Eg,T_detector,lambda_vector,A_det,I1_bkg,I1_bkg_theoretical)
+    I0_dereniak =I0(e_mob,tau_e,me,mh,na,Eg,T_detector,A_det,'d')
+    I0_rogalski =I0(e_mob,tau_e,me,mh,na,Eg,T_detector,A_det,'r')
 
-    (I_noise_dereniak,I_noise_rogalski)=Noise(I0_rogalski,T_detector,A_det,Ebkg,delta_f,avg_qe,R0,I1_bkg)
+    IXV_vector1 = IXV(V,IVbeta,T_detector,I1_bkg,I0_dereniak)
+    IXV_vector2 = IXV(V,IVbeta,T_detector,I1_bkg_theoretical,I0_dereniak)
 
-    (I_dark_dereniak,I_dark_rogalski)=Idark(I0_dereniak,I0_rogalski,V,T_detector)
+    I_noise_dereniak =NoiseBasic(T_detector,delta_f,R0,I1_bkg)
+    I_noise_rogalski =NoiseRogalski(I0_rogalski,T_detector,A_det,Ebkg,delta_f,avg_qe,IVbeta)
+
+    I_dark_dereniak = Idark(I0_dereniak,V,T_detector)
+    I_dark_rogalski = Idark(I0_rogalski,V,T_detector)
 
     Responsivity_vector = Responsivity(lambda_vector,etha_vector)
 
@@ -577,10 +619,6 @@ if __name__ == '__main__':
     NEPf.plot(1,lambda_vector*1e6,NEPower,'Spectral Noise Equivalent Power',\
         r'Wavelength [$\mu$m]','NEP [W]')
     NEPf.saveFig('NEP.eps')
-
-
-#    plt.show()
-
 
     print('Done!')
 
