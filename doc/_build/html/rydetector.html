@@ -58,212 +58,51 @@
 <h1>Bulk detector modelling<a class="headerlink" href="#bulk-detector-modelling" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyradi.rydetector">
 <span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.rydetector" title="Permalink to this headline">¶</a></h2>
-<p>This module was built to give the user a simple but reliable tool to simulate or
-to understand main parameters used to design a infrared photodetector.</p>
-<p>All the work done in this module was based in classical equations found in the
-literature but the used references are:</p>
+<p>This model was built to give the user a simple but reliable tool to simulate or
+to understand main parameters used to design a photovoltaic (PV) infrared
+photodetector.  All the work done in this model was based in classical equations
+found in the literature.</p>
 <p>See the __main__ function for examples of use.</p>
-<p>The code in this file does not conform to the minimum quality standards set out in pyradi
-but it is offered here because its value, and coding standards should not prevent  release.
-The user will have to expend some effort to make it work in his situation.</p>
-<p>This module uses the CODATA physical constants. For more details see
-<a class="reference external" href="http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf">http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf</a></p>
-<p>The example suggested here uses InSb parameters found in the literature. For every
-compound or material, all the parameters, as well as the bandgap equation must be
-changed.</p>
+<p>The example suggested here uses InSb parameters found in the literature. For
+every compound or material, all the parameters, as well as the bandgap equation
+must be changed.</p>
+<p>This code uses the scipy.constants physical constants. For more details see
+<a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/constants.html">http://docs.scipy.org/doc/scipy/reference/constants.html</a></p>
+<p>This code does not yet fully comply with the coding standards</p>
+<p>References:</p>
+<p>[1] Infrared Detectors and Systems, EL Dereniak &amp; GD Boreman, Wiley
+[2] Infrared Detectors, A Rogalski (1st or 2nd Edition), CRC Press
+[3] Band Parameters for III-V Compound Semiconductors and their Alloys,</p>
+<blockquote>
+<div>I. Vurgaftmann, J. R. Meyer, and L. R. Ram-Mohan,
+Journal of Applied Physics 89 11, pp. 5815–5875, 2001.</div></blockquote>
 </div>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pyradi.rydetector.QuantumEfficiency">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>E</em>, <em>Eg</em>, <em>lx</em>, <em>k</em>, <em>T_detector</em>, <em>lambda_vector</em>, <em>theta1</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>wavelength</em>, <em>Eg</em>, <em>lx</em>, <em>tempDet</em>, <em>theta1</em>, <em>a0</em>, <em>a0p</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the spectral quantum efficiency (QE) and absorption coefficient
-for a given semiconductor material.</p>
+for a semiconductor material with given material values.</p>
+<p>The model used here is based on Equations 3.4, 3.5, 3.6 in Dereniaks book.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">E: energy in Ev;</div>
-<div class="line">Eg: bandgap energy in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">k: Boltzmann constant;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">lambda_vector: wavelength in m.</div>
+<div class="line">wavelength: spectral variable [m]</div>
+<div class="line">Eg: bandgap energy [Ev]</div>
+<div class="line">lx: detector thickness [m]</div>
+<div class="line">tempDet: detector&#8217;s temperature in [K]</div>
+<div class="line">theta1: angle between the surface&#8217;s normal and the radiation in radian</div>
+<div class="line">a0: absorption coefficient [m-1] (Dereniak Eq 3.5 &amp; 3.6)</div>
+<div class="line">a0p:  absorption coefficient in [m-1] (Dereniak Eq 3.5 &amp; 3.6)</div>
+<div class="line">nFront:  index of refraction of the material in front of detector</div>
+<div class="line">nMaterial:  index of refraction of the detector material</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(a_vector, etha_vector).</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyradi.rydetector.Irradiance">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Irradiance</tt><big>(</big><em>epsilon</em>, <em>sigma_photon</em>, <em>T_source</em>, <em>T_bkg</em>, <em>lambda_vector</em>, <em>A_source</em>, <em>A_bkg</em>, <em>h</em>, <em>c</em>, <em>k</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Irradiance" title="Permalink to this definition">¶</a></dt>
-<dd><p>This module calculates the quantity of energy produced by a source and the
-background for a specific temperature in terms of number of photons and in
-terms of Watt for the inverval among the wavelengths defined by lambda_inicial
-and lambda_final. Must be understood that this amount of energy is only a fraction
-from the total calculated using the Stefann-Boltzmann Law.</p>
-<p>After to calculate the Radiance, the irradiance calculation is done in order
-to be able to calculate the photocurrente generated by a photodetector. So,
-it is necessary to calculate how much energy is reaching the detector given
-the energy emited by the source plus the backgorund and considering the
-distance among them and the detector. This is the irradiance calculation.</p>
-<p>All the equations used here are easilly found in the literature.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">epsilon: source emissivity (non-dimensional);</div>
-<div class="line">sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);</div>
-<div class="line">T_source: source&#8217;s temperature in K;</div>
-<div class="line">T_kbg: background&#8217;s temperature in K;</div>
-<div class="line">lambda_vector: wavenlength in m;</div>
-<div class="line">A_source: soource&#8217;s area in m2;</div>
-<div class="line">A_bkg: background&#8217;s area in m2.</div>
-<div class="line">h: Planck&#8217;s constant in J.s;</div>
-<div class="line">c= light velocity in m/s;</div>
-<div class="line">k= Boltzmann&#8217;s constant in J/K;</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">tuple of numpy arrays: (Detector_irradiance_source,Detector_irradiance_bkg,Detector_total)</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyradi.rydetector.Photocurrent">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Photocurrent</tt><big>(</big><em>epsilon</em>, <em>sigma_photon</em>, <em>T_source</em>, <em>T_bkg</em>, <em>A_source</em>, <em>A_bkg</em>, <em>h</em>, <em>c</em>, <em>k</em>, <em>A_det</em>, <em>q</em>, <em>etha2</em>, <em>avg_qe</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Photocurrent" title="Permalink to this definition">¶</a></dt>
-<dd><p>The photocurrent is the the current generated by a photodetector given its
-quantum efficiency, irradiance and area.</p>
-<p>The result is given in current or tension (dependant on the transipedance used
-in the calculation or measurement)</p>
-<p>Args:</p>
-<blockquote>
-<div><div class="line-block">
-<div class="line">E: energy in Ev;</div>
-<div class="line">Eg: bandgap energy in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">lambda_vector: wavenlength in m;</div>
-<div class="line">epsilon: source emissivity (non-dimensional);</div>
-<div class="line">sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);</div>
-<div class="line">T_source: source´s temperature in K;</div>
-<div class="line">T_kbg: background´s temperature in K;</div>
-<div class="line">A_source: soource´s area in m2;</div>
-<div class="line">A_bkg: background´s area in m2.</div>
-<div class="line">h: Planck´s constant in J.s;</div>
-<div class="line">c= light velocity in m/s;</div>
-<div class="line">k= Boltzmann´s constant in J/K;</div>
-<div class="line">A_det: detector´s area in m2;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">Etha: quantum efficiency;|k: Boltzmann constant;</div>
-<div class="line">etha2: average theoretical QE given by the literature;</div>
-</div>
-</div></blockquote>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">Photocurrent_vector(I1_wide,I1_wide_thoeretical,V1_wide)</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyradi.rydetector.IXV">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">IXV</tt><big>(</big><em>e_mob</em>, <em>tau_e</em>, <em>me</em>, <em>mh</em>, <em>na</em>, <em>V</em>, <em>b</em>, <em>alfa</em>, <em>B</em>, <em>E</em>, <em>Eg</em>, <em>lx</em>, <em>T_detector</em>, <em>lambda_vector</em>, <em>epsilon</em>, <em>sigma_photon</em>, <em>T_source</em>, <em>T_bkg</em>, <em>A_source</em>, <em>A_bkg</em>, <em>h</em>, <em>c</em>, <em>k</em>, <em>A_det</em>, <em>q</em>, <em>etha2</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.IXV" title="Permalink to this definition">¶</a></dt>
-<dd><p>This module provides the diode curve for a given irradiance.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">e_mob: electron mobility in m2/V.s;</div>
-<div class="line">tau_e: electron lifetime in s;</div>
-<div class="line">me: electron effective mass in kg;</div>
-<div class="line">mh: hole effective mass in kg;</div>
-<div class="line">na: dopping concentration in m-3;</div>
-<div class="line">V: bias in V;</div>
-<div class="line">b: diode equation non linearity factor;</div>
-<div class="line">alfa: first fitting parameter for the Varshini&#8217;s Equation</div>
-<div class="line">B: second fitting parameter for the Varshini&#8217;s Equation</div>
-<div class="line">Eg: energy bandgap in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">lambda_vector: wavenlength in m;</div>
-<div class="line">epsilon: source emissivity (non-dimensional);</div>
-<div class="line">sigma_photon: boltzmann constant for photons in photons/(s.m2.K3);</div>
-<div class="line">T_source: source&#8217;s temperature in K;</div>
-<div class="line">T_kbg: background&#8217;s temperature in K;</div>
-<div class="line">A_source: soource&#8217;s area in m2;</div>
-<div class="line">A_bkg: background&#8217;s area in m2.</div>
-<div class="line">h: Planck&#8217;s constant in J.s;</div>
-<div class="line">c= light velocity in m/s;</div>
-<div class="line">k= Boltzmann&#8217;s constant in J/K;</div>
-<div class="line">A_det: detector&#8217;s area in m2;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">Etha: quantum efficiency;|k: Boltzmann constant;</div>
-<div class="line">etha2: average theoretical QE given by the literature;</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">(IXV_vector1,IXV_vector2,I0_dereniak,I0_rogalski)</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyradi.rydetector.Noise">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Noise</tt><big>(</big><em>I0_rogalski</em>, <em>T_detector</em>, <em>A_det</em>, <em>Detector_irradiance_bkg</em>, <em>delta_f</em>, <em>avg_qe</em>, <em>k</em>, <em>q</em>, <em>R0</em>, <em>I1_bkg</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Noise" title="Permalink to this definition">¶</a></dt>
-<dd><p>This module calculate the total noise produced in the diode using the models
-given in the references.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">I0_rogalski: reverse saturation current in A;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">A_det: detector&#8217;s area in m2;</div>
-<div class="line">Detector_irradiance_bkg: irradiance generated by the background in W/m2;</div>
-<div class="line">delta_f: measurement or desirable bandwidth - Hertz;</div>
-<div class="line">avg_etha: calculated average quantum efficiency;</div>
-<div class="line">k= Boltzmann&#8217;s constant in J/K;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">R0: resistivity in Ohm;</div>
-<div class="line">I1_bkg: photocurrent generated by the background in A.</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">(I_noise_dereniak,I_noise_rogalski)</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyradi.rydetector.Idark">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Idark</tt><big>(</big><em>I0_dereniak</em>, <em>I0_rogalski</em>, <em>V</em>, <em>T_detector</em>, <em>q</em>, <em>k</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Idark" title="Permalink to this definition">¶</a></dt>
-<dd><p>This module calculates the dark current from a photodiode in order to predict
-if the detector is submited to work under BLIP or not.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">I0_derinak: saturation reverse current from Dereniaki&#8217;s model in A;</div>
-<div class="line">I0_rogalski: saturation reverse current from Rogalski&#8217;s model in A;</div>
-<div class="line">V: applied bias in V;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K</div>
-<div class="line">k= Boltzmann&#8217;s constant in J/K;</div>
-<div class="line">q: electron fundamental charge in C.</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">(I_dark_derinak,I_dark_rogalski)</div>
+<div class="line">absorption: spectral absorption coefficient in [cm-1]</div>
+<div class="line">quantumEffic: spectral quantum efficiency</div>
 </div>
 </dd>
 </dl>
@@ -271,27 +110,22 @@ if the detector is submited to work under BLIP or not.</p>
 
 <dl class="function">
 <dt id="pyradi.rydetector.Responsivity">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Responsivity</tt><big>(</big><em>lambda_vector</em>, <em>q</em>, <em>E</em>, <em>Eg</em>, <em>lx</em>, <em>k</em>, <em>T_detector</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Responsivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Responsivity quantifies the amount of output seen per watt of radiant optical
-power input [1]. But, for this application it is interesting to define spectral
-responsivity that is the output per watt of monochromatic radiation. This is
-calculated in this function [1].</p>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Responsivity</tt><big>(</big><em>wavelength</em>, <em>quantumEffic</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Responsivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Responsivity quantifies the amount of output seen per watt of radiant
+optical power input [1]. But, for this application it is interesting to
+define spectral responsivity that is the output per watt of monochromatic
+radiation.</p>
+<p>The model used here is based on Equations 7.114 in Dereniak&#8217;s book.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">lambda_vector: wavelength in m;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">E: energy in Ev;</div>
-<div class="line">Eg: bandgap energy in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">k: Boltzmann constant;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">lambda_vector: wavelength in m.</div>
+<div class="line">wavelength: spectral variable [m]</div>
+<div class="line">quantumEffic: spectral quantum efficiency</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(Responsivity_vector)</div>
+<div class="line">responsivity in [A/W]</div>
 </div>
 </dd>
 </dl>
@@ -299,31 +133,43 @@ calculated in this function [1].</p>
 
 <dl class="function">
 <dt id="pyradi.rydetector.Detectivity">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Detectivity</tt><big>(</big><em>lambda_vector</em>, <em>q</em>, <em>E</em>, <em>Eg</em>, <em>lx</em>, <em>k</em>, <em>T_detector</em>, <em>A_det</em>, <em>delta_f</em>, <em>I_noise_dereniak</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Detectivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Detectivity can be interpreted as an SNR out of a detector when 1 W of radiant
-power is incident on the detector, given an area equal to 1 cm2 and noise-
-equivalent bandwidth of 1 Hz. The spectral responsivity is the rms signal-to-
-noise output when 1 W of monochromatic radiant flux is incident on 1 cm2
-detector area, within a noise-equivalent bandwidth of 1 Hz. Its maximum value
-(called the peak spectral D*) corresponds to the largest potential SNR.</p>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Detectivity</tt><big>(</big><em>iNoise</em>, <em>responsivity</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Detectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detectivity can be interpreted as an SNR from a detector when 1 W of
+radiant power is incident on the physical detector of specific area and
+bandwidth.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">lambda_vector: wavelength in m;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">E: energy in Ev;</div>
-<div class="line">Eg: bandgap energy in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">k: Boltzmann constant;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">A_det: detector&#8217;s area in m2;</div>
-<div class="line">delta_f: measurement or desirable bandwidth - Hertz;</div>
-<div class="line">I_noise_dereniak: noise prediction using Dereniaki&#8217;s model in A.</div>
+<div class="line">iNoise: noise current [A]</div>
+<div class="line">responsivity: spectral responsivity in [A/W]</div>
 </div>
 </dd>
 <dt>Returns</dt>
 <dd><div class="first last line-block">
-<div class="line">(Detectivity_vector)</div>
+<div class="line">detectivity [1/W]</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.DStar">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">DStar</tt><big>(</big><em>areaDet</em>, <em>deltaFreq</em>, <em>iNoise</em>, <em>responsivity</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.DStar" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spectral D* is the signal-to-noise output when 1 W of monochromatic
+radiant flux is incident on 1 cm2 detector area, within a
+noise-equivalent bandwidth of 1 Hz.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">areaDet: detector&#8217;s area in [m2]</div>
+<div class="line">deltaFreq: measurement or desirable bandwidth - [Hz]</div>
+<div class="line">iNoise: noise current [A]</div>
+<div class="line">responsivity: spectral responsivity in [A/W]</div>
+</div>
+</dd>
+<dt>Returns</dt>
+<dd><div class="first last line-block">
+<div class="line">detectivity [m sqrt[Hz] / W] (note units)</div>
 </div>
 </dd>
 </dl>
@@ -331,26 +177,154 @@ detector area, within a noise-equivalent bandwidth of 1 Hz. Its maximum value
 
 <dl class="function">
 <dt id="pyradi.rydetector.NEP">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">NEP</tt><big>(</big><em>lambda_vector</em>, <em>q</em>, <em>E</em>, <em>Eg</em>, <em>lx</em>, <em>k</em>, <em>T_detector</em>, <em>A_det</em>, <em>delta_f</em>, <em>I_noise_dereniak</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.NEP" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">NEP</tt><big>(</big><em>detectivity</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.NEP" title="Permalink to this definition">¶</a></dt>
 <dd><p>NEP is the radiant power incident on detector that yields SNR=1 [1].</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">lambda_vector: wavelength in m;</div>
-<div class="line">q: electron fundamental charge in C;</div>
-<div class="line">E: energy in Ev;</div>
-<div class="line">Eg: bandgap energy in Ev;</div>
-<div class="line">lx: detector thickness in m;</div>
-<div class="line">k: Boltzmann constant;</div>
-<div class="line">T_detector: detector&#8217;s temperature in K;</div>
-<div class="line">A_det: detector&#8217;s area in m2;</div>
-<div class="line">delta_f: measurement or desirable bandwidth - Hertz;</div>
-<div class="line">I_noise_dereniak: noise prediction using Dereniaki&#8217;s model in A.</div>
+<div class="line">detectivity: spectral detectivity [1/W]</div>
 </div>
 </dd>
 <dt>Returns</dt>
 <dd><div class="first last line-block">
-<div class="line">NEPower(spectral_nep)</div>
+<div class="line">spectral noise equivalent power [W]</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.I0">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">I0</tt><big>(</big><em>eMob</em>, <em>tauE</em>, <em>me</em>, <em>mh</em>, <em>na</em>, <em>Eg</em>, <em>tDetec</em>, <em>areaDet</em>, <em>equation=u'd'</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.I0" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates the reverse saturation current.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">eMob: electron mobility [m2/V.s]</div>
+<div class="line">tauE: electron lifetime [s]</div>
+<div class="line">me: electron effective mass [kg]</div>
+<div class="line">mh: hole effective mass [kg]</div>
+<div class="line">na: dopping concentration [m-3]</div>
+<div class="line">Eg: energy bandgap in [Ev]</div>
+<div class="line">tDetec: detector&#8217;s temperature in [K]</div>
+<div class="line">areaDet: detector&#8217;s area [m2]</div>
+<div class="line">equation: &#8216;d&#8217; for dereniak and &#8216;r&#8217; for rogalski equations</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">I0: reverse sat current by rogalski equation [A]</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.EgTemp">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">EgTemp</tt><big>(</big><em>E0</em>, <em>alpha</em>, <em>B</em>, <em>tempDet</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.EgTemp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates the bandgap at detector temperature, using the
+Varshini equation ref [3]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">E0: band gap at room temperature [eV]</div>
+<div class="line">alpha: Varshini parameter</div>
+<div class="line">B: Varshini parameter</div>
+<div class="line">tempDet: detector operating temperature [K]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">Eg: bandgap at stated temperature [eV]</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.IXV">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">IXV</tt><big>(</big><em>V</em>, <em>IVbeta</em>, <em>tDetec</em>, <em>iPhoto</em>, <em>I0</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.IXV" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function provides the diode curve for a given photocurrent.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">V: bias [V]</div>
+<div class="line">IVbeta: diode equation non linearity factor;</div>
+<div class="line">tDetec: detector&#8217;s temperature [K]</div>
+<div class="line">iPhoto: photo-induced current, added to diode curve [A]</div>
+<div class="line">I0: reverse sat current [A]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">current from detector [A]</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.NoiseBasic">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">NoiseBasic</tt><big>(</big><em>tempDet</em>, <em>deltaFreq</em>, <em>R0</em>, <em>iBackgnd</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.NoiseBasic" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculate the total noise produced in the diode using the
+basic physical models given in the references.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">tempDet: detector&#8217;s temperature [K]</div>
+<div class="line">deltaFreq: measurement or desirable bandwidth [Hz]</div>
+<div class="line">R0: resistivity [Ohm]</div>
+<div class="line">iBackgnd: photocurrent generated by the background [A]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">detector noise [A] over bandwidth deltaFreq</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.NoiseRogalski">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">NoiseRogalski</tt><big>(</big><em>I0current</em>, <em>tempDet</em>, <em>ibkg</em>, <em>deltaFreq</em>, <em>IVbeta=1</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.NoiseRogalski" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculate the total noise produced in the diode using the model
+given in Rogalski.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">I0current: reverse saturation current [A]</div>
+<div class="line">tempDet: detector&#8217;s temperature in [K]</div>
+<div class="line">ibkg: background current [A]</div>
+<div class="line">deltaFreq: measurement or desirable bandwidth [Hz]</div>
+<div class="line">IVbeta: 1 for only diffusion, 2 if GR current dominates(Dereniak p253)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">detector noise [A] over bandwidth deltaFreq</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.Idark">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Idark</tt><big>(</big><em>I0</em>, <em>V</em>, <em>tempDet</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Idark" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>This function calculates the dark current, i.e. zero kelvin background</dt>
+<dd>from a photodiode in order to predict if the detector is working under
+BLIP or not.</dd>
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">I0: saturation reverse current [A]</div>
+<div class="line">V: applied bias [V]</div>
+<div class="line">tempDet: detector&#8217;s temperature [K]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">dark current for voltage levels [A]</div>
 </div>
 </dd>
 </dl>
