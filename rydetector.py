@@ -216,28 +216,28 @@ def I0(eMob, tauE, me, mh, na, Eg, tDetec, areaDet, equation='d'):
         | Eg: energy bandgap in [Ev]
         | tDetec: detector's temperature in [K]
         | areaDet: detector's area [m2]
-        | equation: 'd' for dereniak and 'r' for rogalski equations
+        | equation: 'd' for Dereniak and 'r' for Rogalski equations
 
     Returns:
-        | I0: reverse sat current by rogalski equation [A]
+        | I0: reverse sat current by Rogalski equation [A]
     """
 
     # diffusion length [m] Dereniak Eq7.20
     Le=np.sqrt(const.k * tDetec * eMob * tauE / const.e)
-    # intrinsic carrier concentration - dereniak`s book eq. 7.1 - m-3
+    # intrinsic carrier concentration - Dereniak`s book eq. 7.1 - m-3
     # Eg here in eV units, multiply with q
     ni = (np.sqrt(4 * (2 * np.pi * const.k * tDetec / const.h ** 2) ** 3 *\
         np.exp( - (Eg * const.e) / (const.k * tDetec)) * (me * mh) ** 1.5))
     # donor concentration in m-3
     nd = (ni ** 2 / na)
 
-    if equation == 'd': # dereniak's equations
-        # reverse saturation current - dereniak eq. 7.34 - Ampère
+    if equation == 'd': # Dereniak's equations
+        # reverse saturation current - Dereniak eq. 7.34 - Ampère
         I0 = areaDet * const.e * (Le / tauE) * nd
-    else: # rogalski equations
-        # carrier diffusion coefficient - rogalski's book pg. 164
+    else: # Rogalski equations
+        # carrier diffusion coefficient - Rogalski's book pg. 164
         De = const.k * tDetec * eMob / const.e
-        # reverse saturation current - rogalski's book eq. 8.118
+        # reverse saturation current - Rogalski's book eq. 8.118
         I0 = areaDet * const.e * De * nd / Le
 
     return (I0)
@@ -279,7 +279,7 @@ def IXV(V, IVbeta, tDetec, iPhoto,I0):
         | current from detector [A]
     """
 
-    # diode equation from dereniak's book eq. 7.23
+    # diode equation from Dereniak's book eq. 7.23
     return I0 * (np.exp(const.e * V / (IVbeta * const.k * tDetec)) - 1) - iPhoto
 
 ################################################################################
@@ -328,8 +328,8 @@ def NoiseRogalski(I0current, tempDet, ibkg, deltaFreq, IVbeta=1):
         | detector noise [A] over bandwidth deltaFreq
     """
 
-    # % TOTAL NOISE MODELING FROM ROGALSKI'S BOOK (V=0)
-    # rogalski Eq 9.83 (2ndEdition), added the beta factor here.
+    # % TOTAL NOISE MODELING FROM Rogalski'S BOOK (V=0)
+    # Rogalski Eq 9.83 (2ndEdition), added the beta factor here.
     R1 = IVbeta * const.k * tempDet / (const.e * I0current)
 
     # Rogalski eq. 8.111  (Eq 9.100 in 2nd Edition, error in book)
@@ -374,64 +374,56 @@ if __name__ == '__main__':
     """
 
     #wavelength in micrometers, remember to scale down in functions.
-    wavelenInit=1  # wavelength in um
-    wavelenFinal=5.5  # wavelength in um
-    wavelength=np.linspace(wavelenInit,wavelenFinal,200)
+    wavelenInit = 1  # wavelength in um
+    wavelenFinal = 5.5  # wavelength in um
+    wavelength = np.linspace(wavelenInit, wavelenFinal, 200)
 
     #source properties
-    tempSource=2000       # source temperature in K
-    emisSource=1.0          # source emissivity
-    areaSource=0.000033     # source area in m2
+    tempSource = 2000       # source temperature in K
+    emisSource = 1.0          # source emissivity
+    areaSource = 0.000033     # source area in m2
 
     #background properties
-    tempBkg=280.0              # background temperature in K
-    emisBkg=1.0                # background emissivity
-    areaBkg=2*np.pi*(0.0055)**2# equal to the window area
+    tempBkg = 280.0              # background temperature in K
+    emisBkg = 1.0                # background emissivity
+    areaBkg = 2 * np.pi * (0.0055) ** 2 # equal to the window area
 
     #test setup parameters
-    distance=0.01      # distance between source and detector
-    deltaFreq=100.0      # measurement or desirable bandwidth - Hertz
-    theta1=0.01        # radiation incident angle in radians
-    transmittance=1.0    # medium/filter/optics transmittance
+    distance = 0.01      # distance between source and detector
+    deltaFreq = 100.0      # measurement or desirable bandwidth - Hertz
+    theta1 = 0.01        # radiation incident angle in radians
+    transmittance = 1.0    # medium/filter/optics transmittance
 
     # detector device parameters
-    tempDet=80.0     # detector temperature in K
-    areaDet=(200e-6)**2   # detector area in m2
-    lx=5e-6             # detector depletion layer thickness in meter
-    n1=1.0              # refraction index of the air
-    V=np.linspace(-250e-3,75e-3,100) # bias voltage range
+    tempDet = 80.0     # detector temperature in K
+    areaDet = (200e-6) ** 2   # detector area in m2
+    lx = 5e-6             # detector depletion layer thickness in meter
+    n1 = 1.0              # refraction index of the air
+    V = np.linspace(-250e-3, 75e-3, 100) # bias voltage range
 
     # detector material properties for InSb
-    etha2=0.45     # quantum efficieny table 3.3 dereniak's book [3]
-    E0=0.24        # semiconductor bandgap at room temp in Ev [3]
-    n2=3.42        # refraction index of the semiconductor being analyzed [3]
-    a0=1.9e4*100   # absorption coefficient, Eq3.5 & 3.6 Dereniak [m-1]
-    a0p=800*100    # absorption coefficient, Eq3.5 & 3.6 Dereniak [m-1]
-    eMob=120.0    # electron mobility - m2/V.s [3]
-    hMob=1.0      # hole mobility - m2/V.s  [3]
-    tauE=1e-10    # electron lifetime - s [3]
-    tauH=1e-6     # hole lifetime - s [3]
-    m0=9.11e-31    # electron mass - kg [3]
-    me=0.014*m0    # used semiconductor electron effective mass [3]
-    mh=0.43*m0     # used semiconductor hole effective mass [3]
-    na=1e16        # positive or negative dopping - m-3
-    IVbeta=1.0     # 1 when the diffusion current is dominantand 2 when the
-                   # recombination current dominates - Derinaki's book page 251
-    s=5e4          # surface recombination velocity ->
-        # http://www.ioffe.ru/SVA/NSM/Semicond/InSb/electric.html#Recombination
-    R0=1e10        # measured resistivity  - ohm
-    alpha=6e-4     # first fitting parameter for the Varshini's Equation [3]
-    B=500.0        # second fitting parameter for the Varshini's Equation [3]
+    E0 = 0.24        # semiconductor bandgap at room temp in Ev
+    alpha = 6e-4     # first fitting parameter for the Varshini's Equation [3]
+    B = 500.0        # second fitting parameter for the Varshini's Equation [3]
     Eg = EgTemp(E0, alpha, B, tempDet)   # bandgap at operating termperature
-
-
+    n2 = 3.42        # refraction index of the semiconductor being analyzed
+    a0 = 1.9e4 * 100   # absorption coefficient [m-1], Eq3.5 & 3.6 Dereniak
+    a0p = 800 * 100    # absorption coefficient [m-1] Eq3.5 & 3.6 Dereniak
+    eMob = 120.0    # electron mobility - m2/V.s
+    tauE = 1e-10    # electron lifetime - s
+    me = 0.014 * const.m_e    # electron effective mass
+    mh = 0.43 * const.m_e     # hole effective mass
+    na = 1e16        # positive or negative dopping - m-3
+    IVbeta = 1.0     # 1 when the diffusion current is dominant and 2 when the
+                   # recombination current dominates - Dereniak's book page 251
+    R0 = 1e10        # measured resistivity  - ohm
 
     ######################################################################
 
     #calculate the spectral quantum efficiency and responsivity
-    (absorption, quantumEffic) = QuantumEfficiency(wavelength/1e6, Eg, lx, \
+    (absorption, quantumEffic) = QuantumEfficiency(wavelength / 1e6, Eg, lx, \
                 tempDet, theta1,a0,a0p,n1,n2)
-    responsivity = Responsivity(wavelength/1e6,quantumEffic)
+    responsivity = Responsivity(wavelength / 1e6,quantumEffic)
 
     #spectral irradiance for test setup, for both source and background
     # in units of photon rate q/(s.m2)
