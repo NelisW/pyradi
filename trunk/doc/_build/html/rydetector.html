@@ -81,27 +81,21 @@ Journal of Applied Physics 89 11, pp. 5815–5875, 2001.</div></blockquote>
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pyradi.rydetector.QuantumEfficiency">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>wavelength</em>, <em>Eg</em>, <em>lx</em>, <em>tempDet</em>, <em>theta1</em>, <em>a0</em>, <em>a0p</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the spectral quantum efficiency (QE) and absorption coefficient
-for a semiconductor material with given material values.</p>
-<p>The model used here is based on Equations 3.4, 3.5, 3.6 in Dereniaks book.</p>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>absorption</em>, <em>lx</em>, <em>theta1</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the spectral quantum efficiency (QE) for a semiconductor material
+with given absorption and material values.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavelength: spectral variable [m]</div>
-<div class="line">Eg: bandgap energy [Ev]</div>
-<div class="line">lx: detector thickness [m]</div>
-<div class="line">tempDet: detector&#8217;s temperature in [K]</div>
+<div class="line">absorption: spectral absorption coefficient in [m-1]</div>
+<div class="line">lx: detector depletion layer thickness [m]</div>
 <div class="line">theta1: angle between the surface&#8217;s normal and the radiation in radian</div>
-<div class="line">a0: absorption coefficient [m-1] (Dereniak Eq 3.5 &amp; 3.6)</div>
-<div class="line">a0p:  absorption coefficient in [m-1] (Dereniak Eq 3.5 &amp; 3.6)</div>
 <div class="line">nFront:  index of refraction of the material in front of detector</div>
 <div class="line">nMaterial:  index of refraction of the detector material</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">absorption: spectral absorption coefficient in [cm-1]</div>
 <div class="line">quantumEffic: spectral quantum efficiency</div>
 </div>
 </dd>
@@ -208,12 +202,12 @@ noise-equivalent bandwidth of 1 Hz.</p>
 <div class="line">Eg: energy bandgap in [Ev]</div>
 <div class="line">tDetec: detector&#8217;s temperature in [K]</div>
 <div class="line">areaDet: detector&#8217;s area [m2]</div>
-<div class="line">equation: &#8216;d&#8217; for dereniak and &#8216;r&#8217; for rogalski equations</div>
+<div class="line">equation: &#8216;d&#8217; for Dereniak and &#8216;r&#8217; for Rogalski equations</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">I0: reverse sat current by rogalski equation [A]</div>
+<div class="line">I0: reverse sat current by Rogalski equation [A]</div>
 </div>
 </dd>
 </dl>
@@ -221,15 +215,15 @@ noise-equivalent bandwidth of 1 Hz.</p>
 
 <dl class="function">
 <dt id="pyradi.rydetector.EgTemp">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">EgTemp</tt><big>(</big><em>E0</em>, <em>alpha</em>, <em>B</em>, <em>tempDet</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.EgTemp" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">EgTemp</tt><big>(</big><em>E0</em>, <em>VarshniA</em>, <em>VarshniB</em>, <em>tempDet</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.EgTemp" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function calculates the bandgap at detector temperature, using the
-Varshini equation ref [3]</p>
+Varshni equation ref [3]</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">E0: band gap at room temperature [eV]</div>
-<div class="line">alpha: Varshini parameter</div>
-<div class="line">B: Varshini parameter</div>
+<div class="line">VarshniA: Varshni parameter</div>
+<div class="line">VarshniB: Varshni parameter</div>
 <div class="line">tempDet: detector operating temperature [K]</div>
 </div>
 </dd>

@@ -67,41 +67,26 @@ import pyradi.ryplot as ryplot
 import pyradi.ryplanck as ryplanck
 import sys
 
+
 ################################################################################
 #
-def QuantumEfficiency(wavelength, Eg, lx, tempDet, theta1, a0, a0p, \
-                       nFront, nMaterial):
+def Absorption(wavelength, Eg, tempDet, a0, a0p):
     """
-    Calculate the spectral quantum efficiency (QE) and absorption coefficient
+    Calculate the spectral absorption coefficient
     for a semiconductor material with given material values.
 
-    The model used here is based on Equations 3.4, 3.5, 3.6 in Dereniaks book.
+    The model used here is based on Equations 3.5, 3.6 in Dereniaks book.
 
     Args:
         | wavelength: spectral variable [m]
         | Eg: bandgap energy [Ev]
-        | lx: detector thickness [m]
         | tempDet: detector's temperature in [K]
-        | theta1: angle between the surface's normal and the radiation in radian
         | a0: absorption coefficient [m-1] (Dereniak Eq 3.5 & 3.6)
         | a0p:  absorption coefficient in [m-1] (Dereniak Eq 3.5 & 3.6)
-        | nFront:  index of refraction of the material in front of detector
-        | nMaterial:  index of refraction of the detector material
 
     Returns:
-        | absorption: spectral absorption coefficient in [cm-1]
-        | quantumEffic: spectral quantum efficiency
+        | absorption: spectral absorption coefficient in [m-1]
     """
-
-    # calculate the semiconductor's optical reflectance
-    theta2 = np.arcsin(np.sin(theta1) * nFront / nMaterial) # Snell's equation
-    # Reflectance for perpendicular polarization
-    RS = np.abs((nFront * np.cos(theta1) - nMaterial * np.cos(theta2)) / \
-        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) **2
-    # Reflectance for parallel polarization
-    RP = np.abs((nFront * np.cos(theta2) - nMaterial * np.cos(theta1)) / \
-        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) ** 2
-    R = (RS + RP) / 2
 
     #frequency/wavelength expressed as energy in Ev
     E = const.h * const.c / (wavelength * const.e )
@@ -116,12 +101,42 @@ def QuantumEfficiency(wavelength, Eg, lx, tempDet, theta1, a0, a0p, \
     a36 = a0p * np.exp((- np.abs(E - Eg)) / (const.k * tempDet))
     absorption = a35 * (E >= Eg) + a36 * (E < Eg)
 
+    return absorption
+
+
+
+################################################################################
+#
+def QuantumEfficiency(absorption, lx, theta1, nFront, nMaterial):
+    """
+    Calculate the spectral quantum efficiency (QE) for a semiconductor material
+    with given absorption and material values.
+
+    Args:
+        | absorption: spectral absorption coefficient in [m-1]
+        | lx: detector depletion layer thickness [m]
+        | theta1: angle between the surface's normal and the radiation in radian
+        | nFront:  index of refraction of the material in front of detector
+        | nMaterial:  index of refraction of the detector material
+
+    Returns:
+        | quantumEffic: spectral quantum efficiency
+    """
+
+    # calculate the semiconductor's optical reflectance
+    theta2 = np.arcsin(np.sin(theta1) * nFront / nMaterial) # Snell's equation
+    # Reflectance for perpendicular polarization
+    RS = np.abs((nFront * np.cos(theta1) - nMaterial * np.cos(theta2)) / \
+        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) **2
+    # Reflectance for parallel polarization
+    RP = np.abs((nFront * np.cos(theta2) - nMaterial * np.cos(theta1)) / \
+        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) ** 2
+    R = (RS + RP) / 2
+
     # QE - eq. 3.4 - [1]
     quantumEffic = (1 - R) * (1 - np.exp( - absorption * lx))
 
-    return (absorption, quantumEffic)
-
-
+    return quantumEffic
 
 ################################################################################
 #
@@ -245,22 +260,22 @@ def I0(eMob, tauE, me, mh, na, Eg, tDetec, areaDet, equation='d'):
 
 ################################################################################
 #
-def EgTemp(E0, alpha, B, tempDet):
+def EgTemp(E0, VarshniA, VarshniB, tempDet):
     """
     This function calculates the bandgap at detector temperature, using the
-    Varshini equation ref [3]
+    Varshni equation ref [3]
 
     Args:
         | E0: band gap at room temperature [eV]
-        | alpha: Varshini parameter
-        | B: Varshini parameter
+        | VarshniA: Varshni parameter
+        | VarshniB: Varshni parameter
         | tempDet: detector operating temperature [K]
 
     Returns:
         | Eg: bandgap at stated temperature [eV]
     """
 
-    return (E0 - (alpha * (tempDet ** 2 / (tempDet + B))))
+    return (E0 - (VarshniA * (tempDet ** 2 / (tempDet + VarshniB))))
 
 ################################################################################
 #
@@ -403,9 +418,9 @@ if __name__ == '__main__':
 
     # detector material properties for InSb
     E0 = 0.24        # semiconductor bandgap at room temp in Ev
-    alpha = 6e-4     # first fitting parameter for the Varshini's Equation [3]
-    B = 500.0        # second fitting parameter for the Varshini's Equation [3]
-    Eg = EgTemp(E0, alpha, B, tempDet)   # bandgap at operating termperature
+    VarshniA = 6e-4     # first fitting parameter for the Varshni's Equation
+    VarshniB = 500.0        # second fitting parameter for the Varshni's Equation
+    Eg = EgTemp(E0, VarshniA, VarshniB, tempDet)   # bandgap at operating termperature
     n2 = 3.42        # refraction index of the semiconductor being analyzed
     a0 = 1.9e4 * 100   # absorption coefficient [m-1], Eq3.5 & 3.6 Dereniak
     a0p = 800 * 100    # absorption coefficient [m-1] Eq3.5 & 3.6 Dereniak
@@ -420,9 +435,9 @@ if __name__ == '__main__':
 
     ######################################################################
 
-    #calculate the spectral quantum efficiency and responsivity
-    (absorption, quantumEffic) = QuantumEfficiency(wavelength / 1e6, Eg, lx, \
-                tempDet, theta1,a0,a0p,n1,n2)
+    #calculate the spectral absorption, quantum efficiency and responsivity
+    absorption = Absorption(wavelength / 1e6, Eg, tempDet, a0, a0p)
+    quantumEffic = QuantumEfficiency(absorption, lx, theta1, n1, n2)
     responsivity = Responsivity(wavelength / 1e6,quantumEffic)
 
     #spectral irradiance for test setup, for both source and background
