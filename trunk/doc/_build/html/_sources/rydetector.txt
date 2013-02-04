@@ -12,6 +12,12 @@ Overview
 Module functions
 ------------------
 
+.. autofunction:: pyradi.rydetector.JouleTeEv
+
+.. autofunction:: pyradi.rydetector.eVtoJoule
+
+.. autofunction:: pyradi.rydetector.FermiDirac
+
 .. autofunction:: pyradi.rydetector.QuantumEfficiency
 
 .. autofunction:: pyradi.rydetector.Responsivity

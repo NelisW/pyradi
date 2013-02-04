@@ -80,6 +80,64 @@ Journal of Applied Physics 89 11, pp. 5815–5875, 2001.</div></blockquote>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="pyradi.rydetector.JouleTeEv">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">JouleTeEv</tt><big>(</big><em>EJ</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.JouleTeEv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert energy in Joule to eV.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">EJ: Energy in J</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">EeV: Energy in eV</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.eVtoJoule">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">eVtoJoule</tt><big>(</big><em>EeV</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.eVtoJoule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert energy in eV to Joule.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">E: Energy in eV</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">EJ: Energy in J</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rydetector.FermiDirac">
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">FermiDirac</tt><big>(</big><em>Ef</em>, <em>EJ</em>, <em>T</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.FermiDirac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Fermi-Dirac probability distribution, given the crystal&#8217;s
+Fermi energy, the temperature and the energy where the distribution values
+is required.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">Ef: Fermi energy in J</div>
+<div class="line">EJ: Energy in J</div>
+<div class="line">T : Temperature in K</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">fermiD : the Fermi-Dirac distribution</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyradi.rydetector.QuantumEfficiency">
 <tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>absorption</em>, <em>lx</em>, <em>theta1</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the spectral quantum efficiency (QE) for a semiconductor material
