@@ -58,7 +58,8 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['QuantumEfficiency', 'Responsivity', 'Detectivity', 'DStar', \
-    'NEP', 'I0', 'EgTemp', 'IXV', 'NoiseBasic',' NoiseRogalski', 'Idark']
+    'NEP', 'I0', 'EgTemp', 'IXV', 'NoiseBasic',' NoiseRogalski', 'Idark' \
+    'FermiDirac', 'JouleTeEv', 'eVtoJoule']
 
 import scipy.constants as const
 import matplotlib.pyplot as plt
@@ -66,6 +67,60 @@ import numpy as np
 import pyradi.ryplot as ryplot
 import pyradi.ryplanck as ryplanck
 import sys
+
+################################################################################
+#
+def eVtoJoule(EeV):
+    """
+    Convert energy in eV to Joule.
+
+    Args:
+        | E: Energy in eV
+
+    Returns:
+        | EJ: Energy in J
+    """
+
+    return EeV * const.e
+
+
+################################################################################
+#
+def JouleTeEv(EJ):
+    """
+    Convert energy in Joule to eV.
+
+    Args:
+        | EJ: Energy in J
+
+    Returns:
+        | EeV: Energy in eV
+    """
+
+    return EJ / const.e
+
+
+
+
+################################################################################
+#
+def FermiDirac(Ef, EJ, T):
+    """
+    Returns the Fermi-Dirac probability distribution, given the crystal's
+    Fermi energy, the temperature and the energy where the distribution values
+    is required.
+
+    Args:
+        | Ef: Fermi energy in J
+        | EJ: Energy in J
+        | T : Temperature in K
+
+    Returns:
+        | fermiD : the Fermi-Dirac distribution
+    """
+
+    return 1 / (1 + np.exp( ( EJ - Ef ) / ( T * const.k) ) )
+
 
 
 ################################################################################
@@ -435,6 +490,25 @@ if __name__ == '__main__':
 
     ######################################################################
 
+    #######################################################################
+    #plot the Fermi-Dirac distribution
+    temperature = [0, 77, 300]
+    EevR = np.linspace(-0.2, 0.2, 500)
+
+    fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
+    legend = ["{0:.0f} K".format(temperature[0])]
+    for temp in temperature[1:] :
+        fDirac = np.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
+        legend.append("{0:.0f} K".format(temp))
+
+   # Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
+
+
+    fDfig = ryplot.Plotter(1,1,1)
+    fDfig.plot(1,EevR,fDirac,'Fermi-Dirac distribution function',\
+        r'Energy [eV]','Occupancy probability', label=legend)
+    fDfig.saveFig('FermiDirac.eps')
+
     #calculate the spectral absorption, quantum efficiency and responsivity
     absorption = Absorption(wavelength / 1e6, Eg, tempDet, a0, a0p)
     quantumEffic = QuantumEfficiency(absorption, lx, theta1, n1, n2)
@@ -550,6 +624,10 @@ if __name__ == '__main__':
         r'Wavelength [$\mu$m]','NEP [W]',\
         pltaxis=[wavelenInit, wavelenFinal, 0,NEPower[0]])
     NEPfig.saveFig('NEP.eps')
+
+
+
+
 
     print('Done!')
 
