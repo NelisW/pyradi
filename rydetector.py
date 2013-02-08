@@ -158,6 +158,37 @@ def Absorption(wavelength, Eg, tempDet, a0, a0p):
 
     return absorption
 
+################################################################################
+#
+def AbsorptionFile(wavelength, filename):
+    """
+    Read the absorption coefficient from a data file and interpolate on the
+    input spectral range.
+
+    The data file must have the wavelength in the first column and absorption
+    coefficient in [m-1] in the second column.
+
+    Args:
+        | wavelength: spectral variable [m]
+        | filename: file containing the data
+
+
+    Returns:
+        | wavelength: values where absorption is defined
+        | absorption: spectral absorption coefficient in [m-1]
+    """
+
+    #load data and build interpolation table
+    from scipy.interpolate import interp1d
+    filedata = np.loadtxt(filename)
+    Table = interp1d(filedata[:,0], filedata[:,1], kind = 'linear')
+    #check for valid wavelengths values wrt the input file
+    mask = np.all([ wavelength >= np.min(filedata[:,0]) ,
+        wavelength <= np.max(filedata[:,0])], axis=0)
+    #select valid wavelengths
+    wavelenOut = wavelength[mask]
+    return wavelenOut, Table(wavelenOut)
+
 
 
 ################################################################################
@@ -443,6 +474,31 @@ if __name__ == '__main__':
     semiconductor parameters. Each material type has its own paramenters,
     """
 
+
+    ######################################################################
+
+    #demonstrate and test absorption data read from file
+    absFile = ryplot.Plotter(1,1,1)
+    wavelength = np.linspace(0.2, 2, 600)
+    filenames = [
+        'data/absorptioncoeff/Si.txt',
+        'data/absorptioncoeff/GaAs.txt',
+        'data/absorptioncoeff/Ge.txt',
+        'data/absorptioncoeff/In07Ga03As64P36.txt',
+        'data/absorptioncoeff/InP.txt',
+        'data/absorptioncoeff/In53Ga47As.txt'
+        ]
+    for filename in filenames:
+        wl, absorb = AbsorptionFile(wavelength, filename)
+        absFile.semilogY(1,wl,absorb,'Absorption coefficient',\
+            r'Wavelength [\mum]','Absorptance')
+    absFile.saveFig('absorption.eps')
+
+
+
+    exit(0)
+
+
     #wavelength in micrometers, remember to scale down in functions.
     wavelenInit = 1  # wavelength in um
     wavelenFinal = 5.5  # wavelength in um
@@ -487,8 +543,6 @@ if __name__ == '__main__':
     IVbeta = 1.0     # 1 when the diffusion current is dominant and 2 when the
                    # recombination current dominates - Dereniak's book page 251
     R0 = 1e10        # measured resistivity  - ohm
-
-    ######################################################################
 
     #######################################################################
     #plot the Fermi-Dirac distribution
