@@ -869,8 +869,17 @@ if __name__ == '__main__':
     currentP.text(0.5 * 10, 1300,
          r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
          fontsize=20)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for xmin in currentP.xaxis.get_minorticklocs():
+        currentP.axvline(x=xmin,ls='--')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='--')
+    for ymin in currentP.yaxis.get_minorticklocs():
+        currentP.axhline(y=ymin,ls='--')
+
     AA.saveFig('AA.png')
-    #AA.saveFig('AA.eps')
+    AA.saveFig('AA.eps')
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\

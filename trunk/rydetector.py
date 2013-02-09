@@ -486,12 +486,21 @@ if __name__ == '__main__':
         'data/absorptioncoeff/Ge.txt',
         'data/absorptioncoeff/In07Ga03As64P36.txt',
         'data/absorptioncoeff/InP.txt',
-        'data/absorptioncoeff/In53Ga47As.txt'
+        'data/absorptioncoeff/In53Ga47As.txt',
+        'data/absorptioncoeff/piprekGe.txt',
+        'data/absorptioncoeff/piprekGaAs.txt',
+        'data/absorptioncoeff/piprekSi.txt',
+        'data/absorptioncoeff/piprekInP.txt'
         ]
     for filename in filenames:
         wl, absorb = AbsorptionFile(wavelength, filename)
         absFile.semilogY(1,wl,absorb,'Absorption coefficient',\
-            r'Wavelength [\mum]','Absorptance')
+            r'Wavelength [\mum]','Absorptance [m-1]')
+    currentP = absFile.getSubPlot(1)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='-')
     absFile.saveFig('absorption.eps')
 
 
