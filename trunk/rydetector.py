@@ -503,11 +503,6 @@ if __name__ == '__main__':
         currentP.axhline(y=ymaj,ls='-')
     absFile.saveFig('absorption.eps')
 
-
-
-    exit(0)
-
-
     #wavelength in micrometers, remember to scale down in functions.
     wavelenInit = 1  # wavelength in um
     wavelenFinal = 5.5  # wavelength in um
