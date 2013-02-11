@@ -63,7 +63,7 @@ __all__= ['QuantumEfficiency', 'Responsivity', 'Detectivity', 'DStar', \
 
 import scipy.constants as const
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
 import pyradi.ryplot as ryplot
 import pyradi.ryplanck as ryplanck
 import sys
@@ -119,7 +119,7 @@ def FermiDirac(Ef, EJ, T):
         | fermiD : the Fermi-Dirac distribution
     """
 
-    return 1 / (1 + np.exp( ( EJ - Ef ) / ( T * const.k) ) )
+    return 1 / (1 + numpy.exp( ( EJ - Ef ) / ( T * const.k) ) )
 
 
 
@@ -146,14 +146,14 @@ def Absorption(wavelength, Eg, tempDet, a0, a0p):
     #frequency/wavelength expressed as energy in Ev
     E = const.h * const.c / (wavelength * const.e )
 
-    # the np.abs() in the following code is to prevent nan and inf values
+    # the numpy.abs() in the following code is to prevent nan and inf values
     # the effect of the abs() is corrected further down when we select
     # only the appropriate values based on E >= Eg and E < Eg
 
     # Absorption coef - eq. 3.5- Dereniak
-    a35 = (a0 * np.sqrt(np.abs(E - Eg))) + a0p
+    a35 = (a0 * numpy.sqrt(numpy.abs(E - Eg))) + a0p
     # Absorption coef - eq. 3.6- Dereniak
-    a36 = a0p * np.exp((- np.abs(E - Eg)) / (const.k * tempDet))
+    a36 = a0p * numpy.exp((- numpy.abs(E - Eg)) / (const.k * tempDet))
     absorption = a35 * (E >= Eg) + a36 * (E < Eg)
 
     return absorption
@@ -180,11 +180,11 @@ def AbsorptionFile(wavelength, filename):
 
     #load data and build interpolation table
     from scipy.interpolate import interp1d
-    filedata = np.loadtxt(filename)
+    filedata = numpy.loadtxt(filename)
     Table = interp1d(filedata[:,0], filedata[:,1], kind = 'linear')
     #check for valid wavelengths values wrt the input file
-    mask = np.all([ wavelength >= np.min(filedata[:,0]) ,
-        wavelength <= np.max(filedata[:,0])], axis=0)
+    mask = numpy.all([ wavelength >= numpy.min(filedata[:,0]) ,
+        wavelength <= numpy.max(filedata[:,0])], axis=0)
     #select valid wavelengths
     wavelenOut = wavelength[mask]
     return wavelenOut, Table(wavelenOut)
@@ -210,17 +210,17 @@ def QuantumEfficiency(absorption, lx, theta1, nFront, nMaterial):
     """
 
     # calculate the semiconductor's optical reflectance
-    theta2 = np.arcsin(np.sin(theta1) * nFront / nMaterial) # Snell's equation
+    theta2 = numpy.arcsin(numpy.sin(theta1) * nFront / nMaterial) # Snell's equation
     # Reflectance for perpendicular polarization
-    RS = np.abs((nFront * np.cos(theta1) - nMaterial * np.cos(theta2)) / \
-        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) **2
+    RS = numpy.abs((nFront * numpy.cos(theta1) - nMaterial * numpy.cos(theta2)) / \
+        (nFront * numpy.cos(theta1) + nMaterial * numpy.cos(theta2))) **2
     # Reflectance for parallel polarization
-    RP = np.abs((nFront * np.cos(theta2) - nMaterial * np.cos(theta1)) / \
-        (nFront * np.cos(theta1) + nMaterial * np.cos(theta2))) ** 2
+    RP = numpy.abs((nFront * numpy.cos(theta2) - nMaterial * numpy.cos(theta1)) / \
+        (nFront * numpy.cos(theta1) + nMaterial * numpy.cos(theta2))) ** 2
     R = (RS + RP) / 2
 
     # QE - eq. 3.4 - [1]
-    quantumEffic = (1 - R) * (1 - np.exp( - absorption * lx))
+    quantumEffic = (1 - R) * (1 - numpy.exp( - absorption * lx))
 
     return quantumEffic
 
@@ -281,7 +281,7 @@ def DStar(areaDet, deltaFreq, iNoise, responsivity):
         | detectivity [m \sqrt[Hz] / W] (note units)
     """
 
-    return (responsivity * np.sqrt(areaDet * deltaFreq)) / (iNoise)
+    return (responsivity * numpy.sqrt(areaDet * deltaFreq)) / (iNoise)
 
 ################################################################################
 #
@@ -324,11 +324,11 @@ def I0(eMob, tauE, me, mh, na, Eg, tDetec, areaDet, equation='d'):
     """
 
     # diffusion length [m] Dereniak Eq7.20
-    Le=np.sqrt(const.k * tDetec * eMob * tauE / const.e)
+    Le=numpy.sqrt(const.k * tDetec * eMob * tauE / const.e)
     # intrinsic carrier concentration - Dereniak`s book eq. 7.1 - m-3
     # Eg here in eV units, multiply with q
-    ni = (np.sqrt(4 * (2 * np.pi * const.k * tDetec / const.h ** 2) ** 3 *\
-        np.exp( - (Eg * const.e) / (const.k * tDetec)) * (me * mh) ** 1.5))
+    ni = (numpy.sqrt(4 * (2 * numpy.pi * const.k * tDetec / const.h ** 2) ** 3 *\
+        numpy.exp( - (Eg * const.e) / (const.k * tDetec)) * (me * mh) ** 1.5))
     # donor concentration in m-3
     nd = (ni ** 2 / na)
 
@@ -381,7 +381,7 @@ def IXV(V, IVbeta, tDetec, iPhoto,I0):
     """
 
     # diode equation from Dereniak's book eq. 7.23
-    return I0 * (np.exp(const.e * V / (IVbeta * const.k * tDetec)) - 1) - iPhoto
+    return I0 * (numpy.exp(const.e * V / (IVbeta * const.k * tDetec)) - 1) - iPhoto
 
 ################################################################################
 #
@@ -401,13 +401,13 @@ def NoiseBasic(tempDet, deltaFreq, R0, iBackgnd):
     """
 
     # johnson noise Dereniaki's book - eq. 5.58
-    iJohnson = np.sqrt(4 * const.k * tempDet * deltaFreq / R0)
+    iJohnson = numpy.sqrt(4 * const.k * tempDet * deltaFreq / R0)
 
     # shot noise Dereniaki's book - eq. 5.69
-    iShot = np.sqrt(2 * const.e * iBackgnd * deltaFreq)
+    iShot = numpy.sqrt(2 * const.e * iBackgnd * deltaFreq)
 
     # total noise Dereniaki's book - eq. 5.75
-    noise = np.sqrt(iJohnson ** 2 + iShot ** 2)
+    noise = numpy.sqrt(iJohnson ** 2 + iShot ** 2)
 
     return noise
 
@@ -435,11 +435,11 @@ def NoiseRogalski(I0current, tempDet, ibkg, deltaFreq, IVbeta=1):
 
     # Rogalski eq. 8.111  (Eq 9.100 in 2nd Edition, error in book)
     # -> noise generated by the background is ignored
-    #noise = np.sqrt((2 * const.e * (const.e * avg_qe * Ebkg * areaDet ) )\
-    noise = np.sqrt((2 * const.e * (ibkg) )\
+    #noise = numpy.sqrt((2 * const.e * (const.e * avg_qe * Ebkg * areaDet ) )\
+    noise = numpy.sqrt((2 * const.e * (ibkg) )\
            + (4 * const.k * tempDet  / R1))
 
-    return noise * np.sqrt(deltaFreq)
+    return noise * numpy.sqrt(deltaFreq)
 
 
 ################################################################################
@@ -459,7 +459,7 @@ def Idark(I0,V,tempDet):
         | dark current for voltage levels [A]
     """
 
-    return I0*(np.exp(const.e*V/(1*const.k*tempDet))-1)
+    return I0*(numpy.exp(const.e*V/(1*const.k*tempDet))-1)
 
 
 ################################################################################
@@ -474,12 +474,42 @@ if __name__ == '__main__':
     semiconductor parameters. Each material type has its own paramenters,
     """
 
+    ######################################################################
+    tempBack = numpy.asarray([1, 2, 4, 10, 25, 77, 195, 300, 500])
+    eta = 1
+    wavelength = numpy.logspace(0, 3, 100, True, 10)
+    dstarwlc = numpy.zeros(wavelength.shape)
+
+    def deeStarPeak(wavelength,temperature,eta):
+        i = 0
+        for wlc in wavelength:
+            wl =  numpy.linspace(wlc/100, wlc, 1000).reshape(-1, 1)
+            EbackLambda = ryplanck.planck(wl,temperature, type='ql')
+            Eback = numpy.trapz(EbackLambda.reshape(-1, 1),wl, axis=0)[0]
+            dstarwlc[i] = 1e-6 * wlc * numpy.sqrt(eta/Eback)/(const.h * const.c * numpy.sqrt(2))
+            #print(Eback)
+            i = i + 1
+
+        return dstarwlc * 100. # to get cm units
+
+    dstarP = ryplot.Plotter(1,1,1)
+    for temperature in tempBack:
+        dstar = deeStarPeak(wavelength,temperature,eta)
+        dstarP.logLog(1,wavelength,dstar,'',\
+            r'Peak wavelength [\mum]','D* [cm.\sqrt{Hz}/W]',pltaxis=[1, 1e3, 1e10, 1e20])
+
+    currentP = dstarP.getSubPlot(1)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='-')
+    dstarP.saveFig('dstarPeak.eps')
 
     ######################################################################
 
     #demonstrate and test absorption data read from file
     absFile = ryplot.Plotter(1,1,1)
-    wavelength = np.linspace(0.2, 2, 600)
+    wavelength = numpy.linspace(0.2, 2, 600)
     filenames = [
         'data/absorptioncoeff/Si.txt',
         'data/absorptioncoeff/GaAs.txt',
@@ -503,10 +533,14 @@ if __name__ == '__main__':
         currentP.axhline(y=ymaj,ls='-')
     absFile.saveFig('absorption.eps')
 
+
+
+    ######################################################################
+
     #wavelength in micrometers, remember to scale down in functions.
     wavelenInit = 1  # wavelength in um
     wavelenFinal = 5.5  # wavelength in um
-    wavelength = np.linspace(wavelenInit, wavelenFinal, 200)
+    wavelength = numpy.linspace(wavelenInit, wavelenFinal, 200)
 
     #source properties
     tempSource = 2000       # source temperature in K
@@ -516,7 +550,7 @@ if __name__ == '__main__':
     #background properties
     tempBkg = 280.0              # background temperature in K
     emisBkg = 1.0                # background emissivity
-    areaBkg = 2 * np.pi * (0.0055) ** 2 # equal to the window area
+    areaBkg = 2 * numpy.pi * (0.0055) ** 2 # equal to the window area
 
     #test setup parameters
     distance = 0.01      # distance between source and detector
@@ -529,7 +563,7 @@ if __name__ == '__main__':
     areaDet = (200e-6) ** 2   # detector area in m2
     lx = 5e-6             # detector depletion layer thickness in meter
     n1 = 1.0              # refraction index of the air
-    V = np.linspace(-250e-3, 75e-3, 100) # bias voltage range
+    V = numpy.linspace(-250e-3, 75e-3, 100) # bias voltage range
 
     # detector material properties for InSb
     E0 = 0.24        # semiconductor bandgap at room temp in Ev
@@ -548,15 +582,17 @@ if __name__ == '__main__':
                    # recombination current dominates - Dereniak's book page 251
     R0 = 1e10        # measured resistivity  - ohm
 
+
+
     #######################################################################
     #plot the Fermi-Dirac distribution
     temperature = [0, 77, 300]
-    EevR = np.linspace(-0.2, 0.2, 500)
+    EevR = numpy.linspace(-0.2, 0.2, 500)
 
     fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
     legend = ["{0:.0f} K".format(temperature[0])]
     for temp in temperature[1:] :
-        fDirac = np.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
+        fDirac = numpy.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
         legend.append("{0:.0f} K".format(temp))
 
    # Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
@@ -575,20 +611,20 @@ if __name__ == '__main__':
     #spectral irradiance for test setup, for both source and background
     # in units of photon rate q/(s.m2)
     EsourceQL =(emisSource * ryplanck.planck(wavelength,tempSource,'ql') \
-        * areaSource) / (np.pi * distance ** 2)
+        * areaSource) / (numpy.pi * distance ** 2)
     EbkgQL = (emisBkg * ryplanck.planck(wavelength, tempBkg, 'ql') * \
-        areaBkg ) / (np.pi * distance ** 2)
+        areaBkg ) / (numpy.pi * distance ** 2)
     #in radiant units W/m2
     EsourceEL = (emisSource * ryplanck.planck(wavelength, tempSource,'el')*\
-        areaSource) / (np.pi * distance ** 2)
+        areaSource) / (numpy.pi * distance ** 2)
     EbkgEL = (emisBkg * ryplanck.planck(wavelength, tempBkg, 'el') * \
-        areaBkg) / (np.pi * distance ** 2)
+        areaBkg) / (numpy.pi * distance ** 2)
 
     #wideband inband irradiance (not used below, only for reference purposes)
-    EsourceQ = np.trapz(EsourceQL, wavelength)
-    EbkgQ =  np.trapz(EbkgQL, wavelength)
-    EsourceE = np.trapz(EsourceEL, wavelength)
-    EbkgE =  np.trapz(EbkgEL, wavelength)
+    EsourceQ = numpy.trapz(EsourceQL, wavelength)
+    EbkgQ =  numpy.trapz(EbkgQL, wavelength)
+    EsourceE = numpy.trapz(EsourceEL, wavelength)
+    EbkgE =  numpy.trapz(EbkgEL, wavelength)
     EtotalQ = EsourceQ + EbkgQ
     EtotalE = EsourceE + EbkgE
 
@@ -600,10 +636,10 @@ if __name__ == '__main__':
         format(EtotalQ,EtotalE))
 
     #photocurrent from both QE&QL and R&EL spectral data should have same values.
-    iSourceE = np.trapz(EsourceEL * areaDet * responsivity, wavelength)
-    iBkgE = np.trapz(EbkgEL * areaDet * responsivity, wavelength)
-    iSourceQ = np.trapz(EsourceQL * areaDet * quantumEffic * const.e,wavelength)
-    iBkgQ = np.trapz(EbkgQL * areaDet * quantumEffic * const.e, wavelength)
+    iSourceE = numpy.trapz(EsourceEL * areaDet * responsivity, wavelength)
+    iBkgE = numpy.trapz(EbkgEL * areaDet * responsivity, wavelength)
+    iSourceQ = numpy.trapz(EsourceQL * areaDet * quantumEffic * const.e,wavelength)
+    iBkgQ = numpy.trapz(EbkgQL * areaDet * quantumEffic * const.e, wavelength)
     iTotalE = iSourceE + iBkgE
     iTotalQ = iSourceQ + iBkgQ
 
