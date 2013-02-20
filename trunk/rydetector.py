@@ -60,7 +60,7 @@ __author__= 'pyradi team'
 __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
         'Absorption', 'AbsorptionFile', 'QuantumEfficiency',
         'Responsivity', 'DStar', 'NEP','Isaturation',
-        'EgVarshni', 'IXV', 'Noise']
+        'EgVarshni', 'IXV', 'Noise','DstarSpectralFlatPhotonLim']
 
 import scipy.constants as const
 import matplotlib.pyplot as plt
@@ -422,6 +422,31 @@ def Noise(tempDet, IVbeta, Isat, iPhoto, vBias=0):
 
     return noise, R0, numpy.sqrt(iJohnson), numpy.sqrt(iShot1 + iShot2 + iShot3 )
 
+
+################################################################################
+#
+def DstarSpectralFlatPhotonLim(Tdetec, Tenvironment,epsilon):
+    """
+    This function calculates the photon noise limited D* of a detector with
+    unlimited spectral response. This case does not apply to photon detectors.
+    The absorption is assumed spectrally flat.
+
+    Args:
+        | Tdetec: detector temperature [K]
+        | Tenvironment: environment temperature [K]
+        | epsilon: emissivity/absorption
+
+    Returns:
+        | D* [cm \sqrt[Hz] / W] (note units)
+    """
+
+    # Kruse, P. W., Uncooled Thermal Imaging Arrays, Systems, and Applications ,
+    #no. TT51, SPIE Press (2001).
+    return 100 * numpy.sqrt(epsilon/(8 * const.k * const.sigma * \
+        (Tdetec ** 5 + Tenvironment ** 5)))
+
+
+
 ################################################################################
 if __name__ == '__init__':
     pass
@@ -434,83 +459,100 @@ if __name__ == '__main__':
     semiconductor parameters. Each material type has its own paramenters,
     """
 
-   #  ######################################################################
-   #  tempBack = numpy.asarray([1, 2, 4, 10, 25, 77, 195, 300, 500])
-   #  eta = 1
-   #  wavelength = numpy.logspace(0, 3, 100, True, 10)
-   #  dstarwlc = numpy.zeros(wavelength.shape)
-
-   #  def deeStarPeak(wavelength,temperature,eta):
-   #      i = 0
-   #      for wlc in wavelength:
-   #          wl =  numpy.linspace(wlc/100, wlc, 1000).reshape(-1, 1)
-   #          EbackLambda = ryplanck.planck(wl,temperature, type='ql')
-   #          Eback = numpy.trapz(EbackLambda.reshape(-1, 1),wl, axis=0)[0]
-   #          dstarwlc[i] = 1e-6 * wlc * numpy.sqrt(eta/Eback)/(const.h * const.c * numpy.sqrt(2))
-   #          #print(Eback)
-   #          i = i + 1
-
-   #      return dstarwlc * 100. # to get cm units
-
-   #  dstarP = ryplot.Plotter(1,1,1)
-   #  for temperature in tempBack:
-   #      dstar = deeStarPeak(wavelength,temperature,eta)
-   #      dstarP.logLog(1,wavelength,dstar,'',\
-   #          r'Peak wavelength [\mum]','D* [cm.\sqrt{Hz}/W]',pltaxis=[1, 1e3, 1e10, 1e20])
-
-   #  currentP = dstarP.getSubPlot(1)
-   #  for xmaj in currentP.xaxis.get_majorticklocs():
-   #      currentP.axvline(x=xmaj,ls='-')
-   #  for ymaj in currentP.yaxis.get_majorticklocs():
-   #      currentP.axhline(y=ymaj,ls='-')
-   #  dstarP.saveFig('dstarPeak.eps')
-
-   #  ######################################################################
-
-   #  #demonstrate and test absorption data read from file
-   #  absFile = ryplot.Plotter(1,1,1)
-   #  wavelength = numpy.linspace(0.2, 2, 600)
-   #  filenames = [
-   #      'data/absorptioncoeff/Si.txt',
-   #      'data/absorptioncoeff/GaAs.txt',
-   #      'data/absorptioncoeff/Ge.txt',
-   #      'data/absorptioncoeff/In07Ga03As64P36.txt',
-   #      'data/absorptioncoeff/InP.txt',
-   #      'data/absorptioncoeff/In53Ga47As.txt',
-   #      'data/absorptioncoeff/piprekGe.txt',
-   #      'data/absorptioncoeff/piprekGaAs.txt',
-   #      'data/absorptioncoeff/piprekSi.txt',
-   #      'data/absorptioncoeff/piprekInP.txt'
-   #      ]
-   #  for filename in filenames:
-   #      wl, absorb = AbsorptionFile(wavelength, filename)
-   #      absFile.semilogY(1,wl,absorb,'Absorption coefficient',\
-   #          r'Wavelength [\mum]','Absorptance [m-1]')
-   #  currentP = absFile.getSubPlot(1)
-   #  for xmaj in currentP.xaxis.get_majorticklocs():
-   #      currentP.axvline(x=xmaj,ls='-')
-   #  for ymaj in currentP.yaxis.get_majorticklocs():
-   #      currentP.axhline(y=ymaj,ls='-')
-   #  absFile.saveFig('absorption.eps')
-
-   #  #######################################################################
-   #  #plot the Fermi-Dirac distribution
-   #  temperature = [0, 77, 300]
-   #  EevR = numpy.linspace(-0.2, 0.2, 500)
-
-   #  fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
-   #  legend = ["{0:.0f} K".format(temperature[0])]
-   #  for temp in temperature[1:] :
-   #      fDirac = numpy.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
-   #      legend.append("{0:.0f} K".format(temp))
-
-   # # Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
+    #calculate the theoretical D* for a spectrally flat detector
+    Tenvironment = numpy.linspace(1,600,100)
+    Tdetector = [0, 77, 195, 290]
+    dstarP = ryplot.Plotter(1,1,1,figsize=(5,2))
+    for Tdetec in Tdetector:
+        dStar = DstarSpectralFlatPhotonLim(Tdetec,Tenvironment,1)
+        dstarP.semilogY(1,Tenvironment,dStar,'',\
+            r'Environmental temperature [K]','D* [cm.\sqrt{Hz}/W]',
+            pltaxis=[0, 600, 1e9, 1e13])
+    currentP = dstarP.getSubPlot(1)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='-')
+    dstarP.saveFig('dstarFlat.eps')
 
 
-   #  fDfig = ryplot.Plotter(1,1,1)
-   #  fDfig.plot(1,EevR,fDirac,'Fermi-Dirac distribution function',\
-   #      r'Energy [eV]','Occupancy probability', label=legend)
-   #  fDfig.saveFig('FermiDirac.eps')
+    ######################################################################
+    tempBack = numpy.asarray([1, 2, 4, 10, 25, 77, 195, 300, 500])
+    eta = 1
+    wavelength = numpy.logspace(0, 3, 100, True, 10)
+    dstarwlc = numpy.zeros(wavelength.shape)
+
+    def deeStarPeak(wavelength,temperature,eta):
+        i = 0
+        for wlc in wavelength:
+            wl =  numpy.linspace(wlc/100, wlc, 1000).reshape(-1, 1)
+            EbackLambda = ryplanck.planck(wl,temperature, type='ql')
+            Eback = numpy.trapz(EbackLambda.reshape(-1, 1),wl, axis=0)[0]
+            dstarwlc[i] = 1e-6 * wlc * numpy.sqrt(eta/Eback)/(const.h * const.c * numpy.sqrt(2))
+            #print(Eback)
+            i = i + 1
+
+        return dstarwlc * 100. # to get cm units
+
+    dstarP = ryplot.Plotter(1,1,1)
+    for temperature in tempBack:
+        dstar = deeStarPeak(wavelength,temperature,eta)
+        dstarP.logLog(1,wavelength,dstar,'',\
+            r'Peak wavelength [\mum]','D* [cm.\sqrt{Hz}/W]',pltaxis=[1, 1e3, 1e10, 1e20])
+
+    currentP = dstarP.getSubPlot(1)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='-')
+    dstarP.saveFig('dstarPeak.eps')
+
+    ######################################################################
+
+    #demonstrate and test absorption data read from file
+    absFile = ryplot.Plotter(1,1,1)
+    wavelength = numpy.linspace(0.2, 2, 600)
+    filenames = [
+        'data/absorptioncoeff/Si.txt',
+        'data/absorptioncoeff/GaAs.txt',
+        'data/absorptioncoeff/Ge.txt',
+        'data/absorptioncoeff/In07Ga03As64P36.txt',
+        'data/absorptioncoeff/InP.txt',
+        'data/absorptioncoeff/In53Ga47As.txt',
+        'data/absorptioncoeff/piprekGe.txt',
+        'data/absorptioncoeff/piprekGaAs.txt',
+        'data/absorptioncoeff/piprekSi.txt',
+        'data/absorptioncoeff/piprekInP.txt'
+        ]
+    for filename in filenames:
+        wl, absorb = AbsorptionFile(wavelength, filename)
+        absFile.semilogY(1,wl,absorb,'Absorption coefficient',\
+            r'Wavelength [\mum]','Absorptance [m-1]')
+    currentP = absFile.getSubPlot(1)
+    for xmaj in currentP.xaxis.get_majorticklocs():
+        currentP.axvline(x=xmaj,ls='-')
+    for ymaj in currentP.yaxis.get_majorticklocs():
+        currentP.axhline(y=ymaj,ls='-')
+    absFile.saveFig('absorption.eps')
+
+    #######################################################################
+    #plot the Fermi-Dirac distribution
+    temperature = [0, 77, 300]
+    EevR = numpy.linspace(-0.2, 0.2, 500)
+
+    fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
+    legend = ["{0:.0f} K".format(temperature[0])]
+    for temp in temperature[1:] :
+        fDirac = numpy.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
+        legend.append("{0:.0f} K".format(temp))
+
+   # Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
+
+
+    fDfig = ryplot.Plotter(1,1,1)
+    fDfig.plot(1,EevR,fDirac,'Fermi-Dirac distribution function',\
+        r'Energy [eV]','Occupancy probability', label=legend)
+    fDfig.saveFig('FermiDirac.eps')
 
 ######################################################################
 ######################################################################
