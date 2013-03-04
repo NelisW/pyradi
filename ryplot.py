@@ -50,6 +50,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+
 
 class Plotter:
     """ Encapsulates a plotting environment, optimized for
@@ -770,6 +772,7 @@ class Plotter:
                 | ptitle (string): plot title (optional)
                 | xlabel (string): x axis label (optional)
                 | ylabel (string): y axis label (optional)
+                | zlabel (string): z axis label (optional)
                 | plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
                 | legendAlpha (float): transparancy for legend (optional)
@@ -816,6 +819,77 @@ class Plotter:
         if(ptitle is not None):
             plt.title(ptitle, fontsize=titlefsize)
 
+    ############################################################
+    ##
+    def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, \
+                xlabel=None, ylabel=None, zlabel=None, zscale=None,  \
+               titlefsize=12, thetaStride=1, radialstride=1, meshCmap = cm.YlGnBu_r):
+        """3D polar mesh plot on linear scales for (r, theta, zvals) input sets.
+
+        Given an existing figure, this function plots in a specified subplot position.
+        The function arguments are described below in some detail.
+
+        Only one mesh is drawn at a time.  Future meshes in the same subplot
+        will cover any previous meshes.
+
+        The data in zvals must be on a grid where the theta vector correspond to
+        the number of rows in zvals and the radial vector corresponds to the
+        number of columns in zvals.
+
+        The r and p vectors may have non-constant grid-intervals, i.e., they do not
+        have to be on regular intervals.
+
+            Args:
+                | plotnum (int): subplot number
+                | theta (np.array[N,] or [N,1]): vector of angular values
+                | radial (np.array[M,] or [M,1]): vector if radial values
+                | zvals (np.array[N,M]): values on a (theta,radial) grid
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | zlabel (string): z axis label (optional)
+                | zscale ([float]): z axis [min, max] in the plot.
+                | titlefsize (int): title font size, default 12pt (optional)
+                | thetaStride (int): theta stride in input data (optional)
+                | radialstride (int): radial stride in input data  (optional)
+                | meshCmap (cm): color map for the mesh (optional)
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+        # transform to cartesian system, using meshgrid
+        Radial,Theta = numpy.meshgrid(radial,theta)
+        X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+
+        #create subplot if not existing
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+        #get axis
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+        #do the plot
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, cmap=meshCmap)
+
+        #label and clean up
+        if zscale==None:
+            ax.set_zlim3d(numpy.min(zvals), numpy.max(zvals))
+        else:
+            ax.set_zlim3d(zscale[0], zscale[1])
+
+        if xlabel is not None:
+            ax.set_xlabel(xlabel)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel)
+        if zlabel is not None:
+            ax.set_zlabel(zlabel)
+
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
 
 
 ################################################################
@@ -825,7 +899,24 @@ class Plotter:
 
 if __name__ == '__main__':
 
-
+    #demonstrate the use of a polar mesh plot
+    #create the radial and angular vectors
+    r = numpy.linspace(0,1.25,25)
+    p = numpy.linspace(0,2*numpy.pi,50)
+    #the r and p vectors may have non-constant grid-intervals
+    # r = numpy.logspace(numpy.log10(0.001),numpy.log10(1.25),50)
+    # p = numpy.logspace(numpy.log10(0.001),numpy.log10(2*numpy.pi),100)
+    #build a meshgrid (2-D array of values)
+    R,P = numpy.meshgrid(r,p)
+    # transform radial/theta to cartesian system
+    X,Y = R*numpy.cos(P),R*numpy.sin(P)
+    #calculate the z values on the cartesian grid
+    value = (numpy.tan(P**3)*numpy.cos(P**2)*(R**2 - 1)**2)
+    p3D = Plotter(1, 1, 1,'Array Plots',figsize=(12,8))
+    p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
+        xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
+    p3D.saveFig('p3D.png')
+    #p3D.saveFig('p3D.eps')
 
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
