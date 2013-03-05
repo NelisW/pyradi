@@ -53,6 +53,242 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
 
+####################################################################
+##
+class FilledMarker:
+    """Filled marker user-settable values.
+
+    This class encapsulates a few variables describing a Filled marker.
+    Default values are provided that can be overridden in user plots.
+
+    Values relevant to filled makers are as follows:
+     | marker = ['o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd']
+     | fillstyle = ['full', 'left', 'right', 'bottom', 'top', 'none']
+     | colour names =       http://www.w3schools.com/html/html_colornames.asp
+    """
+
+    def __init__(self, markerfacecolor = None, markerfacecoloralt = None,\
+                    markeredgecolor = None, marker = None, markersize = None, \
+                    fillstyle = None):
+        """Define marker default values.
+
+            Args:
+                | markerfacecolor (colour): main colour for marker (optional)
+                | markerfacecoloralt (colour): alterive colour for marker (optional)
+                | markeredgecolor (colour): edge colour for marker (optional)
+                | marker (string): string to specify the marker  (optional)
+                | markersize (int)): size of the marker  (optional)
+                | fillstyle (string): string to define fill style  (optional)
+
+            Returns:
+                | Nothing. Creates the figure for subequent use.
+
+            Raises:
+                | No exception is raised.
+
+        """
+
+        __all__ = ['__init__']
+
+        if markerfacecolor is None:
+            self.markerfacecolor = 'r'
+        else:
+            self.markerfacecolor = markerfacecolor
+
+        if markerfacecoloralt is None:
+            self.markerfacecoloralt = 'b'
+        else:
+            self.markerfacecoloralt = markerfacecoloralt
+
+        if markeredgecolor is None:
+            self.markeredgecolor = 'k'
+        else:
+            self.markeredgecolor = markeredgecolor
+
+        if marker is None:
+            self.marker = 'o'
+        else:
+            self.marker = marker
+
+        if markersize is  None:
+            self.markersize = 20
+        else:
+            self.markersize = markersize
+
+        if fillstyle is None:
+            self.fillstyle = 'full'
+        else:
+            self.fillstyle = fillstyle
+
+
+
+###################################################################################
+###################################################################################
+
+class Markers:
+    """Collect maker location and types and mark subplot.
+
+    Build a list of markers at plot locations with the specified marker.
+    """
+
+####################################################################
+##
+    def __init__(self, markerfacecolor = None, markerfacecoloralt = None,\
+                markeredgecolor = None, marker = None, markersize = None, \
+                fillstyle = None):
+        """Set default marker values for this collection
+
+        Specify default marker properties to be used for all markers
+        in this instance. If no marker properties are specified here,
+        the  default FilledMarker marker properties will be used.
+
+            Args:
+                | markerfacecolor (colour): main colour for marker (optional)
+                | markerfacecoloralt (colour): alterive colour for marker (optional)
+                | markeredgecolor (colour): edge colour for marker (optional)
+                | marker (string): string to specify the marker  (optional)
+                | markersize (int)): size of the marker  (optional)
+                | fillstyle (string): string to define fill style  (optional)
+
+            Returns:
+                | Nothing. Creates the figure for subequent use.
+
+            Raises:
+                | No exception is raised.
+        """
+
+        __all__ = ['__init__', 'add',  'plot']
+
+        if markerfacecolor is None:
+            self.markerfacecolor = None
+        else:
+            self.markerfacecolor = markerfacecolor
+
+        if markerfacecoloralt is  None:
+            self.markerfacecoloralt = None
+        else:
+            self.markerfacecoloralt = markerfacecoloralt
+
+        if markeredgecolor is  None:
+            self.markeredgecolor = None
+        else:
+            self.markeredgecolor = markeredgecolor
+
+        if marker is  None:
+            self.marker = None
+        else:
+            self.marker = marker
+
+        if markersize is   None:
+            self.markersize = markersize
+        else:
+            self.markersize = markersize
+
+        if fillstyle is  None:
+            self.fillstyle = None
+        else:
+            self.fillstyle = fillstyle
+
+        #list if markers to be drawn
+        self.markers = []
+
+####################################################################
+##
+    def add(self,x,y,markerfacecolor = None, markerfacecoloralt = None,
+                markeredgecolor = None, marker = None, markersize = None,
+                fillstyle = None):
+        """Add a marker to the list, overridding properties if necessary.
+
+        Specify location and any specific marker properties to be used.
+        The location can be (xy,y) for cartesian plots or (theta,rad) for polars.
+
+        If no marker properties are specified, the current marker class
+        properties will be used.  If the current maker instance does not
+        specify properties, the default marker properties will be used.
+
+            Args:
+                | x (float): the x/theta location for the marker
+                | y (float): the y/radial location for the marker
+                | markerfacecolor (colour): main colour for marker (optional)
+                | markerfacecoloralt (colour): alterive colour for marker (optional)
+                | markeredgecolor (colour): edge colour for marker (optional)
+                | marker (string): string to specify the marker  (optional)
+                | markersize (int)): size of the marker  (optional)
+                | fillstyle (string): string to define fill style  (optional)
+
+            Returns:
+                | Nothing. Creates the figure for subequent use.
+
+            Raises:
+                | No exception is raised.
+        """
+
+        if markerfacecolor is None:
+            if self.markerfacecolor is not None:
+                markerfacecolor = self.markerfacecolor
+
+        if markerfacecoloralt is None:
+            if self.markerfacecoloralt is not None:
+                markerfacecoloralt = self.markerfacecoloralt
+
+        if markeredgecolor is None:
+            if self.markeredgecolor is not None:
+                markeredgecolor = self.markeredgecolor
+
+        if marker is None:
+            if self.marker is not None:
+                marker = self.marker
+
+        if markersize is None:
+            if self.markersize is not None:
+                markersize = self.markersize
+
+        if fillstyle is None:
+            if self.fillstyle is not None:
+                fillstyle = self.fillstyle
+
+        marker = FilledMarker(markerfacecolor, markerfacecoloralt ,\
+                        markeredgecolor , marker , markersize , fillstyle)
+        self.markers.append((x,y,marker))
+
+
+####################################################################
+##
+    def plot(self,ax):
+        """Plot the current list of markers on the given axes.
+
+        All the markers currently stored in the class will be
+        drawn.
+
+            Args:
+                | ax (axes): an axes handle for the plot
+
+            Returns:
+                | Nothing. Creates the figure for subequent use.
+
+            Raises:
+                | No exception is raised.
+        """
+
+        usetex = plt.rcParams['text.usetex']
+        plt.rcParams['text.usetex'] = False # otherwise, '^' will cause trouble
+
+        for marker in self.markers:
+            ax.plot(marker[0], marker[1],
+                c = marker[2].markerfacecolor,
+                markerfacecoloralt = marker[2].markerfacecoloralt,
+                markeredgecolor = marker[2].markeredgecolor,
+                marker = marker[2].marker,
+                markersize = marker[2].markersize,
+                fillstyle = marker[2].fillstyle)
+
+        plt.rcParams['text.usetex'] = usetex
+
+
+
+###################################################################################
+###################################################################################
+
 class Plotter:
     """ Encapsulates a plotting environment, optimized for
     radiometry plots.
@@ -823,11 +1059,10 @@ class Plotter:
     ##
     def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, \
                 xlabel=None, ylabel=None, zlabel=None, zscale=None,  \
-               titlefsize=12, thetaStride=1, radialstride=1, meshCmap = cm.YlGnBu_r):
-        """3D polar mesh plot on linear scales for (r, theta, zvals) input sets.
+               titlefsize=12, thetaStride=1, radialstride=1, meshCmap = cm.rainbow):
+        """3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
-        The function arguments are described below in some detail.
 
         Only one mesh is drawn at a time.  Future meshes in the same subplot
         will cover any previous meshes.
@@ -890,7 +1125,132 @@ class Plotter:
         if(ptitle is not None):
             plt.title(ptitle, fontsize=titlefsize)
 
+    ############################################################
+    ##
+    def polarMesh(self, plotnum, theta, radial, zvals, ptitle=None, shading = 'flat',\
+                radscale=None, titlefsize=12,  meshCmap = cm.rainbow, cbarshow=False, \
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
+        """Polar colour mesh plot for (r, theta, zvals) input sets.
 
+        Given an existing figure, this function plots in a specified subplot position.
+
+        Only one mesh is drawn at a time.  Future meshes in the same subplot
+        will cover any previous meshes.
+
+        The data in zvals must be on a grid where the theta vector correspond to
+        the number of rows in zvals and the radial vector corresponds to the
+        number of columns in zvals.
+
+        The r and p vectors may have non-constant grid-intervals, i.e., they do not
+        have to be on regular intervals.
+
+            Args:
+                | plotnum (int): subplot number
+                | theta (np.array[N,] or [N,1]): vector of angular values
+                | radial (np.array[M,] or [M,1]): vector if radial values
+                | zvals (np.array[N,M]): values on a (theta,radial) grid
+                | ptitle (string): plot title (optional)
+                | shading (string): 'flat' | 'gouraud'  (optional)
+                | radscale ([float]): inner and outer radial scale max in the plot.
+                | titlefsize (int): title font size, default 12pt (optional)
+                | meshCmap (cm): color map for the mesh (optional)
+                | cbarshow (bool): if true, the show a color bar
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
+                | cbarfontsize (int): font size for color bar
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+        # # transform to cartesian system, using meshgrid
+        # Radial,Theta = numpy.meshgrid(radial,theta)
+        # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+
+        #create subplot if not existing
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
+        #get axis
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
+
+        #do the plot
+        pmplot = ax.pcolormesh(P, R, zvals, shading=shading, cmap=meshCmap)
+
+        #label and clean up
+        if radscale==None:
+            ax.set_ylim(numpy.min(R), numpy.max(R))
+        else:
+            ax.set_ylim(radscale[0], radscale[1])
+
+        if cbarshow is True:
+            if not cbarcustomticks:
+                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+            else:
+                ticks,  ticklabels = zip(*cbarcustomticks)
+                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+                if cbarorientation == 'vertical':
+                    cbar.ax.set_yticklabels(ticklabels)
+                else:
+                    cbar.ax.set_xticklabels(ticklabels)
+
+            if cbarorientation == 'vertical':
+                for t in cbar.ax.get_yticklabels():
+                     t.set_fontsize(cbarfontsize)
+            else:
+                for t in cbar.ax.get_xticklabels():
+                     t.set_fontsize(cbarfontsize)
+
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
+
+    ############################################################
+    ##
+    def plotMarkers(self, plotnum, ):
+        """Add markers to the subplot
+
+
+            Args:
+                | plotnum (int): subplot number
+                | theta (np.array[N,] or [N,1]): vector of angular values
+                | radial (np.array[M,] or [M,1]): vector if radial values
+                | zvals (np.array[N,M]): values on a (theta,radial) grid
+                | ptitle (string): plot title (optional)
+                | shading (string): 'flat' | 'gouraud'  (optional)
+                | radscale ([float]): inner and outer radial scale max in the plot.
+                | titlefsize (int): title font size, default 12pt (optional)
+                | meshCmap (cm): color map for the mesh (optional)
+                | cbarshow (bool): if true, the show a color bar
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
+                | cbarfontsize (int): font size for color bar
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+        # # transform to cartesian system, using meshgrid
+        # Radial,Theta = numpy.meshgrid(radial,theta)
+        # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+
+        #create subplot if not existing
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
+        #get axis
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
+
+
+#####################################################################
 
 ################################################################
 ################################################################
@@ -912,11 +1272,34 @@ if __name__ == '__main__':
     X,Y = R*numpy.cos(P),R*numpy.sin(P)
     #calculate the z values on the cartesian grid
     value = (numpy.tan(P**3)*numpy.cos(P**2)*(R**2 - 1)**2)
-    p3D = Plotter(1, 1, 1,'Array Plots',figsize=(12,8))
+    p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
     p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
         xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
     p3D.saveFig('p3D.png')
     #p3D.saveFig('p3D.eps')
+
+    r = numpy.linspace(0,1.25,100)
+    p = numpy.linspace(0,2*numpy.pi,100)
+    R,P = numpy.meshgrid(r,p)
+    value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
+    pmesh = Plotter(1, 1, 1,'Polar plot in mesh',figsize=(12,8))
+    pmesh.polarMesh(1, p, r, value, cbarshow=True, \
+                  cbarorientation = 'vertical', cbarfontsize = 10  )#, radscale=[0.5,1.25])
+
+    # add filled markers
+    markers = Markers(markerfacecolor='y', marker='*')
+    markers.add(0*numpy.pi/6,1)
+    markers.add(1*numpy.pi/6,0.9,markerfacecolor='k', marker='v',fillstyle='top')
+    markers.add(2*numpy.pi/6,0.8,fillstyle='none',markeredgecolor='g')
+    markers.add(3*numpy.pi/6,0.7,marker='8')
+    markers.add(4*numpy.pi/6,0.6,marker='p',fillstyle='top')
+    markers.add(5*numpy.pi/6,0.5,markerfacecolor='r',marker='H',fillstyle='bottom',markerfacecoloralt='PaleGreen')
+    markers.add(6*numpy.pi/6,0.4,marker='D',fillstyle='left',markerfacecoloralt='Sienna',markersize=10)
+    markers.plot(pmesh.getSubPlot(1))
+
+    pmesh.saveFig('pmesh.png')
+    #pmesh.saveFig('pmesh.eps')
+
 
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
