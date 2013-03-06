@@ -48,6 +48,7 @@ import sys
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
@@ -248,7 +249,7 @@ class Markers:
                 fillstyle = self.fillstyle
 
         marker = FilledMarker(markerfacecolor, markerfacecoloralt ,\
-                        markeredgecolor , marker , markersize , fillstyle)
+                        markeredgecolor , marker, markersize , fillstyle)
         self.markers.append((x,y,marker))
 
 
@@ -269,7 +270,6 @@ class Markers:
             Raises:
                 | No exception is raised.
         """
-
         usetex = plt.rcParams['text.usetex']
         plt.rcParams['text.usetex'] = False # otherwise, '^' will cause trouble
 
@@ -1248,9 +1248,98 @@ class Plotter:
         #get axis
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
+ ############################################################
+    ##
+    def plotArray(self, plotnum, inarray, slicedim = 0, subtitles = None, xlabel=None, \
+                        maxNX=0, maxNY=0, titlefsize = 8):
+        """Creates a plot from an input array.
+
+        Given an input array with m x n dimensions, this function creates a subplot for vectors
+        [1-n]. Vector 0 serves as the x-axis for each subplot. The slice dimension can be in 
+        columns (0) or rows (1).
+        
+
+            Args:
+                | inarray (array): np.array
+                | slicedim (int): slice along columns (0) or rows (1)
+                | subtitles (list): a list of strings as subtitles for each subplot
+                | xlabel (string): x axis label (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | titlefsize (int): title font size, default 12pt (optional)
+                
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+        fig = self.fig
+        #use current subplot number as outer grid reference
+        outer_grid = gridspec.GridSpec(self.nrow,self.ncol, wspace=0, hspace=0)
+        
+        #if slicedim = 0, slice across columns     
+        if slicedim == 0:
+	  
+	   #x-axis is first vector
+	   x = inarray[:,0]
+	   #xlabel is time
+	   xlabel = subtitles[0]
+	   
+	   yAll = inarray[:,1:].transpose()
+	   
+	   nestnrow = inarray.shape[1]-1
+	   nestncol = 1
+	   plottitles = subtitles[1:]
+	
+	#if slicedim = 1, slice across rows
+	elif slicedim == 1:
+	   x = range(0,inarray.shape[1]-1)
+	   #for slicedim = 1, the tick labels are in the x title
+	   xlabel = subtitles[1:inarray.shape[1]]
+	   
+	   yAll = inarray[:,1:]
+	   nestnrow = inarray.shape[0]
+	   nestncol = 1
+	   plottitles = inarray[:,0]
+	     
+	     
+	#inner_grid (nested):
+        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, subplot_spec=outer_grid[0], \
+        wspace=0, hspace=0.2)
+        
+	#create subplot for each y-axis vector
+        nestplotnum = 0
+           
+	for y in yAll:
+	       
+	   ax = plt.Subplot(fig, inner_grid[nestplotnum])
+	   ax.plot(x,y)
+	   if subtitles is not None:
+	       ax.set_ylabel(plottitles[nestplotnum], fontsize=titlefsize)
+	       #align ylabels
+	       ax.yaxis.set_label_coords(-0.05, 0.5)
+	   
+	   #tick label fonts
+	   for tick in ax.yaxis.get_major_ticks():
+               tick.label.set_fontsize(8) 
+           for tick in ax.xaxis.get_major_ticks():
+               tick.label.set_fontsize(8) 
+                   
+           if maxNX > 0:
+	       ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))    
+           if maxNY > 0:
+	       ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+	   nestplotnum = nestplotnum + 1
+           fig.add_subplot(ax)
+           
+        #share x ticklabels and label to avoid clutter and overlapping
+        plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
+        if xlabel is not None:
+            fig.axes[-1].set_xlabel(xlabel, fontsize=titlefsize)
 
 
-#####################################################################
 
 ################################################################
 ################################################################
@@ -1259,6 +1348,24 @@ class Plotter:
 
 if __name__ == '__main__':
 
+        
+    #demonstrate the use of plotArray    
+    #import array from example data file
+    filename = "data/simulcpp_dummydemo.txt"
+    f = open(filename)
+    lines = f.readlines()
+    #the titles are in the first line (row). Skip the '%' symbol
+    titles = lines[0].split()[1:]
+    #the array is the rest of the file
+    arrDummyDemo = numpy.genfromtxt(filename,skip_header=1)
+    #the figure title is the filename
+    maintitle = filename.split('/')[-1]
+    
+    Ar = Plotter(9, 1, 1,maintitle)
+    Ar.plotArray(1,arrDummyDemo, 0, titles, titlefsize = 12, maxNX = 5, maxNY=3)
+    Ar.saveFig('ArrayPlot.eps')
+    Ar.saveFig('ArrayPlot.png')
+    
     #demonstrate the use of a polar mesh plot
     #create the radial and angular vectors
     r = numpy.linspace(0,1.25,25)
@@ -1290,8 +1397,8 @@ if __name__ == '__main__':
     markers = Markers(markerfacecolor='y', marker='*')
     markers.add(0*numpy.pi/6,1)
     markers.add(1*numpy.pi/6,0.9,markerfacecolor='k', marker='v',fillstyle='top')
-    markers.add(2*numpy.pi/6,0.8,fillstyle='none',markeredgecolor='g')
-    markers.add(3*numpy.pi/6,0.7,marker='8')
+    markers.add(2*numpy.pi/6,0.8,fillstyle='top',markeredgecolor='g')
+    markers.add(3*numpy.pi/6,0.7,marker='v')
     markers.add(4*numpy.pi/6,0.6,marker='p',fillstyle='top')
     markers.add(5*numpy.pi/6,0.5,markerfacecolor='r',marker='H',fillstyle='bottom',markerfacecoloralt='PaleGreen')
     markers.add(6*numpy.pi/6,0.4,marker='D',fillstyle='left',markerfacecoloralt='Sienna',markersize=10)
@@ -1300,7 +1407,7 @@ if __name__ == '__main__':
     pmesh.saveFig('pmesh.png')
     #pmesh.saveFig('pmesh.eps')
 
-
+    exit(0)
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
     yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
