@@ -1306,8 +1306,8 @@ class Plotter:
 	     
 	     
 	#inner_grid (nested):
-        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, subplot_spec=outer_grid[0], \
-        wspace=0, hspace=0.2)
+        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, \
+                    subplot_spec=outer_grid[0],wspace=0, hspace=0.2)
         
 	#create subplot for each y-axis vector
         nestplotnum = 0
@@ -1338,7 +1338,7 @@ class Plotter:
         plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
         if xlabel is not None:
             fig.axes[-1].set_xlabel(xlabel, fontsize=titlefsize)
-
+     
 
 
 ################################################################
@@ -1407,7 +1407,6 @@ if __name__ == '__main__':
     pmesh.saveFig('pmesh.png')
     #pmesh.saveFig('pmesh.eps')
 
-    exit(0)
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
     yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
