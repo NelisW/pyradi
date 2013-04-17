@@ -594,6 +594,10 @@ if __name__ == '__main__':
     E0 = 0.24        # semiconductor bandgap at room temp in Ev
     VarshniA = 6e-4     # first fitting parameter for the Varshni's Equation
     VarshniB = 500.0        # second fitting parameter for the Varshni's Equation
+    #Varshni parameters taken from:
+    #Group IV Elements, IV--IV and III--V Compounds. Part b --- Electronic,
+    #Transport, Optical and Other Properties, O. Madelung and U. R\"{o}ssler and M. Schulz,
+    #Springer-Verlag, 2002.
     n2 = 3.42        # refraction index of the semiconductor being analyzed
     a0 = 1.9e4 * 100   # absorption coefficient [m-1], Eq3.5 & 3.6 Dereniak
     a0p = 800 * 100    # absorption coefficient [m-1] Eq3.5 & 3.6 Dereniak
@@ -611,6 +615,7 @@ if __name__ == '__main__':
     # bandgap at operating termperature
     Eg = EgVarshni(E0, VarshniA, VarshniB, tempDet)
     print('Bandgap = {0}'.format(Eg))
+    print('Lambda_c= {0}'.format(1.24/Eg))
 
     #calculate the spectral absorption, quantum efficiency and responsivity
     absorption = Absorption(wavelength / 1e6, Eg, tempDet, a0, a0p)
