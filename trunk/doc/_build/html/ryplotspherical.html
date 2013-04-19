@@ -275,7 +275,7 @@ Roll is defined in yz plane.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplotspherical.plotSpherical">
-<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotSpherical</tt><big>(</big><em>dataset</em>, <em>vertices</em>, <em>triangles</em>, <em>ptitle=u''</em>, <em>tsize=0.4</em>, <em>theight=0.95</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotSpherical" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotSpherical</tt><big>(</big><em>figure</em>, <em>dataset</em>, <em>vertices</em>, <em>triangles</em>, <em>ptitle=u''</em>, <em>tsize=0.4</em>, <em>theight=1</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotSpherical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the spherical data given a data set, triangle set and vertex set.</p>
 <p>The vertex set defines the direction cosines of the individual samples.
 The triangle set defines how the surfrace must be structured between the samples.
@@ -283,17 +283,18 @@ The data set defines, for each direction cosine, the length of the vector.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
+<div class="line">figure(int): mlab figure number</div>
 <div class="line">dataset(numpy.array(double)): array of data set values</div>
 <div class="line">vertices(numpy.array([])): array of direction cosine vertices as [x y z]</div>
 <div class="line">triangles(numpy.array([])): array of triangles as []</div>
 <div class="line">ptitle(string): title or header for this display</div>
-<div class="line">tsize(double): title size (units not quite clear)</div>
-<div class="line">theight(double): title height (y value) (units not quite clear)</div>
+<div class="line">tsize(double): title width in in normalised figure width</div>
+<div class="line">theight(double): title top vertical location in normalised figure height</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">provides and mlab figure.</div>
+<div class="line">provides an mlab figure.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -382,7 +383,7 @@ the plotting routines are in the tp01 utils directory.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplotspherical.plotOSSIMSpherical">
-<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotOSSIMSpherical</tt><big>(</big><em>nColours</em>, <em>plottitle</em>, <em>datafile</em>, <em>vertexfile</em>, <em>trianglefile</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotOSSIMSpherical" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">plotOSSIMSpherical</tt><big>(</big><em>basefigure</em>, <em>nColours</em>, <em>plottitle</em>, <em>datafile</em>, <em>vertexfile</em>, <em>trianglefile</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.plotOSSIMSpherical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the spherical data given a data set, triangle set and vertex set.</p>
 <p>The vertex set defines the direction cosines of the individual samples.
 The triangle set defines how the surfrace must be structured between the samples.
@@ -394,6 +395,7 @@ shells the values are going through zero.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
+<div class="line">basefigure (int): value where figure count must start</div>
 <div class="line">nColours ([int]): selection of colours to display</div>
 <div class="line">plottitle (string): plot title or header</div>
 <div class="line">datafile (string): dataset file filename</div>
@@ -403,7 +405,55 @@ shells the values are going through zero.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">provides and mlab figure.</div>
+<div class="line">provides an mlab figure.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.sphericalPlot2DLUT">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">sphericalPlot2DLUT</tt><big>(</big><em>figure</em>, <em>filename</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.sphericalPlot2DLUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the 2D OSSIM interpolation table in spherical display.</p>
+<p>Plot the OSSIM 2D polar coordinate interpolation lookup tables
+where the table is in the following format:</p>
+<div class="highlight-python"><pre>    zenith azimuth dataname
+0      0    45   90    135  180
+0     10     1    20    30   80
+45    10    20    30    40   80
+90    10    30    40    50   80
+135   10    40    50    60   80
+180   10    50    60    70   80
+225   10    50    60    70   80
+270   10    50    60    70   80
+315   10    50    60    70   80
+360   10    60    70    80   80</pre>
+</div>
+<p>where the first line lists the column label, the row label and the title.
+The second row list the zenith angle values, but prepended with a discarded zero.
+The following rows list the azimuth angle in the first location,
+followed by the 2-D lookup table values.  See the code below for an
+example of how the data is extracted.</p>
+<p>This function assumes that the polar data is defined in terms of zenith angle
+(zero at the north pole, increasing to pi at the south pole) and azimuth measured
+around the equator, from 0 to 2pi.  All angles are in degrees.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">figure (int): mlab figure number</div>
+<div class="line">filename (string): file containing the LUT</div>
+<div class="line">colormap (string): defines the colour map to be used</div>
+<div class="line">doWireFrame (bool): switches fireframe on or off</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">provides an mlab figure.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
