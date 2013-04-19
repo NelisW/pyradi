@@ -200,10 +200,9 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
 
 
 ################################################################
-
 #lists the files in a directory and subdirectories
-#this code comes from the Python Cookbook
-def listFiles(root, patterns='*', recurse=1, return_folders=0):
+#this code is adapted from a recipe in the Python Cookbook
+def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     """Lists the files/directories meeting specific requirement
 
     Searches a directory structure along the specified path, looking
@@ -215,6 +214,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
         | patterns (string): glob pattern for filename matching
         | recurse (unt): should the search extend to subdirs of root?
         | return_folders (int): should foldernames also be returned?
+        | useRegex (bool): should regular expression evaluation be used?
 
     Returns:
         | A list with matching file/directory names
@@ -222,6 +222,9 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     Raises:
         | No exception is raised.
     """
+    if useRegex:
+        import re
+
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
     # Collect input and output arguments into one bunch
@@ -236,13 +239,21 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
             fullname = os.path.normpath(os.path.join(dirname, name))
             if arg.return_folders or os.path.isfile(fullname):
                 for pattern in arg.pattern_list:
-                    if fnmatch.fnmatch(name, pattern):
-                        arg.results.append(fullname)
-                        break
+                    if useRegex:
+                        regex = re.compile(pattern)
+                        #search returns None is pattern not found
+                        if regex.search(name):
+                            arg.results.append(fullname)
+                            break
+                    else:
+                        if fnmatch.fnmatch(name, pattern):
+                            arg.results.append(fullname)
+                            break
         # Block recursion if recursion was disallowed
         if not arg.recurse: files[:]=[]
     os.path.walk(root, visit, arg)
     return arg.results
+
 
 ################################################################
 ##
@@ -404,5 +415,19 @@ if __name__ == '__main__':
 
     else:
         print('\nNot all frames read from file')
+
+    #######################################################################
+    print("Test the glob version of listFiles")
+    filelist = listFiles('.', patterns=r"ry*.py", recurse=0, return_folders=0)
+    for filename in filelist:
+        print('  {0}'.format(filename))
+
+    print("Test the regex version of listFiles")
+    filelist = listFiles('.', patterns=r"[a-z]*p[a-z]*\.py[c]*", \
+        recurse=0, return_folders=0, useRegex=True)
+    for filename in filelist:
+        print('  {0}'.format(filename))
+
+#, useRegex=False
 
     print('module ryfiles done!')
