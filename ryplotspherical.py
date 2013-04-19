@@ -102,7 +102,7 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
-        'writeRotatingTargetOssimTrajFile']
+        'writeRotatingTargetOssimTrajFile', 'sphericalPlot2DLUT']
 
 import os.path, fnmatch
 import numpy
@@ -417,7 +417,7 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
 
 ################################################################
 ##
-def plotSpherical(dataset, vertices, triangles, ptitle='', tsize=0.4, theight=0.95):
+def plotSpherical(figure, dataset, vertices, triangles, ptitle='', tsize=0.4, theight=1):
     """Plot the spherical data given a data set, triangle set and vertex set.
 
     The vertex set defines the direction cosines of the individual samples.
@@ -425,15 +425,16 @@ def plotSpherical(dataset, vertices, triangles, ptitle='', tsize=0.4, theight=0.
     The data set defines, for each direction cosine, the length of the vector.
 
     Args:
+        | figure(int): mlab figure number
         | dataset(numpy.array(double)): array of data set values
         | vertices(numpy.array([])): array of direction cosine vertices as [x y z]
         | triangles(numpy.array([])): array of triangles as []
         | ptitle(string): title or header for this display
-        | tsize(double): title size (units not quite clear)
-        | theight(double): title height (y value) (units not quite clear)
+        | tsize(double): title width in in normalised figure width
+        | theight(double): title top vertical location in normalised figure height
 
     Returns:
-        | provides and mlab figure.
+        | provides an mlab figure.
 
     Raises:
         | No exception is raised.
@@ -444,18 +445,17 @@ def plotSpherical(dataset, vertices, triangles, ptitle='', tsize=0.4, theight=0.
     y =  dataset * vertices[:,1]
     z =  dataset * vertices[:,2]
 
-    mlab.figure(1, fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
+    mlab.figure(figure, fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
 
     # Visualize the points
     pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
     mlab.title(ptitle, size=tsize, height=theight)
-    mlab.show()
 
 
 
 ################################################################
 ##
-def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
+def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, trianglefile):
     """Plot the spherical data given a data set, triangle set and vertex set.
 
     The vertex set defines the direction cosines of the individual samples.
@@ -468,6 +468,7 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
     shells the values are going through zero.
 
     Args:
+        | basefigure (int): value where figure count must start
         | nColours ([int]): selection of colours to display
         | plottitle (string): plot title or header
         | datafile (string): dataset file filename
@@ -475,7 +476,7 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
         | trianglefile (string): triangles file filename
 
     Returns:
-        | provides and mlab figure.
+        | provides an mlab figure.
 
     Raises:
         | No exception is raised.
@@ -483,46 +484,109 @@ def plotOSSIMSpherical(nColours, plottitle, datafile, vertexfile, trianglefile):
     vertices = numpy.genfromtxt(vertexfile, autostrip=True,comments='%')
     triangles = numpy.genfromtxt(trianglefile, autostrip=True,comments='%')
     radianArray = numpy.loadtxt(datafile, skiprows=1, dtype = float)
-    specBand = ['8-12 um', '3-5 um', '1-2 um', '1.5-2.5 um']
+    specBand = ['LWIR', 'MWIR', 'SWIR1', 'SWIR2']
     for i in nColours:
         dataset = radianArray[:,5+i]
         ptitle = '{0} {1}'.format(plottitle,specBand[i])
-        plotSpherical(dataset, vertices, triangles, ptitle)
+        plotSpherical(basefigure+10+i, dataset, vertices, triangles, ptitle)
 
     #calculate colour ratio
     #   log() to compress the scales
     #   abs() to not loose negative values
     colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,5]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(3-5 um/8-12 um))')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/LWIR))')
+    plotSpherical(basefigure+2,colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,7]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(3-5 um/1-2 um))')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/SWIR1))')
+    plotSpherical(basefigure+3,colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(1-2 um/3-5 um)')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(SWIR1/MWIR)')
+    plotSpherical(basefigure+4,colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(-radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1-2 um/3-5 um))')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1SWIR1/MWIR))')
+    plotSpherical(basefigure+5,colourratio, vertices, triangles, ptitle)
 
 
     colourratio = numpy.log(numpy.abs(radianArray[:,8]/radianArray[:,6]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(1.5-2.5 um/3-5 um))')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(abs(SWIR2/MWIR))')
+    plotSpherical(basefigure+6,colourratio, vertices, triangles, ptitle)
 
 
     colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +1.5-2.5 um/3-5 um)')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +SWIR2/MWIR)')
+    plotSpherical(basefigure+7,colourratio, vertices, triangles, ptitle)
 
     colourratio = numpy.log(-radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1.5-2.5 um/3-5 um))')
-    plotSpherical(colourratio, vertices, triangles, ptitle)
+    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(SWIR2/MWIR))')
+    plotSpherical(basefigure+8,colourratio, vertices, triangles, ptitle)
 
 
+################################################################
+##
+def sphericalPlot2DLUT(figure, filename,colormap='Spectral', doWireFrame=False):
+    """Plot the 2D OSSIM interpolation table in spherical display.
+
+    Plot the OSSIM 2D polar coordinate interpolation lookup tables
+    where the table is in the following format:
+
+    ::
+
+            zenith azimuth dataname
+        0      0    45   90    135  180
+        0     10     1    20    30   80
+        45    10    20    30    40   80
+        90    10    30    40    50   80
+        135   10    40    50    60   80
+        180   10    50    60    70   80
+        225   10    50    60    70   80
+        270   10    50    60    70   80
+        315   10    50    60    70   80
+        360   10    60    70    80   80
+
+    where the first line lists the column label, the row label and the title.
+    The second row list the zenith angle values, but prepended with a discarded zero.
+    The following rows list the azimuth angle in the first location,
+    followed by the 2-D lookup table values.  See the code below for an
+    example of how the data is extracted.
+
+    This function assumes that the polar data is defined in terms of zenith angle
+    (zero at the north pole, increasing to pi at the south pole) and azimuth measured
+    around the equator, from 0 to 2pi.  All angles are in degrees.
+
+    Args:
+        | figure (int): mlab figure number
+        | filename (string): file containing the LUT
+        | colormap (string): defines the colour map to be used
+        | doWireFrame (bool): switches fireframe on or off
+
+    Returns:
+        | provides an mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+
+    with open(filename) as f:
+        lines = f.readlines()
+        xlabel, ylabel, ptitle = lines[0].split()
+
+    aArray = numpy.loadtxt(filename, skiprows=1, dtype = float)
+    azim1D = aArray[1:,0] * (numpy.pi/180)
+    elev1D = numpy.pi - aArray[0,1:] * (numpy.pi/180)
+    pRad = aArray[1:,1:]
+    phi, theta = numpy.meshgrid(elev1D,azim1D)
+    x = pRad * numpy.sin(phi) * numpy.cos(theta)
+    y = pRad * numpy.sin(phi) * numpy.sin(theta)
+    z = pRad * numpy.cos(phi)
+    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+    mlab.clf()
+    mlab.mesh(x, y, z, colormap=colormap)
+    if doWireFrame:
+        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe')
+    mlab.title(ptitle, size=0.5, height=1)
 
 ################################################################
 ##
@@ -553,12 +617,17 @@ if __name__ == '__main__':
         1000, 0, 0, -1500,0, 0, 0, 0, 0.01)
 
     #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
-    plotOSSIMSpherical([0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
+    plotOSSIMSpherical(0,[0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
         'data/plotspherical/vertexsphere_4_2562.txt',
         'data/plotspherical/trianglessphere_4_2562.txt')
 
-    plotOSSIMSpherical([0,1,2,3],'Rotating','data/plotspherical/rotateIntensity2562.txt',
+    plotOSSIMSpherical(100,[0,1,2,3],'Rotating','data/plotspherical/rotateIntensity2562.txt',
         'data/plotspherical/vertexsphere_4_2562.txt',
         'data/plotspherical/trianglessphere_4_2562.txt')
 
+    mlab.show()
 
+    #########################################################################
+    #demo the LUT plots
+    sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
+    mlab.show()

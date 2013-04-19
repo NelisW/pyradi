@@ -24,10 +24,4 @@ Module functions
 
 .. autofunction:: pyradi.ryplotspherical.plotOSSIMSpherical	
 
-
-
-
-	
-
-
-	
+.. autofunction:: pyradi.ryplotspherical.sphericalPlot2DLUT	
