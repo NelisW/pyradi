@@ -1,0 +1,19 @@
+Source:
+@ARTICLE{Rogalski2003,
+  author = {Antoni Rogalski},
+  title = {Infrared detectors: status and trends},
+  journal = {Progress in Quantum Electronics},
+  year = {2003},
+  volume = {27},
+  pages = {59--210},
+}
+
+Absorption in units of m^{-1}
+Wavelength in units of $\mu$m
+
+rogalski-absorption-HgCdTe073 @ 77 K
+rogalski-absorption-HgCdTe079 @ 77 K
+rogalski-absorption-InAs @ 77 K
+rogalski-absorption-InSb @ 77 K
+rogalski-absorption-PbS @ 300 K
+rogalski-absorption-PbSe @ 300 K
