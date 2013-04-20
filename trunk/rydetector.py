@@ -194,14 +194,15 @@ def AbsorptionFile(wavelength, filename):
 
 ################################################################################
 #
-def QuantumEfficiency(absorption, lx, theta1, nFront, nMaterial):
+def QuantumEfficiency(absorption, d1, d2, theta1, nFront, nMaterial):
     """
     Calculate the spectral quantum efficiency (QE) for a semiconductor material
     with given absorption and material values.
 
     Args:
         | absorption: spectral absorption coefficient in [m-1]
-        | lx: detector depletion layer thickness [m]
+        | d1: depth where the detector depletion layer starts [m]
+        | d2: depth where the detector depletion layer ends [m]
         | theta1: angle between the surface's normal and the radiation in radians
         | nFront:  index of refraction of the material in front of detector
         | nMaterial:  index of refraction of the detector material
@@ -221,7 +222,8 @@ def QuantumEfficiency(absorption, lx, theta1, nFront, nMaterial):
     R = (RS + RP) / 2
 
     # QE - eq. 3.4 - [1]
-    quantumEffic = (1 - R) * (1 - numpy.exp( - absorption * lx))
+    quantumEffic = (1 - R) * \
+                (numpy.exp( - absorption * d1) - numpy.exp( - absorption * d2))
 
     return quantumEffic
 
