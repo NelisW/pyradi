@@ -102,7 +102,8 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
-        'writeRotatingTargetOssimTrajFile', 'sphericalPlot2DLUT']
+        'writeRotatingTargetOssimTrajFile', 'plotSpherical',
+        'plotOSSIMSpherical','sphericalPlotElevAzim', 'polarPlotElevAzim']
 
 import os.path, fnmatch
 import numpy
@@ -524,41 +525,26 @@ def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, tr
     plotSpherical(basefigure+8,colourratio, vertices, triangles, ptitle)
 
 
+
 ################################################################
 ##
-def sphericalPlot2DLUT(figure, filename,colormap='Spectral', doWireFrame=False):
-    """Plot the 2D OSSIM interpolation table in spherical display.
+def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+    colormap='Spectral', doWireFrame=False):
+    """Plot spherical data (azimuth, elevation and value) given in spherical format
 
-    Plot the OSSIM 2D polar coordinate interpolation lookup tables
-    where the table is in the following format:
+    This function assumes that the polar data is defined in terms of elevation
+    angle with zero at the equator and azimuth measured around the equator,
+    from 0 to 2pi.  All angles are in degrees.
 
-    ::
-
-            zenith azimuth dataname
-        0      0    45   90    135  180
-        0     10     1    20    30   80
-        45    10    20    30    40   80
-        90    10    30    40    50   80
-        135   10    40    50    60   80
-        180   10    50    60    70   80
-        225   10    50    60    70   80
-        270   10    50    60    70   80
-        315   10    50    60    70   80
-        360   10    60    70    80   80
-
-    where the first line lists the column label, the row label and the title.
-    The second row list the zenith angle values, but prepended with a discarded zero.
-    The following rows list the azimuth angle in the first location,
-    followed by the 2-D lookup table values.  See the code below for an
-    example of how the data is extracted.
-
-    This function assumes that the polar data is defined in terms of zenith angle
-    (zero at the north pole, increasing to pi at the south pole) and azimuth measured
-    around the equator, from 0 to 2pi.  All angles are in degrees.
+    All axes, x, y, and z are scaled with the magnitude of value in the
+    (azim, elev) direction.
 
     Args:
         | figure (int): mlab figure number
-        | filename (string): file containing the LUT
+        | azimuth (numpy 1D array): vector of values
+        | elevation (numpy 1D array): vector of values
+        | value (numpy 2D array): array with values corresponding with azim/elevation
+        | ptitle (string): plot title
         | colormap (string): defines the colour map to be used
         | doWireFrame (bool): switches fireframe on or off
 
@@ -568,25 +554,60 @@ def sphericalPlot2DLUT(figure, filename,colormap='Spectral', doWireFrame=False):
     Raises:
         | No exception is raised.
 """
-
-    with open(filename) as f:
-        lines = f.readlines()
-        xlabel, ylabel, ptitle = lines[0].split()
-
-    aArray = numpy.loadtxt(filename, skiprows=1, dtype = float)
-    azim1D = aArray[1:,0] * (numpy.pi/180)
-    elev1D = numpy.pi - aArray[0,1:] * (numpy.pi/180)
-    pRad = aArray[1:,1:]
-    phi, theta = numpy.meshgrid(elev1D,azim1D)
-    x = pRad * numpy.sin(phi) * numpy.cos(theta)
-    y = pRad * numpy.sin(phi) * numpy.sin(theta)
-    z = pRad * numpy.cos(phi)
+    phi, theta = numpy.meshgrid(elevation,azimuth)
+    x = value * numpy.sin(phi) * numpy.cos(theta)
+    y = value * numpy.sin(phi) * numpy.sin(theta)
+    z = - value * numpy.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
     mlab.mesh(x, y, z, colormap=colormap)
     if doWireFrame:
         mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe')
-    mlab.title(ptitle, size=0.5, height=1)
+    if ptitle:
+        mlab.title(ptitle, size=0.5, height=1)
+
+
+################################################################
+##
+def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+    colormap='Spectral', doWireFrame=False):
+    """Plot spherical data (azimuth, elevation and value) given in polar format.
+
+    This function assumes that the polar data is defined in terms of elevation
+    angle with zero at the equator and azimuth measured around the equator,
+    from 0 to 2pi.  All angles are in degrees.
+
+    The x and y axes are scaled with the maximum magnitude of value. The z axis is
+    scaled with the actual magnitude of value in the  (azim, elev) direction.
+
+    Args:
+        | figure (int): mlab figure number
+        | azimuth (numpy 1D array): vector of values
+        | elevation (numpy 1D array): vector of values
+        | value (numpy 2D array): array with values corresponding with azim/elevation
+        | ptitle (string): plot title
+        | colormap (string): defines the colour map to be used
+        | doWireFrame (bool): switches fireframe on or off
+
+    Returns:
+        | provides an mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+    rmax = numpy.amax(numpy.amax(value))
+    phi, theta = numpy.meshgrid(elevation,azimuth)
+    x = rmax * numpy.sin(phi) * numpy.cos(theta)
+    y = rmax * numpy.sin(phi) * numpy.sin(theta)
+    z = - value * numpy.cos(phi)
+    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+    mlab.clf()
+    mlab.mesh(x, y, z, colormap=colormap)
+    if doWireFrame:
+        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe')
+    if ptitle:
+        mlab.title(ptitle, size=0.5, height=1)
+
 
 ################################################################
 ##
@@ -603,6 +624,37 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
+    #########################################################################
+    #demo the LUT plots
+    #sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
+    with open('data/plotspherical/source-H10-C2.dat') as f:
+        lines = f.readlines()
+        xlabel, ylabel, ptitle = lines[0].split()
+
+    aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
+    azim1D = aArray[1:,0] * (numpy.pi/180)
+    elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
+    pRad = aArray[1:,1:]
+    polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+    sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+
+    mlab.show()
+
+    #########################################################################
+    #demo the LUT plots
+    #sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
+    with open('data/plotspherical/source-H10-C2.dat') as f:
+        lines = f.readlines()
+        xlabel, ylabel, ptitle = lines[0].split()
+
+    aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
+    azim1D = aArray[1:,0] * (numpy.pi/180)
+    elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
+    pRad = aArray[1:,1:]
+    ryplotspherical.polarPlotElevAzim(i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+    ryplotspherical.sphericalPlotElevAzim(10+i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+
+    mlab.show()
     #figtype = ".png"  # eps, jpg, png
     figtype = ".eps"  # eps, jpg, png
 
@@ -627,7 +679,4 @@ if __name__ == '__main__':
 
     mlab.show()
 
-    #########################################################################
-    #demo the LUT plots
-    sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
-    mlab.show()
+
