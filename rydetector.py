@@ -389,7 +389,10 @@ def IXV(V, IVbeta, tDetec, iPhoto,I0):
 def Noise(tempDet, IVbeta, Isat, iPhoto, vBias=0):
     """
     This function calculates the noise power spectral density produced in the
-    diode: shot noise and thermal noise
+    diode: shot noise and thermal noise. The assumption is that all noise
+    sources are white noise PSD.
+
+    Eq 5.143 plus thermal noise, see Eq 5.148
 
     Args:
         | tempDet: detector's temperature [K]
