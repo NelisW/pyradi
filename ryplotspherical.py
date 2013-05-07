@@ -643,20 +643,20 @@ if __name__ == '__main__':
     #########################################################################
     #demo the LUT plots
     #sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
-    with open('data/plotspherical/source-H10-C2.dat') as f:
-        lines = f.readlines()
-        xlabel, ylabel, ptitle = lines[0].split()
+    # with open('data/plotspherical/source-H10-C2.dat') as f:
+    #     lines = f.readlines()
+    #     xlabel, ylabel, ptitle = lines[0].split()
 
-    aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
-    azim1D = aArray[1:,0] * (numpy.pi/180)
-    elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
-    pRad = aArray[1:,1:]
-    ryplotspherical.polarPlotElevAzim(i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-    ryplotspherical.sphericalPlotElevAzim(10+i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+    # aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
+    # azim1D = aArray[1:,0] * (numpy.pi/180)
+    # elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
+    # pRad = aArray[1:,1:]
+    # polarPlotElevAzim(i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+    # sphericalPlotElevAzim(10+i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
 
-    mlab.show()
-    #figtype = ".png"  # eps, jpg, png
-    figtype = ".eps"  # eps, jpg, png
+    # mlab.show()
+    # #figtype = ".png"  # eps, jpg, png
+    # figtype = ".eps"  # eps, jpg, png
 
     #write the OSSIM files for a rotating target and stationary sensor/observer.
     #use the OFF file with 10242 vertices.
