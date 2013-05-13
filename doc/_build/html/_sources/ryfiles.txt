@@ -24,4 +24,8 @@ Module functions
 	
 .. autofunction:: pyradi.ryfiles.readRawFrames	
 	
+.. autofunction:: pyradi.ryfiles.arrayToLaTex	
+	
+.. autofunction:: pyradi.ryfiles.epsLaTexFigure	
+	
 

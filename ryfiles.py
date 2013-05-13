@@ -35,7 +35,7 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 'cleanFilename',
-         'listFiles','readRawFrames']
+         'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure']
 
 from scipy.interpolate import interp1d
 import numpy
@@ -330,6 +330,97 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
 
 
 ################################################################
+##
+def epsLaTexFigure(filename, epsname, caption, scale, filemode='a'):
+    """ Write the code to include an eps graphic as a latex figure.
+        The text is added to an existing file.
+
+    Args:
+        | fname (string): output path and filename
+        | epsname (string): filename/path to eps file
+        | caption (string): figure caption
+        | scale (double): scale to textwidth [0..1]
+        | filemode (string): file open mode (a=append, w=new file)
+
+    Returns:
+        | None, writes a file to disk
+
+    Raises:
+        | No exception is raised.
+    """
+
+    with open(filename, filemode) as outfile:
+        outfile.write('\\begin{figure}[tb]\n')
+        outfile.write('\\centering\n')
+        outfile.write('\\resizebox{{{0}\\textwidth}}{{!}}{{\includegraphics{{eps/{1}}}}}\n'.\
+            format(scale,epsname))
+        outfile.write('\\caption{{{0}. \label{{fig:{1}}}}}\n'.format(caption,epsname.split('.')[0]))
+        outfile.write('\\end{figure}\n')
+        outfile.write('\n')
+        outfile.write('\n')
+
+################################################################
+##
+def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', filemode='wt'):
+    """ Write a numpy array to latex table format in output file.
+
+        The table can contain only the array data (no top header or
+        left column side-header), or you can add either or both of the
+        top row or side column headers. Leave 'header' or 'leftcol' as
+        None is you don't want these.
+
+        The output format of the array data can be specified, i.e.
+        scientific notation or fixed decimal point.
+
+    Args:
+        | fname (string): output path and filename
+        | arr (np.array[N,M]): array with table data
+        | header (string): column header in final latex format
+        | leftCol ([string]): left column each row, in final latex format
+        | formatstring (string): output format precision for array data (see numpy.savetxt)
+        | filemode (string): file open mode (a=append, w=new file)
+
+    Returns:
+        | None, writes a file to disk
+
+    Raises:
+        | No exception is raised.
+    """
+
+    #is seems that savetxt does not like unicode strings
+    formatstring = formatstring.encode('ascii')
+
+    if leftCol is None:
+        numcols = arr.shape[1]
+    else:
+        numcols = arr.shape[1] + 1
+
+    file=open(filename, filemode)
+    file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|'))
+
+    #write the header
+    if header is not None:
+        # first column for header
+        if leftCol is not None:
+            file.write('{0} & '.format(leftCol[0]))
+        #rest of the header
+        file.write('{0}\\\\\hline\n'.format(header))
+
+    #write the array data
+    if leftCol is None:
+        #then write the array, using the file handle (and not filename)
+        numpy.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
+    else:
+        # first write left col for each row, then array data for that row
+        for i,entry in enumerate(leftCol[1:]):
+            file.write(entry+'&')
+            numpy.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
+
+    file.write('\hline\n\end{tabular}')
+    file.close()
+
+
+################################################################
 ################################################################
 ##
 ##
@@ -340,6 +431,22 @@ if __name__ == '__init__':
 if __name__ == '__main__':
 
     import ryplot
+
+    print ('Test writing latex format arrays:')
+    arr = numpy.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
+    arrayToLaTex('arr0.txt', arr)
+    arrayToLaTex('arr1.txt', arr, formatstring='%.1f')
+    headeronly = 'Col1 & Col2 & Col3'
+    arrayToLaTex('arr2.txt', arr, headeronly, formatstring='%.3f')
+    header = 'Col 1 & Col 2 & Col 3'
+    leftcol = ['XX','Row 1','Row 2','Row 3']
+    #with \usepackage{siunitx} you can even do this:
+    arrayToLaTex('arr3.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
+
+    print ('Test writing eps file figure latex fragments:')
+    epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
+
+    exit (0)
 
     print ('Test writing and reading numpy array to text file, with header:')
     #create a two-dimensional array of 25 rows and 7 columns as an outer product
