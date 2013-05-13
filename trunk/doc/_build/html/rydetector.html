@@ -186,14 +186,15 @@ coefficient in [m-1] in the second column.</p>
 
 <dl class="function">
 <dt id="pyradi.rydetector.QuantumEfficiency">
-<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>absorption</em>, <em>lx</em>, <em>theta1</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">QuantumEfficiency</tt><big>(</big><em>absorption</em>, <em>d1</em>, <em>d2</em>, <em>theta1</em>, <em>nFront</em>, <em>nMaterial</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.QuantumEfficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the spectral quantum efficiency (QE) for a semiconductor material
 with given absorption and material values.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">absorption: spectral absorption coefficient in [m-1]</div>
-<div class="line">lx: detector depletion layer thickness [m]</div>
+<div class="line">d1: depth where the detector depletion layer starts [m]</div>
+<div class="line">d2: depth where the detector depletion layer ends [m]</div>
 <div class="line">theta1: angle between the surface&#8217;s normal and the radiation in radians</div>
 <div class="line">nFront:  index of refraction of the material in front of detector</div>
 <div class="line">nMaterial:  index of refraction of the detector material</div>
@@ -351,7 +352,9 @@ IVbeta=1 and iPhoto=0</p>
 <dt id="pyradi.rydetector.Noise">
 <tt class="descclassname">pyradi.rydetector.</tt><tt class="descname">Noise</tt><big>(</big><em>tempDet</em>, <em>IVbeta</em>, <em>Isat</em>, <em>iPhoto</em>, <em>vBias=0</em><big>)</big><a class="headerlink" href="#pyradi.rydetector.Noise" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function calculates the noise power spectral density produced in the
-diode: shot noise and thermal noise</p>
+diode: shot noise and thermal noise. The assumption is that all noise
+sources are white noise PSD.</p>
+<p>Eq 5.143 plus thermal noise, see Eq 5.148</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">

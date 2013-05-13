@@ -620,13 +620,14 @@ if __name__ == '__main__':
     import math
     import sys
 
+    from scipy.interpolate import interp1d
+
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
     #########################################################################
-    #demo the LUT plots
-    #sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
+    print('Demo the LUT plots')
     with open('data/plotspherical/source-H10-C2.dat') as f:
         lines = f.readlines()
         xlabel, ylabel, ptitle = lines[0].split()
@@ -637,27 +638,10 @@ if __name__ == '__main__':
     pRad = aArray[1:,1:]
     polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
     sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-
     mlab.show()
 
-    #########################################################################
-    #demo the LUT plots
-    #sphericalPlot2DLUT(1, 'data/plotspherical/source-H10-C2.dat',doWireFrame=True)
-    # with open('data/plotspherical/source-H10-C2.dat') as f:
-    #     lines = f.readlines()
-    #     xlabel, ylabel, ptitle = lines[0].split()
 
-    # aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
-    # azim1D = aArray[1:,0] * (numpy.pi/180)
-    # elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
-    # pRad = aArray[1:,1:]
-    # polarPlotElevAzim(i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-    # sphericalPlotElevAzim(10+i, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-
-    # mlab.show()
-    # #figtype = ".png"  # eps, jpg, png
-    # figtype = ".eps"  # eps, jpg, png
-
+    print('Demo the spherical plots')
     #write the OSSIM files for a rotating target and stationary sensor/observer.
     #use the OFF file with 10242 vertices.
     #the time increment  is 0.01 for each new position, velocity is zero here and
@@ -680,3 +664,5 @@ if __name__ == '__main__':
     mlab.show()
 
 
+
+    print('module ryplotspherical done!')

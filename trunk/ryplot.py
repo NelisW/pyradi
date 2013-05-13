@@ -45,6 +45,7 @@ __all__ = ['Plotter']
 import numpy
 import math
 import sys
+import itertools
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -358,6 +359,7 @@ class Plotter:
 
         self.plotCol=['b', 'g', 'r', 'c', 'm', 'y', 'k', \
             'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--']
+        self.plotColCirc = itertools.cycle(self.plotCol)
 
         self.bbox_extra_artists=[]
         self.subplots={}
@@ -373,15 +375,18 @@ class Plotter:
     ############################################################
     ##
     def buildPlotCol(self, plotCol, n):
-        """Returns a sequence of default colour styles of
+        """Set a sequence of default colour styles of
            appropriate length.
 
-           The constructor provides a sequence with length 14 pre-defined plot styles.
+           The constructor provides a sequence with length
+           14 pre-defined plot styles.
            The user can define a new sequence if required.
-           This function modulus-folds either sequence, in case longer sequences are required.
+           This function modulus-folds either sequence, in
+           case longer sequences are required.
 
             Args:
-                | plotCol ([strings]): User-supplied list  of plotting styles(can be empty []).
+                | plotCol ([strings]): User-supplied list
+                |    of plotting styles(can be empty []).
                 | n (int): Length of required sequence.
 
             Returns:
@@ -390,12 +395,41 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
+        # assemble the list as requested
         if not plotCol:
-            return [self.plotCol[i % len(self.plotCol)] \
+            self.plotCol = [self.plotCol[i % len(self.plotCol)] \
                                          for i in range(n)]
         else:
-            return [plotCol[i % len(plotCol)] \
+            self.plotCol = [plotCol[i % len(plotCol)] \
                                          for i in range(n)]
+        # copy this to circular list as well
+        self.plotColCirc = itertools.cycle(self.plotCol)
+
+        return self.plotCol
+
+
+
+    ############################################################
+    ##
+    def nextPlotCol(self):
+        """Returns the next entry in a sequence of default
+           plot line colour styles in circular list.
+           One day I want to do this with a generator....
+
+            Args:
+                | None
+
+            Returns:
+                | The next plot colour in the sequence.
+
+            Raises:
+                | No exception is raised.
+        """
+
+        col = self.plotColCirc.next()
+        #print(col)
+        return col
+
 
     ############################################################
     ##
@@ -731,7 +765,7 @@ class Plotter:
         else:
             yy=y.reshape(-1, 1)
 
-        plotCol = self.buildPlotCol(plotCol, yy.shape[1])
+        # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
         pkey = (self.nrow, self.ncol, plotnum)
         ax = self.subplots[pkey]
@@ -761,11 +795,23 @@ class Plotter:
             ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
         if not label:
             for i in range(yy.shape[1]):
-                plotcommand(xx, yy[:, i], plotCol[i],label=None)
+                #set up the line style, either given or next in sequence
+                if plotCol:
+                    col = plotCol[i]
+                else:
+                    col = self.nextPlotCol()
+
+                plotcommand(xx, yy[:, i], col ,label=None)
+                #plotcommand(xx, yy[:, i], plotCol[i],label=None)
                 #ax.plot(xx, yy[:, i], plotCol[i],label=None)
         else:
             for i in range(yy.shape[1]):
-                plotcommand(xx,yy[:,i],plotCol[i],label=label[i])
+                #set up the line style, either given or next in sequence
+                if plotCol:
+                    col = plotCol[i]
+                else:
+                    col = self.nextPlotCol()
+                plotcommand(xx,yy[:,i],col,label=label[i])
                 #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
             leg = ax.legend(loc='best', fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
@@ -781,7 +827,7 @@ class Plotter:
     ############################################################
     ##
     def polar(self, plotnum, theta, r, ptitle=None, \
-                    plotCol=[], label=[],labelLocation=[-0.1, 0.1], \
+                    plotCol=None, label=[],labelLocation=[-0.1, 0.1], \
                     highlightNegative=False, highlightCol='#ffff00', highlightWidth=4,\
                     legendAlpha=0.0, \
                     rscale=None, rgrid=None, thetagrid=[30], \
@@ -836,7 +882,7 @@ class Plotter:
         else:
             rr=r.reshape(-1, 1)
 
-        plotCol = self.buildPlotCol(plotCol, rr.shape[1])
+        #plotCol = self.buildPlotCol(plotCol, rr.shape[1])
 
         ax = None
         pkey = (self.nrow, self.ncol, plotnum)
@@ -870,25 +916,32 @@ class Plotter:
                 #print(zero_crossings)
                 #print(negrrr)
 
+            #set up the line style, either given or next in sequence
+            if plotCol:
+                col = plotCol[i]
+            else:
+                col = self.nextPlotCol()
+
+
             if not label:
                 if highlightNegative:
-                    lines = ax.plot(ttt, rrr, plotCol[i])
+                    lines = ax.plot(ttt, rrr, col)
                     neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
                             if negrrr[ii][1] < 0:
                                 ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-                ax.plot(ttt, rrr, plotCol[i])
+                ax.plot(ttt, rrr, col)
                 rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
             else:
                 if highlightNegative:
-                    lines = ax.plot(ttt, rrr, plotCol[i])
+                    lines = ax.plot(ttt, rrr, col)
                     neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
                             if negrrr[ii][1] < 0:
                                 ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-                ax.plot(ttt, rrr, plotCol[i],label=label[i])
+                ax.plot(ttt, rrr, col,label=label[i])
                 rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
 
         if label:
