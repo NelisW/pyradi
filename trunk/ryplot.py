@@ -18,7 +18,7 @@
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
-# Contributor(s): MS Willers, PJ van der Merwe.
+# Contributor(s): MS Willers, PJ van der Merwe, A de Waal
 ################################################################
 """
 This module provides functions for plotting cartesian and polar plots.
@@ -53,6 +53,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 ####################################################################
@@ -797,7 +798,10 @@ class Plotter:
             for i in range(yy.shape[1]):
                 #set up the line style, either given or next in sequence
                 if plotCol:
-                    col = plotCol[i]
+                    if i >= len(plotCol):
+                        col = plotCol[-1]
+                    else:
+                        col = plotCol[i]
                 else:
                     col = self.nextPlotCol()
 
@@ -808,7 +812,10 @@ class Plotter:
             for i in range(yy.shape[1]):
                 #set up the line style, either given or next in sequence
                 if plotCol:
-                    col = plotCol[i]
+                    if i >= len(plotCol):
+                        col = plotCol[-1]
+                    else:
+                        col = plotCol[i]
                 else:
                     col = self.nextPlotCol()
                 plotcommand(xx,yy[:,i],col,label=label[i])
@@ -1406,6 +1413,7 @@ class Plotter:
 if __name__ == '__main__':
 
 
+    ############################################################################
     #demonstrate the use of plotArray
     #import array from example data file
     filename = "data/simulcpp_dummydemo.txt"
@@ -1420,10 +1428,11 @@ if __name__ == '__main__':
 
     Ar = Plotter(9, 1, 1,maintitle)
     Ar.plotArray(1,arrDummyDemo, 0, titles, titlefsize = 12, maxNX = 5, maxNY=3)
-    Ar.saveFig('ArrayPlot.eps')
+    # Ar.saveFig('ArrayPlot.eps')
     Ar.saveFig('ArrayPlot.png')
 
-    #demonstrate the use of a polar mesh plot
+    ############################################################################
+    #demonstrate the use of a polar mesh plot and markers
     #create the radial and angular vectors
     r = numpy.linspace(0,1.25,25)
     p = numpy.linspace(0,2*numpy.pi,50)
@@ -1464,6 +1473,7 @@ if __name__ == '__main__':
     pmesh.saveFig('pmesh.png')
     #pmesh.saveFig('pmesh.eps')
 
+    ############################################################################
     ##create some data
     xLinS=numpy.linspace(0, 10, 50).reshape(-1, 1)
     yLinS=1.0e3 * numpy.random.random(xLinS.shape[0]).reshape(-1, 1)
@@ -1516,7 +1526,7 @@ if __name__ == '__main__':
         currentP.axhline(y=ymin,ls='--')
 
     AA.saveFig('AA.png')
-    AA.saveFig('AA.eps')
+    # AA.saveFig('AA.eps')
 
     S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
     S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
@@ -1696,6 +1706,30 @@ if __name__ == '__main__':
     b.saveFig('mb.png')
     c.saveFig('mc.png')
 
+    ############################################################################
+    #demonstrate multipage pdf output
+    #reference for the multipage pdf code: http://blog.marmakoide.org/?p=94
 
+    x=numpy.linspace(0, 2*numpy.pi, 50).reshape(-1, 1)
+    y=1 + numpy.random.random(x.shape[0]).reshape(-1, 1)
+
+    #create the pdf document
+    pdf_pages = PdfPages('multipagepdf.pdf')
+
+    # create the first page
+    A = Plotter(1, 2, 1,figsize=(12,8))
+    A.plot(1, x, y, "Array Linear","X", "Y")
+    A.logLog(2, x, y, "Array LogLog","X", "Y")
+    # A.getPlot().tight_layout()
+    pdf_pages.savefig(A.getPlot())
+
+    #create the second page
+    B = Plotter(1, 1, 1,figsize=(12,8))
+    B.polar(1, x, y, "Polar")
+    # B.getPlot().tight_layout()
+    pdf_pages.savefig(B.getPlot())
+
+    # Write the PDF document to the disk
+    pdf_pages.close()
 
     print('module ryplot done!')
