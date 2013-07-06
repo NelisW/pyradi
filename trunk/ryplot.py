@@ -1203,7 +1203,9 @@ class Plotter:
     ##
     def polarMesh(self, plotnum, theta, radial, zvals, ptitle=None, shading = 'flat',\
                 radscale=None, titlefsize=12,  meshCmap = cm.rainbow, cbarshow=False, \
-                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
+                  rgrid=[5], thetagrid=[30], drawGrid = False,\
+                  thetagridfontsize = 12, radialgridfontsize=12):
         """Polar colour mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1220,8 +1222,8 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | theta (np.array[N,] or [N,1]): vector of angular values
-                | radial (np.array[M,] or [M,1]): vector if radial values
+                | theta (np.array[N,] or [N,1]): vector of angular values [0..2pi]
+                | radial (np.array[M,] or [M,1]): vector of radial values
                 | zvals (np.array[N,M]): values on a (theta,radial) grid
                 | ptitle (string): plot title (optional)
                 | shading (string): 'flat' | 'gouraud'  (optional)
@@ -1232,6 +1234,11 @@ class Plotter:
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
                 | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
                 | cbarfontsize (int): font size for color bar
+                | rgrid ([float]): radial grid - None, [number], [inc,max]
+                | thetagrid ([float]): angular grid - None, [inc]
+                | drawGrid (bool): draw the grid on the plot
+                | thetagridfontsize (float): font size for the angular grid
+                | radialgridfontsize (float): font size for the radial grid
 
             Returns:
                 | Nothing
@@ -1253,13 +1260,15 @@ class Plotter:
 
 
         #do the plot
-        pmplot = ax.pcolormesh(P, R, zvals, shading=shading, cmap=meshCmap)
+        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
 
         #label and clean up
         if radscale==None:
-            ax.set_ylim(numpy.min(R), numpy.max(R))
+            ax.set_ylim(numpy.min(radial), numpy.max(radial))
         else:
             ax.set_ylim(radscale[0], radscale[1])
+
+        ax.grid(drawGrid)
 
         if cbarshow is True:
             if not cbarcustomticks:
@@ -1282,6 +1291,32 @@ class Plotter:
         if(ptitle is not None):
             plt.title(ptitle, fontsize=titlefsize)
 
+        #set up the grids
+        if thetagrid is None:
+            plt.thetagrids([])
+        else:
+            plt.thetagrids(range(0, 360, thetagrid[0]))
+        plt.tick_params(axis='x', which='major', labelsize=thetagridfontsize)
+
+        if rgrid is None:
+            ax.set_yticks([])
+        elif len(rgrid) is 1:
+            ax.set_yticks(numpy.linspace(0,numpy.max(radial),rgrid[0]))
+        elif len(rgrid) is 2:
+            plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
+        else:
+            pass
+        plt.tick_params(axis='y', which='major', labelsize=radialgridfontsize)
+
+            # rmax = numpy.max(radial)
+            # if rmax>0:
+            #     #round and increase the max value for nice numbers
+            #     lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
+            #     frmax=rmax/(rgrid[1]*10**lrmax)
+            #     rinc=10**lrmax*math.ceil(frmax)
+            #     plt.rgrids(numpy.arange(rinc, rinc*rgrid[1], rinc))
+            # else:
+            #     ax.set_yticks(numpy.linspace(0,numpy.max(radial),5))
 
     ############################################################
     ##
@@ -1432,7 +1467,7 @@ if __name__ == '__main__':
     Ar.saveFig('ArrayPlot.png')
 
     ############################################################################
-    #demonstrate the use of a polar mesh plot and markers
+    #demonstrate the use of a polar 3d plot
     #create the radial and angular vectors
     r = numpy.linspace(0,1.25,25)
     p = numpy.linspace(0,2*numpy.pi,50)
@@ -1451,13 +1486,19 @@ if __name__ == '__main__':
     p3D.saveFig('p3D.png')
     #p3D.saveFig('p3D.eps')
 
+
+    ############################################################################
+    #demonstrate the use of a polar mesh plot and markers
+    #create the radial and angular vectors
+
     r = numpy.linspace(0,1.25,100)
     p = numpy.linspace(0,2*numpy.pi,100)
     R,P = numpy.meshgrid(r,p)
     value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
     pmesh = Plotter(1, 1, 1,'Polar plot in mesh',figsize=(12,8))
     pmesh.polarMesh(1, p, r, value, cbarshow=True, \
-                  cbarorientation = 'vertical', cbarfontsize = 10  )#, radscale=[0.5,1.25])
+                  cbarorientation = 'vertical', cbarfontsize = 10,  \
+                  )#, radscale=[0.5,1.25])
 
     # add filled markers
     markers = Markers(markerfacecolor='y', marker='*')
@@ -1472,6 +1513,30 @@ if __name__ == '__main__':
 
     pmesh.saveFig('pmesh.png')
     #pmesh.saveFig('pmesh.eps')
+
+    ############################################################################
+    #demonstrate the use of a polar mesh plot radial scales
+    #create the radial and angular vectors
+
+    r = numpy.linspace(0,1.25,100)
+    p = numpy.linspace(0,2*numpy.pi,100)
+    R,P = numpy.meshgrid(r,p)
+    value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
+    pmesh = Plotter(1, 2, 2,'Polar plot in mesh',figsize=(12,8))
+    pmesh.polarMesh(1, p, r, value, meshCmap = cm.jet_r, cbarshow=True,\
+                  drawGrid=False, rgrid=None, thetagrid=None,\
+                  thetagridfontsize=10, radialgridfontsize=8)
+    pmesh.polarMesh(2, p, r, value, meshCmap = cm.gray, cbarshow=True,\
+                  drawGrid=True, rgrid=[3],\
+                  thetagridfontsize=10, radialgridfontsize=8)
+    pmesh.polarMesh(3, p, r, value, meshCmap = cm.hot, cbarshow=True,\
+                  drawGrid=True,thetagrid=[45], rgrid=[.25,1.25],\
+                  thetagridfontsize=10, radialgridfontsize=8)
+    pmesh.polarMesh(4, p, r, value, meshCmap = cm.jet, cbarshow=True,\
+                  drawGrid=True, thetagrid=[15], rgrid=[0.2, 1.],\
+                  thetagridfontsize=10, radialgridfontsize=8)#, radscale=[0.5,1.25])
+    pmesh.saveFig('pmeshrad.png')
+    #pmesh.saveFig('pmeshrad.eps')
 
     ############################################################################
     ##create some data
