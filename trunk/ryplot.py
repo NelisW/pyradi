@@ -70,9 +70,9 @@ class FilledMarker:
      | colour names =       http://www.w3schools.com/html/html_colornames.asp
     """
 
-    def __init__(self, markerfacecolor = None, markerfacecoloralt = None,\
-                    markeredgecolor = None, marker = None, markersize = None, \
-                    fillstyle = None):
+    def __init__(self, markerfacecolor=None, markerfacecoloralt=None,
+                 markeredgecolor=None, marker=None, markersize=None,
+                 fillstyle=None):
         """Define marker default values.
 
             Args:
@@ -521,7 +521,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                     xylabelfsize = 12 ):
+                     xylabelfsize = 12,  xytickfsize = 10  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -548,6 +548,7 @@ class Plotter:
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -564,7 +565,7 @@ class Plotter:
 
         self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, \
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize, xylabelfsize)
+                    maxNX, maxNY, powerLimits,titlefsize, xylabelfsize, xytickfsize)
 
     ############################################################
     ##
@@ -572,7 +573,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12   ):
+                    xylabelfsize = 12, xytickfsize = 10   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -599,6 +600,7 @@ class Plotter:
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -615,7 +617,7 @@ class Plotter:
 
         self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize)
+                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
@@ -623,7 +625,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12   ):
+                    xylabelfsize = 12, xytickfsize = 10):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -650,6 +652,7 @@ class Plotter:
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -666,7 +669,7 @@ class Plotter:
 
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize)
+                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
@@ -674,7 +677,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12  ):
+                    xylabelfsize = 12, xytickfsize = 10  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -701,6 +704,7 @@ class Plotter:
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -717,7 +721,7 @@ class Plotter:
 
         self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize)
+                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
@@ -725,7 +729,7 @@ class Plotter:
                      plotCol=[],label=[],legendAlpha=0.0,\
                     pltaxis=None, maxNX=0, maxNY=0,  \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12 ):
+                    xylabelfsize = 12, xytickfsize = 10 ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -748,6 +752,7 @@ class Plotter:
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -830,6 +835,11 @@ class Plotter:
 
         if(ptitle is not None):
             ax.set_title(ptitle, fontsize=titlefsize)
+
+        # minor ticks are two points smaller than major 
+        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+
 
     ############################################################
     ##
