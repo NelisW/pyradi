@@ -418,13 +418,14 @@ shells the values are going through zero.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplotspherical.sphericalPlotElevAzim">
-<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">sphericalPlotElevAzim</tt><big>(</big><em>figure</em>, <em>azimuth</em>, <em>elevation</em>, <em>value</em>, <em>ptitle=None</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.sphericalPlotElevAzim" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">sphericalPlotElevAzim</tt><big>(</big><em>figure</em>, <em>azimuth</em>, <em>elevation</em>, <em>value</em>, <em>ptitle=None</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em>, <em>line_width=0.2</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.sphericalPlotElevAzim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot spherical data (azimuth, elevation and value) given in spherical format</p>
 <p>This function assumes that the polar data is defined in terms of elevation
 angle with zero at the equator and azimuth measured around the equator,
 from 0 to 2pi.  All angles are in degrees.</p>
 <p>All axes, x, y, and z are scaled with the magnitude of value in the
 (azim, elev) direction.</p>
+<p>The colour on the surface represents the value at the given azim/elev location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -435,6 +436,7 @@ from 0 to 2pi.  All angles are in degrees.</p>
 <div class="line">ptitle (string): plot title</div>
 <div class="line">colormap (string): defines the colour map to be used</div>
 <div class="line">doWireFrame (bool): switches fireframe on or off</div>
+<div class="line">line_width (double): wireframe line width</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -452,13 +454,14 @@ from 0 to 2pi.  All angles are in degrees.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplotspherical.polarPlotElevAzim">
-<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">polarPlotElevAzim</tt><big>(</big><em>figure</em>, <em>azimuth</em>, <em>elevation</em>, <em>value</em>, <em>ptitle=None</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.polarPlotElevAzim" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">polarPlotElevAzim</tt><big>(</big><em>figure</em>, <em>azimuth</em>, <em>elevation</em>, <em>value</em>, <em>ptitle=None</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em>, <em>line_width=0.2</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.polarPlotElevAzim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot spherical data (azimuth, elevation and value) given in polar format.</p>
 <p>This function assumes that the polar data is defined in terms of elevation
 angle with zero at the equator and azimuth measured around the equator,
 from 0 to 2pi.  All angles are in degrees.</p>
 <p>The x and y axes are scaled with the maximum magnitude of value. The z axis is
 scaled with the actual magnitude of value in the  (azim, elev) direction.</p>
+<p>The colour on the surface represents the value at the given azim/elev location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -469,6 +472,7 @@ scaled with the actual magnitude of value in the  (azim, elev) direction.</p>
 <div class="line">ptitle (string): plot title</div>
 <div class="line">colormap (string): defines the colour map to be used</div>
 <div class="line">doWireFrame (bool): switches fireframe on or off</div>
+<div class="line">line_width (double): wireframe line width</div>
 </div>
 </dd>
 <dt>Returns:</dt>

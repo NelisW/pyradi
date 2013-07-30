@@ -371,7 +371,7 @@ the label argument can contain the legend labels for each of the columns/lines.<
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plotArray">
-<tt class="descname">plotArray</tt><big>(</big><em>plotnum</em>, <em>inarray</em>, <em>slicedim=0</em>, <em>subtitles=None</em>, <em>xlabel=None</em>, <em>maxNX=0</em>, <em>maxNY=0</em>, <em>titlefsize=8</em>, <em>xylabelfsize=8</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plotArray" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plotArray</tt><big>(</big><em>plotnum</em>, <em>inarray</em>, <em>slicedim=0</em>, <em>subtitles=None</em>, <em>xlabel=None</em>, <em>maxNX=0</em>, <em>maxNY=0</em>, <em>titlefsize=8</em>, <em>xylabelfsize=8</em>, <em>xytickfsize=8</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plotArray" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a plot from an input array.</p>
 <p>Given an input array with m x n dimensions, this function creates a subplot for vectors
 [1-n]. Vector 0 serves as the x-axis for each subplot. The slice dimension can be in
@@ -389,6 +389,7 @@ columns (0) or rows (1).</p>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -482,7 +483,7 @@ is set with zerooffset.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar3d">
-<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x056C0710&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05760710&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D polar surface/mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -528,7 +529,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polarMesh">
-<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading=u'flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x056C0710&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading=u'flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05760710&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Polar colour mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -706,7 +707,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x056B2A70&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05752A70&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
