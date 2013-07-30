@@ -103,7 +103,8 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
         'writeRotatingTargetOssimTrajFile', 'plotSpherical',
-        'plotOSSIMSpherical','sphericalPlotElevAzim', 'polarPlotElevAzim']
+        'plotOSSIMSpherical','sphericalPlotElevAzim', 'polarPlotElevAzim',
+        'globePlotElevAzim']
 
 import os.path, fnmatch
 import numpy
@@ -529,7 +530,7 @@ def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, tr
 ################################################################
 ##
 def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
-    colormap='Spectral', doWireFrame=False):
+    colormap='Spectral', doWireFrame=False, line_width = 0.2):
     """Plot spherical data (azimuth, elevation and value) given in spherical format
 
     This function assumes that the polar data is defined in terms of elevation
@@ -539,6 +540,8 @@ def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
     All axes, x, y, and z are scaled with the magnitude of value in the
     (azim, elev) direction.
 
+    The colour on the surface represents the value at the given azim/elev location.
+
     Args:
         | figure (int): mlab figure number
         | azimuth (numpy 1D array): vector of values
@@ -547,6 +550,7 @@ def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
         | ptitle (string): plot title
         | colormap (string): defines the colour map to be used
         | doWireFrame (bool): switches fireframe on or off
+        | line_width (double): wireframe line width
 
     Returns:
         | provides an mlab figure.
@@ -560,9 +564,9 @@ def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
     z = - value * numpy.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
-    mlab.mesh(x, y, z, colormap=colormap)
+    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
     if doWireFrame:
-        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe')
+        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
     if ptitle:
         mlab.title(ptitle, size=0.5, height=1)
 
@@ -570,7 +574,7 @@ def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
 ################################################################
 ##
 def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
-    colormap='Spectral', doWireFrame=False):
+    colormap='Spectral', doWireFrame=False, line_width = 0.2):
     """Plot spherical data (azimuth, elevation and value) given in polar format.
 
     This function assumes that the polar data is defined in terms of elevation
@@ -578,7 +582,9 @@ def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
     from 0 to 2pi.  All angles are in degrees.
 
     The x and y axes are scaled with the maximum magnitude of value. The z axis is
-    scaled with the actual magnitude of value in the  (azim, elev) direction.
+    scaled with the actual magnitude of value in the  (azim, elev) direction. 
+
+    The colour on the surface represents the value at the given azim/elev location.
 
     Args:
         | figure (int): mlab figure number
@@ -588,6 +594,52 @@ def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
         | ptitle (string): plot title
         | colormap (string): defines the colour map to be used
         | doWireFrame (bool): switches fireframe on or off
+        | line_width (double): wireframe line width
+
+    Returns:
+        | provides an mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+    line_width = 0.5
+    rmax = numpy.amax(numpy.amax(value))
+    phi, theta = numpy.meshgrid(elevation,azimuth)
+    x = rmax * numpy.sin(phi) * numpy.cos(theta)
+    y = rmax * numpy.sin(phi) * numpy.sin(theta)
+    z = - value * numpy.cos(phi)
+    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+    mlab.clf()
+    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
+    if doWireFrame:
+        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
+    if ptitle:
+        mlab.title(ptitle, size=0.5, height=1)
+
+
+
+################################################################
+##
+def globePlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+    colormap='Spectral', doWireFrame=False, line_width = 0.2):
+    """Plot spherical data on a sphere.
+
+    This function assumes that the polar data is defined in terms of elevation
+    angle with zero at the equator and azimuth measured around the equator,
+    from 0 to 2pi.  All angles are in degrees.
+
+    The x, y, and z values defines vertices on a sphere. The colour on the
+    sphere represents the value at the given azim/elev location.
+
+    Args:
+        | figure (int): mlab figure number
+        | azimuth (numpy 1D array): vector of values
+        | elevation (numpy 1D array): vector of values
+        | value (numpy 2D array): array with values corresponding with azim/elevation
+        | ptitle (string): plot title
+        | colormap (string): defines the colour map to be used
+        | doWireFrame (bool): switches fireframe on or off
+        | line_width (double): wireframe line width
 
     Returns:
         | provides an mlab figure.
@@ -597,14 +649,14 @@ def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
 """
     rmax = numpy.amax(numpy.amax(value))
     phi, theta = numpy.meshgrid(elevation,azimuth)
-    x = rmax * numpy.sin(phi) * numpy.cos(theta)
-    y = rmax * numpy.sin(phi) * numpy.sin(theta)
-    z = - value * numpy.cos(phi)
+    x = numpy.sin(phi) * numpy.cos(theta)
+    y = numpy.sin(phi) * numpy.sin(theta)
+    z = - numpy.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
-    mlab.mesh(x, y, z, colormap=colormap)
+    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
     if doWireFrame:
-        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe')
+        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
     if ptitle:
         mlab.title(ptitle, size=0.5, height=1)
 
@@ -638,6 +690,7 @@ if __name__ == '__main__':
     pRad = aArray[1:,1:]
     polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
     sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+    globePlotElevAzim(3, azim1D, elev1D, pRad, ptitle, doWireFrame=False)
     mlab.show()
 
 
