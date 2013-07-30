@@ -836,7 +836,7 @@ class Plotter:
         if(ptitle is not None):
             ax.set_title(ptitle, fontsize=titlefsize)
 
-        # minor ticks are two points smaller than major 
+        # minor ticks are two points smaller than major
         ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
         ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
@@ -1358,7 +1358,8 @@ class Plotter:
  ############################################################
     ##
     def plotArray(self, plotnum, inarray, slicedim = 0, subtitles = None, xlabel=None, \
-                        maxNX=0, maxNY=0, titlefsize = 8, xylabelfsize = 8 ):
+                        maxNX=0, maxNY=0, titlefsize = 8, xylabelfsize = 8,
+                        xytickfsize = 8  ):
         """Creates a plot from an input array.
 
         Given an input array with m x n dimensions, this function creates a subplot for vectors
@@ -1376,6 +1377,7 @@ class Plotter:
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -1432,9 +1434,9 @@ class Plotter:
 
 	   #tick label fonts
 	   for tick in ax.yaxis.get_major_ticks():
-               tick.label.set_fontsize(8)
+               tick.label.set_fontsize(xytickfsize)
            for tick in ax.xaxis.get_major_ticks():
-               tick.label.set_fontsize(8)
+               tick.label.set_fontsize(xytickfsize)
 
            if maxNX > 0:
 	       ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
@@ -1447,6 +1449,10 @@ class Plotter:
         plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
         if xlabel is not None:
             fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
+
+        # minor ticks are two points smaller than major
+        # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+        # ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
 
 
