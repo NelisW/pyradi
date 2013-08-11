@@ -521,7 +521,9 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0, \
                     pltaxis=None, maxNX=10, maxNY=10, \
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                     xylabelfsize = 12,  xytickfsize = 10  ):
+                    xylabelfsize = 12,  xytickfsize = 10,
+                    xScientific=False, yScientific=False,  \
+                    yInvert=False, xInvert=False, drawGrid=True  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -549,6 +551,11 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | drawGrid (bool): draw the grid on the plot
+                | yInvert (bool): invert the y-axis
+                | xInvert (bool): invert the x-axis
 
             Returns:
                 | Nothing
@@ -563,9 +570,11 @@ class Plotter:
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
         ax = self.subplots[pkey]
 
-        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, \
-                    plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize, xylabelfsize, xytickfsize)
+        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, 
+                    plotCol, label,legendAlpha, pltaxis, 
+                    maxNX, maxNY, powerLimits,titlefsize, xylabelfsize, xytickfsize,
+                    xScientific=xScientific, yScientific=yScientific,  
+                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid )
 
     ############################################################
     ##
@@ -725,11 +734,13 @@ class Plotter:
 
     ############################################################
     ##
-    def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None,ylabel=None,
-                     plotCol=[],label=[],legendAlpha=0.0,\
-                    pltaxis=None, maxNX=0, maxNY=0,  \
+    def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
+                     plotCol=[],label=[],legendAlpha=0.0,
+                    pltaxis=None, maxNX=0, maxNY=0,  
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10 ):
+                    xylabelfsize = 12, xytickfsize = 10, drawGrid = True,
+                    xScientific=False, yScientific=False,  
+                    yInvert=False, xInvert=False ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -753,6 +764,11 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | drawGrid (bool): draw the grid on the plot
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | yInvert (bool): invert the y-axis
+                | xInvert (bool): invert the x-axis
 
             Returns:
                 | Nothing
@@ -771,12 +787,17 @@ class Plotter:
         else:
             yy=y.reshape(-1, 1)
 
+
+
         # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
         pkey = (self.nrow, self.ncol, plotnum)
         ax = self.subplots[pkey]
 
-        ax.grid(True)
+        if drawGrid:
+            ax.grid(True)
+        else:
+            ax.grid(False)
 
         # use scientific format on axes
         #yfm = sbp.yaxis.get_major_formatter()
@@ -784,16 +805,18 @@ class Plotter:
 
         if xlabel is not None:
             ax.set_xlabel(xlabel, fontsize=xylabelfsize)
-            formx = plt.ScalarFormatter()
-            formx.set_scientific(True)
-            formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-            ax.xaxis.set_major_formatter(formx)
+            if xScientific:
+                formx = plt.ScalarFormatter()
+                formx.set_scientific(True)
+                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+                ax.xaxis.set_major_formatter(formx)
         if ylabel is not None:
             ax.set_ylabel(ylabel, fontsize=xylabelfsize)
-            formy = plt.ScalarFormatter()
-            formy.set_powerlimits([powerLimits[2], powerLimits[3]])
-            formy.set_scientific(True)
-            ax.yaxis.set_major_formatter(formy)
+            if yScientific:
+                formy = plt.ScalarFormatter()
+                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+                formy.set_scientific(True)
+                ax.yaxis.set_major_formatter(formy)
 
         if maxNX >0:
             ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
@@ -840,6 +863,184 @@ class Plotter:
         ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
         ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
+        if yInvert:
+            ax.set_ylim(ax.get_ylim()[::-1])
+        if xInvert:
+            ax.set_xlim(ax.get_xlim()[::-1])
+    ############################################################
+    ##
+    def meshContour(self, plotnum, xvals, yvals, zvals, numLevels=10,
+                  ptitle=None,
+                  xlabel=None, ylabel=None, shading = 'flat',\
+                  plotCol=[], pltaxis=None, maxNX=0, maxNY=0, 
+                  xScientific=False, yScientific=False,  \
+                  powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
+                  xylabelfsize = 12, xytickfsize = 10,
+                  meshCmap = cm.rainbow, cbarshow=False, \
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
+                  drawGrid = False, yInvert=False, xInvert=False, 
+                  contourFill=True, contourLine=True, logScale=False,
+                  negativeSolid=False ):
+        """XY colour mesh plot for (xvals, yvals, zvals) input sets.
+
+        Given an existing figure, this function plots in a specified subplot position.
+
+        Only one mesh is drawn at a time.  Future meshes in the same subplot
+        will cover any previous meshes.
+
+        The data in zvals must be on a grid where the xvals vector correspond to
+        the number of rows in zvals and the yvals vector corresponds to the
+        number of columns in zvals.
+
+        The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
+        have to be on regular intervals.
+
+            Args:
+                | plotnum (int): subplot number
+                | xvals (np.array[N,] or [N,1]): vector of x values 
+                | yvals (np.array[M,] or [M,1]): vector of y values
+                | zvals (np.array[N,M]): values on a (x,y) grid
+                | numLevels (int): values of contour levels
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | shading (string): 'flat' | 'gouraud'  (optional)
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | maxNX (int): draw maxNX+1 tick labels on x axis
+                | maxNY (int): draw maxNY+1 tick labels on y axis
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
+                | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | meshCmap (cm): color map for the mesh (optional)
+                | cbarshow (bool): if true, the show a color bar
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
+                | cbarfontsize (int): font size for color bar
+                | drawGrid (bool): draw the grid on the plot
+                | invertY (bool): invert the y-axis
+                | invertX (bool): invert the x-axis
+                | contourFill (bool): fill contours with colour
+                | contourLine (bool): fill contours with colour
+                | logScale (bool): Z values are log, recompute colourbar vals
+                | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+        
+        #to rank 2
+        xx=xvals.reshape(-1, 1)
+        yy=yvals.reshape(-1, 1)
+
+        if contourLine:
+            if negativeSolid:
+                plt.rcParams['contour.negative_linestyle'] = 'solid'
+            else:
+                plt.rcParams['contour.negative_linestyle'] = 'dashed'
+
+        #create subplot if not existing
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum)#, projection='polar')
+                 
+        #get axis
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
+        if drawGrid:
+            ax.grid(True)
+        else:
+            ax.grid(False)
+
+        if xlabel is not None:
+            ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+            if xScientific:
+                formx = plt.ScalarFormatter()
+                formx.set_scientific(True)
+                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+                ax.xaxis.set_major_formatter(formx)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+            if yScientific:
+                formy = plt.ScalarFormatter()
+                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+                formy.set_scientific(True)
+                ax.yaxis.set_major_formatter(formy)
+
+        if maxNX >0:
+            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+        if maxNY >0:
+            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+
+        if plotCol:
+            col = plotCol[0]
+        else:
+            col = self.nextPlotCol()
+
+        #do the plot
+        if contourLine:
+            pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
+                 colors=col)
+        if contourFill:
+            pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading, 
+                cmap=meshCmap)
+
+        if cbarshow is True:
+            if not cbarcustomticks:
+                if logScale:
+                    cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                    tickVals = []
+                    # need this roundabout trick to handle minus sign in unicode
+                    for item in cbartickvals:
+                        val = 10**float((item.get_text().replace(u'\u2212', '-')))
+                        if abs(val) < 1000:
+                            str = '{0:f}'.format(val)
+                        else:
+                            str = '{0:e}'.format(val)
+                        tickVals.append(str)
+                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+                else:
+                    cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+            else:
+                ticks,  ticklabels = zip(*cbarcustomticks)
+                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+                if cbarorientation == 'vertical':
+                    cbar.ax.set_yticklabels(ticklabels)
+                else:
+                    cbar.ax.set_xticklabels(ticklabels)
+
+            if cbarorientation == 'vertical':
+                for t in cbar.ax.get_yticklabels():
+                     t.set_fontsize(cbarfontsize)
+            else:
+                for t in cbar.ax.get_xticklabels():
+                     t.set_fontsize(cbarfontsize)
+
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
+        #scale the axes
+        if pltaxis is not None:
+            ax.axis(pltaxis)
+
+        if(ptitle is not None):
+            ax.set_title(ptitle, fontsize=titlefsize)
+
+        # minor ticks are two points smaller than major
+        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+
+        if yInvert:
+            ax.set_ylim(ax.get_ylim()[::-1])
+        if xInvert:
+            ax.set_xlim(ax.get_xlim()[::-1])
 
     ############################################################
     ##
@@ -1463,6 +1664,26 @@ class Plotter:
 
 if __name__ == '__main__':
 
+    import matplotlib.mlab as mlab
+    delta = 0.025
+    x = numpy.arange(-3.0, 3.0, delta)
+    y = numpy.arange(-2.0, 2.0, delta)
+    X, Y = numpy.meshgrid(x, y)
+    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    # difference of Gaussians
+    Z = 10.0 * (Z2 - Z1)
+    pmc = Plotter(1)
+    pmc.meshContour(1, X, Y, Z, numLevels=15,
+                ptitle='meshContour', shading='gouraud',plotCol=['k'],
+                titlefsize=12,  meshCmap=cm.rainbow, cbarshow=True,
+                cbarorientation='vertical', cbarfontsize=12,
+                xlabel='X-value', ylabel='Y-value',
+                drawGrid=True, yInvert=True, negativeSolid=False,
+                contourFill=True, contourLine=True, logScale=False )
+    #the current version uses pngs, since there appears to be a
+    #problem with eps files.
+    pmc.saveFig('meshContour.png', dpi=300)
 
     ############################################################################
     #demonstrate the use of plotArray
