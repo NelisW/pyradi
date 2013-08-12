@@ -517,12 +517,12 @@ class Plotter:
 
     ############################################################
     ##
-    def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
-                    plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=None, maxNX=10, maxNY=10, \
+    def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
+                    plotCol=[], label=[],legendAlpha=0.0, 
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10,
-                    xScientific=False, yScientific=False,  \
+                    xScientific=False, yScientific=False,  
                     yInvert=False, xInvert=False, drawGrid=True  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
@@ -547,6 +547,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | linestyle (string): linestyle for this plot
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
@@ -572,15 +573,16 @@ class Plotter:
 
         self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, 
                     plotCol, label,legendAlpha, pltaxis, 
-                    maxNX, maxNY, powerLimits,titlefsize, xylabelfsize, xytickfsize,
+                    maxNX, maxNY, linestyle,
+                    powerLimits,titlefsize, xylabelfsize, xytickfsize,
                     xScientific=xScientific, yScientific=yScientific,  
-                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid )
+                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid)
 
     ############################################################
     ##
-    def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
-                    plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=None, maxNX=10, maxNY=10, \
+    def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
+                    plotCol=[], label=[],legendAlpha=0.0, 
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
@@ -606,6 +608,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | linestyle (string): linestyle for this plot
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
@@ -626,13 +629,13 @@ class Plotter:
 
         self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
-    def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
-                    plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=None, maxNX=10, maxNY=10, \
+    def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
+                    plotCol=[], label=[],legendAlpha=0.0, 
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
@@ -658,6 +661,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | linestyle (string): linestyle for this plot
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
@@ -678,13 +682,13 @@ class Plotter:
 
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
-    def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, \
-                    plotCol=[], label=[],legendAlpha=0.0, \
-                    pltaxis=None, maxNX=10, maxNY=10, \
+    def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
+                    plotCol=[], label=[],legendAlpha=0.0, 
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
@@ -710,6 +714,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | linestyle (string): linestyle for this plot
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
@@ -730,13 +735,13 @@ class Plotter:
 
         self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
 
     ############################################################
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
                      plotCol=[],label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=0, maxNY=0,  
+                    pltaxis=None, maxNX=0, maxNY=0, linestyle='-',  
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, drawGrid = True,
                     xScientific=False, yScientific=False,  
@@ -745,6 +750,15 @@ class Plotter:
 
         This function does the actual plotting, labelling etc. It uses the plotting
         function provided by its user functions.
+
+        lineStyles = {
+        '': '_draw_nothing', 
+        ' ': '_draw_nothing', 
+        'None': '_draw_nothing', 
+        '--': '_draw_dashed', 
+        '-.': '_draw_dash_dot', 
+        '-': '_draw_solid', 
+        ':': '_draw_dotted'}
 
             Args:
                 | plotcommand: name of a MatplotLib plotting function
@@ -760,6 +774,7 @@ class Plotter:
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
                 | maxNX (int): draw maxNX+1 tick labels on x axis
                 | maxNY (int): draw maxNY+1 tick labels on y axis
+                | linestyle (string): linestyle for this plot
                 | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
@@ -833,7 +848,7 @@ class Plotter:
                 else:
                     col = self.nextPlotCol()
 
-                plotcommand(xx, yy[:, i], col ,label=None)
+                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle)
                 #plotcommand(xx, yy[:, i], plotCol[i],label=None)
                 #ax.plot(xx, yy[:, i], plotCol[i],label=None)
         else:
@@ -846,7 +861,7 @@ class Plotter:
                         col = plotCol[i]
                 else:
                     col = self.nextPlotCol()
-                plotcommand(xx,yy[:,i],col,label=label[i])
+                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle)
                 #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
             leg = ax.legend(loc='best', fancybox=True)
             leg.get_frame().set_alpha(legendAlpha)
