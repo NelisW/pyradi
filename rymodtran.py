@@ -41,8 +41,6 @@ __all__= ['fixHeaders', 'loadtape7','fixHeadersList', 'savetape7data']
 import numpy as np
 from string import maketrans
 import StringIO
-import pyradi.ryplot as ryplot
-import pyradi.ryutils as ryutils
 
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
@@ -263,7 +261,8 @@ if __name__ == '__main__':
     import sys
     import numpy
 
-    #import pyradi.ryplot as ryplot
+    import pyradi.ryplot as ryplot
+    import pyradi.ryutils as ryutils
 
     figtype = ".png"  # eps, jpg, png
     #figtype = ".eps"  # eps, jpg, png
