@@ -48,7 +48,6 @@ __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken'
 
 import numpy
 import scipy.constants as const
-import pyradi.ryutils as ryutils
 
 
 class PlanckConstants:
@@ -529,6 +528,8 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
+    
+    import ryutils
 
     pconst.printConstants()
 
