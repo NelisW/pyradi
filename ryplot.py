@@ -38,6 +38,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+
 __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['Plotter']
@@ -1286,7 +1287,7 @@ class Plotter:
     ##
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, \
                plotCol=[], label=None, legendAlpha=0.0, titlefsize=12,
-               xylabelfsize = 12 ):
+               xylabelfsize = 12 , xInvert=False, yInvert=False, zInvert=False):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1311,6 +1312,9 @@ class Plotter:
                 | legendAlpha (float): transparancy for legend (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y, z label font size, default 12pt (optional)
+                | xInvert (bool): invert the x-axis
+                | yInvert (bool): invert the y-axis
+                | zInvert (bool): invert the z-axis
 
             Returns:
                 | Nothing
@@ -1338,6 +1342,13 @@ class Plotter:
         for i in range(x.shape[-1]):
             ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
 
+        if xInvert:
+            ax.set_xlim(ax.get_xlim()[::-1])
+        if yInvert:
+            ax.set_ylim(ax.get_ylim()[::-1])
+        if zInvert:
+            ax.set_zlim(ax.get_zlim()[::-1])
+
         if xlabel is not None:
             ax.set_xlabel(xlabel, fontsize = xylabelfsize)
         if ylabel is not None:
@@ -1352,6 +1363,8 @@ class Plotter:
 
         if(ptitle is not None):
             plt.title(ptitle, fontsize=titlefsize)
+
+
 
     ############################################################
     ##
@@ -1970,7 +1983,7 @@ if __name__ == '__main__':
     z = numpy.linspace(-2, 2, 100)
     x, y = parametricCurve(z)
 
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z')
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
     P3D.saveFig('3D.png')
 
     P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
