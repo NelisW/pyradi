@@ -164,7 +164,7 @@ Subplot numbers range from 1 upwards.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=u'-', powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -189,6 +189,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot</div>
 <div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
@@ -211,7 +212,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.meshContour">
-<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, numLevels=10, ptitle=None, xlabel=None, ylabel=None, shading=u'flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x055B0F90&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, numLevels=10, ptitle=None, xlabel=None, ylabel=None, shading=u'flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x054979B0&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
 <dd><p>XY colour mesh plot for (xvals, yvals, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -274,10 +275,18 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.myPlot">
-<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, linestyle=u'-', powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting
 function provided by its user functions.</p>
+<p>lineStyles = {
+&#8216;&#8217;: &#8216;_draw_nothing&#8217;, 
+&#8216; &#8216;: &#8216;_draw_nothing&#8217;, 
+&#8216;None&#8217;: &#8216;_draw_nothing&#8217;, 
+&#8216;&#8211;&#8217;: &#8216;_draw_dashed&#8217;, 
+&#8216;-.&#8217;: &#8216;_draw_dash_dot&#8217;, 
+&#8216;-&#8216;: &#8216;_draw_solid&#8217;, 
+&#8216;:&#8217;: &#8216;_draw_dotted&#8217;}</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Args:</dt>
@@ -295,6 +304,7 @@ function provided by its user functions.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
+<div class="line">linestyle (string): linestyle for this plot</div>
 <div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
@@ -349,7 +359,7 @@ One day I want to do this with a generator....</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=u'-', powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -374,6 +384,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot</div>
 <div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
@@ -401,7 +412,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot3d">
-<tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>plotCol=</em><span class="optional">[</span><span class="optional">]</span>, <em>label=None</em>, <em>legendAlpha=0.0</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>plotCol=</em><span class="optional">[</span><span class="optional">]</span>, <em>label=None</em>, <em>legendAlpha=0.0</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>xInvert=False</em>, <em>yInvert=False</em>, <em>zInvert=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D plot on linear scales for x y z input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail.</p>
@@ -426,6 +437,9 @@ the label argument can contain the legend labels for each of the columns/lines.<
 <div class="line">legendAlpha (float): transparancy for legend (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y, z label font size, default 12pt (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis</div>
+<div class="line">yInvert (bool): invert the y-axis</div>
+<div class="line">zInvert (bool): invert the z-axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -556,7 +570,7 @@ is set with zerooffset.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar3d">
-<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x055B0F90&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x054979B0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D polar surface/mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -602,7 +616,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polarMesh">
-<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading=u'flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x055B0F90&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading=u'flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x054979B0&gt;, cbarshow=False, cbarorientation=u'vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Polar colour mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -652,7 +666,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.saveFig">
-<tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=100</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em>, <em>useTrueType=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">saveFig</tt><big>(</big><em>filename=u'mpl.png'</em>, <em>dpi=300</em>, <em>bbox_inches=u'tight'</em>, <em>pad_inches=0.1</em>, <em>useTrueType=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.saveFig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the plot to a disk file, using filename, dpi specification and bounding box limits.</p>
 <p>One of matplotlib&#8217;s design choices is a bounding box strategy  which may result in a bounding box
 that is smaller than the size of all the objects on the page.  It took a while to figure this out,
@@ -686,7 +700,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=u'-', powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -711,6 +725,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot</div>
 <div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
@@ -733,7 +748,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=u'-', powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -758,6 +773,7 @@ for the x and y axes.</p>
 <div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot</div>
 <div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
@@ -780,7 +796,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x055B02F0&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05488CF0&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation=u'vertical'</em>, <em>cbarcustomticks=</em><span class="optional">[</span><span class="optional">]</span>, <em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -900,6 +916,47 @@ drawn.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-functions">
+<h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyradi.ryplot.savePlot">
+<tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">savePlot</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.savePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses with statement to create a plot and save to file on exit.</p>
+<p>Use as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">x</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">savePlot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">saveName</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;testwith.png&#39;</span><span class="p">,</span><span class="s">&#39;testwith.eps&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the savePlot parameters are exactly the same as <tt class="docutils literal"><span class="pre">Plotter</span></tt>, 
+except that a new named parameter <tt class="docutils literal"><span class="pre">saveName</span></tt> is now present. 
+If <tt class="docutils literal"><span class="pre">saveName</span></tt> is not <tt class="docutils literal"><span class="pre">None</span></tt>, the list of filenames is used to
+save files of the plot (any number of names/types)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">fignumber (int): the plt figure number, must be supplied</div>
+<div class="line">subpltnrow (int): subplot number of rows</div>
+<div class="line">subpltncol (int): subplot number of columns</div>
+<div class="line">figuretitle (string): the overall heading for the figure</div>
+<div class="line">figsize ((w,h)): the figure size in inches</div>
+<div class="line">saveName str or [str]: string or list of save filenames</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">The plotting object, used to populate the plot (see example)</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -913,6 +970,7 @@ drawn.</p>
 <li><a class="reference internal" href="#">Plotting utility</a><ul>
 <li><a class="reference internal" href="#module-pyradi.ryplot">Overview</a></li>
 <li><a class="reference internal" href="#module-classes">Module classes</a></li>
+<li><a class="reference internal" href="#module-functions">Module functions</a></li>
 </ul>
 </li>
 </ul>

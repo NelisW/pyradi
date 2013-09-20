@@ -435,7 +435,7 @@ class Plotter:
 
     ############################################################
     ##
-    def saveFig(self, filename='mpl.png',dpi=100,bbox_inches='tight',\
+    def saveFig(self, filename='mpl.png',dpi=300,bbox_inches='tight',\
                 pad_inches=0.1, useTrueType = True):
         """Save the plot to a disk file, using filename, dpi specification and bounding box limits.
 
@@ -1683,6 +1683,53 @@ class Plotter:
         # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
         # ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
+################################################################
+################################################################
+##
+## plot graphs and confirm the correctness of the functions
+from contextlib import contextmanager
+
+@contextmanager
+def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
+                 figuretitle=None, figsize=(9,9), saveName=None):
+    """Uses with statement to create a plot and save to file on exit.
+
+    Use as follows::
+
+        x=numpy.linspace(-3,3,20)
+        with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
+            p.plot(1,x,x*x)
+
+    where the savePlot parameters are exactly the same as ``Plotter``, 
+    except that a new named parameter ``saveName`` is now present. 
+    If ``saveName`` is not ``None``, the list of filenames is used to
+    save files of the plot (any number of names/types)
+
+    Args:
+        | fignumber (int): the plt figure number, must be supplied
+        | subpltnrow (int): subplot number of rows
+        | subpltncol (int): subplot number of columns
+        | figuretitle (string): the overall heading for the figure
+        | figsize ((w,h)): the figure size in inches
+        | saveName str or [str]: string or list of save filenames
+
+    Returns:
+        | The plotting object, used to populate the plot (see example)
+
+    Raises:
+        | No exception is raised.
+
+    """
+    p = Plotter(fignumber,subpltnrow,subpltncol, figuretitle, figsize)
+    try:
+        yield p
+    finally:
+        if saveName is not None:
+            if isinstance(saveName, basestring):
+                p.saveFig(filename=saveName)
+            else:
+                for fname in saveName:
+                    p.saveFig(filename=fname)
 
 
 ################################################################
@@ -1692,6 +1739,16 @@ class Plotter:
 
 if __name__ == '__main__':
 
+
+    ############################################################################
+    # demonstrate the use of the contextmanager and with statement
+    x=numpy.linspace(-3,3,20)
+    with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
+        p.plot(1,x,x*x)
+    with savePlot(1,saveName='testwith.jpg') as p:
+        p.plot(1,x,x*x)
+
+    ############################################################################
     import matplotlib.mlab as mlab
     delta = 0.025
     x = numpy.arange(-3.0, 3.0, delta)
