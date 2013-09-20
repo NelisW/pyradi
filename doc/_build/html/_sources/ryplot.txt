@@ -23,4 +23,7 @@ Module classes
 	
 
 
-	
+Module functions
+------------------
+
+.. autofunction:: pyradi.ryplot.savePlot	
