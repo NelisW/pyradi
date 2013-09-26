@@ -399,13 +399,12 @@ class Plotter:
         """
         # assemble the list as requested
         if not plotCol:
-            self.plotCol = [self.plotCol[i % len(self.plotCol)] \
-                                         for i in range(n)]
+            self.plotCol = [self.nextPlotCol() for i in range(n)]
         else:
             self.plotCol = [plotCol[i % len(plotCol)] \
                                          for i in range(n)]
         # copy this to circular list as well
-        self.plotColCirc = itertools.cycle(self.plotCol)
+        # self.plotColCirc = itertools.cycle(self.plotCol)
 
         return self.plotCol
 
@@ -429,7 +428,6 @@ class Plotter:
         """
 
         col = self.plotColCirc.next()
-        #print(col)
         return col
 
 
@@ -518,12 +516,12 @@ class Plotter:
 
     ############################################################
     ##
-    def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
-                    plotCol=[], label=[],legendAlpha=0.0, 
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
+    def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
+                    plotCol=[], label=[],legendAlpha=0.0,
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10,
-                    xScientific=False, yScientific=False,  
+                    xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
@@ -572,18 +570,18 @@ class Plotter:
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
         ax = self.subplots[pkey]
 
-        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel, 
-                    plotCol, label,legendAlpha, pltaxis, 
+        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
+                    plotCol, label,legendAlpha, pltaxis,
                     maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, xylabelfsize, xytickfsize,
-                    xScientific=xScientific, yScientific=yScientific,  
+                    xScientific=xScientific, yScientific=yScientific,
                     yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid)
 
     ############################################################
     ##
-    def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
-                    plotCol=[], label=[],legendAlpha=0.0, 
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
+    def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
+                    plotCol=[], label=[],legendAlpha=0.0,
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
@@ -634,9 +632,9 @@ class Plotter:
 
     ############################################################
     ##
-    def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
-                    plotCol=[], label=[],legendAlpha=0.0, 
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
+    def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
+                    plotCol=[], label=[],legendAlpha=0.0,
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
@@ -687,9 +685,9 @@ class Plotter:
 
     ############################################################
     ##
-    def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, 
-                    plotCol=[], label=[],legendAlpha=0.0, 
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-', 
+    def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
+                    plotCol=[], label=[],legendAlpha=0.0,
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
@@ -742,10 +740,10 @@ class Plotter:
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
                      plotCol=[],label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=0, maxNY=0, linestyle='-',  
+                    pltaxis=None, maxNX=0, maxNY=0, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, drawGrid = True,
-                    xScientific=False, yScientific=False,  
+                    xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False ):
         """Low level helper function to create a subplot and plot the data as required.
 
@@ -753,12 +751,12 @@ class Plotter:
         function provided by its user functions.
 
         lineStyles = {
-        '': '_draw_nothing', 
-        ' ': '_draw_nothing', 
-        'None': '_draw_nothing', 
-        '--': '_draw_dashed', 
-        '-.': '_draw_dash_dot', 
-        '-': '_draw_solid', 
+        '': '_draw_nothing',
+        ' ': '_draw_nothing',
+        'None': '_draw_nothing',
+        '--': '_draw_dashed',
+        '-.': '_draw_dash_dot',
+        '-': '_draw_solid',
         ':': '_draw_dotted'}
 
             Args:
@@ -888,13 +886,13 @@ class Plotter:
     def meshContour(self, plotnum, xvals, yvals, zvals, numLevels=10,
                   ptitle=None,
                   xlabel=None, ylabel=None, shading = 'flat',\
-                  plotCol=[], pltaxis=None, maxNX=0, maxNY=0, 
+                  plotCol=[], pltaxis=None, maxNX=0, maxNY=0,
                   xScientific=False, yScientific=False,  \
                   powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                   xylabelfsize = 12, xytickfsize = 10,
                   meshCmap = cm.rainbow, cbarshow=False, \
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
-                  drawGrid = False, yInvert=False, xInvert=False, 
+                  drawGrid = False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False ):
         """XY colour mesh plot for (xvals, yvals, zvals) input sets.
@@ -913,7 +911,7 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | xvals (np.array[N,] or [N,1]): vector of x values 
+                | xvals (np.array[N,] or [N,1]): vector of x values
                 | yvals (np.array[M,] or [M,1]): vector of y values
                 | zvals (np.array[N,M]): values on a (x,y) grid
                 | numLevels (int): values of contour levels
@@ -950,7 +948,7 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
-        
+
         #to rank 2
         xx=xvals.reshape(-1, 1)
         yy=yvals.reshape(-1, 1)
@@ -965,7 +963,7 @@ class Plotter:
         if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
             self.subplots[(self.nrow,self.ncol, plotnum)] = \
                  self.fig.add_subplot(self.nrow,self.ncol, plotnum)#, projection='polar')
-                 
+
         #get axis
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
@@ -1004,7 +1002,7 @@ class Plotter:
             pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
                  colors=col)
         if contourFill:
-            pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading, 
+            pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading,
                 cmap=meshCmap)
 
         if cbarshow is True:
@@ -1331,6 +1329,9 @@ class Plotter:
         if z.ndim < 2:
             z = z.reshape(-1,1)
 
+        # if not plotCol:
+        #     plotCol = [self.nextPlotCol()]
+        # else:
         plotCol = self.buildPlotCol(plotCol, x.shape[-1])
 
         if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
@@ -1700,8 +1701,8 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
         with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
             p.plot(1,x,x*x)
 
-    where the savePlot parameters are exactly the same as ``Plotter``, 
-    except that a new named parameter ``saveName`` is now present. 
+    where the savePlot parameters are exactly the same as ``Plotter``,
+    except that a new named parameter ``saveName`` is now present.
     If ``saveName`` is not ``None``, the list of filenames is used to
     save files of the plot (any number of names/types)
 
@@ -1739,6 +1740,48 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
 
 if __name__ == '__main__':
 
+
+    #3D plot example
+    def parametricCurve(z, param1 = 2, param2 = 1):
+        r = z**param1 + param2
+        theta = numpy.linspace(-4 * numpy.pi, 4 * numpy.pi, 100)
+        return (r * numpy.sin(theta), r * numpy.cos(theta))
+
+    P3D = Plotter(5, 1, 1,'Plot 3D Single', figsize=(12,8))
+    z = numpy.linspace(-2, 2, 100)
+    x, y = parametricCurve(z)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
+    P3D.saveFig('3D.png')
+
+    P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
+    plabel = ['parametric curve 1', 'parametric curve 2', 'parametric curve 3']
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
+    P3D.saveFig('3DwithLabel.png')
+    P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
+    P3D.plot3d(1, 0.8*x.T, 0.9*y.T, 1.2*z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=plabel, legendAlpha=0.5)
+    P3D.saveFig('3DwithLabelRepeat.png')
+
+    P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
+    P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
+    P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
+    P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
+    P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
+    P3D.saveFig('S3D.png')
+
+    P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
+    label = ['Param1={} Param2={}'.format(2,1)]
+    for i in range(2):
+        param1 = 2-i
+        param2 = i
+        label.append('Param1={} Param2={}'.format(param1, param2))
+        x1, y1 = parametricCurve(z, param1, param2)
+        x = numpy.vstack((x,x1))
+        y = numpy.vstack((y,y1))
+
+    z = numpy.vstack((z,z,z))
+
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, legendAlpha=0.5)
+    P3D.saveFig('M3D.png')
 
     ############################################################################
     # demonstrate the use of the contextmanager and with statement
@@ -2028,49 +2071,6 @@ if __name__ == '__main__':
     I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
     I.saveFig('II.png')
 #    I.saveFig('II.eps')
-
-
-    #3D plot example
-    def parametricCurve(z, param1 = 2, param2 = 1):
-        r = z**param1 + param2
-        theta = numpy.linspace(-4 * numpy.pi, 4 * numpy.pi, 100)
-        return (r * numpy.sin(theta), r * numpy.cos(theta))
-
-    P3D = Plotter(5, 1, 1,'Plot 3D Single', figsize=(12,8))
-    z = numpy.linspace(-2, 2, 100)
-    x, y = parametricCurve(z)
-
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
-    P3D.saveFig('3D.png')
-
-    P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', plotCol='r', label=['parametric curve'], legendAlpha=0.5)
-    P3D.saveFig('3DwithLabel.png')
-    P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', plotCol='b', label=['parametric curve'], legendAlpha=0.5)
-    P3D.saveFig('3DwithLabelRepeat.png')
-
-    P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
-    P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
-    P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
-    P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
-    P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
-    P3D.saveFig('S3D.png')
-
-    P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
-
-    label = ['Param1={} Param2={}'.format(2,1)]
-    for i in range(2):
-        param1 = 2-i
-        param2 = i
-        label.append('Param1={} Param2={}'.format(param1, param2))
-        x1, y1 = parametricCurve(z, param1, param2)
-        x = numpy.vstack((x,x1))
-        y = numpy.vstack((y,y1))
-
-    z = numpy.vstack((z,z,z))
-
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, legendAlpha=0.5)
-    P3D.saveFig('M3D.png')
 
 
     #demonstrate setting axis values
