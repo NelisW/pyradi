@@ -69,9 +69,11 @@ Filename         Resolution    Number
 sphere_0_12       56.9              12
 sphere_1_42       28.5              42
 sphere_2_162      14.2             162
-sphere_3_642      7.1             642
-sphere_4_2562     3.56           2562
-sphere_5_10242    1.78          10242
+sphere_3_642      7.1              642
+sphere_4_2562     3.56            2562
+sphere_5_10242    1.78           10242
+sphere_6_40962    0.889          40962
+sphere_7_163842   0.445         163842 
 ===============  =========== ==============
 
 The workflow is as follows:
@@ -329,7 +331,7 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     Two additional files are also written to assist with the subsequent
     viewing.
 
-     #. The **directions** file contains the normalised direction vectors
+     #. The **vertex** file contains the normalised direction vectors
         between the object and observer. Depending on the trajectory type
         (see above), the sensor and object switch locations for these
         vectors. These vectors are the directions of sampled intensity values.
