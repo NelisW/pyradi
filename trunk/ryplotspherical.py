@@ -157,7 +157,7 @@ def readOffFile(filename):
             vertices = numpy.vstack((vertices,numpy.asarray([float(s) \
                 for s in line.split()])))
         # now extract the triangles lines[2+vertexCount] to lines(-1)
-        triangles = numpy.asarray([int(s) for s in lines[2+vertexCount].split()[1:]])
+        triangles = numpy.asarray([int(s) for s in lines[2+vertexCount].split()[1:]],dtype='i4')
         for line in lines[3+vertexCount:2+vertexCount+faceCount]:
             if len(line) > 0:
                 triangles = numpy.vstack((triangles,numpy.asarray([int(s) \
@@ -409,7 +409,9 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     fid.close()
 
     fid = open('triangles{0}.txt'.format(outfile), 'w' )
-    numpy.savetxt( fid , triangles )
+    for i in range(triangles.shape[0]):
+        fid.write('{0:d} {1:d} {2:d}\n'.format(triangles[i][0],triangles[i][1],triangles[i][2] ))
+    # numpy.savetxt( fid , triangles, fmt=r'%d' )
     fid.close()
 
     fid = open('vertex{0}.txt'.format(outfile), 'w' )
@@ -704,8 +706,10 @@ if __name__ == '__main__':
     writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Rotate',
         None, 1000, 0, -1500,0, 0, 0, 1, 0.01)
 
+
     writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Orbit',
         1000, 0, 0, -1500,0, 0, 0, 0, 0.01)
+
 
     #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
     plotOSSIMSpherical(0,[0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
