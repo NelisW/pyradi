@@ -35,7 +35,7 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 'cleanFilename',
-         'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure']
+         'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure','read2DLookupTable']
 
 from scipy.interpolate import interp1d
 import numpy
@@ -421,6 +421,48 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
 
 
 ################################################################
+##
+def read2DLookupTable(filename):
+    """ Read a 2D lookup table and extract the data.
+
+        The table has the following format:
+        line 1: xlabel ylabel title
+        line 2: 0 (vector of y (col) abscissa)
+        lines 3 and following: (element of x (row) abscissa), followed
+          by table data.
+
+        From line/row 3 onwards the first element is the x abscissa value
+        followed by the row of data, one point for each y abscissa value.
+
+        This function reads the file and returns the individual data items.
+
+    Args:
+        | fname (string): input path and filename
+
+    Returns:
+        | xVec ((np.array[N])): x abscissae
+        | yVec ((np.array[M])): y abscissae
+        | data ((np.array[N,M])): data corresponding the x,y
+        | xlabel (string): x abscissa label
+        | ylabel (string): y abscissa label
+        | title (string): dataset title
+
+    Raises:
+        | No exception is raised.
+    """
+    import numpy 
+
+    with open(filename,'r') as f:
+        lines = f.readlines()
+        xlabel, ylabel, title = lines[0].split()
+    aArray = numpy.loadtxt(filename, skiprows=1, dtype=float)
+    xVec = aArray[1:, 0]
+    yVec = aArray[0, 1:] 
+    data = aArray[1:, 1:]
+    return(xVec, yVec, data, xlabel, ylabel, title)
+
+
+################################################################
 ################################################################
 ##
 ##
@@ -431,6 +473,14 @@ if __name__ == '__init__':
 if __name__ == '__main__':
 
     import ryplot
+
+    xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
+  
+    p = ryplot.Plotter(1)
+    for azim in [0,18,36]:
+        p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
+            ptitle='3-5 $\mu m$, Altitude 10 m',label=['Azim={0:.0f} deg'.format(yVec[azim])])
+    p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
     print ('Test writing latex format arrays:')
     arr = numpy.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
@@ -445,8 +495,6 @@ if __name__ == '__main__':
 
     print ('Test writing eps file figure latex fragments:')
     epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
-
-    exit (0)
 
     print ('Test writing and reading numpy array to text file, with header:')
     #create a two-dimensional array of 25 rows and 7 columns as an outer product
@@ -534,7 +582,5 @@ if __name__ == '__main__':
         recurse=0, return_folders=0, useRegex=True)
     for filename in filelist:
         print('  {0}'.format(filename))
-
-#, useRegex=False
 
     print('module ryfiles done!')
