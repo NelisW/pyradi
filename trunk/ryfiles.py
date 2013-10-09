@@ -425,14 +425,25 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
 def read2DLookupTable(filename):
     """ Read a 2D lookup table and extract the data.
 
-        The table has the following format:
-        line 1: xlabel ylabel title
-        line 2: 0 (vector of y (col) abscissa)
-        lines 3 and following: (element of x (row) abscissa), followed
-          by table data.
+        The table has the following format: ::
+
+            line 1: xlabel ylabel title
+            line 2: 0 (vector of y (col) abscissa)
+            lines 3 and following: (element of x (row) abscissa), followed
+            by table data.
 
         From line/row 3 onwards the first element is the x abscissa value
         followed by the row of data, one point for each y abscissa value.
+        The format can depicted as follows: ::
+
+            x-name y-name ordinates-name
+            0 y1 y2 y3 y4
+            x1 v11 v12 v13 v14
+            x2 v21 v22 v23 v24
+            x3 v31 v32 v33 v34
+            x4 v41 v42 v43 v44
+            x5 v51 v52 v53 v54
+            x6 v61 v62 v63 v64
 
         This function reads the file and returns the individual data items.
 

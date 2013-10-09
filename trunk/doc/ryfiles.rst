@@ -28,4 +28,6 @@ Module functions
 	
 .. autofunction:: pyradi.ryfiles.epsLaTexFigure	
 	
+.. autofunction:: pyradi.ryfiles.read2DLookupTable	
+	
 
