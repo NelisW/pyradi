@@ -320,6 +320,55 @@ The text is added to an existing file.</p>
 </dl>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyradi.ryfiles.read2DLookupTable">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">read2DLookupTable</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.read2DLookupTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a 2D lookup table and extract the data.</p>
+<blockquote>
+<div><p>The table has the following format:</p>
+<div class="highlight-python"><pre>line 1: xlabel ylabel title
+line 2: 0 (vector of y (col) abscissa)
+lines 3 and following: (element of x (row) abscissa), followed
+by table data.</pre>
+</div>
+<p>From line/row 3 onwards the first element is the x abscissa value
+followed by the row of data, one point for each y abscissa value.
+The format can depicted as follows:</p>
+<div class="highlight-python"><pre>x-name y-name ordinates-name
+0 y1 y2 y3 y4
+x1 v11 v12 v13 v14
+x2 v21 v22 v23 v24
+x3 v31 v32 v33 v34
+x4 v41 v42 v43 v44
+x5 v51 v52 v53 v54
+x6 v61 v62 v63 v64</pre>
+</div>
+<p>This function reads the file and returns the individual data items.</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">fname (string): input path and filename</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">xVec ((np.array[N])): x abscissae</div>
+<div class="line">yVec ((np.array[M])): y abscissae</div>
+<div class="line">data ((np.array[N,M])): data corresponding the x,y</div>
+<div class="line">xlabel (string): x abscissa label</div>
+<div class="line">ylabel (string): y abscissa label</div>
+<div class="line">title (string): dataset title</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 

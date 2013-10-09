@@ -97,44 +97,63 @@ In this case the trajectory file specifies the sensor trajectory.</li>
 <p>The sphere data available in pyradi/data/plotspherical are:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="38%" />
-<col width="28%" />
-<col width="35%" />
+<col width="27%" />
+<col width="20%" />
+<col width="25%" />
+<col width="27%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Filename</th>
 <th class="head">Resolution</th>
 <th class="head">Number</th>
+<th class="head">Number</th>
 </tr>
 <tr class="row-even"><th class="head">.</th>
 <th class="head">(degrees)</th>
 <th class="head">points</th>
+<th class="head">triangles</th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr class="row-odd"><td>sphere_0_12</td>
 <td>56.9</td>
 <td>12</td>
+<td>20</td>
 </tr>
 <tr class="row-even"><td>sphere_1_42</td>
 <td>28.5</td>
 <td>42</td>
+<td>80</td>
 </tr>
 <tr class="row-odd"><td>sphere_2_162</td>
 <td>14.2</td>
 <td>162</td>
+<td>320</td>
 </tr>
 <tr class="row-even"><td>sphere_3_642</td>
 <td>7.1</td>
 <td>642</td>
+<td>1280</td>
 </tr>
 <tr class="row-odd"><td>sphere_4_2562</td>
 <td>3.56</td>
 <td>2562</td>
+<td>5120</td>
 </tr>
 <tr class="row-even"><td>sphere_5_10242</td>
 <td>1.78</td>
 <td>10242</td>
+<td>20480</td>
+</tr>
+<tr class="row-odd"><td>sphere_6_40962</td>
+<td>0.889</td>
+<td>40962</td>
+<td>81920</td>
+</tr>
+<tr class="row-even"><td>sphere_7_163842</td>
+<td>0.445</td>
+<td>163842</td>
+<td>327680</td>
 </tr>
 </tbody>
 </table>
@@ -303,7 +322,7 @@ used in the trajectory file.</p>
 viewing.</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>The <strong>directions</strong> file contains the normalised direction vectors
+<li>The <strong>vertex</strong> file contains the normalised direction vectors
 between the object and observer. Depending on the trajectory type
 (see above), the sensor and object switch locations for these
 vectors. These vectors are the directions of sampled intensity values.</li>
