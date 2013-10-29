@@ -386,6 +386,14 @@ class Plotter:
            This function modulus-folds either sequence, in
            case longer sequences are required.
 
+           Colours can be one of the basic colours:<br>
+           ['b', 'g', 'r', 'c', 'm', 'y', 'k'] <br>
+           or it can be a gray shade float value between 0 and 1,
+           such as '0.75', or it can be in hex format '#eeefff'
+           or it can be one of the legal html colours.
+           See http://html-color-codes.info/ and 
+           http://www.computerhope.com/htmcolor.htm.
+
             Args:
                 | plotCol ([strings]): User-supplied list
                 |    of plotting styles(can be empty []).
@@ -404,7 +412,7 @@ class Plotter:
             self.plotCol = [plotCol[i % len(plotCol)] \
                                          for i in range(n)]
         # copy this to circular list as well
-        # self.plotColCirc = itertools.cycle(self.plotCol)
+        self.plotColCirc = itertools.cycle(self.plotCol)
 
         return self.plotCol
 
@@ -520,7 +528,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12,  xytickfsize = 10,
+                    xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
@@ -551,6 +559,7 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
                 | xScientific (bool): use scientific notation on x-axis
                 | yScientific (bool): use scientific notation on x-axis
                 | drawGrid (bool): draw the grid on the plot
@@ -574,6 +583,7 @@ class Plotter:
                     plotCol, label,legendAlpha, pltaxis,
                     maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, xylabelfsize, xytickfsize,
+                    labelfsize,
                     xScientific=xScientific, yScientific=yScientific,
                     yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid)
 
@@ -583,7 +593,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10   ):
+                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -612,6 +622,7 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -628,7 +639,8 @@ class Plotter:
 
         self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
+                    xytickfsize,labelfsize)
 
     ############################################################
     ##
@@ -636,7 +648,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10):
+                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -665,6 +677,7 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -681,7 +694,8 @@ class Plotter:
 
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
+                     xytickfsize,labelfsize)
 
     ############################################################
     ##
@@ -689,7 +703,7 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10  ):
+                    xylabelfsize = 12, xytickfsize = 10, labelfsize=10  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -718,6 +732,7 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
 
             Returns:
                 | Nothing
@@ -734,7 +749,8 @@ class Plotter:
 
         self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, xytickfsize)
+                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
+                    xytickfsize, labelfsize)
 
     ############################################################
     ##
@@ -742,7 +758,8 @@ class Plotter:
                      plotCol=[],label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=0, maxNY=0, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10, drawGrid = True,
+                    xylabelfsize = 12, xytickfsize = 10, 
+                    labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False ):
         """Low level helper function to create a subplot and plot the data as required.
@@ -778,6 +795,7 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
                 | drawGrid (bool): draw the grid on the plot
                 | xScientific (bool): use scientific notation on x-axis
                 | yScientific (bool): use scientific notation on x-axis
@@ -862,7 +880,7 @@ class Plotter:
                     col = self.nextPlotCol()
                 plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle)
                 #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
-            leg = ax.legend(loc='best', fancybox=True)
+            leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
