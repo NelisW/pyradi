@@ -254,6 +254,34 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     os.path.walk(root, visit, arg)
     return arg.results
 
+################################################################
+##
+def rawFrameToImageFile(image, filename):
+    """Writes a single raw image frame to image file.
+    The file type must be given, e.g. png or jpg.
+    The image need not be scaled beforehand, it is done prior 
+    to writing out the image. File types tested with are
+    'png','jpg','tiff','eps'.
+
+    Args:
+        | image (numpy.ndarray): two-dimensional array representing an image
+        | filename (string): name of file to be written to, with extension
+
+    Returns:
+        | Nothing
+
+    Raises:
+        | No exception is raised.
+    """
+    #normalise input image (img) data to between 0 and 1
+    from scipy import ndimage
+    image = image - ndimage.minimum(image)
+    image =  image/ndimage.maximum(image)
+
+    # http://scikit-image.org/docs/dev/api/skimage.io.html#imread
+    import skimage.io as io
+    io.imsave(filename, image) 
+
 
 ################################################################
 ##
@@ -568,8 +596,8 @@ if __name__ == '__main__':
 
     if frames == len(framesToLoad):
 
+        #first plot using ryplot, using matplotlib
         P = ryplot.Plotter(1, 2, 2,'Sample frames from binary file', figsize=(4, 4))
-
         P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
         P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
         P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm. bone)
@@ -578,6 +606,13 @@ if __name__ == '__main__':
         P.saveFig('sample.png', dpi=300)
         print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
         img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
+
+    #now write the raw frames to image files
+    type = ['png','jpg','tiff','eps']
+    for i in range(frames):
+        print(i)
+        filename = 'rawIm{0}.{1}'.format(i,type[i])
+        rawFrameToImageFile(img[i],filename)
 
     else:
         print('\nNot all frames read from file')
