@@ -607,12 +607,12 @@ if __name__ == '__main__':
         print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
         img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
 
-    #now write the raw frames to image files
-    type = ['png','jpg','tiff','eps']
-    for i in range(frames):
-        print(i)
-        filename = 'rawIm{0}.{1}'.format(i,type[i])
-        rawFrameToImageFile(img[i],filename)
+        #now write the raw frames to image files
+        type = ['png','jpg','tiff','eps']
+        for i in range(frames):
+            print(i)
+            filename = 'rawIm{0}.{1}'.format(i,type[i])
+            rawFrameToImageFile(img[i],filename)
 
     else:
         print('\nNot all frames read from file')
