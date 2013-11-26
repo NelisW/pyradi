@@ -190,18 +190,18 @@ def getRotateFromOffFile(filename, xPos, yPos, zPos):
 
     Args:
         | filename (string): OFF file filename
-        | xPos (double): scale factor to be applied to x axis
-        | yPos (double): scale factor to be applied to y axis
-        | zPos (double): scale factor to be applied to z axis
+        | xPos (double): object position on x axis
+        | yPos (double): object position on y axis
+        | zPos (double): object position on z axis
 
 
     Returns:
-        | x(numpy.array()): array of x values
-        | y(numpy.array()): array of y values
-        | z(numpy.array()): array of z values
-        | roll(numpy.array()): array of roll values
-        | pitch(numpy.array()): array of pitch values
-        | yaw(numpy.array()): array of yaw values
+        | x(numpy.array()): array of x object location values
+        | y(numpy.array()): array of y object location values
+        | z(numpy.array()): array of z object location values
+        | roll(numpy.array()): array of object location roll values
+        | pitch(numpy.array()): array of object location pitch values
+        | yaw(numpy.array()): array of object location yaw values
         | vertices(numpy.array([])): array of vertices as [x y z]
         | triangles(numpy.array([])): array of triangles as []
 
@@ -259,12 +259,12 @@ def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
         | distance (double): range at which sensor orbits the target
 
     Returns:
-        | x(numpy.array()): array of x values
-        | y(numpy.array()): array of y values
-        | z(numpy.array()): array of z values
-        | roll(numpy.array()): array of roll values
-        | pitch(numpy.array()): array of pitch values
-        | yaw(numpy.array()): array of yaw values
+        | x(numpy.array()): array of x sensor position values
+        | y(numpy.array()): array of y sensor position values
+        | z(numpy.array()): array of z sensor position values
+        | roll(numpy.array()): array of sensor roll values
+        | pitch(numpy.array()): array of sensor pitch values
+        | yaw(numpy.array()): array of sensor yaw values
         | vertices(numpy.array([])): array of vertices as [x y z]
         | triangles(numpy.array([])): array of triangles as []
 
@@ -701,15 +701,21 @@ if __name__ == '__main__':
 
     print('Demo the spherical plots')
     #write the OSSIM files for a rotating target and stationary sensor/observer.
-    #use the OFF file with 10242 vertices.
+    #use the OFF file with required number of vertices.
+    offFile = 'data/plotspherical/sphere_4_2562.off'
+    # offFile = 'data/plotspherical/sphere_0_12.off'
+    # offFile = 'data/plotspherical/sphere_1_42.off'
+    # offFile = 'data/plotspherical/sphere_2_162.off'
+
+
     #the time increment  is 0.01 for each new position, velocity is zero here and
     #engine setting is 1. In this context the distance is irrelevant.
-    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Rotate',
-        None, 1000, 0, -1500,0, 0, 0, 1, 0.01)
+    writeRotatingTargetOssimTrajFile(offFile, 'Rotate',
+        None, 1000, 0, -1000,0, 0, 0, 1, 0.01)
 
 
-    writeRotatingTargetOssimTrajFile('data/plotspherical/sphere_4_2562.off', 'Orbit',
-        1000, 0, 0, -1500,0, 0, 0, 0, 0.01)
+    writeRotatingTargetOssimTrajFile(offFile, 'Orbit',
+        1000, 0, 0, -1000,0, 0, 0, 0, 0.01)
 
 
     #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
