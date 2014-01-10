@@ -351,7 +351,7 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     Args:
         | filename (string): OFF file filename
         | trajType (string): type of trajectory: 'Rotate' or 'Orbit'
-        | distance (double): distance from sensor ro object
+        | distance (double): distance from sensor to object
         | xTargPos (double): object x position.
         | yTargPos (double): object y position.
         | zTargPos (double): object z position.
@@ -402,20 +402,23 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     idx=outfile.find('.')
     outfile = outfile[:idx]
 
-    fid = open('Trajectory{0}{1}.txt'.format(trajType,outfile), 'w' )
+    # fid = open('Trajectory{0}{1}.txt'.format(trajType,outfile), 'w' )
+    fid = open('Alt{0}Range{1}{2}-{3}.lut'.format(-zTargPos,distance,trajType,outfile), 'w' )
     fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
     numpy.savetxt(fid , outp)
     fid.close()
 
-    fid = open('triangles{0}.txt'.format(outfile), 'w' )
+    # fid = open('triangles{0}.txt'.format(outfile), 'w' )
+    fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(-zTargPos,distance,'Triangles',outfile), 'w' )
     for i in range(triangles.shape[0]):
         fid.write('{0:d} {1:d} {2:d}\n'.format(triangles[i][0],triangles[i][1],triangles[i][2] ))
     # numpy.savetxt( fid , triangles, fmt=r'%d' )
     fid.close()
 
-    fid = open('vertex{0}.txt'.format(outfile), 'w' )
+    # fid = open('vertex{0}.txt'.format(outfile), 'w' )
+    fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(-zTargPos,distance,'Vertices',outfile), 'w' )
     numpy.savetxt( fid , vertices )
     fid.close()
 
@@ -710,12 +713,17 @@ if __name__ == '__main__':
 
     #the time increment  is 0.01 for each new position, velocity is zero here and
     #engine setting is 1. In this context the distance is irrelevant.
+    distance = 1000
+    xpos = 0
+    ypos = 0
+    zpos = -1000
+
     writeRotatingTargetOssimTrajFile(offFile, 'Rotate',
-        None, 1000, 0, -1000,0, 0, 0, 1, 0.01)
+        distance, xpos, ypos, zpos, 0, 0, 0, 1, 0.01)
 
 
     writeRotatingTargetOssimTrajFile(offFile, 'Orbit',
-        1000, 0, 0, -1000,0, 0, 0, 0, 0.01)
+        distance, xpos, ypos, zpos, 0, 0, 0, 0, 0.01)
 
 
     #plot orbiting dataset - in this case a signature from a simple jet aircraft model.

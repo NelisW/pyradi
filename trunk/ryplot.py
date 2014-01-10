@@ -924,6 +924,9 @@ class Plotter:
         the number of rows in zvals and the yvals vector corresponds to the
         number of columns in zvals.
 
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
+        to show true values, but on the nonlinear scale.
+
         The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
         have to be on regular intervals.
 
@@ -957,7 +960,7 @@ class Plotter:
                 | invertX (bool): invert the x-axis
                 | contourFill (bool): fill contours with colour
                 | contourLine (bool): fill contours with colour
-                | logScale (bool): Z values are log, recompute colourbar vals
+                | logScale (bool): do Z values on log scale, recompute colourbar vals
                 | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise
 
             Returns:
@@ -970,6 +973,10 @@ class Plotter:
         #to rank 2
         xx=xvals.reshape(-1, 1)
         yy=yvals.reshape(-1, 1)
+
+        #if this is a log scale plot
+        if logScale is True:
+            zvals = numpy.log10(zvals) 
 
         if contourLine:
             if negativeSolid:
@@ -1025,8 +1032,8 @@ class Plotter:
 
         if cbarshow is True:
             if not cbarcustomticks:
+                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
                 if logScale:
-                    cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
                     cbartickvals = cbar.ax.yaxis.get_ticklabels()
                     tickVals = []
                     # need this roundabout trick to handle minus sign in unicode
@@ -1038,8 +1045,6 @@ class Plotter:
                             str = '{0:e}'.format(val)
                         tickVals.append(str)
                     cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-                else:
-                    cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
             else:
                 ticks,  ticklabels = zip(*cbarcustomticks)
                 cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
@@ -1464,7 +1469,7 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
                   rgrid=[5], thetagrid=[30], drawGrid = False,\
                   thetagridfontsize = 12, radialgridfontsize=12,\
-                  direction='counterclockwise', zerooffset=0):
+                  direction='counterclockwise', zerooffset=0, logScale=False):
         """Polar colour mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1475,6 +1480,9 @@ class Plotter:
         The data in zvals must be on a grid where the theta vector correspond to
         the number of rows in zvals and the radial vector corresponds to the
         number of columns in zvals.
+
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
+        to show true values, but on the nonlinear scale.
 
         The r and p vectors may have non-constant grid-intervals, i.e., they do not
         have to be on regular intervals.
@@ -1500,6 +1508,7 @@ class Plotter:
                 | radialgridfontsize (float): font size for the radial grid
                 | direction (string)= 'counterclockwise' or 'clockwise' (optional)
                 | zerooffset (float) = rotation offset where zero should be [rad] (optional)
+                | logScale (bool): do Z values on log scale, recompute colourbar vals
 
             Returns:
                 | Nothing
@@ -1511,6 +1520,10 @@ class Plotter:
         # # transform to cartesian system, using meshgrid
         # Radial,Theta = numpy.meshgrid(radial,theta)
         # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+
+        #if this is a log scale plot
+        if logScale is True:
+            zvals = numpy.log10(zvals) 
 
         #create subplot if not existing
         if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
@@ -1534,6 +1547,18 @@ class Plotter:
         if cbarshow is True:
             if not cbarcustomticks:
                 cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+                if logScale:
+                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                    tickVals = []
+                    # need this roundabout trick to handle minus sign in unicode
+                    for item in cbartickvals:
+                        val = 10**float((item.get_text().replace(u'\u2212', '-')))
+                        if abs(val) < 1000:
+                            str = '{0:f}'.format(val)
+                        else:
+                            str = '{0:e}'.format(val)
+                        tickVals.append(str)
+                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
             else:
                 ticks,  ticklabels = zip(*cbarcustomticks)
                 cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
