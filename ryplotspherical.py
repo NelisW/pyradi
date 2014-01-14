@@ -669,6 +669,57 @@ def globePlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
         mlab.title(ptitle, size=0.5, height=1)
 
 
+
+################################################################
+##
+def plotVertexSphere(figure, filename):
+    """Plot spherical data on a sphere.
+
+    This function assumes that the polar data is defined in terms of elevation
+    angle with zero at the equator and azimuth measured around the equator,
+    from 0 to 2pi.  All angles are in degrees.
+
+    The x, y, and z values defines vertices on a sphere. The colour on the
+    sphere represents the value at the given azim/elev location.
+
+    Args:
+        | figure (int): mlab figure number
+        | filename (string): filename for data to be plotted
+
+    Returns:
+        | provides an mlab figure.
+
+    Raises:
+        | No exception is raised.
+"""
+    #load the data
+    dataset = numpy.loadtxt(filename)
+
+    #prepare the vertex vector structures
+    x = numpy.zeros(2)
+    y = numpy.zeros(2)
+    z = numpy.zeros(2)
+    x[0] = 0
+    y[0] = 0
+    z[0] = 0
+
+    #plot the vertex vectors
+    for i in range(dataset.shape[0]):
+        x[1] = dataset[i][0]
+        y[1] = dataset[i][1]
+        z[1] = dataset[i][2]
+        mlab.plot3d(x, y, z, tube_radius=0.025, colormap='Spectral')
+    #plot the three planes
+    x,y = numpy.mgrid[-1:1:2j, -1:1:2j]
+    z = numpy.zeros(x.shape)
+    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(1,0,0))
+    x,z = numpy.mgrid[-1:1:2j, -1:1:2j]
+    y = numpy.zeros(x.shape)
+    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,1,0))
+    z,y = numpy.mgrid[-1:1:2j, -1:1:2j]
+    x = numpy.zeros(y.shape)
+    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,0,1))
+
 ################################################################
 ##
 
@@ -688,10 +739,14 @@ if __name__ == '__main__':
 
     #########################################################################
     print('Demo the LUT plots')
+
+    filename = 'data/plotspherical/vertexsphere_0_12.txt'
+    plotVertexSphere(1,filename)
+    mlab.show()
+
     with open('data/plotspherical/source-H10-C2.dat') as f:
         lines = f.readlines()
         xlabel, ylabel, ptitle = lines[0].split()
-
     aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
     azim1D = aArray[1:,0] * (numpy.pi/180)
     elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
@@ -700,6 +755,7 @@ if __name__ == '__main__':
     sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
     globePlotElevAzim(3, azim1D, elev1D, pRad, ptitle, doWireFrame=False)
     mlab.show()
+
 
 
     print('Demo the spherical plots')
