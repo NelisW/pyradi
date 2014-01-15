@@ -1700,7 +1700,7 @@ init_mathjax();
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
-In&nbsp;[1]:
+In&nbsp;[4]:
 </div>
 <div class="input_area box-flex1">
 <div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -1716,43 +1716,49 @@ In&nbsp;[1]:
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
-In&nbsp;[4]:
+In&nbsp;[7]:
 </div>
 <div class="input_area box-flex1">
 <div class="highlight"><pre><span class="n">filelist</span> <span class="o">=</span> <span class="n">ryfiles</span><span class="o">.</span><span class="n">listFiles</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="s">&#39;trianglessphere*.*&#39;</span><span class="p">)</span>
 <span class="n">p</span><span class="o">=</span><span class="n">ryplot</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="s">&#39;Triangle area histograms&#39;</span><span class="p">,(</span><span class="mi">18</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">subplot</span><span class="p">,</span><span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span> <span class="n">filelist</span><span class="p">):</span>
+    <span class="n">vtxfilename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;triangles&#39;</span><span class="p">,</span><span class="s">&#39;vertex&#39;</span><span class="p">)</span>
+    <span class="n">tri</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s">&#39;i4&#39;</span><span class="p">)</span>
+    <span class="n">vtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">vtxfilename</span><span class="p">)</span>
+    <span class="n">areaLst</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">angleLst</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">areaTot</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">tri</span><span class="p">:</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">peri</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">vtxa</span> <span class="o">=</span> <span class="n">vtx</span><span class="p">[</span><span class="n">triangle</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="n">vtxb</span> <span class="o">=</span> <span class="n">vtx</span><span class="p">[</span><span class="n">triangle</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="k">3</span><span class="p">]]</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">angle_between_vectors</span><span class="p">(</span><span class="n">vtxa</span><span class="p">,</span><span class="n">vtxb</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+            <span class="n">angleLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+            <span class="n">peri</span> <span class="o">+=</span> <span class="n">angle</span>
+            
+        <span class="c"># from heron&#39;s theorem the planar (not spherical) area between three points </span>
+        <span class="c"># is given by Area=SQRT(s(s-a)(s-b)(s-c)), where s=(a+b+c)/2 or perimeter/2.</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">peri</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="p">)</span>
+        <span class="n">areaLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area</span> <span class="p">)</span>
+        <span class="n">areaTot</span> <span class="o">+=</span> <span class="n">area</span>
+     
+    <span class="n">areaA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">areaLst</span><span class="p">)</span>
+    <span class="n">hist</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">areaA</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">binc</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+    <span class="n">agvArea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">areaA</span><span class="p">)</span>
+    <span class="n">agvAngle</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">angleLst</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">binc</span> <span class="o">=</span> <span class="n">binc</span> <span class="o">/</span> <span class="n">agvArea</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;{0:10s} avg area={2:.2e} tot area error={1:.4f}% Resolution={3:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vtxfilename</span><span class="p">,</span>
+         <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">-</span><span class="p">(</span><span class="n">areaTot</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)),</span><span class="n">agvArea</span><span class="p">,</span><span class="n">agvAngle</span><span class="p">))</span>
+        
     <span class="k">if</span><span class="p">(</span><span class="n">subplot</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">subplot</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">):</span>
-        <span class="n">vtxfilename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;triangles&#39;</span><span class="p">,</span><span class="s">&#39;vertex&#39;</span><span class="p">)</span>
-        <span class="n">tri</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s">&#39;i4&#39;</span><span class="p">)</span>
-        <span class="n">vtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">vtxfilename</span><span class="p">)</span>
-        <span class="n">areaLst</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">areaTot</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">tri</span><span class="p">:</span>
-            <span class="n">length</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">peri</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
-                <span class="n">vtxa</span> <span class="o">=</span> <span class="n">vtx</span><span class="p">[</span><span class="n">triangle</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-                <span class="n">vtxb</span> <span class="o">=</span> <span class="n">vtx</span><span class="p">[</span><span class="n">triangle</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="k">3</span><span class="p">]]</span>
-                <span class="n">angle</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">angle_between_vectors</span><span class="p">(</span><span class="n">vtxa</span><span class="p">,</span><span class="n">vtxb</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">length</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
-                <span class="n">peri</span> <span class="o">+=</span> <span class="n">angle</span>
-                
-            <span class="c"># from heron&#39;s theorem the planar (not spherical) area between three points </span>
-            <span class="c"># is given by Area=SQRT(s(s-a)(s-b)(s-c)), where s=(a+b+c)/2 or perimeter/2.</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">peri</span><span class="o">/</span><span class="mi">2</span>
-            <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="n">length</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="p">)</span>
-            <span class="n">areaLst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area</span> <span class="p">)</span>
-            <span class="n">areaTot</span> <span class="o">+=</span> <span class="n">area</span>
-         
-        <span class="n">areaA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">areaLst</span><span class="p">)</span>
-        <span class="n">hist</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">areaA</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-        <span class="n">binc</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
-        <span class="n">agvArea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">areaA</span><span class="p">)</span>
-        <span class="n">binc</span> <span class="o">=</span> <span class="n">binc</span> <span class="o">/</span> <span class="n">agvArea</span>
         <span class="n">ptitle</span> <span class="o">=</span> <span class="s">&#39;{0} (TriArea={1:.4e})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">agvArea</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">subplot</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">binc</span><span class="p">,</span><span class="n">hist</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s">&#39;Normalised area&#39;</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s">&#39;Count&#39;</span><span class="p">,</span><span class="n">ptitle</span><span class="o">=</span><span class="n">ptitle</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&#39;{0} average area={2:.4e} total area error={1}%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vtxfilename</span><span class="p">,</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">4</span><span class="o">-</span><span class="p">(</span><span class="n">areaTot</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)),</span><span class="n">agvArea</span><span class="p">))</span>
      
 <span class="n">p</span><span class="o">.</span><span class="n">saveFig</span><span class="p">(</span><span class="s">&#39;triangleareas.eps&#39;</span><span class="p">)</span>
         
@@ -1769,12 +1775,14 @@ In&nbsp;[4]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-vertexsphere_2_162.txt average area=3.8821e-02 total area error=4.56770850016%
-vertexsphere_3_642.txt average area=9.7892e-03 total area error=1.15104803693%
-vertexsphere_4_2562.txt average area=2.4526e-03 total area error=0.28833413272%
-vertexsphere_5_10242.txt average area=6.1348e-04 total area error=0.072119320652%
-vertexsphere_6_40962.txt average area=1.5339e-04 total area error=0.0180320675287%
-vertexsphere_7_163842.txt average area=3.8349e-05 total area error=0.00450815639148%
+vertexsphere_0_12.txt avg area=5.31e-01 tot area error=62.0965% Resolution=63.435
+vertexsphere_1_42.txt avg area=1.50e-01 tot area error=17.6954% Resolution=33.859
+vertexsphere_2_162.txt avg area=3.88e-02 tot area error=4.5677% Resolution=17.216
+vertexsphere_3_642.txt avg area=9.79e-03 tot area error=1.1510% Resolution=8.644
+vertexsphere_4_2562.txt avg area=2.45e-03 tot area error=0.2883% Resolution=4.327
+vertexsphere_5_10242.txt avg area=6.13e-04 tot area error=0.0721% Resolution=2.164
+vertexsphere_6_40962.txt avg area=1.53e-04 tot area error=0.0180% Resolution=1.082
+vertexsphere_7_163842.txt avg area=3.83e-05 tot area error=0.0045% Resolution=0.541
 
 </pre>
 </div>
@@ -3451,6 +3459,19 @@ BEEQBEEQBEEQBEEQBEEQBKEl/j+c82wnFzmQ1AAAAABJRU5ErkJggg==
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Evidently the total surface error is relatively small for spheres with large number of vertices, but the area distribution is slightly skew around the average value, towards smaller areas.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">
+In&nbsp;[]:
+</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre>
+</pre></div>
+
+</div>
+</div>
+
 </div>
 </body>
 </html>
