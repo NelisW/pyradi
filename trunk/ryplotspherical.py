@@ -66,14 +66,14 @@ The sphere data available in pyradi/data/plotspherical are:
 Filename         Resolution    Number          Number
    .              (degrees)    points         triangles
 ===============  =========== ============== ===============
-sphere_0_12       56.9             12              20
-sphere_1_42       28.5             42              80
-sphere_2_162      14.2            162             320
-sphere_3_642      7.1             642            1280
-sphere_4_2562     3.56           2562            5120
-sphere_5_10242    1.78          10242           20480
-sphere_6_40962    0.889         40962           81920
-sphere_7_163842   0.445        163842          327680
+sphere_0_12       63.4             12              20
+sphere_1_42       33.9             42              80
+sphere_2_162      17.2            162             320
+sphere_3_642      8.6             642            1280
+sphere_4_2562     4.32           2562            5120
+sphere_5_10242    2.16          10242           20480
+sphere_6_40962    1.08          40962           81920
+sphere_7_163842   0.54         163842          327680
 ===============  =========== ============== ===============
 
 
