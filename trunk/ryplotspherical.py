@@ -78,7 +78,7 @@ sphere_7_163842   0.54         163842          327680
 
 
 The workflow is as follows:
- #. Use writeRotatingTargetOssimTrajFile (or your own equivalent) to
+ #. Use writeOSSIMTrajOFFFile (or your own equivalent) to
     calculate the appropriate trajectory file.
     At the same time, there are two additional files created
     (vertices and triangles) - keep these safe.
@@ -105,7 +105,7 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
-        'writeRotatingTargetOssimTrajFile', 'plotSpherical',
+        'writeOSSIMTrajOFFFile', 'plotSpherical',
         'plotOSSIMSpherical','sphericalPlotElevAzim', 'polarPlotElevAzim',
         'globePlotElevAzim']
 
@@ -303,7 +303,7 @@ def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
 
 ##############################################################################
 ##
-def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
+def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
     yTargPos, zTargPos, xVel, yVel, zVel, engine, deltaTime ):
     """ Reads OFF file and create OSSIM trajectory files for rotating object
     or orbiting sensor.
@@ -420,6 +420,113 @@ def writeRotatingTargetOssimTrajFile(filename, trajType, distance, xTargPos,
     # fid = open('vertex{0}.txt'.format(outfile), 'w' )
     fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(-zTargPos,distance,'Vertices',outfile), 'w' )
     numpy.savetxt( fid , vertices )
+    fid.close()
+
+    print('Set OSSIM clock to {0} increments and max time {1}\n'.\
+        format(deltaTime, deltaTime * yaw.shape[0]))
+
+##############################################################################
+##
+def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
+    yTargPos, zTargPos, xVel, yVel, zVel, engine, deltaTime ):
+    """ Create OSSIM trajectory files for rotating object or orbiting sensor
+    for constant increments in yaw and pitch (azimuth and elevation).
+
+    This function writes a file in the custom OSSIM trajectory file format.
+    Use this function as an example on how to use the ryplotspherical
+    functionality in your application.
+
+    Two different types of trajectory files are created:
+     #. **trajType = 'Rotate'**
+        Calculate attitude (pitch and yaw angles only, roll is zero) to
+        orientate an object's x-axis along the vertices in the OFF file.
+        The location of the object is fixed at (xTargPos,yTargPos,zTargPos).
+
+     #. **trajType = 'Orbit'**
+        Calculate location and attitude (pitch and yaw angles only, roll is
+        zero) of an orbiting sensor looking a a fixed location
+        (xTargPos, TargPos, zTargPos) from a given distance.
+
+    The velocity and engine settings are constant for all views at the
+    values specified.
+
+    The deltaTime parameter is used to define the time increment to be
+    used in the trajectory file.
+
+    Two additional files are also written to assist with the subsequent
+    viewing.
+
+     #. The **Yaw** file contains .
+
+     #. The **Pitch** file contains .
+
+    Args:
+        | numSamplesEq (int): The number of samples along the equator
+        | filename (string): output file filename
+        | trajType (string): type of trajectory: 'Rotate' or 'Orbit'
+        | distance (double): distance from sensor to object
+        | xTargPos (double): object x position.
+        | yTargPos (double): object y position.
+        | zTargPos (double): object z position.
+        | xVel (double): velocity in x direction
+        | yVel (double): velocity in y direction
+        | zVel (double): velocity in z direction
+        | engine (double): engine settiing
+        | deltaTime (double): sampling time increment in output file
+
+    Returns:
+        | writes a trajectory file
+        | writes a triangles file
+        | writes a vertices file
+
+    Raises:
+        | No exception is raised.
+    """
+
+
+    #obtain odd number of samples around equator 2pi
+    if numSamplesEq / 2 == 0:
+        numSamplesEq += 1
+
+
+    if trajType == 'Rotate':
+        (x, y, z, roll, pitch, yaw, vertices, triangles) = \
+        getRotateFromOffFile(filename, xTargPos, yTargPos, zTargPos)
+    elif trajType == 'Orbit':
+        (x, y, z, roll, pitch, yaw,vertices, triangles) = \
+        getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance)
+    else:
+        print('Unkown trajectory type')
+        return
+
+    zerov = numpy.zeros(yaw.shape).reshape(-1, 1)
+    onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+
+    time = numpy.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
+    #time = numpy.around(time,2) # rounding does not help. internal representation!!
+
+    outp = time
+    outp = numpy.hstack((outp, x))
+    outp = numpy.hstack((outp, y))
+    outp = numpy.hstack((outp, z))
+    outp = numpy.hstack((outp, roll))
+    outp = numpy.hstack((outp, yaw))
+    outp = numpy.hstack((outp, pitch))
+    outp = numpy.hstack((outp, xVel * onesv)) # x-velocity
+    outp = numpy.hstack((outp, yVel * onesv)) # y-velocity
+    outp = numpy.hstack((outp, zVel * onesv)) # z-velocity
+    outp = numpy.hstack((outp, engine * onesv)) # engine setting
+
+    outfile = os.path.basename(filename)
+    idx=outfile.find('.')
+    outfile = outfile[:idx]
+
+    # fid = open('Trajectory{0}{1}.txt'.format(trajType,outfile), 'w' )
+    fid = open('Alt{0}Range{1}{2}-{3}.lut'.format(-zTargPos,distance,trajType,outfile), 'w' )
+    fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
+    fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
+    fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
+    numpy.savetxt(fid , outp)
     fid.close()
 
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
@@ -774,11 +881,11 @@ if __name__ == '__main__':
     ypos = 0
     zpos = -1000
 
-    writeRotatingTargetOssimTrajFile(offFile, 'Rotate',
+    writeOSSIMTrajOFFFile(offFile, 'Rotate',
         distance, xpos, ypos, zpos, 0, 0, 0, 1, 0.01)
 
 
-    writeRotatingTargetOssimTrajFile(offFile, 'Orbit',
+    writeOSSIMTrajOFFFile(offFile, 'Orbit',
         distance, xpos, ypos, zpos, 0, 0, 0, 0, 0.01)
 
 
