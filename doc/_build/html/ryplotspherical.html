@@ -116,42 +116,42 @@ In this case the trajectory file specifies the sensor trajectory.</li>
 </thead>
 <tbody valign="top">
 <tr class="row-odd"><td>sphere_0_12</td>
-<td>56.9</td>
+<td>63.4</td>
 <td>12</td>
 <td>20</td>
 </tr>
 <tr class="row-even"><td>sphere_1_42</td>
-<td>28.5</td>
+<td>33.9</td>
 <td>42</td>
 <td>80</td>
 </tr>
 <tr class="row-odd"><td>sphere_2_162</td>
-<td>14.2</td>
+<td>17.2</td>
 <td>162</td>
 <td>320</td>
 </tr>
 <tr class="row-even"><td>sphere_3_642</td>
-<td>7.1</td>
+<td>8.6</td>
 <td>642</td>
 <td>1280</td>
 </tr>
 <tr class="row-odd"><td>sphere_4_2562</td>
-<td>3.56</td>
+<td>4.32</td>
 <td>2562</td>
 <td>5120</td>
 </tr>
 <tr class="row-even"><td>sphere_5_10242</td>
-<td>1.78</td>
+<td>2.16</td>
 <td>10242</td>
 <td>20480</td>
 </tr>
 <tr class="row-odd"><td>sphere_6_40962</td>
-<td>0.889</td>
+<td>1.08</td>
 <td>40962</td>
 <td>81920</td>
 </tr>
 <tr class="row-even"><td>sphere_7_163842</td>
-<td>0.445</td>
+<td>0.54</td>
 <td>163842</td>
 <td>327680</td>
 </tr>
@@ -160,7 +160,7 @@ In this case the trajectory file specifies the sensor trajectory.</li>
 <dl class="docutils">
 <dt>The workflow is as follows:</dt>
 <dd><ol class="first last arabic simple">
-<li>Use writeRotatingTargetOssimTrajFile (or your own equivalent) to
+<li>Use writeOSSIMTrajOFFFile (or your own equivalent) to
 calculate the appropriate trajectory file.
 At the same time, there are two additional files created
 (vertices and triangles) - keep these safe.</li>
@@ -224,19 +224,19 @@ but all values in each individual array are all the same.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">filename (string): OFF file filename</div>
-<div class="line">xPos (double): scale factor to be applied to x axis</div>
-<div class="line">yPos (double): scale factor to be applied to y axis</div>
-<div class="line">zPos (double): scale factor to be applied to z axis</div>
+<div class="line">xPos (double): object position on x axis</div>
+<div class="line">yPos (double): object position on y axis</div>
+<div class="line">zPos (double): object position on z axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">x(numpy.array()): array of x values</div>
-<div class="line">y(numpy.array()): array of y values</div>
-<div class="line">z(numpy.array()): array of z values</div>
-<div class="line">roll(numpy.array()): array of roll values</div>
-<div class="line">pitch(numpy.array()): array of pitch values</div>
-<div class="line">yaw(numpy.array()): array of yaw values</div>
+<div class="line">x(numpy.array()): array of x object location values</div>
+<div class="line">y(numpy.array()): array of y object location values</div>
+<div class="line">z(numpy.array()): array of z object location values</div>
+<div class="line">roll(numpy.array()): array of object location roll values</div>
+<div class="line">pitch(numpy.array()): array of object location pitch values</div>
+<div class="line">yaw(numpy.array()): array of object location yaw values</div>
 <div class="line">vertices(numpy.array([])): array of vertices as [x y z]</div>
 <div class="line">triangles(numpy.array([])): array of triangles as []</div>
 </div>
@@ -274,12 +274,12 @@ Roll is defined in yz plane.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">x(numpy.array()): array of x values</div>
-<div class="line">y(numpy.array()): array of y values</div>
-<div class="line">z(numpy.array()): array of z values</div>
-<div class="line">roll(numpy.array()): array of roll values</div>
-<div class="line">pitch(numpy.array()): array of pitch values</div>
-<div class="line">yaw(numpy.array()): array of yaw values</div>
+<div class="line">x(numpy.array()): array of x sensor position values</div>
+<div class="line">y(numpy.array()): array of y sensor position values</div>
+<div class="line">z(numpy.array()): array of z sensor position values</div>
+<div class="line">roll(numpy.array()): array of sensor roll values</div>
+<div class="line">pitch(numpy.array()): array of sensor pitch values</div>
+<div class="line">yaw(numpy.array()): array of sensor yaw values</div>
 <div class="line">vertices(numpy.array([])): array of vertices as [x y z]</div>
 <div class="line">triangles(numpy.array([])): array of triangles as []</div>
 </div>
@@ -293,8 +293,8 @@ Roll is defined in yz plane.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile">
-<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">writeRotatingTargetOssimTrajFile</tt><big>(</big><em>filename</em>, <em>trajType</em>, <em>distance</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>xVel</em>, <em>yVel</em>, <em>zVel</em>, <em>engine</em>, <em>deltaTime</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile" title="Permalink to this definition">¶</a></dt>
+<dt id="pyradi.ryplotspherical.writeOSSIMTrajOFFFile">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">writeOSSIMTrajOFFFile</tt><big>(</big><em>filename</em>, <em>trajType</em>, <em>distance</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>xVel</em>, <em>yVel</em>, <em>zVel</em>, <em>engine</em>, <em>deltaTime</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.writeOSSIMTrajOFFFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads OFF file and create OSSIM trajectory files for rotating object
 or orbiting sensor.</p>
 <p>This function writes a file in the custom OSSIM trajectory file format.
@@ -342,7 +342,7 @@ the plotting routines are in the tp01 utils directory.</p>
 <dd><div class="first last line-block">
 <div class="line">filename (string): OFF file filename</div>
 <div class="line">trajType (string): type of trajectory: &#8216;Rotate&#8217; or &#8216;Orbit&#8217;</div>
-<div class="line">distance (double): distance from sensor ro object</div>
+<div class="line">distance (double): distance from sensor to object</div>
 <div class="line">xTargPos (double): object x position.</div>
 <div class="line">yTargPos (double): object y position.</div>
 <div class="line">zTargPos (double): object z position.</div>
@@ -358,6 +358,159 @@ the plotting routines are in the tp01 utils directory.</p>
 <div class="line">writes a trajectory file</div>
 <div class="line">writes a triangles file</div>
 <div class="line">writes a vertices file</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.writeOSSIMTrajElevAzim">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">writeOSSIMTrajElevAzim</tt><big>(</big><em>numSamplesAz</em>, <em>filename</em>, <em>trajType</em>, <em>distance</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>xVel</em>, <em>yVel</em>, <em>zVel</em>, <em>engine</em>, <em>deltaTime</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.writeOSSIMTrajElevAzim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create OSSIM trajectory files for rotating object or orbiting sensor
+for constant increments in azimuth and elevation (yaw and pitch).</p>
+<p>This function writes a file in the custom OSSIM trajectory file format.
+Use this function as an example on how to use the ryplotspherical
+functionality in your application.</p>
+<dl class="docutils">
+<dt>Two different types of trajectory files are created:</dt>
+<dd><ol class="first last arabic simple">
+<li><strong>trajType = &#8216;Rotate&#8217;</strong>
+Calculate attitude (pitch and yaw angles only, roll is zero) to
+orientate an object&#8217;s x-axis along the elevation and azimuth vectors.
+The location of the object is fixed at (xTargPos,yTargPos,zTargPos).</li>
+<li><strong>trajType = &#8216;Orbit&#8217;</strong>
+Calculate location and attitude (pitch and yaw angles only, roll is
+zero) of an orbiting sensor looking a a fixed location
+(xTargPos, TargPos, zTargPos) from a given distance along the 
+elevation and azimuth vectors.</li>
+</ol>
+</dd>
+</dl>
+<p>The velocity and engine settings are constant for all views at the
+values specified.</p>
+<p>The deltaTime parameter is used to define the time increment to be
+used in the trajectory file.</p>
+<p>Two additional files are also written to assist with the subsequent
+viewing.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>The <strong>azimuth</strong> file contains the sample values around the equator. 
+The value ranges from zero to two*pi</li>
+<li>The <strong>elevation</strong> file contains the sample values from North pole to South pole. 
+The value ranges from -pi to +pi</li>
+</ol>
+</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">numSamplesAz (int): The number of samples along the equator</div>
+<div class="line">filename (string): output file filename</div>
+<div class="line">trajType (string): type of trajectory: &#8216;Rotate&#8217; or &#8216;Orbit&#8217;</div>
+<div class="line">distance (double): distance from sensor to object</div>
+<div class="line">xTargPos (double): object x position.</div>
+<div class="line">yTargPos (double): object y position.</div>
+<div class="line">zTargPos (double): object z position.</div>
+<div class="line">xVel (double): velocity in x direction</div>
+<div class="line">yVel (double): velocity in y direction</div>
+<div class="line">zVel (double): velocity in z direction</div>
+<div class="line">engine (double): engine settiing</div>
+<div class="line">deltaTime (double): sampling time increment in output file</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">writes a trajectory file</div>
+<div class="line">writes a azimuth file</div>
+<div class="line">writes a elevation file</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.getOrbitFromElevAzim">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">getOrbitFromElevAzim</tt><big>(</big><em>azimuth</em>, <em>elevation</em>, <em>xTargPos</em>, <em>yTargPos</em>, <em>zTargPos</em>, <em>distance</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.getOrbitFromElevAzim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads an OFF file and returns sensor attitude and position.</p>
+<p>Calculate the sensor attitude and position such that the sensor always
+look at the object located at ( xTargPos, yTargPos, zTargPos), at
+a constant distance.</p>
+<p>Euler order is yaw-pitch-roll, with roll equal to zero.
+Yaw is defined in xy plane.
+Pitch is defined in xz plane.
+Roll is defined in yz plane.</p>
+<p>The object is assumed to stationary at the position
+(xTargPos, yTargPos, zTargPos).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">azimuth (numpy.array(N,)): azimuth values</div>
+<div class="line">elevation (numpy.array(N,)): azimuth values</div>
+<div class="line">filename (string): OFF file filename</div>
+<div class="line">xTargPos (double): x target object position (fixed)</div>
+<div class="line">yTargPos (double): y target object position (fixed)</div>
+<div class="line">zTargPos (double): z target object position (fixed)</div>
+<div class="line">distance (double): range at which sensor orbits the target</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">x(numpy.array()): array of x sensor position values</div>
+<div class="line">y(numpy.array()): array of y sensor position values</div>
+<div class="line">z(numpy.array()): array of z sensor position values</div>
+<div class="line">roll(numpy.array()): array of sensor roll values</div>
+<div class="line">pitch(numpy.array()): array of sensor pitch values</div>
+<div class="line">yaw(numpy.array()): array of sensor yaw values</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.getRotateFromElevAzim">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">getRotateFromElevAzim</tt><big>(</big><em>azimuth</em>, <em>elevation</em>, <em>xPos</em>, <em>yPos</em>, <em>zPos</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.getRotateFromElevAzim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads an OFF file and returns object attitude and position.</p>
+<p>Calculate the pitch and yaw angles to point the object&#8217;s X-axis towards
+the OFF file vertex directions.</p>
+<p>Euler order is yaw-pitch-roll, with roll equal to zero.
+Yaw is defined in xy plane.
+Pitch is defined in xz plane.
+Roll is defined in yz plane.</p>
+<p>The object is assumed to stationary at the position (xPos, yPos, zPos),
+the position arrays are the same length as the attitude angle arrays,
+but all values in each individual array are all the same.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">azimuth (numpy.array(N,)): azimuth values</div>
+<div class="line">elevation (numpy.array(N,)): azimuth values</div>
+<div class="line">xPos (double): object position on x axis</div>
+<div class="line">yPos (double): object position on y axis</div>
+<div class="line">zPos (double): object position on z axis</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">x(numpy.array()): array of x object location values</div>
+<div class="line">y(numpy.array()): array of y object location values</div>
+<div class="line">z(numpy.array()): array of z object location values</div>
+<div class="line">roll(numpy.array()): array of object location roll values</div>
+<div class="line">pitch(numpy.array()): array of object location pitch values</div>
+<div class="line">yaw(numpy.array()): array of object location yaw values</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -481,6 +634,41 @@ from 0 to 2pi.  All angles are in degrees.</p>
 <p>The x and y axes are scaled with the maximum magnitude of value. The z axis is
 scaled with the actual magnitude of value in the  (azim, elev) direction.</p>
 <p>The colour on the surface represents the value at the given azim/elev location.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">figure (int): mlab figure number</div>
+<div class="line">azimuth (numpy 1D array): vector of values</div>
+<div class="line">elevation (numpy 1D array): vector of values</div>
+<div class="line">value (numpy 2D array): array with values corresponding with azim/elevation</div>
+<div class="line">ptitle (string): plot title</div>
+<div class="line">colormap (string): defines the colour map to be used</div>
+<div class="line">doWireFrame (bool): switches fireframe on or off</div>
+<div class="line">line_width (double): wireframe line width</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">provides an mlab figure.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryplotspherical.globePlotElevAzim">
+<tt class="descclassname">pyradi.ryplotspherical.</tt><tt class="descname">globePlotElevAzim</tt><big>(</big><em>figure</em>, <em>azimuth</em>, <em>elevation</em>, <em>value</em>, <em>ptitle=None</em>, <em>colormap=u'Spectral'</em>, <em>doWireFrame=False</em>, <em>line_width=0.2</em><big>)</big><a class="headerlink" href="#pyradi.ryplotspherical.globePlotElevAzim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot spherical data on a sphere.</p>
+<p>This function assumes that the polar data is defined in terms of elevation
+angle with zero at the equator and azimuth measured around the equator,
+from 0 to 2pi.  All angles are in degrees.</p>
+<p>The x, y, and z values defines vertices on a sphere. The colour on the
+sphere represents the value at the given azim/elev location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
