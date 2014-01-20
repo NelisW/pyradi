@@ -18,7 +18,13 @@ Module functions
 
 .. autofunction:: pyradi.ryplotspherical.getOrbitFromOffFile	
 
-.. autofunction:: pyradi.ryplotspherical.writeRotatingTargetOssimTrajFile	
+.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajOFFFile	
+
+.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajElevAzim	
+
+.. autofunction:: pyradi.ryplotspherical.getOrbitFromElevAzim	
+
+.. autofunction:: pyradi.ryplotspherical.getRotateFromElevAzim	
 
 .. autofunction:: pyradi.ryplotspherical.plotSpherical	
 
@@ -27,6 +33,8 @@ Module functions
 .. autofunction:: pyradi.ryplotspherical.sphericalPlotElevAzim	
 
 .. autofunction:: pyradi.ryplotspherical.polarPlotElevAzim	
+
+.. autofunction:: pyradi.ryplotspherical.globePlotElevAzim	
 
 
 

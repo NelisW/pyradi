@@ -104,9 +104,11 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['readOffFile','getRotateFromOffFile','getOrbitFromOffFile',
-        'writeOSSIMTrajOFFFile', 'plotSpherical',
-        'plotOSSIMSpherical','sphericalPlotElevAzim', 'polarPlotElevAzim',
+__all__= ['readOffFile', 'getRotateFromOffFile', 'getOrbitFromOffFile',
+        'writeOSSIMTrajOFFFile', 
+        'writeOSSIMTrajElevAzim', 'getOrbitFromElevAzim','getRotateFromElevAzim', 
+        'plotSpherical', 'plotOSSIMSpherical', 
+        'sphericalPlotElevAzim', 'polarPlotElevAzim',
         'globePlotElevAzim']
 
 import os.path, fnmatch
@@ -427,10 +429,10 @@ def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
 
 ##############################################################################
 ##
-def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
+def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
     yTargPos, zTargPos, xVel, yVel, zVel, engine, deltaTime ):
     """ Create OSSIM trajectory files for rotating object or orbiting sensor
-    for constant increments in yaw and pitch (azimuth and elevation).
+    for constant increments in azimuth and elevation (yaw and pitch).
 
     This function writes a file in the custom OSSIM trajectory file format.
     Use this function as an example on how to use the ryplotspherical
@@ -439,13 +441,14 @@ def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
     Two different types of trajectory files are created:
      #. **trajType = 'Rotate'**
         Calculate attitude (pitch and yaw angles only, roll is zero) to
-        orientate an object's x-axis along the vertices in the OFF file.
+        orientate an object's x-axis along the elevation and azimuth vectors.
         The location of the object is fixed at (xTargPos,yTargPos,zTargPos).
 
      #. **trajType = 'Orbit'**
         Calculate location and attitude (pitch and yaw angles only, roll is
         zero) of an orbiting sensor looking a a fixed location
-        (xTargPos, TargPos, zTargPos) from a given distance.
+        (xTargPos, TargPos, zTargPos) from a given distance along the 
+        elevation and azimuth vectors.
 
     The velocity and engine settings are constant for all views at the
     values specified.
@@ -456,12 +459,14 @@ def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
     Two additional files are also written to assist with the subsequent
     viewing.
 
-     #. The **Yaw** file contains .
+     #. The **azimuth** file contains the sample values around the equator. 
+        The value ranges from zero to two*pi
 
-     #. The **Pitch** file contains .
+     #. The **elevation** file contains the sample values from North pole to South pole. 
+        The value ranges from -pi to +pi
 
     Args:
-        | numSamplesEq (int): The number of samples along the equator
+        | numSamplesAz (int): The number of samples along the equator
         | filename (string): output file filename
         | trajType (string): type of trajectory: 'Rotate' or 'Orbit'
         | distance (double): distance from sensor to object
@@ -476,29 +481,30 @@ def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
 
     Returns:
         | writes a trajectory file
-        | writes a triangles file
-        | writes a vertices file
+        | writes a azimuth file
+        | writes a elevation file
 
     Raises:
         | No exception is raised.
     """
 
-
-    #obtain odd number of samples around equator 2pi
-    if numSamplesEq / 2 == 0:
-        numSamplesEq += 1
-
+    #obtain odd number of samples around equator 2*pi
+    if numSamplesAz % 2 == 0:
+        numSamplesAz += 1
+    azimuth = numpy.linspace(0,2 * numpy.pi, numSamplesAz)
+    #create twice to many elevation samples, then take every second
+    elevation2 = numpy.linspace(numpy.pi/2., -numpy.pi/2., numSamplesAz)
+    elevation = elevation2[::2]
 
     if trajType == 'Rotate':
-        (x, y, z, roll, pitch, yaw, vertices, triangles) = \
-        getRotateFromOffFile(filename, xTargPos, yTargPos, zTargPos)
+        (x, y, z, roll, pitch, yaw) = \
+        getRotateFromElevAzim(azimuth, elevation, xTargPos, yTargPos, zTargPos)
     elif trajType == 'Orbit':
-        (x, y, z, roll, pitch, yaw,vertices, triangles) = \
-        getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance)
+        (x, y, z, roll, pitch, yaw) = \
+        getOrbitFromElevAzim(azimuth, elevation, xTargPos, yTargPos, zTargPos, distance)
     else:
         print('Unkown trajectory type')
         return
-
     zerov = numpy.zeros(yaw.shape).reshape(-1, 1)
     onesv = numpy.ones(yaw.shape).reshape(-1, 1)
 
@@ -518,8 +524,9 @@ def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
     outp = numpy.hstack((outp, engine * onesv)) # engine setting
 
     outfile = os.path.basename(filename)
-    idx=outfile.find('.')
-    outfile = outfile[:idx]
+    idx=outfile.find('.') 
+    if not idx < 0:
+        outfile = outfile[:idx]
 
     # fid = open('Trajectory{0}{1}.txt'.format(trajType,outfile), 'w' )
     fid = open('Alt{0}Range{1}{2}-{3}.lut'.format(-zTargPos,distance,trajType,outfile), 'w' )
@@ -529,8 +536,140 @@ def writeOSSIMTrajYawPit(numSamplesEq,filename, trajType, distance, xTargPos,
     numpy.savetxt(fid , outp)
     fid.close()
 
+    numpy.savetxt( 'Alt{0}Range{1}{2}-{3}-Azim.lut'.format(-zTargPos,distance,trajType,outfile), azimuth )
+    numpy.savetxt( 'Alt{0}Range{1}{2}-{3}-Elev.lut'.format(-zTargPos,distance,trajType,outfile), elevation )
+
+
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
         format(deltaTime, deltaTime * yaw.shape[0]))
+
+##############################################################################
+##
+def getRotateFromElevAzim(azimuth, elevation,  xPos, yPos, zPos):
+    """ Reads an OFF file and returns object attitude and position.
+
+    Calculate the pitch and yaw angles to point the object's X-axis towards
+    the OFF file vertex directions.
+
+    Euler order is yaw-pitch-roll, with roll equal to zero.
+    Yaw is defined in xy plane.
+    Pitch is defined in xz plane.
+    Roll is defined in yz plane.
+
+    The object is assumed to stationary at the position (xPos, yPos, zPos),
+    the position arrays are the same length as the attitude angle arrays,
+    but all values in each individual array are all the same.
+
+    Args:
+        | azimuth (numpy.array(N,)): azimuth values
+        | elevation (numpy.array(N,)): azimuth values
+        | xPos (double): object position on x axis
+        | yPos (double): object position on y axis
+        | zPos (double): object position on z axis
+
+
+    Returns:
+        | x(numpy.array()): array of x object location values
+        | y(numpy.array()): array of y object location values
+        | z(numpy.array()): array of z object location values
+        | roll(numpy.array()): array of object location roll values
+        | pitch(numpy.array()): array of object location pitch values
+        | yaw(numpy.array()): array of object location yaw values
+
+    Raises:
+        | No exception is raised.
+    """
+    yaw2, pitch2 = numpy.meshgrid(azimuth,elevation)
+    
+    yaw = yaw2.reshape(-1,1)
+    pitch = pitch2.reshape(-1,1)
+    roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+
+    onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+    x = xPos * onesv
+    y = yPos * onesv
+    z = zPos * onesv
+
+    return (x, y, z, roll, pitch, yaw)
+
+
+
+##############################################################################
+##
+def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, distance):
+    """ Reads an OFF file and returns sensor attitude and position.
+
+    Calculate the sensor attitude and position such that the sensor always
+    look at the object located at ( xTargPos, yTargPos, zTargPos), at
+    a constant distance.
+
+    Euler order is yaw-pitch-roll, with roll equal to zero.
+    Yaw is defined in xy plane.
+    Pitch is defined in xz plane.
+    Roll is defined in yz plane.
+
+    The object is assumed to stationary at the position
+    (xTargPos, yTargPos, zTargPos).
+
+    Args:
+        | azimuth (numpy.array(N,)): azimuth values
+        | elevation (numpy.array(N,)): azimuth values
+        | filename (string): OFF file filename
+        | xTargPos (double): x target object position (fixed)
+        | yTargPos (double): y target object position (fixed)
+        | zTargPos (double): z target object position (fixed)
+        | distance (double): range at which sensor orbits the target
+
+    Returns:
+        | x(numpy.array()): array of x sensor position values
+        | y(numpy.array()): array of y sensor position values
+        | z(numpy.array()): array of z sensor position values
+        | roll(numpy.array()): array of sensor roll values
+        | pitch(numpy.array()): array of sensor pitch values
+        | yaw(numpy.array()): array of sensor yaw values
+
+    Raises:
+        | No exception is raised.
+    """
+
+    targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
+
+    #get the sensor position from the azimuth and elevation angles
+    #there must be a better way....
+    firstTime = True
+    for elev in elevation:
+        for azim in azimuth:
+            x = numpy.cos(azim) * numpy.cos(elev)
+            y = numpy.sin(azim) * numpy.cos(elev)
+            z = numpy.sin(elev)
+            vertex = numpy.asarray([x, y, z])
+            # print(numpy.linalg.norm(vertex))
+            if firstTime:
+                vertices = vertex
+                firstTime = False
+            else:
+                vertices = numpy.vstack((vertices, vertex))
+
+    sensorPos = distance * vertices
+    sensorPos[:,0] = sensorPos[:,0] + xTargPos
+    sensorPos[:,1] = sensorPos[:,1] + yTargPos
+    sensorPos[:,2] = sensorPos[:,2] + zTargPos
+
+    ysign = (1 * (sensorPos[:,1] < 0) - 1 * (sensorPos[:,1] >= 0)).reshape(-1, 1)
+    xyradial = (numpy.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
+        (targPosition[1]-sensorPos[:,1]) ** 2)).reshape(-1, 1)
+    deltaX = (targPosition[0]-sensorPos[:,0]).reshape(-1, 1)
+    #the strange '+ (xyradial==0)' below is to prevent divide by zero
+    cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
+    yaw = ysign * numpy.arccos(cosyaw)
+    pitch = - numpy.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
+        xyradial).reshape(-1, 1)
+    roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+
+    return (sensorPos[:,0].reshape(-1, 1), sensorPos[:,1].reshape(-1, 1), \
+        sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw)
+
+
 
 ################################################################
 ##
@@ -843,6 +982,18 @@ if __name__ == '__main__':
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
+
+    distance = 1000 # m
+    xpos = 0    # m
+    ypos = 0    # m
+    zpos = -1000    # m
+    velocityX = 150 #m/s
+
+    writeOSSIMTrajElevAzim(5,'AzEl5', 'Rotate', distance, xpos, ypos, zpos,  
+        velocityX, 0, 0, 1, 0.01 )
+    writeOSSIMTrajElevAzim(5,'AzEl5', 'Orbit', distance, xpos, ypos, zpos,  
+        velocityX, 0, 0, 1, 0.01 )
+    # exit(-1)
 
     #########################################################################
     print('Demo the LUT plots')
