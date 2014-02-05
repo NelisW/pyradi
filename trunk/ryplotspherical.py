@@ -481,8 +481,7 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
 
     Returns:
         | writes a trajectory file
-        | writes a azimuth file
-        | writes a elevation file
+        | writes a azimuth, elevation file
 
     Raises:
         | No exception is raised.
@@ -497,10 +496,10 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
     elevation = elevation2[::2]
 
     if trajType == 'Rotate':
-        (x, y, z, roll, pitch, yaw) = \
+        (x, y, z, roll, pitch, yaw, azel) = \
         getRotateFromElevAzim(azimuth, elevation, xTargPos, yTargPos, zTargPos)
     elif trajType == 'Orbit':
-        (x, y, z, roll, pitch, yaw) = \
+        (x, y, z, roll, pitch, yaw, azel) = \
         getOrbitFromElevAzim(azimuth, elevation, xTargPos, yTargPos, zTargPos, distance)
     else:
         print('Unkown trajectory type')
@@ -529,17 +528,17 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
         outfile = outfile[:idx]
 
     # fid = open('Trajectory{0}{1}.txt'.format(trajType,outfile), 'w' )
-    fid = open('Alt{0}Range{1}{2}-{3}.lut'.format(-zTargPos,distance,trajType,outfile), 'w' )
+    fid = open('Alt{0}Range{1}{2}-{3}-traj.lut'.format(-zTargPos,distance,trajType,outfile), 'w' )
     fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
     numpy.savetxt(fid , outp)
     fid.close()
 
-    numpy.savetxt( 'Alt{0}Range{1}{2}-{3}-Azim.lut'.format(-zTargPos,distance,trajType,outfile), azimuth )
-    numpy.savetxt( 'Alt{0}Range{1}{2}-{3}-Elev.lut'.format(-zTargPos,distance,trajType,outfile), elevation )
-
-
+    fid = open('Alt{0}Range{1}{2}-{3}-Azel.dat'.format(-zTargPos,distance,trajType,outfile), 'w' )
+    fid.write( 'Azimuth Elevation \n' )
+    numpy.savetxt( fid, azel )
+ 
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
         format(deltaTime, deltaTime * yaw.shape[0]))
 
@@ -575,14 +574,15 @@ def getRotateFromElevAzim(azimuth, elevation,  xPos, yPos, zPos):
         | roll(numpy.array()): array of object location roll values
         | pitch(numpy.array()): array of object location pitch values
         | yaw(numpy.array()): array of object location yaw values
+        | azel(numpy.array()): array of azimuth,elevation values for each sample
 
     Raises:
         | No exception is raised.
     """
-    yaw2, pitch2 = numpy.meshgrid(azimuth,elevation)
+    azimgrid, elevgrid = numpy.meshgrid(azimuth,elevation)
     
-    yaw = yaw2.reshape(-1,1)
-    pitch = pitch2.reshape(-1,1)
+    yaw = azimgrid.reshape(-1,1)
+    pitch = elevgrid.reshape(-1,1)
     roll = numpy.zeros(yaw.shape).reshape(-1, 1)
 
     onesv = numpy.ones(yaw.shape).reshape(-1, 1)
@@ -590,7 +590,9 @@ def getRotateFromElevAzim(azimuth, elevation,  xPos, yPos, zPos):
     y = yPos * onesv
     z = zPos * onesv
 
-    return (x, y, z, roll, pitch, yaw)
+    azel = azimgrid.reshape(-1, 1)
+    azel = numpy.hstack((azel, azimgrid.reshape(-1, 1).reshape(-1, 1)))
+    return (x, y, z, roll, pitch, yaw, azel)
 
 
 
@@ -627,12 +629,14 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
         | roll(numpy.array()): array of sensor roll values
         | pitch(numpy.array()): array of sensor pitch values
         | yaw(numpy.array()): array of sensor yaw values
+        | azel(numpy.array()): array of azimuth,elevation values for each sample
 
     Raises:
         | No exception is raised.
     """
 
     targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
+    print(targPosition)
 
     #get the sensor position from the azimuth and elevation angles
     #there must be a better way....
@@ -641,14 +645,17 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
         for azim in azimuth:
             x = numpy.cos(azim) * numpy.cos(elev)
             y = numpy.sin(azim) * numpy.cos(elev)
-            z = numpy.sin(elev)
+            z = - numpy.sin(elev)   # NED coordinate system
             vertex = numpy.asarray([x, y, z])
+            azelelement = numpy.asarray([azim, elev])
             # print(numpy.linalg.norm(vertex))
             if firstTime:
+                azel = azelelement
                 vertices = vertex
                 firstTime = False
             else:
                 vertices = numpy.vstack((vertices, vertex))
+                azel = numpy.vstack((azel, azelelement))
 
     sensorPos = distance * vertices
     sensorPos[:,0] = sensorPos[:,0] + xTargPos
@@ -667,7 +674,7 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
     roll = numpy.zeros(yaw.shape).reshape(-1, 1)
 
     return (sensorPos[:,0].reshape(-1, 1), sensorPos[:,1].reshape(-1, 1), \
-        sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw)
+        sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw, azel)
 
 
 
@@ -983,17 +990,28 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
-    distance = 1000 # m
     xpos = 0    # m
     ypos = 0    # m
-    zpos = -1000    # m
-    velocityX = 150 #m/s
+    distance = 500 # m
+    engineSetting = 1 
 
-    writeOSSIMTrajElevAzim(5,'AzEl5', 'Rotate', distance, xpos, ypos, zpos,  
-        velocityX, 0, 0, 1, 0.01 )
-    writeOSSIMTrajElevAzim(5,'AzEl5', 'Orbit', distance, xpos, ypos, zpos,  
-        velocityX, 0, 0, 1, 0.01 )
-    # exit(-1)
+    # zpos = -500  ;    velocityX = 72 ;     #tp14a & tp14i
+    zpos = -1000  ;    velocityX = 99.7 ;     #tp14b
+    # zpos = -7500  ;    velocityX = 117.3 ;     #tp14c
+    # zpos = -7500  ;    velocityX = 96.8 ;     #tp14d
+    # zpos = -1000  ;    velocityX = 73.5 ;    #tp14e
+    # zpos = -500  ;    velocityX = 72 ;    #tp14f
+
+
+    if abs(distance) > abs(zpos):
+        print('Please check the altitude and distance values')
+        exit(-1)
+
+    # writeOSSIMTrajElevAzim(10,'AzEl90', 'Rotate', distance, xpos, ypos, zpos,  
+    #     velocityX, 0, 0, 1, 0.01 )
+    writeOSSIMTrajElevAzim(10,'AzEl10', 'Orbit', distance, xpos, ypos, zpos,  
+        velocityX, 0, 0, engineSetting, 0.01 )
+    exit(-1)
 
     #########################################################################
     print('Demo the LUT plots')

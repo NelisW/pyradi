@@ -1,6 +1,5 @@
 #  $Id$
 #  $HeadURL$
-
 ################################################################
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
@@ -437,6 +436,26 @@ class Plotter:
 
         col = self.plotColCirc.next()
         return col
+
+    ############################################################
+    ##
+    def resetPlotCol(self):
+        """Resets the plot colours to start at the beginning of
+        the cycle.
+
+             Args:
+                | None
+
+            Returns:
+                | None.
+
+            Raises:
+                | No exception is raised.
+        """
+
+        self.plotCol=['b', 'g', 'r', 'c', 'm', 'y', 'k', \
+            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--']
+        self.plotColCirc = itertools.cycle(self.plotCol)
 
 
     ############################################################
@@ -912,7 +931,7 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
                   drawGrid = False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
-                  negativeSolid=False ):
+                  negativeSolid=False, zeroContourLine=False ):
         """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -959,9 +978,10 @@ class Plotter:
                 | invertY (bool): invert the y-axis
                 | invertX (bool): invert the x-axis
                 | contourFill (bool): fill contours with colour
-                | contourLine (bool): fill contours with colour
+                | contourLine (bool): draw a series of contour lines
                 | logScale (bool): do Z values on log scale, recompute colourbar vals
                 | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise
+                | zeroContourLine (bool): draw the contour at zero
 
             Returns:
                 | Nothing
@@ -1026,6 +1046,11 @@ class Plotter:
         if contourLine:
             pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
                  colors=col)
+
+        if zeroContourLine:
+            pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths = 0.5,
+                 colors=col)
+
         if contourFill:
             pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading,
                 cmap=meshCmap)
@@ -1038,7 +1063,8 @@ class Plotter:
                     tickVals = []
                     # need this roundabout trick to handle minus sign in unicode
                     for item in cbartickvals:
-                        val = 10**float((item.get_text().replace(u'\u2212', '-')))
+                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                        val = 10**float(valstr)
                         if abs(val) < 1000:
                             str = '{0:f}'.format(val)
                         else:
@@ -1469,7 +1495,8 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
                   rgrid=[5], thetagrid=[30], drawGrid = False,\
                   thetagridfontsize = 12, radialgridfontsize=12,\
-                  direction='counterclockwise', zerooffset=0, logScale=False):
+                  direction='counterclockwise', zerooffset=0, logScale=False,
+                  plotCol=[], numLevels=10, contourLine=True, zeroContourLine=False):
         """Polar colour mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1509,6 +1536,10 @@ class Plotter:
                 | direction (string)= 'counterclockwise' or 'clockwise' (optional)
                 | zerooffset (float) = rotation offset where zero should be [rad] (optional)
                 | logScale (bool): do Z values on log scale, recompute colourbar vals
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | numLevels (int): values of contour levels
+                | contourLine (bool): draw a series of contour lines
+                | zeroContourLine (bool): draw the contour at zero
 
             Returns:
                 | Nothing
@@ -1532,8 +1563,20 @@ class Plotter:
         #get axis
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
+        if plotCol:
+            col = plotCol[0]
+        else:
+            col = self.nextPlotCol()
 
         #do the plot
+        if contourLine:
+            pmplot = ax.contour(theta, radial, zvals, numLevels, cmap=None,
+                 colors=col)
+
+        if zeroContourLine:
+            pmplot = ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths = 0.5,
+                 colors=col)
+
         pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
 
         #label and clean up
@@ -1552,7 +1595,8 @@ class Plotter:
                     tickVals = []
                     # need this roundabout trick to handle minus sign in unicode
                     for item in cbartickvals:
-                        val = 10**float((item.get_text().replace(u'\u2212', '-')))
+                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                        val = 10**float(valstr)
                         if abs(val) < 1000:
                             str = '{0:f}'.format(val)
                         else:
