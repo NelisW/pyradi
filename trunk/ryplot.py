@@ -1109,7 +1109,7 @@ class Plotter:
     ##
     def polar(self, plotnum, theta, r, ptitle=None, \
                     plotCol=None, label=[],labelLocation=[-0.1, 0.1], \
-                    highlightNegative=False, highlightCol='#ffff00', highlightWidth=4,\
+                    highlightNegative=True, highlightCol='#ffff00', highlightWidth=4,\
                     legendAlpha=0.0, \
                     rscale=None, rgrid=None, thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0, titlefsize=12):
@@ -1126,6 +1126,9 @@ class Plotter:
         grid interval.  The angular rotation direction can be set to be clockwise or
         counterclockwise. Likewise the rotation offset where the plot zero angle must be,
         is set with zerooffset.
+
+        For some obscure reason the current version 1.13 does not plot negative values on the 
+        polar plot.  We therefore force the plot by making the values positive and then highlight it as negative.
 
             Args:
                 | plotnum (int): subplot number
@@ -1163,6 +1166,16 @@ class Plotter:
         else:
             rr=r.reshape(-1, 1)
 
+
+        MakeAbs = True
+        if rscale is not None:
+            if rscale[0] < 0:
+                MakeAbs = False
+            else:
+                highlightNegative=True #override the function value
+        else:
+            highlightNegative=True #override the function value
+
         #plotCol = self.buildPlotCol(plotCol, rr.shape[1])
 
         ax = None
@@ -1194,8 +1207,8 @@ class Plotter:
                 #split the input into different subarrays according to crossings
                 negrrr = numpy.split(rr,zero_crossings)
                 negttt = numpy.split(tt,zero_crossings)
-                #print(zero_crossings)
-                #print(negrrr)
+                # print('zero crossing',zero_crossings)
+                # print(negrrr)
 
             #set up the line style, either given or next in sequence
             if plotCol:
@@ -1203,6 +1216,8 @@ class Plotter:
             else:
                 col = self.nextPlotCol()
 
+            # print('p',ttt.shape)
+            # print('p',rrr.shape)
 
             if not label:
                 if highlightNegative:
@@ -1211,7 +1226,10 @@ class Plotter:
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
                             if negrrr[ii][1] < 0:
-                                ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
+                                if MakeAbs:
+                                    ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                                else:
+                                    ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
                 ax.plot(ttt, rrr, col)
                 rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
             else:
@@ -1221,9 +1239,17 @@ class Plotter:
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
                             if negrrr[ii][1] < 0:
-                                ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
+                                if MakeAbs:
+                                    ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                                else:
+                                    ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
                 ax.plot(ttt, rrr, col,label=label[i])
                 rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
+
+            if MakeAbs:
+                ax.plot(ttt, numpy.abs(rrr), col)
+            else:
+                ax.plot(ttt, rrr, col)
 
         if label:
             fontP = mpl.font_manager.FontProperties()
