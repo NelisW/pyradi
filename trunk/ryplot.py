@@ -1196,18 +1196,20 @@ class Plotter:
             #     ttt = tt + numpy.pi*(rr[:, i] < 0).reshape(-1, 1)
             #     rrr = numpy.abs(rr[:, i])
             # else:
-            ttt = tt
-            rrr = rr[:, i]
+            ttt = tt.reshape(-1,)
+            rrr = rr[:, i].reshape(-1,)
 
             #print(rrr)
 
             if highlightNegative:
                 #find zero crossings in data
-                zero_crossings = numpy.where(numpy.diff(numpy.sign(rr),axis=0))[0]
+                zero_crossings = numpy.where(numpy.diff(numpy.sign(rr),axis=0))[0] + 1
                 #split the input into different subarrays according to crossings
                 negrrr = numpy.split(rr,zero_crossings)
                 negttt = numpy.split(tt,zero_crossings)
+
                 # print('zero crossing',zero_crossings)
+                # print(len(negrrr))
                 # print(negrrr)
 
             #set up the line style, either given or next in sequence
@@ -1225,7 +1227,7 @@ class Plotter:
                     neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
-                            if negrrr[ii][1] < 0:
+                            if negrrr[ii][0] < 0:
                                 if MakeAbs:
                                     ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
                                 else:
@@ -1238,7 +1240,7 @@ class Plotter:
                     neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
-                            if negrrr[ii][1] < 0:
+                            if negrrr[ii][0] < 0:
                                 if MakeAbs:
                                     ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
                                 else:
