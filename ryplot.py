@@ -54,6 +54,7 @@ from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.dates as mdates
 
 
 ####################################################################
@@ -549,7 +550,7 @@ class Plotter:
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
-                    yInvert=False, xInvert=False, drawGrid=True  ):
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -584,6 +585,7 @@ class Plotter:
                 | drawGrid (bool): draw the grid on the plot
                 | yInvert (bool): invert the y-axis
                 | xInvert (bool): invert the x-axis
+                | xIsDate (bool): convert the x-values to dates
 
             Returns:
                 | Nothing
@@ -604,7 +606,8 @@ class Plotter:
                     powerLimits,titlefsize, xylabelfsize, xytickfsize,
                     labelfsize,
                     xScientific=xScientific, yScientific=yScientific,
-                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid)
+                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid,
+                    xIsDate=xIsDate)
 
     ############################################################
     ##
@@ -612,7 +615,8 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10   ):
+                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
+                    xIsDate=False   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -642,6 +646,7 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xIsDate (bool): convert the x-values to dates
 
             Returns:
                 | Nothing
@@ -667,7 +672,8 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10):
+                    xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
+                    xIsDate=False):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -697,6 +703,7 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xIsDate (bool): convert the x-values to dates
 
             Returns:
                 | Nothing
@@ -714,7 +721,7 @@ class Plotter:
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
-                     xytickfsize,labelfsize)
+                     xytickfsize,labelfsize, xIsDate=xIsDate)
 
     ############################################################
     ##
@@ -722,7 +729,8 @@ class Plotter:
                     plotCol=[], label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10, labelfsize=10  ):
+                    xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
+                    xIsDate=False  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -752,6 +760,7 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xIsDate (bool): convert the x-values to dates
 
             Returns:
                 | Nothing
@@ -769,7 +778,7 @@ class Plotter:
         self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize, labelfsize)
+                    xytickfsize, labelfsize, xIsDate=xIsDate)
 
     ############################################################
     ##
@@ -780,7 +789,7 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10, 
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
-                    yInvert=False, xInvert=False ):
+                    yInvert=False, xInvert=False, xIsDate=False ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -820,6 +829,7 @@ class Plotter:
                 | yScientific (bool): use scientific notation on x-axis
                 | yInvert (bool): invert the y-axis
                 | xInvert (bool): invert the x-axis
+                | xIsDate (bool): convert the x-values to dates
 
             Returns:
                 | Nothing
@@ -837,8 +847,6 @@ class Plotter:
             yy=y
         else:
             yy=y.reshape(-1, 1)
-
-
 
         # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
@@ -868,6 +876,11 @@ class Plotter:
                 formy.set_powerlimits([powerLimits[2], powerLimits[3]])
                 formy.set_scientific(True)
                 ax.yaxis.set_major_formatter(formy)
+
+        if xIsDate:
+            ax.xaxis_date()
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+            ax.xaxis.set_major_locator(mdates.DayLocator())
 
         if maxNX >0:
             ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
@@ -903,9 +916,16 @@ class Plotter:
             leg.get_frame().set_alpha(legendAlpha)
             self.bbox_extra_artists.append(leg)
 
+
+        if xIsDate:
+            plt.gcf().autofmt_xdate()
+
         #scale the axes
         if pltaxis is not None:
-            ax.axis(pltaxis)
+            # ax.axis(pltaxis)
+            if not xIsDate:
+                ax.set_xlim(pltaxis[0],pltaxis[1])
+            ax.set_ylim(pltaxis[2],pltaxis[3])
 
         if(ptitle is not None):
             ax.set_title(ptitle, fontsize=titlefsize)
@@ -1860,6 +1880,21 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
 ## plot graphs and confirm the correctness of the functions
 
 if __name__ == '__main__':
+
+    import datetime as dt
+
+    dates = ['01/02/1991','01/03/1991','01/04/1991']
+    x = numpy.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
+    y = numpy.asarray(range(len(x)))
+    print(type(x[0]))
+    for xx in x:
+        print(xx)
+
+    pd = Plotter(1)
+    pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4])
+    pd.saveFig('plotdateX.png')
+
+    exit(0)
 
     ############################################################################
     #demonstrate the use of a polar mesh plot radial scales
