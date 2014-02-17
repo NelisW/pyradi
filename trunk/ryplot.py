@@ -359,8 +359,9 @@ class Plotter:
         #height reserved for top of the subplots of the figure
         self.fig.subplots_adjust(top=0.88)
 
-        self.plotCol=['b', 'g', 'r', 'c', 'm', 'y', 'k', \
-            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--']
+        self.plotCol=['b', 'g', 'r', 'c', 'm', 'y', 'k', 
+            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--',
+            'b-.', 'g-.', 'r-.', 'c-.', 'm-.', 'y-.', 'k-.' ]
         self.plotColCirc = itertools.cycle(self.plotCol)
 
         self.bbox_extra_artists=[]
@@ -455,7 +456,8 @@ class Plotter:
         """
 
         self.plotCol=['b', 'g', 'r', 'c', 'm', 'y', 'k', \
-            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--']
+            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--',
+            'b-.', 'g-.', 'r-.', 'c-.', 'm-.', 'y-.', 'k-.' ]
         self.plotColCirc = itertools.cycle(self.plotCol)
 
 
@@ -546,11 +548,12 @@ class Plotter:
     ##
     def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
-                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False  ):
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
+                     xTicks=None, xtickRotation=0  ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -586,6 +589,8 @@ class Plotter:
                 | yInvert (bool): invert the y-axis
                 | xInvert (bool): invert the x-axis
                 | xIsDate (bool): convert the x-values to dates
+                | xTicks ({tick:label}): dict of ticks and associated labels
+                | xtickRotation (float) ax tick rotation angle 
 
             Returns:
                 | Nothing
@@ -607,16 +612,16 @@ class Plotter:
                     labelfsize,
                     xScientific=xScientific, yScientific=yScientific,
                     yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid,
-                    xIsDate=xIsDate)
+                    xIsDate=xIsDate, xTicks=xTicks, xtickRotation=xtickRotation)
 
     ############################################################
     ##
     def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False   ):
+                    xIsDate=False, xTicks=None, xtickRotation=0   ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -647,6 +652,8 @@ class Plotter:
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
                 | xIsDate (bool): convert the x-values to dates
+                | xTicks ({tick:label}): dict of ticks and associated labels
+                | xtickRotation (float) ax tick rotation angle 
 
             Returns:
                 | Nothing
@@ -664,16 +671,16 @@ class Plotter:
         self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize,labelfsize)
+                    xytickfsize,labelfsize, xTicks, xtickRotation)
 
     ############################################################
     ##
     def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False):
+                    xIsDate=False,  xTicks=None, xtickRotation=0):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -704,6 +711,9 @@ class Plotter:
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
                 | xIsDate (bool): convert the x-values to dates
+                | xTicks ({tick:label}): dict of ticks and associated labels
+                | xtickRotation (float) ax tick rotation angle 
+
 
             Returns:
                 | Nothing
@@ -721,16 +731,17 @@ class Plotter:
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
-                     xytickfsize,labelfsize, xIsDate=xIsDate)
+                     xytickfsize,labelfsize, xIsDate=xIsDate, xTicks=xTicks,
+                     xtickRotation=xtickRotation)
 
     ############################################################
     ##
     def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle='-',
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
-                    xIsDate=False  ):
+                    xIsDate=False, xTicks=None, xtickRotation=0  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -761,6 +772,8 @@ class Plotter:
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
                 | xIsDate (bool): convert the x-values to dates
+                | xTicks ({tick:label}): dict of ticks and associated labels
+                | xtickRotation (float) ax tick rotation angle 
 
             Returns:
                 | Nothing
@@ -778,18 +791,20 @@ class Plotter:
         self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize, labelfsize, xIsDate=xIsDate)
+                    xytickfsize, labelfsize, xIsDate=xIsDate, xTicks=xTicks, 
+                    xtickRotation=xtickRotation)
 
     ############################################################
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
                      plotCol=[],label=[],legendAlpha=0.0,
-                    pltaxis=None, maxNX=0, maxNY=0, linestyle='-',
+                    pltaxis=None, maxNX=0, maxNY=0, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, 
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
-                    yInvert=False, xInvert=False, xIsDate=False ):
+                    yInvert=False, xInvert=False, xIsDate=False,
+                    xTicks=None, xtickRotation=0 ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -830,6 +845,8 @@ class Plotter:
                 | yInvert (bool): invert the y-axis
                 | xInvert (bool): invert the x-axis
                 | xIsDate (bool): convert the x-values to dates
+                | xTicks ({tick:label}): dict of ticks and associated labels
+                | xtickRotation (float) ax tick rotation angle 
 
             Returns:
                 | Nothing
@@ -886,30 +903,29 @@ class Plotter:
             ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
         if maxNY >0:
             ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+
+        #set up the line style, either given or next in sequence
+        if plotCol:
+            if i >= len(plotCol):
+                col = plotCol[-1]
+            else:
+                col = plotCol[i]
+        else:
+            col = self.nextPlotCol()
+
+        if linestyle is None:
+            if len(col)>1:
+                linestyle = col[1:]
+            else:
+                linestyle = '-'
+
         if not label:
             for i in range(yy.shape[1]):
-                #set up the line style, either given or next in sequence
-                if plotCol:
-                    if i >= len(plotCol):
-                        col = plotCol[-1]
-                    else:
-                        col = plotCol[i]
-                else:
-                    col = self.nextPlotCol()
-
                 plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle)
                 #plotcommand(xx, yy[:, i], plotCol[i],label=None)
                 #ax.plot(xx, yy[:, i], plotCol[i],label=None)
         else:
             for i in range(yy.shape[1]):
-                #set up the line style, either given or next in sequence
-                if plotCol:
-                    if i >= len(plotCol):
-                        col = plotCol[-1]
-                    else:
-                        col = plotCol[i]
-                else:
-                    col = self.nextPlotCol()
                 plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle)
                 #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
             leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
@@ -926,6 +942,11 @@ class Plotter:
             if not xIsDate:
                 ax.set_xlim(pltaxis[0],pltaxis[1])
             ax.set_ylim(pltaxis[2],pltaxis[3])
+
+        if xTicks is not None:
+            ticks = ax.set_xticks(xTicks.keys())
+            labels = ax.set_xticklabels([xTicks[key] for key in xTicks], 
+                rotation=xtickRotation, fontsize=xytickfsize)
 
         if(ptitle is not None):
             ax.set_title(ptitle, fontsize=titlefsize)
@@ -1883,18 +1904,20 @@ if __name__ == '__main__':
 
     import datetime as dt
 
+    # demonstrate dates on the x-axis
     dates = ['01/02/1991','01/03/1991','01/04/1991']
     x = numpy.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
     y = numpy.asarray(range(len(x)))
-    print(type(x[0]))
-    for xx in x:
-        print(xx)
-
     pd = Plotter(1)
     pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4])
     pd.saveFig('plotdateX.png')
 
-    exit(0)
+    #demonstrate the use of arbitrary x-axis tick marks
+    x = numpy.asarray([1, 2, 3, 4])
+    y = numpy.asarray([1, 2, 3, 4])
+    px = Plotter(2)
+    px.plot(1,x,y,xTicks={1:'One', 2:'Two', 3:'Three', 4:'Four'}, xtickRotation=90)
+    px.saveFig('plotxTick.png')
 
     ############################################################################
     #demonstrate the use of a polar mesh plot radial scales
