@@ -387,8 +387,8 @@ class Plotter:
            This function modulus-folds either sequence, in
            case longer sequences are required.
 
-           Colours can be one of the basic colours:<br>
-           ['b', 'g', 'r', 'c', 'm', 'y', 'k'] <br>
+           Colours can be one of the basic colours:  
+           ['b', 'g', 'r', 'c', 'm', 'y', 'k']   
            or it can be a gray shade float value between 0 and 1,
            such as '0.75', or it can be in hex format '#eeefff'
            or it can be one of the legal html colours.
@@ -904,34 +904,31 @@ class Plotter:
         if maxNY >0:
             ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
 
-        #set up the line style, either given or next in sequence
-        if plotCol:
-            if i >= len(plotCol):
-                col = plotCol[-1]
-            else:
-                col = plotCol[i]
-        else:
-            col = self.nextPlotCol()
 
-        if linestyle is None:
-            if len(col)>1:
-                linestyle = col[1:]
+        for i in range(yy.shape[1]):
+            #set up the line style, either given or next in sequence
+            if plotCol:
+                if i >= len(plotCol):
+                    col = plotCol[-1]
+                else:
+                    col = plotCol[i]
             else:
-                linestyle = '-'
+                col = self.nextPlotCol()
 
-        if not label:
-            for i in range(yy.shape[1]):
+            if linestyle is None:
+                if len(col)>1:
+                    linestyle = col[1:]
+                else:
+                    linestyle = '-'
+
+            if not label:
                 plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle)
-                #plotcommand(xx, yy[:, i], plotCol[i],label=None)
-                #ax.plot(xx, yy[:, i], plotCol[i],label=None)
-        else:
-            for i in range(yy.shape[1]):
+            else:
                 plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle)
-                #ax.plot(xx,yy[:,i],plotCol[i],label=label[i])
-            leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
-            leg.get_frame().set_alpha(legendAlpha)
-            self.bbox_extra_artists.append(leg)
 
+                leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
+                leg.get_frame().set_alpha(legendAlpha)
+                self.bbox_extra_artists.append(leg)
 
         if xIsDate:
             plt.gcf().autofmt_xdate()

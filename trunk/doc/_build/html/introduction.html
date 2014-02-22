@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -62,7 +60,7 @@
 amount of calculation and processing. Many of these calculations are of a
 repetitive and general nature, suitable for including in a generic toolkit.
 The availability of such a toolkit facilitates and increases productivity
-during subsequent tool devel-opment: <a href="#id1"><span class="problematic" id="id2">`</span></a>develop once and use many times&#8217;. The
+during subsequent tool development: <a href="#id1"><span class="problematic" id="id2">`</span></a>develop once and use many times&#8217;. The
 concept of an extendible toolkit lends itself naturally to the open-source
 philosophy, where the toolkit user-base develops the capability cooperatively,
 for mutual benefit. This paper covers the underlying philosophy to the toolkit
@@ -70,7 +68,7 @@ development, brief descriptions and examples of the various tools and an
 overview of the electro-optical toolkit.</p>
 <p>The pyradi toolbox can be applied towards many different applications. An example
 is included in the pyradi website (see the file exflamesensor.py). This example
-was first published in a SPIE conference paper <a class="reference internal" href="#spie8543pyradi">[SPIE8543Pyradi]</a>.</p>
+was first published in a SPIE conference paper <a class="reference internal" href="#spie8543pyradi" id="id3">[SPIE8543Pyradi]</a>.</p>
 </div>
 <div class="section" id="toolkit-approach">
 <h2>Toolkit approach<a class="headerlink" href="#toolkit-approach" title="Permalink to this headline">¶</a></h2>
@@ -112,10 +110,10 @@ optics, a detector and an amplifier.</p>
 <a class="reference internal image-reference" href="_images/simplesystem.png"><img alt="pyradi logo" class="align-center" src="_images/simplesystem.png" style="width: 406.0px; height: 122.0px;" /></a>
 <p>The amplifier output signal
 can be calculated in the following equation,  by integrating  over
-all wavelengths, over the full source area <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/> and over the optical
-aperture area <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>,</p>
+all wavelengths, over the full source area <img class="math" src="_images/math/c9e9254d45de72eef6b8590f34da425223fffdc5.png" alt="A_0"/> and over the optical
+aperture area <img class="math" src="_images/math/d9eef0f771fea66e012006e1caf2d92c3648018e.png" alt="A_1"/>,</p>
 <div class="math">
-<p><img src="_images/math/f9790aa7e35afe92ea6566eaa8386c6b0d692813.png" alt="v=
+<p><img src="_images/math/e972bf7f0db22e2e50ed067b17350262d9e47a21.png" alt="v=
 Z_t
 \int_{A_0}
 \int_{A_1}
@@ -126,28 +124,28 @@ Z_t
 \;d(\cos\theta_0 A_0)
 \;d(\cos\theta_1 A_1)"/></p>
 </div><p>where
-<img class="math" src="_images/math/a9f23bf124b6b2b2a993eb313c72e678664ac74a.png" alt="v"/> is the output signal voltage,
-<img class="math" src="_images/math/2578318e6a590c44184e29ec314984cb1e90a9af.png" alt="r_{01}"/> is the distance between elemental areas
-<img class="math" src="_images/math/5f6b27dd2ed33ce6fdb86bcb45981e4acd4905df.png" alt="d(\cos\theta_0 A_0)"/> and
-<img class="math" src="_images/math/a2762cca0a78b381a01c7b0c4744af1288fee868.png" alt="d(\cos\theta_1 A_1)"/>,
-<img class="math" src="_images/math/57a2eb38e8462d7ccb40e45b22d7aba2e157cb27.png" alt="\epsilon_\lambda"/> is the source spectral emissivity,
-<img class="math" src="_images/math/de756d4362816023d48e10f4bb7e2f2ea95745fb.png" alt="L_\lambda(T,A_0)"/> is the Planck Law radiation at temperature
-<img class="math" src="_images/math/2554b6496c3b678897e9b060ef00aa9f0a7d7ece.png" alt="T"/> at location <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/>,
-<img class="math" src="_images/math/1f0d4f93e19c3a8b66031d9636dc2f68d5249852.png" alt="\tau_{a\lambda}"/> is the atmospheric spectral transmittance,
-<img class="math" src="_images/math/b8844e835156f12552e9040a9de25387a6a9a781.png" alt="\tau_{s\lambda}(A_1)"/> is the sensor spectral transmittance at location <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>,
-<img class="math" src="_images/math/c794e72873651a891622e6425332d998a6682837.png" alt="{\cal R}_\lambda"/> is the spectral detector responsivity in [A/W],
-<img class="math" src="_images/math/f36c4acfc99e87fda6f21ee2d4e651fc49ddb5ac.png" alt="Z_t"/> is the amplifier transimpedance gain in [V/A].
-The spectral integral <img class="math" src="_images/math/6867e5c6e080961a6c4b37df719fdf489a218138.png" alt="\int_0^\infty d\lambda"/> accounts for the total
+<img class="math" src="_images/math/0e22076955898e6c9bb38aa079135195c24dc81e.png" alt="v"/> is the output signal voltage,
+<img class="math" src="_images/math/1baf4e8aae7892a4caa9d77a59ccc1aa7e7b68c1.png" alt="r_{01}"/> is the distance between elemental areas
+<img class="math" src="_images/math/5988dad1dd7c74b2abf7055924fba0416d52d5f6.png" alt="d(\cos\theta_0 A_0)"/> and
+<img class="math" src="_images/math/b422a408eef06eef8c04c81decab3def1ddaeec7.png" alt="d(\cos\theta_1 A_1)"/>,
+<img class="math" src="_images/math/69167e9ba3ab417aa78a9e38c83992de99d4def8.png" alt="\epsilon_\lambda"/> is the source spectral emissivity,
+<img class="math" src="_images/math/020b420a73c85e5731d32e5cf2b736d4b9817213.png" alt="L_\lambda(T,A_0)"/> is the Planck Law radiation at temperature
+<img class="math" src="_images/math/6d42c88506b8da39a2a23653aecbfb7c29728063.png" alt="T"/> at location <img class="math" src="_images/math/c9e9254d45de72eef6b8590f34da425223fffdc5.png" alt="A_0"/>,
+<img class="math" src="_images/math/115f422d69edfe699f85731a646494d7b6d8804b.png" alt="\tau_{a\lambda}"/> is the atmospheric spectral transmittance,
+<img class="math" src="_images/math/7d857a5b7af2348061937a5629b2d4e2a4b407d1.png" alt="\tau_{s\lambda}(A_1)"/> is the sensor spectral transmittance at location <img class="math" src="_images/math/d9eef0f771fea66e012006e1caf2d92c3648018e.png" alt="A_1"/>,
+<img class="math" src="_images/math/c2db3cfbdbe04bac16c8f9aa6c5e98b41e03bae2.png" alt="{\cal R}_\lambda"/> is the spectral detector responsivity in [A/W],
+<img class="math" src="_images/math/5ff437b1e5a213213e868de552d96c8957e7aee6.png" alt="Z_t"/> is the amplifier transimpedance gain in [V/A].
+The spectral integral <img class="math" src="_images/math/fa791a7ada384ed32bb820f5655844d24d0b2502.png" alt="\int_0^\infty d\lambda"/> accounts for the total
 flux for all wavelengths, the spatial integral
-<img class="math" src="_images/math/5fa53f8450816ae155074f7877ec8cd6800145c1.png" alt="\int_{A_0}d(\cos\theta_0 A_0)"/>
+<img class="math" src="_images/math/9f3655d249f59be075545710e2733f89bd8ca6a6.png" alt="\int_{A_0}d(\cos\theta_0 A_0)"/>
 accounts for flux over the total area of the source, and
 the spatial integral
-<img class="math" src="_images/math/131e3f42cc4c54e972644a75f9208f60ec6ddde7.png" alt="\int_{A_1}d(\cos\theta_1 A_1)"/> accounts for the total area of the receiving area.</p>
+<img class="math" src="_images/math/592fcea0d0b7c34d8d94b967e472827bb507a3f5.png" alt="\int_{A_1}d(\cos\theta_1 A_1)"/> accounts for the total area of the receiving area.</p>
 <p>The top graphic in the following figure illustrates the
 reasoning behind the spectral integral as a product, followed by an integral (summation),</p>
 <a class="reference internal image-reference" href="_images/multispectral.png"><img alt="pyradi logo" class="align-center" src="_images/multispectral.png" style="width: 398.5px; height: 292.0px;" /></a>
 <div class="math">
-<p><img src="_images/math/8d66a2f99a44f9312c2dc4d7a799b2da8838ed85.png" alt="\int_0^\infty
+<p><img src="_images/math/af4ec4374c3345b1f3ebe409adb9427614cec25c.png" alt="\int_0^\infty
 \epsilon_\lambda L_\lambda(T)\tau_{a\lambda}\tau_{s\lambda}{\cal R}_\lambda
 \;d\lambda,"/></p>
 </div><p>where the spectral variability of the  source, medium and sensor parameters
@@ -155,7 +153,7 @@ are multiplied as spectral variables and afterwards integrated over all waveleng
 to yield the total in-band signal. The domain of spectral quantities can be
 stated in terms of a wavelength, wavenumber, or less often, temporal frequency.</p>
 <p>Likewise, the source radiance is integrated over the two respective areas of the
-target <img class="math" src="_images/math/7cce761941ab4b57ae903d05b8fa0568ebbdd98f.png" alt="A_0"/>, and the sensor aperture <img class="math" src="_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/>.  Note that if the
+target <img class="math" src="_images/math/c9e9254d45de72eef6b8590f34da425223fffdc5.png" alt="A_0"/>, and the sensor aperture <img class="math" src="_images/math/d9eef0f771fea66e012006e1caf2d92c3648018e.png" alt="A_1"/>.  Note that if the
 sensor field of  view footprint at the source is smaller than the physical
 source area, only the flux emanating from the footprint area is integrated.</p>
 <p>This example is a relatively complete worked example. The objective is to
@@ -163,23 +161,23 @@ calculate the signal of a simple sensor, detecting the presence or absence of
 a flame in the sensor field of view. The sensor is pointed to an area just
 outside a furnace smokestack, against a clear sky background. The sensor
 must detect a change in signal, to indicate the presence or absence of a flame.</p>
-<p>The sensor has an aperture area of <img class="math" src="_images/math/49091217ee7a3082b26d3f8f050595eef45e52cb.png" alt="7.8 \times 10^{-3}"/> <img class="math" src="_images/math/a78af942dd4b30f8a6f2212d192dbd3765ab8dcd.png" alt="{\rm m}^2"/>
-and  a field of view of <img class="math" src="_images/math/357956fc9f4ae4f4a31eb63acb09915750c5ceea.png" alt="1 \times 10^{-4}"/> sr. The sensor filter spectral
+<p>The sensor has an aperture area of <img class="math" src="_images/math/30756b56eaec74b35509c44f0d61605cdabf0d73.png" alt="7.8 \times 10^{-3}"/> <img class="math" src="_images/math/cf8c2ead5b017b962dbd02108224780e0471f39f.png" alt="{\rm m}^2"/>
+and  a field of view of <img class="math" src="_images/math/14f53b5b81ab2c5c09da114f70ebdb8d9fa8c4bf.png" alt="1 \times 10^{-4}"/> sr. The sensor filter spectral
 transmittance is shown below. The InSb detector has a peak responsivity of 2.5
 A/W and normalised spectral response shown below. The preamplifier transimpedance
 is 10000 V/A.</p>
-<p>The flame area is  1 <img class="math" src="_images/math/a78af942dd4b30f8a6f2212d192dbd3765ab8dcd.png" alt="{\rm m}^2"/>, the flame temperature is
-<img class="math" src="_images/math/01b34c83fa77c944317aae27d8d8967f33c5d398.png" alt="1000^\circ"/> C, and the emissivity is shown below. The emissivity
+<p>The flame area is  1 <img class="math" src="_images/math/cf8c2ead5b017b962dbd02108224780e0471f39f.png" alt="{\rm m}^2"/>, the flame temperature is
+<img class="math" src="_images/math/09d438022d37bd74e58e8746c354f7a278e2341b.png" alt="1000^\circ"/> C, and the emissivity is shown below. The emissivity
 is 0.1 over most of the spectral band, due to carbon particles in the flame.
-At 4.3 <img class="math" src="_images/math/ea05a23b3e0774aec4c3a6129210ba4fa898567d.png" alt="\mu{\rm m}"/> there is a strong emissivity rise due to the hot
-carbon dioxide <img class="math" src="_images/math/720c6963e78225ee7eb02c1e8796566e1a276b51.png" alt="{\rm CO}_2"/> in the flame.</p>
+At 4.3 <img class="math" src="_images/math/67ecd8a0706b3ff4cd748adb616a715d5a7c24b8.png" alt="\mu{\rm m}"/> there is a strong emissivity rise due to the hot
+carbon dioxide <img class="math" src="_images/math/d3e6d9647f22777ce4e03bfb03803c45c45d502a.png" alt="{\rm CO}_2"/> in the flame.</p>
 <p>The distance between the flame and the sensor is 1000~m. The atmospheric
 properties are calculated with the Modtran Tropical climatic model. The
 path is oriented such that the sensor stares out to space, at a zenith angle
-of <img class="math" src="_images/math/61d3ebe18286879645c8eaba83a9accb9fc2fda3.png" alt="88^\circ"/>. The spectral transmittance and path radiance along this
+of <img class="math" src="_images/math/65672255007f7d23d3b2ec39bd386321e4251a52.png" alt="88^\circ"/>. The spectral transmittance and path radiance along this
 path is shown in below.</p>
 <p>The peak in the flame emissivity and the dip in atmospheric transmittance are
-both centered around the <img class="math" src="_images/math/31aca95cb0a46c8517e18a2d85e8284daf6f23d0.png" alt="4.3\mu{\rm m}"/> <img class="math" src="_images/math/720c6963e78225ee7eb02c1e8796566e1a276b51.png" alt="{\rm CO}_2"/> band. The calculation
+both centered around the <img class="math" src="_images/math/e549002c43a71409f0d479ac8759052d7819ba5d.png" alt="4.3\mu{\rm m}"/> <img class="math" src="_images/math/d3e6d9647f22777ce4e03bfb03803c45c45d502a.png" alt="{\rm CO}_2"/> band. The calculation
 of flux
 radiative transfer through the atmosphere must account for the strong spectral
 variation, by using a spectral integral.</p>
@@ -187,7 +185,7 @@ variation, by using a spectral integral.</p>
 integrals over the surfaces of the flame and sensor are just their respective
 areas. The signal caused by the atmospheric path radiance is given by</p>
 <div class="math">
-<p><img src="_images/math/e3c4dd6a2240a6d6287615be1854b76bdccd4194.png" alt="v=
+<p><img src="_images/math/485136e1e0b53a9c274464fdcc4014c79c29f85f.png" alt="v=
 Z_t
 \omega_{\rm optics}
 A_{\rm optics}
@@ -196,19 +194,20 @@ L_{{\rm path}\lambda}
 \tau_{s\lambda}{\cal R}_\lambda
 \;d\lambda,"/></p>
 </div><p>where
-<img class="math" src="_images/math/8a8b3cb05419f728d47219704dbbadf5fea8a2f9.png" alt="\omega_{\rm optics}"/> is the sensor field of view,
-<img class="math" src="_images/math/2cd468b1f6a7f307f0640cc9502000ce33c4b160.png" alt="A_{\rm optics}"/> is the optical aperture area,
-<img class="math" src="_images/math/7bc3d9b6c3495e64eb29c4986fe18fc7c0eb55d5.png" alt="L_{{\rm path}\lambda}"/> is the spectral path radiance
+<img class="math" src="_images/math/e22cad61aeedeb1923a7b97bf8f3e790872211e0.png" alt="\omega_{\rm optics}"/> is the sensor field of view,
+<img class="math" src="_images/math/a7878d99eaf3dee77a8ad9a5b0a0eecc18372394.png" alt="A_{\rm optics}"/> is the optical aperture area,
+<img class="math" src="_images/math/d6549b895c9f6a8d3bf30a37c27466595677b48b.png" alt="L_{{\rm path}\lambda}"/> is the spectral path radiance
 and the rest of the symbols are as defined above.</p>
 <a class="reference internal image-reference" href="_images/flamesensor.png"><img alt="pyradi logo" class="align-center" src="_images/flamesensor.png" style="width: 515.2px; height: 378.0px;" /></a>
 <p>The pyradi code to model this sensor is available as <a class="reference external" href="http://code.google.com/p/pyradi/source/browse/trunk/exflamesensor.py">exflamesensor.py</a>.
 The output from this script is as follows:</p>
-<div class="highlight-python"><pre>Optics   : area=0.0078 m^2 FOV=0.0001 [sr]
+<div class="highlight-python"><div class="highlight"><pre>Optics   : area=0.0078 m^2 FOV=0.0001 [sr]
 Amplifier: gain=10000.0 [V/A]
 Detector : peak responsivity=2.5 [A/W]
 Flame    : temperature=1273.16 [K] area=1 [m^2] distance=1000 [m] fill=0.01 [-]
 Flame    : irradiance= 3.29e-04 [W/m^2] signal= 0.0641 [V]
-Path     : irradiance= 5.45e-05 [W/m^2] signal= 0.0106 [V]</pre>
+Path     : irradiance= 5.45e-05 [W/m^2] signal= 0.0106 [V]
+</pre></div>
 </div>
 <p>It is clear that the flame signal is six times larger than the path radiance
 signal, even though the flame fills only 0.01 of the sensor field of view.</p>
@@ -289,7 +288,7 @@ A de Waal and A.E. Mudau.</td></tr>
     </div>
     <div class="footer">
         &copy; Copyright 2012, CJ Willers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>

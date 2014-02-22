@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -295,9 +293,9 @@ scientific notation or fixed decimal point.</p>
 <dl class="function">
 <dt id="pyradi.ryfiles.epsLaTexFigure">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">epsLaTexFigure</tt><big>(</big><em>filename</em>, <em>epsname</em>, <em>caption</em>, <em>scale</em>, <em>filemode=u'a'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.epsLaTexFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write the code to include an eps graphic as a latex figure.
-The text is added to an existing file.</p>
-<dl class="docutils">
+<dd><dl class="docutils">
+<dt>Write the code to include an eps graphic as a latex figure.</dt>
+<dd>The text is added to an existing file.</dd>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">fname (string): output path and filename</div>
@@ -326,22 +324,24 @@ The text is added to an existing file.</p>
 <dd><p>Read a 2D lookup table and extract the data.</p>
 <blockquote>
 <div><p>The table has the following format:</p>
-<div class="highlight-python"><pre>line 1: xlabel ylabel title
+<div class="highlight-python"><div class="highlight"><pre>line 1: xlabel ylabel title
 line 2: 0 (vector of y (col) abscissa)
 lines 3 and following: (element of x (row) abscissa), followed
-by table data.</pre>
+by table data.
+</pre></div>
 </div>
 <p>From line/row 3 onwards the first element is the x abscissa value
 followed by the row of data, one point for each y abscissa value.
 The format can depicted as follows:</p>
-<div class="highlight-python"><pre>x-name y-name ordinates-name
+<div class="highlight-python"><div class="highlight"><pre>x-name y-name ordinates-name
 0 y1 y2 y3 y4
 x1 v11 v12 v13 v14
 x2 v21 v22 v23 v24
 x3 v31 v32 v33 v34
 x4 v41 v42 v43 v44
 x5 v51 v52 v53 v54
-x6 v61 v62 v63 v64</pre>
+x6 v61 v62 v63 v64
+</pre></div>
 </div>
 <p>This function reads the file and returns the individual data items.</p>
 </div></blockquote>
@@ -435,7 +435,7 @@ x6 v61 v62 v63 v64</pre>
     </div>
     <div class="footer">
         &copy; Copyright 2012, CJ Willers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>
