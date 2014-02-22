@@ -1,17 +1,17 @@
-Introduction 
+﻿Introduction 
 ****************************
 
 .. include global.rst
 
 
 Overview
-----------
+--------
 
 Electro-optical system design, data analysis and modelling involve a significant 
 amount of calculation and processing. Many of these calculations are of a 
 repetitive and general nature, suitable for including in a generic toolkit. 
 The availability of such a toolkit facilitates and increases productivity 
-during subsequent tool devel-opment: `develop once and use many times'. The 
+during subsequent tool development: `develop once and use many times'. The 
 concept of an extendible toolkit lends itself naturally to the open-source 
 philosophy, where the toolkit user-base develops the capability cooperatively, 
 for mutual benefit. This paper covers the underlying philosophy to the toolkit 
@@ -24,7 +24,7 @@ was first published in a SPIE conference paper [SPIE8543Pyradi]_.
 
 
 Toolkit approach
------------------
+----------------
 
 The development of this toolkit is following the Unix philosophy for software 
 development, summarised in the words of Doug McIlroy: `Write programs that do 

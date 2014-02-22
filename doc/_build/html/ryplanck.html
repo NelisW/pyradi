@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -65,6 +63,14 @@ the temperature and a vector of one of wavelength, wavenumbers or frequency
 (six combinations each for exitance and temperature derivative). The total
 exitance can also be calculated by using the Stefan-Boltzman equation, in
 [W/m^2] or [q/(s.m^2)].  &#8216;Exitance&#8217; is the CIE/ISO term for the older term &#8216;emittance&#8217;.</p>
+<p>The Planck and temperature-derivative Planck functions take the spectral variable
+(wavelength, wavenumber or frequency) and/or temperature as either a scalar, a 
+single element list, a multi-element list or a numpy array.</p>
+<p>If the spectral variable and temperature are both single numbers (scalars or lists
+with one element), the return value is a scalar.  If either the temperature or the
+spectral variable are single-valued, the return value is a rank-1 vector. If both
+the temperature and spectral variable are multi-valued, the return value is a 
+rank-2 array, with the spectral variable along axis=0.</p>
 <p>This module uses the CODATA physical constants. For more details see
 <a class="reference external" href="http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf">http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf</a></p>
 <p>See the __main__ function for testing and examples of use.</p>
@@ -113,14 +119,14 @@ will be kept up to date.</p>
 <dt id="pyradi.ryplanck.planck">
 <tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planck</tt><big>(</big><em>spectral</em>, <em>temperature</em>, <em>type=u'el'</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck law spectral exitance.</p>
-<p>Calculates the Planck law spectral exitance
-from a surface at the stated temperature. Exitance can be given in radiant or
-photon rate units, depending on user input in type.</p>
+<p>Calculates the Planck law spectral exitance from a surface at the stated 
+temperature. Temperature can be a scalar, a list or an array. Exitance can 
+be given in radiant or photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">spectral (np.array[N,]):  spectral vector.</div>
-<div class="line">temperature (float):  Temperature scalar in [K].</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/m^2.*].</div>
@@ -133,7 +139,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
+<div class="line">(scalar, np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m^2.um)].</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m^2.Hz)].</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -154,12 +160,13 @@ photon rate units, depending on user input in type.</p>
 <dd><p>Temperature derivative of Planck law exitance.</p>
 <p>Calculates the temperature derivative for Planck law spectral exitance
 from a surface at the stated temperature. dM/dT can be given in radiant or
-photon rate units, depending on user input in type.</p>
+photon rate units, depending on user input in type. Temperature can be a 
+scalar, a list or an array.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">spectral (np.array[N,]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
-<div class="line">temperature (float):  Temperature scalar in [K].</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/(m^2.K)].</div>
@@ -172,7 +179,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
+<div class="line">(scalar, np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m2.um.K)]</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m2.Hz.K)]</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -223,12 +230,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (float):  Temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in W/(m^2.um)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in W/(m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -247,12 +254,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (float):  Temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  W/(m^2.cm^-1)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  W/(m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -271,12 +278,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">frequency (np.array[N,]):  frequency vector in  [Hz]</div>
-<div class="line">temperature (float):  Temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]): spectral radiant exitance in W/(m^2.Hz)</div>
+<div class="line">(scalar, np.array[N,M]): spectral radiant exitance in W/(m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -295,12 +302,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.um)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -319,12 +326,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -343,12 +350,12 @@ photon rate units, depending on user input in type.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (float):  Temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in q/(s.m^2.Hz)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in q/(s.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -368,12 +375,12 @@ radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in W/(K.m^2.um)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in W/(K.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -392,12 +399,12 @@ radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  W/(K.m^2.cm^-1)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  W/(K.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -417,12 +424,12 @@ for radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance/K in W/(K.m^2.Hz)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance/K in W/(K.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -441,12 +448,12 @@ for radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(K.s.m^2.um)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  q/(K.s.m^2.um)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -465,12 +472,12 @@ for radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.cm^-1)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -489,12 +496,12 @@ for radiant exitance.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (float):  temperature scalar in [K]</div>
+<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(np.array[N,]):  spectral radiant exitance in q/(K.s.m^2.Hz)</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance in q/(K.s.m^2.Hz)</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -572,7 +579,7 @@ for radiant exitance.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2012, CJ Willers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>
