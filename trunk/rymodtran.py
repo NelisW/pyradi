@@ -38,6 +38,12 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['fixHeaders', 'loadtape7','fixHeadersList', 'savetape7data']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import numpy as np
 from string import maketrans
 import StringIO

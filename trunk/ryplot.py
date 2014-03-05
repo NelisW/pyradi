@@ -42,6 +42,11 @@ __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['Plotter']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
 import numpy
 import math
 import sys
@@ -1278,7 +1283,9 @@ class Plotter:
                     neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                     for ii in range(0,len(negrrr)):
                         if len(negrrr[ii]) > 0:
-                            if negrrr[ii][0] < 0:
+                            # print(len(negrrr[ii]))
+                            # if negrrr[ii][0] < 0:
+                            if negrrr[ii][0][0] < 0:
                                 if MakeAbs:
                                     ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
                                 else:

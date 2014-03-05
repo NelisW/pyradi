@@ -56,8 +56,17 @@ __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken'
 'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf',
 'dplnckql', 'dplnckqn','an']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
 import numpy
 import scipy.constants as const
+
+
+#np.exp() has upper limit in IEEE double range, catch this in Planck calcs
+explimit = 709.7
 
 
 class PlanckConstants:
@@ -198,7 +207,16 @@ def planckef(frequency, temperature):
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
 
-    planckA = pconst.c1ef * spec**3 / (numpy.exp(pconst.c2f * spec / temp)-1);
+    # planckA = pconst.c1ef * spec**3 / (numpy.exp(pconst.c2f * spec / temp)-1);
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP =  pconst.c2f * spec / temp
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = pconst.c1ef * spec**3 / (numpy.exp(exP2)-1);
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
+
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -238,8 +256,16 @@ def planckel(wavelength, temperature):
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
-    planckA = pconst.c1el / (spec ** 5 * ( numpy.exp(pconst.c2l \
-                / (spec * temp))-1));
+
+    # planckA = pconst.c1el / (spec ** 5 * ( numpy.exp(pconst.c2l / (spec * temp))-1));
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP =  pconst.c2l / (spec * temp)
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = (pconst.c1el / ( numpy.exp(exP2)-1)) / (spec ** 5)
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -278,7 +304,15 @@ def plancken(wavenumber, temperature):
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
-    planckA = pconst.c1en * spec**3 / (numpy.exp(pconst.c2n * spec / temp)-1)
+    # planckA = pconst.c1en * spec**3 / (numpy.exp(pconst.c2n * (spec / temp))-1)
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP =  pconst.c2n * (spec / temp)
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = pconst.c1en * spec**3 / (numpy.exp(exP)-1)
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -316,8 +350,14 @@ def planckqf(frequency, temperature):
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
-    planckA = pconst.c1nf * spec**2 / (numpy.exp(pconst.c2f * spec \
-            / temp)-1);
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP =  pconst.c2f * spec / temp
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = pconst.c1nf * spec**2 / (numpy.exp(exP2)-1)
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -356,8 +396,14 @@ def planckql(wavelength, temperature):
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
-    planckA = pconst.c1ql / (spec**4 * ( numpy.exp(pconst.c2l \
-                / (spec * temp))-1));
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP = pconst.c2l / (spec * temp)
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = (pconst.c1ql /( numpy.exp(exP2)-1) )  / (spec**4 )
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -396,8 +442,14 @@ def planckqn(wavenumber, temperature):
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
     spec = numpy.ravel(specgrid)
     temp = numpy.ravel(tempgrid)
-    planckA = pconst.c1qn * spec**2 / (numpy.exp(pconst.c2n * spec \
-            / temp)-1);
+
+    #test value of exponent to prevent infinity, force to exponent to zero
+    #this happens for low temperatures and short wavelengths
+    exP =  pconst.c2n * spec / temp
+    exP2 = numpy.where(exP<explimit, exP, 1);
+    p = pconst.c1qn * spec**2 / (numpy.exp(exP2)-1);
+    #if exponent is exP>=explimit, force Planck to zero
+    planckA = numpy.where(exP<explimit, p, 0);
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:

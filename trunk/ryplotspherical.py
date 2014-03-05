@@ -111,6 +111,12 @@ __all__= ['readOffFile', 'getRotateFromOffFile', 'getOrbitFromOffFile',
         'sphericalPlotElevAzim', 'polarPlotElevAzim',
         'globePlotElevAzim']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import os.path, fnmatch
 import numpy
 from scipy.interpolate import interp1d

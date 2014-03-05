@@ -62,6 +62,12 @@ __author__='JJ Calitz'
 __all__=['myint','mylong','myfloat','mybyte',  'ReadPTWHeader', 'sLoadCedip',
 'ShowHeader', 'GetPTWFrame', 'GetPTWFrames']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import struct
 import numpy as np
 
