@@ -36,6 +36,12 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['chromaticityforSpectralL']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import numpy
 
 ##############################################################################
@@ -116,12 +122,12 @@ if __name__ == '__main__':
     #Use numpy.hstack to stack columns horizontally.
 
     sources = ryfiles.loadColumnTextFile('data/colourcoordinates/fluorescent.txt',
-        abscissaOut=wavelength,comment='%', normalize=1)
-    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900)))
-    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850)))
+        abscissaOut=wavelength,comment='%', normalize=1).reshape(-1,1)
+    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,5900).reshape(-1,1)))
+    sources = numpy.hstack((sources, ryplanck.planckel(wavelength,2850).reshape(-1,1)))
     sources = numpy.hstack((sources, ryfiles.loadColumnTextFile(
                             'data/colourcoordinates/LowPressureSodiumLamp.txt',
-                            abscissaOut=wavelength, comment='%', normalize=1)))
+                            abscissaOut=wavelength, comment='%', normalize=1).reshape(-1,1)))
     #label sources in order of appearance
     sourcesTxt=['Fluorescent', 'Planck 5900 K', 'Planck 2850 K', 'Sodium']
 

@@ -37,6 +37,12 @@ __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 'cleanFilename',
          'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure','read2DLookupTable']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 from scipy.interpolate import interp1d
 import numpy
 import os.path, fnmatch

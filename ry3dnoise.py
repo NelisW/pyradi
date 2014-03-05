@@ -39,6 +39,12 @@ __author__='MS Willers'
 __all__=['oprDT', 'oprDV', 'oprDH', 'oprSDT', 'oprSDV','oprSDH', 'getS','getNT','getNH',
     'getNV', 'getNVH','getNTV','getNTH', 'getNTVH', 'getTotal']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import numpy
 import ryfiles
 import ryplot

@@ -62,6 +62,12 @@ __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
         'Responsivity', 'DStar', 'NEP','Isaturation',
         'EgVarshni', 'IXV', 'Noise','DstarSpectralFlatPhotonLim']
 
+import sys
+if sys.version_info[0] > 2:
+    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+    exit(-1)
+
+
 import scipy.constants as const
 import matplotlib.pyplot as plt
 import numpy
@@ -118,8 +124,9 @@ def FermiDirac(Ef, EJ, T):
     Returns:
         | fermiD : the Fermi-Dirac distribution
     """
-
-    return 1 / (1 + numpy.exp( ( EJ - Ef ) / ( T * const.k) ) )
+    #prevent divide by zero
+    den = (1 + numpy.exp( ( EJ - Ef ) / ( T * const.k) ) )
+    return 1 / den
 
 
 
@@ -482,6 +489,7 @@ if __name__ == '__main__':
 
 
     ######################################################################
+    # tempBack = numpy.asarray([1])
     tempBack = numpy.asarray([1, 2, 4, 10, 25, 77, 195, 300, 500])
     eta = 1
     wavelength = numpy.logspace(0, 3, 100, True, 10)
@@ -494,10 +502,11 @@ if __name__ == '__main__':
             LbackLambda = ryplanck.planck(wl,temperature, type='ql')/numpy.pi
             Lback = numpy.trapz(LbackLambda.reshape(-1, 1),wl, axis=0)[0]
             Eback = Lback * numpy.pi * (numpy.sin(halfApexAngle)) ** 2
-            dstarwlc[i] = 1e-6 * wlc * numpy.sqrt(eta/Eback)/(const.h * const.c * numpy.sqrt(2))
+            # funny construct is to prevent divide by zero
+            tempvar = numpy.sqrt(eta/(Eback+(Eback==0))) * (Eback!=0) + 0 * (Eback==0)
+            dstarwlc[i] = 1e-6 * wlc * tempvar/(const.h * const.c * numpy.sqrt(2))
             #print(Eback)
             i = i + 1
-
         return dstarwlc * 100. # to get cm units
 
     dstarP = ryplot.Plotter(1,1,1)
@@ -545,7 +554,7 @@ if __name__ == '__main__':
 
     #######################################################################
     #plot the Fermi-Dirac distribution
-    temperature = [0, 77, 300]
+    temperature = [0.001, 77, 300]
     EevR = numpy.linspace(-0.2, 0.2, 500)
 
     fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
