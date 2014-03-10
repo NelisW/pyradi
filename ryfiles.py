@@ -133,7 +133,7 @@ def loadColumnTextFile(filename, loadCol=[1],  \
 
     if  abscissaOut is not None:
         #convert to [N, ] array
-        abscissaOut=abscissaOut[:,0]
+        abscissaOut=abscissaOut.reshape(-1,)
         #inpterpolate read values with the given inut vec
         f=interp1d(abscissa,  ordinate)
         interpValue=f(abscissaOut)

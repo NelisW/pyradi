@@ -217,16 +217,15 @@ def planckef(frequency, temperature):
     #if exponent is exP>=explimit, force Planck to zero
     planckA = numpy.where(exP<explimit, p, 0);
 
-
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
         rtnVal = planckA[0]
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -273,9 +272,9 @@ def planckel(wavelength, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -320,11 +319,12 @@ def plancken(wavenumber, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
+
 
 ################################################################
 ##
@@ -365,9 +365,9 @@ def planckqf(frequency, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -411,9 +411,9 @@ def planckql(wavelength, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -457,9 +457,9 @@ def planckqn(wavenumber, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = planckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = planckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = planckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = planckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -502,12 +502,11 @@ def dplnckef(frequency, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
-
 
 
 ################################################################
@@ -550,11 +549,12 @@ def dplnckel(wavelength, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
+
 
 ################################################################
 ##
@@ -593,11 +593,12 @@ def dplncken(wavenumber, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
+
 
 ################################################################
 ##
@@ -636,12 +637,11 @@ def dplnckqf(frequency, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
-
 
 
 ################################################################
@@ -681,9 +681,9 @@ def dplnckql(wavelength, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
 
@@ -724,13 +724,11 @@ def dplnckqn(wavenumber, temperature):
     elif tempIn.shape[0] == 1 and specIn.shape[0] != 1:
         rtnVal = dplanckA.reshape(specIn.shape[0],)
     elif tempIn.shape[0] != 1 and specIn.shape[0] == 1:
-        rtnVal = dplanckA.reshape(tempIn.shape[0],)
-    else:
         rtnVal = dplanckA.reshape(specIn.shape[0],-1)
+    else:
+        rtnVal = dplanckA.reshape(tempIn.shape[0],-1).T
 
     return rtnVal
-
-
 
 
 
@@ -872,19 +870,23 @@ if __name__ == '__main__':
         wavelen = numpy.linspace(1.0, 2.0, 100)
         #test for scalar temperature
         m = planckel(wavelen, 300) 
-        print('Array spectral & scalar temperature input, output shape is {}'.format(m.shape))
+        print('Array spectral {} & scalar temperature input, output shape is {}'.format(wavelen.shape, m.shape))
         #test for list of temperature values
         temp =  [300]
         m = planckel(wavelen,temp) 
-        print('Array spectral &  list with len()={} temperature input, output shape is {}'.format(len(temp), m.shape))
+        print('Array spectral {} &  list with len()={} temperature input, output shape is {}'.format(wavelen.shape, len(temp), m.shape))
         #test for list of temperature values
         temp =  [300, 350, 500]
         m = planckel(wavelen,temp) 
-        print('Array spectral & list with len()={} temperature input, output shape is {}'.format(len(temp), m.shape))
-        #test for list of temperature values
+        print('Array spectral {} & list with len()={} temperature input, output shape is {}'.format(wavelen.shape, len(temp), m.shape))
+        #test for array of temperature values
         temp =  numpy.asarray([300, 350, 400, 450, 500])
         m = planckel(wavelen,temp) 
-        print('Array spectral & array with shape={} temperature input, output shape is {}'.format(temp.shape, m.shape))
+        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
+        #test for array of temperature values
+        temp =  numpy.asarray([300, 350, 400, 450, 500]).reshape(1,-1)
+        m = planckel(wavelen,temp.T) 
+        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
 
         # test different input types for temperature but with spectral as scalar
         #test for scalar temperature
@@ -1062,7 +1064,7 @@ if __name__ == '__main__':
         (freq, exitance) = ryutils.convertSpectralDensity(wavelenRef, exitance, 'lf')
         print('exitance converted: wf against calculation')
         print(exitancefRef/exitance)
-       #convert to wavenumber density
+        #convert to wavenumber density
         (waven, exitance) = ryutils.convertSpectralDensity(freq, exitance, 'fn')
         print('exitance converted: wf->fn against calculation')
         print(exitancenRef/exitance)
@@ -1078,7 +1080,7 @@ if __name__ == '__main__':
         (waven, exitance) = ryutils.convertSpectralDensity(wavelenRef, exitance, 'ln')
         print('exitance converted: wf against calculation')
         print(exitancenRef/exitance)
-       #convert to frequency density
+        #convert to frequency density
         (freq, exitance) = ryutils.convertSpectralDensity(waven, exitance, 'nf')
         print('exitance converted: wf->fn against calculation')
         print(exitancefRef/exitance)
@@ -1111,22 +1113,15 @@ if __name__ == '__main__':
         f=numpy.logspace(numpy.log10(const.c/ (100*1e-6)),numpy. log10(const.c/ (0.1*1e-6)), num=100).reshape(-1, 1)
         temperature=[280,300,450,650,1000,1800,3000,6000]
 
-        Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
-        Mql = planck(wl, temperature[0], type='ql').reshape(-1, 1) # [q/(s.m$^2$.$\mu$m)]
-        Men = planck(n, temperature[0], type='en').reshape(-1, 1)  # [W/(m$^2$.cm$^{-1}$)]
-        Mqn = planck(n, temperature[0], type='qn').reshape(-1, 1)  # [q/(s.m$^2$.cm$^{-1}$)]
-        Mef = planck(f, temperature[0], type='ef').reshape(-1, 1)  # [W/(m$^2$.Hz)]
-        Mqf = planck(f, temperature[0], type='qf').reshape(-1, 1)  # [q/(s.m$^2$.Hz)]
+        Mel = planck(wl, numpy.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m)]
+        Mql = planck(wl, numpy.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m)]
+        Men = planck(n, numpy.asarray(temperature).reshape(-1,1), type='en')  # [W/(m$^2$.cm$^{-1}$)]
+        Mqn = planck(n, numpy.asarray(temperature).reshape(-1,1), type='qn')  # [q/(s.m$^2$.cm$^{-1}$)]
+        Mef = planck(f, numpy.asarray(temperature).reshape(-1,1), type='ef')  # [W/(m$^2$.Hz)]
+        Mqf = planck(f, numpy.asarray(temperature).reshape(-1,1), type='qf')  # [q/(s.m$^2$.Hz)]
 
         legend = ["{0:.0f} K".format(temperature[0])]
-
         for temp in temperature[1:] :
-            Mel = numpy.hstack((Mel, planck(wl,temp, type='el').reshape(-1, 1)))
-            Mql = numpy.hstack((Mql, planck(wl,temp, type='ql').reshape(-1, 1)))
-            Men = numpy.hstack((Men, planck(n,temp, type='en').reshape(-1, 1)))
-            Mqn = numpy.hstack((Mqn, planck(n,temp, type='qn').reshape(-1, 1)))
-            Mef = numpy.hstack((Mef, planck(f,temp, type='ef').reshape(-1, 1)))
-            Mqf = numpy.hstack((Mqf, planck(f,temp, type='qf').reshape(-1, 1)))
             legend.append("{0:.0f} K".format(temp))
 
         fplanck = ryplot.Plotter(1, 2, 3,"Planck's Law", figsize=(18, 12))
@@ -1153,22 +1148,13 @@ if __name__ == '__main__':
         #fplanck.GetPlot().show()
         fplanck.saveFig('planck.png')
 
-
         #now plot temperature derivatives
-        Mel = dplanck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m.K)]
-        Mql = dplanck(wl, temperature[0], type='ql').reshape(-1, 1) # [q/(s.m$^2$.$\mu$m.K)]
-        Men = dplanck(n, temperature[0], type='en').reshape(-1, 1)  # [W/(m$^2$.cm$^{-1}$.K)]
-        Mqn = dplanck(n, temperature[0], type='qn').reshape(-1, 1)  # [q/(s.m$^2$.cm$^{-1}$.K)]
-        Mef = dplanck(f, temperature[0], type='ef').reshape(-1, 1)  # [W/(m$^2$.Hz.K)]
-        Mqf = dplanck(f, temperature[0], type='qf').reshape(-1, 1)  # [q/(s.m$^2$.Hz.K)]
-
-        for temp in temperature[1:] :
-            Mel = numpy.hstack((Mel, dplanck(wl,temp, type='el').reshape(-1, 1)))
-            Mql = numpy.hstack((Mql, dplanck(wl,temp, type='ql').reshape(-1, 1)))
-            Men = numpy.hstack((Men, dplanck(n,temp, type='en').reshape(-1, 1)))
-            Mqn = numpy.hstack((Mqn, dplanck(n,temp, type='qn').reshape(-1, 1)))
-            Mef = numpy.hstack((Mef, dplanck(f,temp, type='ef').reshape(-1, 1)))
-            Mqf = numpy.hstack((Mqf, dplanck(f,temp, type='qf').reshape(-1, 1)))
+        Mel = dplanck(wl, numpy.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m.K)]
+        Mql = dplanck(wl, numpy.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m.K)]
+        Men = dplanck(n , numpy.asarray(temperature).reshape(-1,1), type='en') # [W/(m$^2$.cm$^{-1}$.K)]
+        Mqn = dplanck(n,  numpy.asarray(temperature).reshape(-1,1), type='qn') # [q/(s.m$^2$.cm$^{-1}$.K)]
+        Mef = dplanck(f,  numpy.asarray(temperature).reshape(-1,1), type='ef') # [W/(m$^2$.Hz.K)]
+        Mqf = dplanck(f,  numpy.asarray(temperature).reshape(-1,1), type='qf') # [q/(s.m$^2$.Hz.K)]
 
         fdplanck = ryplot.Plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
         fdplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
