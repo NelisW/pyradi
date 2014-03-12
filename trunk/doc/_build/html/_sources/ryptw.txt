@@ -7,6 +7,15 @@ Overview
 ----------
 .. automodule:: pyradi.ryptw
 
+Module classes
+------------------
+
+.. autoclass:: pyradi.ryptw.JadeCalibrationData
+	:members:
+	
+.. autoclass:: pyradi.ryptw.PTWFrameInfo
+	:members:
+	
 Module functions
 ------------------
 
@@ -15,3 +24,7 @@ Module functions
 .. autofunction:: pyradi.ryptw.showHeader  
 
 .. autofunction:: pyradi.ryptw.getPTWFrame  
+
+.. autofunction:: pyradi.ryptw.GetPTWFrameFromFile  
+
+.. autofunction:: pyradi.ryptw.getPTWFrames  

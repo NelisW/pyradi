@@ -21,6 +21,9 @@ Module classes
 .. autoclass:: pyradi.ryplot.Markers
 	:members:
 	
+.. autoclass:: pyradi.ryplot.ProcessImage
+	:members:
+	
 
 
 Module functions

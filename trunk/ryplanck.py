@@ -48,7 +48,7 @@ See the __main__ function for testing and examples of use.
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__='pyradi team'
@@ -309,7 +309,7 @@ def plancken(wavenumber, temperature):
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2n * (spec / temp)
     exP2 = numpy.where(exP<explimit, exP, 1);
-    p = pconst.c1en * spec**3 / (numpy.exp(exP)-1)
+    p = ( pconst.c1en  / (numpy.exp(exP)-1) ) * spec**3
     #if exponent is exP>=explimit, force Planck to zero
     planckA = numpy.where(exP<explimit, p, 0);
 

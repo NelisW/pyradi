@@ -35,7 +35,7 @@ See the __main__ function for examples of use.
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 
 __version__ = "$Revision$"
@@ -293,6 +293,78 @@ class Markers:
         plt.rcParams['text.usetex'] = usetex
 
 
+###################################################################################
+###################################################################################
+
+class ProcessImage:
+    """This class provides a functions to assist in the optimal display of images.
+    """
+
+    #define the compression rule to be used in the equalisation function
+    compressSet = [
+               [lambda x : x , lambda x : x, 'Linear'],
+               [numpy.log,  numpy.exp, 'Natural Log'],
+               [numpy.sqrt,  numpy.square, 'Square Root']]
+
+    ############################################################
+    def __init__(self):
+        """Class constructor
+
+        Sets up some variables for use in this class
+
+            Args:
+                | None
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+   
+
+    ############################################################
+    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20):
+        """Compress an image (and then inversely expand the color bar values), 
+           prior to histogram equalisation to ensure that the two keep in step, 
+           we store the function names as pairs, and below invoke the pair elements
+           cases are as follows:  linear, log. sqrt.  Note that the image is 
+           histogram equalised in all cases.    
+     """  
+
+        #compress the input image  - rescale color bar tick to match below
+        #also collapse into single dimension
+        imgFlat = self.compressSet[selectCompressSet][0](image.flatten())
+        imgFlatSort = numpy.sort(imgFlat)
+        #cumulative distribution
+        cdf = imgFlatSort.cumsum()/imgFlatSort[-1]
+        #remap image values to achieve histogram equalisation
+        y=numpy.interp(imgFlat,imgFlatSort, cdf )
+        #and reshape to original image shape
+        imgHEQ = y.reshape(image.shape)
+
+        #        #plot the histogram mapping
+        #        minData = numpy.min(imgFlat)
+        #        maxData = numpy.max(imgFlat)
+        #        print('Image irradiance range minimum={0} maximum={1}'.format(minData, maxData))
+        #        irradRange=numpy.linspace(minData, maxData, 100)
+        #        normalRange = numpy.interp(irradRange,imgFlatSort, cdf )
+        #        H = ryplot.Plotter(1, 1, 1,'Mapping Input Irradiance to Equalised Value', 
+        #           figsize=(10, 10))
+        #        H.plot(1, "","Irradiance [W/(m$^2$)]", "Equalised value",irradRange, 
+        #           normalRange, powerLimits = [-4,  2,  -10,  2])
+        #        #H.getPlot().show()
+        #        H.saveFig('cumhist{0}.png'.format(entry), dpi=300)
+
+        #prepare the color bar tick labels from image values (as plotted)
+        imgLevels = numpy.linspace(numpy.min(imgHEQ), numpy.max(imgHEQ), numCbarlevels)
+        #map back from image values to original values as read it (inverse to above)
+        irrLevels=numpy.interp(imgLevels,cdf, imgFlatSort)
+        #uncompress the tick labels  - match  with compression above
+        customticksz = zip(imgLevels, ['{0:10.3e}'.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels])
+
+        return imgHEQ, customticksz
 
 ###################################################################################
 ###################################################################################
@@ -558,7 +630,7 @@ class Plotter:
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                     xTicks=None, xtickRotation=0  ):
+                     xTicks=None, xtickRotation=0, markers=[] ):
         """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -596,6 +668,7 @@ class Plotter:
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
+                | markers ([string]) markers to be used in lines
 
             Returns:
                 | Nothing
@@ -617,7 +690,8 @@ class Plotter:
                     labelfsize,
                     xScientific=xScientific, yScientific=yScientific,
                     yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid,
-                    xIsDate=xIsDate, xTicks=xTicks, xtickRotation=xtickRotation)
+                    xIsDate=xIsDate, xTicks=xTicks, xtickRotation=xtickRotation,
+                    markers=markers)
 
     ############################################################
     ##
@@ -626,7 +700,7 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False, xTicks=None, xtickRotation=0   ):
+                    xIsDate=False, xTicks=None, xtickRotation=0, markers=[]    ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -659,6 +733,7 @@ class Plotter:
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
+                | markers ([string]) markers to be used in lines
 
             Returns:
                 | Nothing
@@ -676,7 +751,8 @@ class Plotter:
         self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize,labelfsize, xTicks, xtickRotation)
+                    xytickfsize,labelfsize, xTicks, xtickRotation,
+                    markers=markers)
 
     ############################################################
     ##
@@ -685,7 +761,7 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False,  xTicks=None, xtickRotation=0):
+                    xIsDate=False,  xTicks=None, xtickRotation=0, markers=[]):
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -718,6 +794,7 @@ class Plotter:
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
+                | markers ([string]) markers to be used in lines
 
 
             Returns:
@@ -737,7 +814,8 @@ class Plotter:
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
                      xytickfsize,labelfsize, xIsDate=xIsDate, xTicks=xTicks,
-                     xtickRotation=xtickRotation)
+                     xtickRotation=xtickRotation,
+                    markers=markers)
 
     ############################################################
     ##
@@ -746,7 +824,7 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
-                    xIsDate=False, xTicks=None, xtickRotation=0  ):
+                    xIsDate=False, xTicks=None, xtickRotation=0, markers=[]  ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -779,6 +857,7 @@ class Plotter:
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
+                | markers ([string]) markers to be used in lines
 
             Returns:
                 | Nothing
@@ -797,7 +876,8 @@ class Plotter:
                     plotCol, label,legendAlpha, pltaxis, \
                     maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
                     xytickfsize, labelfsize, xIsDate=xIsDate, xTicks=xTicks, 
-                    xtickRotation=xtickRotation)
+                    xtickRotation=xtickRotation,
+                    markers=markers)
 
     ############################################################
     ##
@@ -809,7 +889,7 @@ class Plotter:
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
-                    xTicks=None, xtickRotation=0 ):
+                    xTicks=None, xtickRotation=0, markers=[] ):
         """Low level helper function to create a subplot and plot the data as required.
 
         This function does the actual plotting, labelling etc. It uses the plotting
@@ -852,6 +932,7 @@ class Plotter:
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
+                | markers ([string]) markers to be used in lines
 
             Returns:
                 | Nothing
@@ -912,9 +993,16 @@ class Plotter:
 
         for i in range(yy.shape[1]):
             #set up the line style, either given or next in sequence
+            mmrk = ''
+            if markers:
+                if i >= len(markers):
+                    mmrk = markers[-1]
+                else:
+                    mmrk = markers[i]
+
             if plotCol:
                 if i >= len(plotCol):
-                    col = plotCol[-1]
+                    col = plotCol[-1] 
                 else:
                     col = plotCol[i]
             else:
@@ -924,12 +1012,12 @@ class Plotter:
                 if len(col)>1:
                     linestyle = col[1:]
                 else:
-                    linestyle = '-'
+                    linestyle = '-' 
 
             if not label:
-                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle)
+                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle, marker=mmrk)
             else:
-                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle)
+                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle, marker=mmrk)
 
                 leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
                 leg.get_frame().set_alpha(legendAlpha)
@@ -1907,6 +1995,20 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
 if __name__ == '__main__':
 
     import datetime as dt
+
+
+    xv,yv = numpy.mgrid[-2:2:21j, -2:2:21j]
+    z = numpy.exp(numpy.exp(-(xv**2 + yv**2)))
+    I = Plotter(4, 1, 2,'High dynamic range image', figsize=(8, 4))
+    I.showImage(1, z, ptitle='xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarfontsize = 7)
+    ip = ProcessImage()
+    zz, customticksz = ip.compressEqualizeImage(z, 2, 10)
+    I.showImage(2, zz, ptitle='Equalized xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarcustomticks=customticksz, cbarfontsize = 7)
+    I.saveFig('HistoEq.png')
+#    I.saveFig('HistoEq.eps')
+
+
+    exit(-1)
 
     # demonstrate dates on the x-axis
     dates = ['01/02/1991','01/03/1991','01/04/1991']
