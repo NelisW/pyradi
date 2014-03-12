@@ -33,7 +33,7 @@ See the __main__ function for examples of use.
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -50,6 +50,25 @@ if sys.version_info[0] > 2:
 
 import numpy
 from scipy import constants
+
+
+def upMu(uprightMu=True):
+    #all this to get an upright micron
+    if uprightMu:
+      from matplotlib import rc, font_manager
+      import matplotlib as mpl
+      # set up the use of external latex, fonts and packages
+      rc('text', usetex=True)
+      mpl.rcParams['text.latex.preamble'] = [
+         r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+         r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
+         r'\usepackage{helvet}',  # set the normal font here
+         r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+         r'\sansmath']  # <- tricky! -- gotta actually tell tex to use!
+      upmu = '\si{\micro}'
+    else:
+      upmu = '$\mu$'
+    return upmu
 
 
 ##############################################################################

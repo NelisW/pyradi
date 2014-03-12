@@ -1,0 +1,38 @@
+<JadeCalibration Name="lwir100mm0150us10ND20090910" ID="lwir100mm10ND" Version="" Summary="" >
+	<SensorResponse Filename="LWIRsensor.txt"/>
+	<OpticsTransmittance Filename="LW100mmLens.txt"/>
+	<Filter Filename="LWND10.txt"/>
+	<SourceEmis Filename="Unity.txt"/>
+	<AtmoTau Filename="Unity.txt"/>
+	<DetectorPitch Value="30e-6"/>
+	<FillFactor Value="0.7"/>
+	<Focallength Value="0.1"/>
+	<IntegrationTime Value="150e-6"/>
+	<Fnumber Value="2"/>
+	<Nu Min="700" Max="1665" Inc="5" />
+    <Caldatas>
+        <Caldata InstrTemperature="17.1" DlFloor="3625" Power="10" >
+            <CalPoint Temp="50" DL="4571" Comment="temp in deg C" />	
+            <CalPoint Temp="100" DL="5132" />	
+            <CalPoint Temp="150" DL="5906" />	
+            <CalPoint Temp="200" DL="6887" />		
+            <CalPoint Temp="250" DL="8034" />	
+            <CalPoint Temp="300" DL="9338" />	
+            <CalPoint Temp="350" DL="10834" />		
+            <CalPoint Temp="400" DL="12386" />		
+            <CalPoint Temp="450" DL="14042" />		
+            <!-- <CalPoint Temp="500" DL="15324" />	-->    
+        </Caldata>
+        <Caldata InstrTemperature="34.4"  DlFloor="4210" Power="10"  >
+            <CalPoint Temp="50" DL="5477"  Comment="temp in deg C" />
+            <CalPoint Temp="100" DL="6050" />
+            <CalPoint Temp="150" DL="6817" />	
+            <CalPoint Temp="200" DL="7789" />
+            <CalPoint Temp="250" DL="8922" />
+            <CalPoint Temp="300" DL="10262" />
+            <CalPoint Temp="350" DL="11694" />	
+            <CalPoint Temp="400" DL="13299" />	
+            <CalPoint Temp="450" DL="14921" />	
+        </Caldata>
+    </Caldatas>
+</JadeCalibration>
