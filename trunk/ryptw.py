@@ -1307,10 +1307,7 @@ if __name__ == '__main__':
 
     """The following measurement observed a large-area blackbody in the lab.
        The blackbody set point was 150C. The Cedip Altair s/w calculated 157C.
-       This code calculates 166C (a 2.5% error when expressed in K). The reason
-       for this difference was not further investigated.
-       Note how the equalised image has gross distortion errors caused by this
-       image's highly peaky histogram - it does not lend itself to this mapping.
+       This code calculates 149C.
     """
     ptwfile  = 'data/LWIR-BBref-150C-150us.ptw'
     header = readPTWHeader(ptwfile)
@@ -1319,7 +1316,8 @@ if __name__ == '__main__':
     framesToLoad = [2,5]
     for frame in framesToLoad:
         data = getPTWFrame (header, frame)
-        tempIm = calData.LookupDLTemp(data, 25)
+        #get the internal temperature from the header and use here
+        tempIm = calData.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
         print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
         print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
         I = ryplot.Plotter(4, 1, 1,'', figsize=(8, 8))
