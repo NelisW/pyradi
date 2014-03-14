@@ -35,8 +35,13 @@ Visit the google group at http://groups.google.com/group/pyradi-dev
 __version__= "$Revision$"
 __author__='pyradi team'
 
+import ry3dnoise
 import rychroma
-import ryplanck
+import rydetector
 import ryfiles
+import rymodtran
+import ryplanck
 import ryplot
+import ryplotspherical
+import ryptw
 import ryutils
