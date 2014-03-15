@@ -21,7 +21,7 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
   
 * Graphical visualization(2-D and 3-D graphs) in compact format, including cartesian, polar, image and mesh plots. 
 
-Spectral variables are expressed in Numpy arrays to ease spectral operations and integrals.
+* Spectral variables are expressed in Numpy arrays to ease spectral operations and integrals.
   
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
 
