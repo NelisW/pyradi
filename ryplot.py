@@ -2007,9 +2007,7 @@ if __name__ == '__main__':
     I.saveFig('HistoEq.png')
 #    I.saveFig('HistoEq.eps')
 
-
-    exit(-1)
-
+    ############################################################################
     # demonstrate dates on the x-axis
     dates = ['01/02/1991','01/03/1991','01/04/1991']
     x = numpy.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])

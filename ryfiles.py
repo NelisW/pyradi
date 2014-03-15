@@ -518,13 +518,15 @@ if __name__ == '__init__':
 if __name__ == '__main__':
 
     import ryplot
+    import ryutils
 
     xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
   
     p = ryplot.Plotter(1)
     for azim in [0,18,36]:
         p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
-            ptitle='3-5 $\mu m$, Altitude 10 m',label=['Azim={0:.0f} deg'.format(yVec[azim])])
+            ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu()),
+            label=['Azim={0:.0f} deg'.format(yVec[azim])])
     p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
     print ('Test writing latex format arrays:')
