@@ -1,13 +1,5 @@
 include pyradi/README.rst
 
-exclude pyradi/documentation/pyradi.pdf
-exclude pyradi/documentation/pyradi-SPIE-Newsroom.pdf
-#exclude pyradi/documentation/SPIE-8543-Pyradi-an-open-source-toolkit-for-infrared-85430J.pdf
-
-include pyradi/examples exflamesensor.py
-exclude pyradi/examples/_readme.txt
-exclude pyradi/examples/objectinimage.zip
-
 recursive-include pyradi/data *
 recursive-include pyradi/test *
 prune pyradi/data/plotspherical
@@ -21,24 +13,5 @@ prune pyradi/data/absorptioncoeff
 
 include pyradi/data/absorptioncoeff/*.txt
 
-prune pyradi/data/EOSystemAnalysisDesign-Data
-
-prune pyradi/matlabfunctions
-
-exclude pyradi/data/images/2000px-Siemens_star.png
-exclude pyradi/data/images/lena512color.png
-exclude pyradi/data/images/lena512.png
-
-exclude pyradi/doc/_build/_images/*
-exclude pyradi/doc/_build/latex/_images/*
-exclude pyradi/doc/_images/*
-exclude pyradi/doc/*.rst
-exclude pyradi/doc/*.bat
-exclude pyradi/doc/*.txt
-exclude pyradi/doc/conf.py
-exclude pyradi/doc/Makefile
-
-
-
-
-
+include pyradi/doc/_build/html/*
+include pyradi/pyradi/doc/_build/latex/pyradi.pdf
