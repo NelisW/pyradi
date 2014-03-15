@@ -35,9 +35,6 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="rydetector.html" title="Bulk detector modelling"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -54,49 +51,11 @@
             
   <div class="section" id="colour-coordinates">
 <h1>Colour coordinates<a class="headerlink" href="#colour-coordinates" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-pyradi.rychroma">
-<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.rychroma" title="Permalink to this headline">¶</a></h2>
-<p>This module provides rudimentary colour coordinate processing.
-Calculate the CIE 1931 rgb chromaticity coordinates for an arbitrary spectrum.</p>
-<p>See the __main__ function for examples of use.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="pyradi.rychroma.chromaticityforSpectralL">
-<tt class="descclassname">pyradi.rychroma.</tt><tt class="descname">chromaticityforSpectralL</tt><big>(</big><em>spectral</em>, <em>radiance</em>, <em>xbar</em>, <em>ybar</em>, <em>zbar</em><big>)</big><a class="headerlink" href="#pyradi.rychroma.chromaticityforSpectralL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the CIE chromaticity coordinates for an arbitrary spectrum.</p>
-<p>Given a spectral radiance vector and CIE tristimulus curves,
-calculate the CIE chromaticity coordinates. It is assumed that the
-radiance spectral density is given in the same units as the spectral
-vector (i.e. [1/um] or [1/cm-1], corresponding to [um] or [cm-1] respectively.
-It is furthermore accepted that the tristimulus curves are also sampled at
-the same spectral intervals as the radiance. See
-<a class="reference external" href="http://en.wikipedia.org/wiki/CIE_1931_color_space">http://en.wikipedia.org/wiki/CIE_1931_color_space</a>
-for more information on CIE tristimulus spectral curves.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].</div>
-<div class="line">radiance (np.array[N,] or [N,1]): the spectral radiance (any units), (sampled at spectral).</div>
-<div class="line">xbar (np.array[N,] or [N,1]): CIE x tristimulus spectral curve (sampled at spectral values).</div>
-<div class="line">ybar (np.array[N,] or [N,1]): CIE y tristimulus spectral curve (sampled at spectral values).</div>
-<div class="line">zbar (np.array[N,] or [N,1]): CIE z tristimulus spectral curve (sampled at spectral values).</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">[x,y,Y]: color coordinates x, y, and Y.</div>
-</div>
-</dd>
-<dt>Raises:</dt>
-<dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 </div>
 
@@ -109,7 +68,7 @@ for more information on CIE tristimulus spectral curves.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Colour coordinates</a><ul>
-<li><a class="reference internal" href="#module-pyradi.rychroma">Overview</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#module-functions">Module functions</a></li>
 </ul>
 </li>
@@ -149,9 +108,6 @@ for more information on CIE tristimulus spectral curves.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="right" >
           <a href="rydetector.html" title="Bulk detector modelling"
              >next</a> |</li>
