@@ -1,0 +1,27 @@
+include README.rst
+
+include examples exflamesensor.py
+exclude examples/_readme.txt
+exclude examples/objectinimage.zip
+
+recursive-include data *
+recursive-include test *
+
+prune data/plotspherical
+include data/plotspherical/*.dat
+include data/plotspherical/*.txt
+include data/plotspherical/*.off
+include data/plotspherical/*.dat
+
+prune data/absorptioncoeff
+include data/absorptioncoeff/*.txt
+
+prune data/EOSystemAnalysisDesign-Data
+
+prune matlabfunctions
+
+
+
+
+
+
