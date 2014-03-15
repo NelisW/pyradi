@@ -129,7 +129,8 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],    
     keywords='radiometry, electro-optical infrared planck',
-    classifiers=[
+    install_requires=['matplotlib','numpy', 'scipy', 'skimage'],
+   classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Environment :: Other Environment',
@@ -145,11 +146,6 @@ setup(
           ],
     platforms='any',
     zip_safe=False,
-    #packages=find_packages(exclude=["tests.*", "tests"]),
-    #package_data=find_package_data(PACKAGE, only_in_packages=False),
-    # using manifest.in package_data = {'pyradi': ['doc/images/*.png','data/*.*','examples/*.*','Readme.rst']},
-    #data_files = [('',['',''])],
-    #install_requires=['markdown', 'matplotlib','numpy', 'scipy', 'skimage'],
 )
 
 

@@ -1,25 +1,24 @@
-include README.rst
-
+exclude MANIFEST.in
+exclude documentation/pyradi.pdf
+exclude documentation/pyradi-SPIE-Newsroom.pdf
+exclude documentation/SPIE-8543-Pyradi-an-open-source-toolkit-for-infrared-85430J.pdf
 include examples exflamesensor.py
 exclude examples/_readme.txt
 exclude examples/objectinimage.zip
-
 recursive-include data *
 recursive-include test *
-
 prune data/plotspherical
 include data/plotspherical/*.dat
 include data/plotspherical/*.txt
 include data/plotspherical/*.off
 include data/plotspherical/*.dat
-
 prune data/absorptioncoeff
 include data/absorptioncoeff/*.txt
-
 prune data/EOSystemAnalysisDesign-Data
-
 prune matlabfunctions
-
+exclude data/images/2000px-Siemens_star.png
+exclude data/images/lena512color.png
+exclude data/images/lena512.png
 
 
 

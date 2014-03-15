@@ -14,79 +14,10 @@ import Image
 
 import matplotlib.pyplot as plt
 
-def main():
-    # im = Image.open('600px-Siemens_star.png')
-    im = Image.open('600px-Siemens_star-blurred.png')
-    # im = Image.open('lena512.png')
-    im = im.convert('RGB')
-    data = np.array(im)
 
-    plot_polar_image(data, origin=None)
-    plot_directional_intensity(data, origin=None)
-    plot_radial_intensity(data, origin=None)
 
-    plt.show()
 
-def plot_radial_intensity(data, origin=None):
-    """PLots the modulation at various radii."""
 
-    polar_grid, r, theta = reproject_image_into_polar(data, origin)
-    plt.figure()
-    for ridx in range(0,450,50):
-        plt.plot(theta, polar_grid[ridx,:],label='ddd')
-    # plt.axis('auto')
-    plt.xlabel('Theta Coordinate (radians)')
-    plt.ylabel('Image value (grey level)')
-    plt.title('Modulation plots')
-
-def plot_directional_intensity(data, origin=None):
-    """Makes a cicular histogram showing average intensity binned by direction
-    from "origin" for each band in "data" (a 3D numpy array). "origin" defaults
-    to the center of the image."""
-    def intensity_rose(theta, band, color):
-        theta, band = theta.flatten(), band.flatten()
-        intensities, theta_bins = bin_by(band, theta)
-        mean_intensity = map(np.mean, intensities)
-        width = np.diff(theta_bins)[0]
-        plt.bar(theta_bins, mean_intensity, width=width, color=color)
-        plt.xlabel(color + ' Band')
-        plt.yticks([])
-
-    # Make cartesian coordinates for the pixel indicies
-    # (The origin defaults to the center of the image)
-    x, y = index_coords(data, origin)
-
-    # Convert the pixel indices into polar coords.
-    r, theta = cart2polar(x, y)
-
-    # Unpack bands of the image
-    red, green, blue = data.T
-
-    # Plot...
-    plt.figure()
-
-    plt.subplot(2,2,1, projection='polar')
-    intensity_rose(theta, red, 'Red')
-
-    plt.subplot(2,2,2, projection='polar')
-    intensity_rose(theta, green, 'Green')
-
-    plt.subplot(2,1,2, projection='polar')
-    intensity_rose(theta, blue, 'Blue')
-
-    plt.suptitle('Average intensity as a function of direction')
-
-def plot_polar_image(data, origin=None):
-    """Plots an image reprojected into polar coordinages with the origin
-    at "origin" (a tuple of (x0, y0), defaults to the center of the image)"""
-    polar_grid, r, theta = reproject_image_into_polar(data, origin)
-    plt.figure()
-    plt.imshow(polar_grid, extent=(theta.min(), theta.max(), r.max(), r.min()))
-    plt.axis('auto')
-    plt.ylim(plt.ylim()[::-1])
-    plt.xlabel('Theta Coordinate (radians)')
-    plt.ylabel('R Coordinate (pixels)')
-    plt.title('Image in Polar Coordinates')
 
 def index_coords(data, origin=None):
     """Creates x & y coords for the indicies in a numpy array "data".
@@ -163,6 +94,78 @@ def reproject_image_into_polar(data, origin=None):
     output = np.dstack(bands)
     return output, r_i, theta_i
 
+
+def plot_radial_intensity(data, origin=None):
+    """PLots the modulation at various radii."""
+
+    polar_grid, r, theta = reproject_image_into_polar(data, origin)
+    plt.figure()
+    for ridx in range(0,450,50):
+        plt.plot(theta, polar_grid[ridx,:],label='ddd')
+    # plt.axis('auto')
+    plt.xlabel('Theta Coordinate (radians)')
+    plt.ylabel('Image value (grey level)')
+    plt.title('Modulation plots')
+
+def plot_directional_intensity(data, origin=None):
+    """Makes a cicular histogram showing average intensity binned by direction
+    from "origin" for each band in "data" (a 3D numpy array). "origin" defaults
+    to the center of the image."""
+    def intensity_rose(theta, band, color):
+        theta, band = theta.flatten(), band.flatten()
+        intensities, theta_bins = bin_by(band, theta)
+        mean_intensity = map(np.mean, intensities)
+        width = np.diff(theta_bins)[0]
+        plt.bar(theta_bins, mean_intensity, width=width, color=color)
+        plt.xlabel(color + ' Band')
+        plt.yticks([])
+
+    # Make cartesian coordinates for the pixel indicies
+    # (The origin defaults to the center of the image)
+    x, y = index_coords(data, origin)
+
+    # Convert the pixel indices into polar coords.
+    r, theta = cart2polar(x, y)
+
+    # Unpack bands of the image
+    red, green, blue = data.T
+
+    # Plot...
+    plt.figure()
+
+    plt.subplot(2,2,1, projection='polar')
+    intensity_rose(theta, red, 'Red')
+
+    plt.subplot(2,2,2, projection='polar')
+    intensity_rose(theta, green, 'Green')
+
+    plt.subplot(2,1,2, projection='polar')
+    intensity_rose(theta, blue, 'Blue')
+
+    plt.suptitle('Average intensity as a function of direction')
+
+def plot_polar_image(data, origin=None):
+    """Plots an image reprojected into polar coordinages with the origin
+    at "origin" (a tuple of (x0, y0), defaults to the center of the image)"""
+    polar_grid, r, theta = reproject_image_into_polar(data, origin)
+    plt.figure()
+    plt.imshow(polar_grid, extent=(theta.min(), theta.max(), r.max(), r.min()))
+    plt.axis('auto')
+    plt.ylim(plt.ylim()[::-1])
+    plt.xlabel('Theta Coordinate (radians)')
+    plt.ylabel('R Coordinate (pixels)')
+    plt.title('Image in Polar Coordinates')
+
+
 if __name__ == '__main__':
-    main()
+
+    im = Image.open('600px-Siemens_star-blurred.png')
+    im = im.convert('RGB')
+    data = np.array(im)
+
+    plot_polar_image(data, origin=None)
+    plot_directional_intensity(data, origin=None)
+    plot_radial_intensity(data, origin=None)
+
+    plt.show()
 
