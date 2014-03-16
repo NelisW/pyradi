@@ -544,7 +544,7 @@ if __name__ == '__main__':
     for filename in filenames:
         wl, absorb = AbsorptionFile(wavelength, filename)
         absFile.semilogY(1,wl,absorb,'Absorption coefficient',\
-            r'Wavelength [\mum]','Absorptance [m-1]')
+            r'Wavelength [$\mu$m]','Absorptance [m-1]')
     currentP = absFile.getSubPlot(1)
     for xmaj in currentP.xaxis.get_majorticklocs():
         currentP.axvline(x=xmaj,ls='-')

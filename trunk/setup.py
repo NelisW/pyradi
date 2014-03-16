@@ -144,7 +144,7 @@ setup(
           'Topic :: Scientific/Engineering :: Physics',
           'Topic :: Scientific/Engineering :: Visualization',
           ],
-    platforms='any',
+    platforms='any, binary data in little-endian format',
     zip_safe=False
 )
 
