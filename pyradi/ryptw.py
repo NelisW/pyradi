@@ -962,7 +962,7 @@ class JadeCalibrationData:
     p.semilogY(1,self.wl,self.dicSpectrals['NoFilter'],label=['Eff. no filter'])
     p.semilogY(1,self.wl,self.dicSpectrals['CalFilter'],label=['Eff. with filter'])
     currentP = p.getSubPlot(1)
-    currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu()))
+    currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
     currentP.set_ylabel('Normalised Response')
     currentP.set_title('Spectral Response for {}'.format(self.name))
     p.saveFig('{}-spectrals.png'.format(self.name))
@@ -988,7 +988,7 @@ class JadeCalibrationData:
           # print(self.wl.shape, self.dicSpecRadiance[spectral][key].shape)
           p.plot(i,self.wl,self.dicSpecRadiance[spectral][key],label=labels)
           currentP = p.getSubPlot(i)
-          currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu()))
+          currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
           currentP.set_ylabel('Radiance W/(m$^2$.sr.cm$^{-1}$)')
           if spectral == 'NoFilter':
             filname = 'no filter'
@@ -1313,7 +1313,7 @@ if __name__ == '__main__':
     header = readPTWHeader(ptwfile)
     # showHeader(header)
     #loading sequence of frames
-    framesToLoad = [2,5]
+    framesToLoad = [1]
     for frame in framesToLoad:
         data = getPTWFrame (header, frame)
         #get the internal temperature from the header and use here

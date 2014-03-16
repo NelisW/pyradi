@@ -32,7 +32,7 @@ http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
 Visit the google group at http://groups.google.com/group/pyradi-dev
 
 """
-__version__= "0.1.34" # svn $Revision$ 
+__version__= "0.1.36" # svn $Revision$ 
 __author__='pyradi team'
 
 #import ry3dnoise

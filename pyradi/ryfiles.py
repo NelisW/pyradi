@@ -525,7 +525,7 @@ if __name__ == '__main__':
     p = ryplot.Plotter(1)
     for azim in [0,18,36]:
         p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
-            ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu()),
+            ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu(False)),
             label=['Azim={0:.0f} deg'.format(yVec[azim])])
     p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
@@ -616,7 +616,7 @@ if __name__ == '__main__':
         img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
 
         #now write the raw frames to image files
-        type = ['png','jpg','tiff','eps']
+        type = ['png','jpg','tiff','png']
         for i in range(frames):
             print(i)
             filename = 'rawIm{0}.{1}'.format(i,type[i])
