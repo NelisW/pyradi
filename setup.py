@@ -1,5 +1,51 @@
-# most of this comes from https://github.com/paltman/python-setup-template/blob/master/setup.py
+"""
+Setup script for pyradi. This procedure must be followed for each Python version.
 
+1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
+    letters and numbers, not other symbols.
+
+2.  On Windows create an environmental variable to your home directory (C:\Users\username)
+
+3.  Place the .pypirc file in your home directory (to where HOME points). The format
+    of this file is as follows (no spaces in last two lines):
+    -------------------
+    [distutils]
+    index-servers =
+        pypi
+
+    [pypi]
+    username:yourPyPIusername
+    password:yourPyPIpassword    
+    -------------------
+    you can remove the password, it will be prompted.
+
+4.  Write the setup.py script for project (this file)
+
+5.  Write and test the long description, this goes onto PyPI project page.
+
+6.  On every new release:  Register the meta data with PyPI    
+    cd to where setup.py is located and run the following command:
+    python setup.py register   [[this will register new release on pyPI]]
+
+7.  Create the package files zip and installers (not uploading)
+    python setup.py sdist bdist_wininst [[ built in dist directory ]]
+
+8.  Test locally by unzipping the package and running
+    python setup.py install  [[ will install to site-packages]]
+    test this installation prior to uploading to pyPI
+
+9.  Upload the packages to PyPIy
+    python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
+
+10. Installing a package from the server to local pyPI
+    pip install --upgrade pyradi
+
+See the bottom of this file for additional notes.
+
+most of the code in this script comes from 
+https://github.com/paltman/python-setup-template/blob/master/setup.py
+I am just not using much of it :-((
+"""
 import codecs
 import os
 import sys
@@ -148,5 +194,88 @@ setup(
     zip_safe=False
 )
 
+################################################################################
+################################################################################
+################################################################################
+"""
+General:
+http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
+http://docs.python-guide.org/en/latest/writing/structure/
+https://github.com/audreyr/cookiecutter-pypackage
+https://coderwall.com/p/lt2kew
+http://www.scotttorborg.com/python-packaging/
+http://pythonhosted.org/setuptools/setuptools.html#development-mode
+http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
+http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
+http://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-and-setuptools
 
-      
+use setuptools: 
+https://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-setuptools-and-distutils2
+http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/
+
+.pypirc
+https://stackoverflow.com/questions/1569315/setup-py-upload-is-failing-with-upload-failed-401-you-must-be-identified-t/1569331#1569331'
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+https://wiki.python.org/moin/TestPyPI
+http://guide.python-distribute.org/contributing.html
+
+setup.py script 
+http://docs.python.org/2.7/distutils/setupscript.html#
+http://docs.python.org/2.7/distutils/introduction.html#distutils-simple-example
+https://pypi.python.org/pypi?:action=list_classifiers
+http://docs.python.org/2/distutils/sourcedist.html#manifest
+http://docs.python.org/2/distutils/setupscript.html#meta-data
+
+check the long description by
+python setup.py --long-description | rst2html.py > output.html
+http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
+
+register the meta data with the server listed in -r
+python setup.py register -r https://testpypi.python.org/pypi
+https://wiki.python.org/moin/TestPyPI
+http://docs.python.org/2.7/distutils/packageindex.html#registering-packages
+
+build the packages for local testing
+python setup.py sdist bdist_wininst upload
+
+build and upload the package files to server at -r
+python setup.py sdist  upload -r https://testpypi.python.org/pypi
+python setup.py sdist bdist_wininst upload -r https://testpypi.python.org/pypi
+python setup.py register sdist upload -r https://testpypi.python.org/pypi
+
+upload previously built to server at -r
+python setup.py upload -r https://testpypi.python.org/pypi
+http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
+
+Uploading source and installers with a batch script
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+
+Upload for each version of python you want to distribute
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+
+get version number from the code files
+http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
+http://legacy.python.org/dev/peps/pep-0386/
+
+9) Installing a package from server at i
+pip install --upgrade -i https://testpypi.python.org/pypi pyradi2
+http://www.pip-installer.org/en/latest/reference/pip_wheel.html#allow-external
+
+install locally on your pc
+$ python setup.py install <will install from here to python directory>
+
+including data
+include_package_data
+http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
+http://www.scotttorborg.com/python-packaging/metadata.html
+
+using manifest file
+http://danielsokolowski.blogspot.com/2012/08/setuptools-includepackagedata-option.html
+http://docs.python.org/2/distutils/sourcedist.html#manifest-template 
+  
+testing
+http://www.scotttorborg.com/python-packaging/testing.html
+
+requirements
+https://caremad.io/blog/setup-vs-requirement/
+"""
