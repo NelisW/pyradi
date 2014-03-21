@@ -577,6 +577,7 @@ if __name__ == '__main__':
             r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
     print(' ')
 
+    #########################################################################################
     # demo the spectral density conversions
     wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
     wavenumRef = numpy.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
@@ -639,6 +640,17 @@ if __name__ == '__main__':
     print('spectral variable converted: wn->nf->fw against original')
     print(wavelenRef/wavel)
 
+    ## plot some conversions
+    wl = numpy.linspace(1, 14, 101)#.reshape(-1,1) # wavelength 
+    wn = convertSpectralDomain(wl, type='ln') # wavenumber
+    radiancewl = ryplanck.planck(wl,1000, 'el') / numpy.pi
+    _,radiancewn1 = convertSpectralDensity(wl,radiancewl, 'ln')
+    radiancewn2 = ryplanck.planck(wn,1000, 'en') / numpy.pi
+    p = ryplot.Plotter(2,1,3,figsize=(18,6))
+    p.plot(1,wl, radiancewl,'Planck radiance','Wavelength $\mu$m', 'Radiance W/(m$^2$.sr.$\mu$m)')
+    p.plot(2,wn, radiancewn1,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+    p.plot(3,wn, radiancewn2,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+    p.saveFig('densconvert.png')
 
 
     ##++++++++++++++++++++ demo the convolution ++++++++++++++++++++++++++++
@@ -722,11 +734,9 @@ if __name__ == '__main__':
     filterType=['bandpass', 'lowpass', 'highpass', 'bandpass', 'lowpass', 'highpass', 'bandpass']
     filterTxt = [r's={0}, $\tau_p$={2}, {1}'.format(s,y,z) for s,y,z in zip(filterExp, filterType, filterPass) ]
     filters = sfilter(wavelength,center, width, filterExp[0], filterPass[0],  filterSupp[0], filterType[0])
-    i = 1
-    for exponent in filterExp[1:]:
+    for i, exponent in enumerate(filterExp[1:]):
         tau=sfilter(wavelength,center, width, filterExp[i],filterPass[i],  filterSupp[i], filterType[i])
         filters =  numpy.hstack((filters,tau))
-        i = i + 1
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
@@ -785,6 +795,7 @@ if __name__ == '__main__':
                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
     smpleplt.saveFig('filtrespVar'+figtype)
 
+    ##++++++++++++++++++++ demo the demo effectivevalue  ++++++++++++++++++++++++++++
 
     #test and demo effective value function
     temperature = 5900
@@ -797,6 +808,7 @@ if __name__ == '__main__':
               format(effRespo, params[i], temperature))
 
     print(' ')
+    ##++++++++++++++++++++ demo the absolute humidity function ++++++++++++++++++++++++++++
     #http://rolfb.ch/tools/thtable.php?tmin=-25&tmax=50&tstep=5&hmin=10&hmax=100&hstep=10&acc=2&calculate=calculate
     # check absolute humidity function. temperature in C and humudity in g/m3
     data=numpy.asarray([
@@ -833,18 +845,5 @@ if __name__ == '__main__':
     #highest ever recorded absolute humidity was at dew point of 34C
     print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
         format(abshumidity(numpy.asarray([34 + 273.15]))[0],34))
-
-    wl = numpy.linspace(1, 14, 101)#.reshape(-1,1) # wavelength 
-    wn = convertSpectralDomain(wl, type='ln') # wavenumber
-
-    radiancewl = ryplanck.planck(wl,1000, 'el') / numpy.pi
-    _,radiancewn1 = convertSpectralDensity(wl,radiancewl, 'ln')
-    radiancewn2 = ryplanck.planck(wn,1000, 'en') / numpy.pi
-
-    p = ryplot.Plotter(2,1,3,figsize=(18,6))
-    p.plot(1,wl, radiancewl,'Planck radiance','Wavelength $\mu$m', 'Radiance W/(m$^2$.sr.$\mu$m)')
-    p.plot(2,wn, radiancewn1,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
-    p.plot(3,wn, radiancewn2,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
-    p.saveFig('densconvert.png')
 
     print('module ryutils done!')

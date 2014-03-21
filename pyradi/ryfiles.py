@@ -529,6 +529,7 @@ if __name__ == '__main__':
     import ryplot
     import ryutils
 
+    # read two-dimensional lookup table
     xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
   
     p = ryplot.Plotter(1)

@@ -415,7 +415,9 @@ class Plotter:
         """
 
         __all__ = ['__init__', 'saveFig', 'getPlot', 'plot', 'logLog', 'semilogX',
-                        'semilogY', 'polar', 'showImage', 'plot3d']
+                        'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol', 
+                        'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
+                        'plotMarkers', 'polarMesh', 'resetPlotCol', 'mesh3D'  ]
 
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -1068,7 +1070,7 @@ class Plotter:
                   drawGrid = False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=False ):
-        """XY colour mesh plot for (xvals, yvals, zvals) input sets.
+        """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
 
@@ -1240,6 +1242,203 @@ class Plotter:
             ax.set_ylim(ax.get_ylim()[::-1])
         if xInvert:
             ax.set_xlim(ax.get_xlim()[::-1])
+
+
+
+
+    ############################################################
+    ##
+    def mesh3D(self, plotnum, xvals, yvals, zvals, 
+                  ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
+                  rstride=1, cstride=1, linewidth= 0, 
+                  plotCol=[], pltaxis=None, maxNX=0, maxNY=0, maxNZ=0,
+                  xScientific=False, yScientific=False, zScientific=False,  
+                  powerLimits = [-4,  2,  -4,  2, -2, 2], titlefsize = 12,
+                  xylabelfsize = 12, xytickfsize = 10, wireframe=False,
+                  cmap = cm.rainbow, cbarshow=False, 
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
+                  drawGrid = True, xInvert=False, yInvert=False, zInvert=False,
+                  logScale=False, elevation=30, azimuth=45, alpha=1, 
+                   ):
+        """XY colour mesh plot for (xvals, yvals, zvals) input sets.
+
+        Given an existing figure, this function plots in a specified subplot position.
+
+        Only one mesh is drawn at a time.  Future meshes in the same subplot
+        will cover any previous meshes.
+
+        The data in xvals, yvals, and zvals must have matching points, all in 
+        two-dimensional arrays.
+
+        Use cmap=None to obtain a wireframe plot.
+
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
+        to show true values, but on the nonlinear scale.
+
+        The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
+        have to be on regular intervals.
+
+            Args:
+                | plotnum (int): subplot number
+                | xvals (np.array[N,] or [N,1]): vector of x values
+                | yvals (np.array[M,] or [M,1]): vector of y values
+                | zvals (np.array[N,M]): values on a (x,y) grid
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label
+                | ylabel (string): y axis label
+                | zlabel (string): z axis label
+                | rstride (int): row stride
+                | cstride (int): column stride
+                | linewidth (float): line width
+                | plotCol ([strings]): plot line style, list with M entries, use default if []
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+                | maxNX (int): draw maxNX+1 tick labels on x axis
+                | maxNY (int): draw maxNY+1 tick labels on y axis
+                | maxNZ (int): draw maxNY+1 tick labels on z axis
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | zScientific (bool): use scientific notation on z-axis
+                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]
+                | titlefsize (int): title font size, default 12pt (optional)
+                | xylabelfsize (int): x, y label font size, default 12pt (optional)
+                | xytickfsize (int): x, y tick font size, default 10pt (optional)
+                | wireframe (bool): If True, do a wireframe plot
+                | cmap (cm): color map for the mesh (optional)
+                | cbarshow (bool): if true, the show a color bar
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
+                | cbarfontsize (int): font size for color bar
+                | drawGrid (bool): draw the grid on the plot
+                | invertX (bool): invert the x-axis
+                | invertY (bool): invert the y-axis
+                | invertZ (bool): invert the z-axis
+                | logScale (bool): do Z values on log scale, recompute colourbar vals
+                | elevation (float): view elevation in degrees
+                | azimuth (float): view azimuth in degrees
+                | alpha (float): surface transparency
+
+            Returns:
+                | Nothing
+
+            Raises:
+                | No exception is raised.
+        """
+
+        from mpl_toolkits.mplot3d.axes3d import Axes3D
+
+        #if this is a log scale plot
+        if logScale is True:
+            zvals = numpy.log10(zvals) 
+
+        #create subplot if not existing
+        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+            self.subplots[(self.nrow,self.ncol, plotnum)] = \
+                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+
+        #get axis
+        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
+        if drawGrid:
+            ax.grid(True)
+        else:
+            ax.grid(False)
+
+        if xlabel is not None:
+            ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+            if xScientific:
+                formx = plt.ScalarFormatter()
+                formx.set_scientific(True)
+                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+                ax.xaxis.set_major_formatter(formx)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+            if yScientific:
+                formy = plt.ScalarFormatter()
+                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+                formy.set_scientific(True)
+                ax.yaxis.set_major_formatter(formy)
+        if zlabel is not None:
+            ax.set_zlabel(zlabel, fontsize=xylabelfsize)
+            if zScientific:
+                formz = plt.ScalarFormatter()
+                formz.set_powerlimits([powerLimits[4], powerLimits[5]])
+                formz.set_scientific(True)
+                ax.zaxis.set_major_formatter(formz)
+
+        if maxNX >0:
+            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+        if maxNY >0:
+            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+        if maxNZ >0:
+            ax.zaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNZ))
+
+        if plotCol:
+            col = plotCol[0]
+        else:
+            col = self.nextPlotCol()
+
+        #do the plot
+        if not wireframe:
+            pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
+                color=col[0], cmap=cmap, linewidth=linewidth, alpha=alpha)
+        else:
+            pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
+                color=col[0], linewidth=linewidth, alpha=alpha)
+
+        if cbarshow is True and cmap is not None:
+            if not cbarcustomticks:
+                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+                if logScale:
+                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                    tickVals = []
+                    # need this roundabout trick to handle minus sign in unicode
+                    for item in cbartickvals:
+                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                        val = 10**float(valstr)
+                        if abs(val) < 1000:
+                            str = '{0:f}'.format(val)
+                        else:
+                            str = '{0:e}'.format(val)
+                        tickVals.append(str)
+                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+            else:
+                ticks,  ticklabels = zip(*cbarcustomticks)
+                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+                if cbarorientation == 'vertical':
+                    cbar.ax.set_yticklabels(ticklabels)
+                else:
+                    cbar.ax.set_xticklabels(ticklabels)
+
+            if cbarorientation == 'vertical':
+                for t in cbar.ax.get_yticklabels():
+                     t.set_fontsize(cbarfontsize)
+            else:
+                for t in cbar.ax.get_xticklabels():
+                     t.set_fontsize(cbarfontsize)
+
+        if(ptitle is not None):
+            plt.title(ptitle, fontsize=titlefsize)
+
+        #scale the axes
+        if pltaxis is not None:
+            ax.axis(pltaxis)
+
+        if(ptitle is not None):
+            ax.set_title(ptitle, fontsize=titlefsize)
+
+        # minor ticks are two points smaller than major
+        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+ 
+        if xInvert:
+            ax.set_xlim(ax.get_xlim()[::-1])
+        if yInvert:
+            ax.set_ylim(ax.get_ylim()[::-1])
+        if zInvert:
+            ax.set_zlim(ax.get_zlim()[::-1])
+
+        #set the view direction
+        ax.view_init(elevation, azimuth)
 
     ############################################################
     ##
@@ -2127,6 +2326,39 @@ if __name__ == '__main__':
     #the current version uses pngs, since there appears to be a
     #problem with eps files.
     pmc.saveFig('meshContour.png', dpi=300)
+
+
+
+    ############################################################################
+    #demonstrate the use of 3D mesh plots
+    def myFunc(x,y):
+      scale = numpy.sqrt(numpy.exp(-(x**2 +y**2)))
+      return numpy.sin(2 * x) * numpy.cos(4 * y) * scale
+
+    x = numpy.linspace(-2, 2, 101)
+    y = numpy.linspace(-2, 2, 101)
+    varx, vary = numpy.meshgrid(x, y)
+    zdata = myFunc(varx.flatten(), vary.flatten()).reshape(varx.shape)
+
+    # print(zdata.shape)
+
+    p = Plotter(1,2,2,figsize=(18,14))
+    p.mesh3D(1, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+      rstride=3, cstride=3, linewidth= 1, maxNX=5, maxNY=5, maxNZ=0,
+      drawGrid=True, cbarshow=True, cmap=None)
+    p.mesh3D(2, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+      rstride=3, cstride=3, linewidth= 0.3, maxNX=5, maxNY=5, maxNZ=0,
+      drawGrid=True, cbarshow=True, alpha=0.2)
+    p.mesh3D(3, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+      rstride=3, cstride=3, linewidth= 0.2, maxNX=5, maxNY=5, maxNZ=0,
+      drawGrid=True, cmap=cm.jet,  cbarshow=True, elevation=70, azimuth=15)
+    p.mesh3D(4, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+      rstride=3, cstride=3, linewidth= 0, maxNX=5, maxNY=5, maxNZ=0, drawGrid=True,
+      cmap=cm.brg, cbarshow=True)
+
+    p.saveFig('mesh3d01.png')
+
+
 
     ############################################################################
     #demonstrate the use of plotArray
