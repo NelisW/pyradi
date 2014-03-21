@@ -52,6 +52,11 @@ The authors wish to thank FLIR Advanced Thermal Solutions for the permission
 to publicly release our Python version of the ptw file reader.  Please note that the
 copyright to the proprietary ptw file format remains the property of FLIR Inc.
 
+
+This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
 #prepare so long for Python 3

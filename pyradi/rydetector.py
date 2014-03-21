@@ -46,8 +46,13 @@ References:
 [1] Infrared Detectors and Systems, EL Dereniak & GD Boreman, Wiley
 [2] Infrared Detectors, A Rogalski (1st or 2nd Edition), CRC Press
 [3] Band Parameters for III-V Compound Semiconductors and their Alloys,
-    I. Vurgaftmann, J. R. Meyer, and L. R. Ram-Mohan,
-    Journal of Applied Physics 89 11, pp. 5815–5875, 2001.
+I. Vurgaftmann, J. R. Meyer, and L. R. Ram-Mohan,
+Journal of Applied Physics 89 11, pp. 5815–5875, 2001.
+
+This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
 #prepare so long for Python 3
