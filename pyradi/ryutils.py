@@ -456,6 +456,8 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
         | No exception is raised.
     """
 
+    inspectraldomain = inspectraldomain.reshape(-1,)
+
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
               'lf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
@@ -831,5 +833,18 @@ if __name__ == '__main__':
     #highest ever recorded absolute humidity was at dew point of 34C
     print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
         format(abshumidity(numpy.asarray([34 + 273.15]))[0],34))
+
+    wl = numpy.linspace(1, 14, 101)#.reshape(-1,1) # wavelength 
+    wn = convertSpectralDomain(wl, type='ln') # wavenumber
+
+    radiancewl = ryplanck.planck(wl,1000, 'el') / numpy.pi
+    _,radiancewn1 = convertSpectralDensity(wl,radiancewl, 'ln')
+    radiancewn2 = ryplanck.planck(wn,1000, 'en') / numpy.pi
+
+    p = ryplot.Plotter(2,1,3,figsize=(18,6))
+    p.plot(1,wl, radiancewl,'Planck radiance','Wavelength $\mu$m', 'Radiance W/(m$^2$.sr.$\mu$m)')
+    p.plot(2,wn, radiancewn1,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+    p.plot(3,wn, radiancewn2,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+    p.saveFig('densconvert.png')
 
     print('module ryutils done!')
