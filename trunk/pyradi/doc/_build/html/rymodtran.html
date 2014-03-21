@@ -35,6 +35,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="ry3dnoise.html" title="Three-Dimensional Noise Calculation"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -51,11 +54,155 @@
             
   <div class="section" id="modtran-utility">
 <h1>Modtran utility<a class="headerlink" href="#modtran-utility" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pyradi.rymodtran">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.rymodtran" title="Permalink to this headline">¶</a></h2>
+<p>This module provides rudimentary MODTRAN file reading.</p>
+<p>See the __main__ function for examples of use.</p>
+<p>This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646">http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646</a></p>
 </div>
 <div class="section" id="module-classes">
 <h2>Module classes<a class="headerlink" href="#module-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyradi.rymodtran.fixHeaders">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">fixHeaders</tt><big>(</big><em>instr</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.fixHeaders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the column header string to be compatible with numpy column lookup.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">list columns (string): column name.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">list columns (string): fixed column name.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rymodtran.loadtape7">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">loadtape7</tt><big>(</big><em>filename</em>, <em>colspec=</em>, <span class="optional">[</span><span class="optional">]</span><em>delimiter=None</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.loadtape7" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the Modtran tape7 file. This function was tested with Modtran5 files.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">filename (string): name of the input ASCII flatfile.</div>
+<div class="line">colspec ([string]): list of column names required in the output the spectral transmittance data.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">numpy.array: an array with the selected columns. Col[0] is the wavenumber.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+<p>This function reads in the tape7 file from MODerate spectral resolution
+atmospheric TRANsmission (MODTRAN) code, that is used to model the
+propagation of the electromagnetic radiation through the atmosphere. tape7
+is a primary file that contains all the spectral results of the MODTRAN
+run. The header information in the tape7 file contains portions of the
+tape5 information that will be deleted. The header section in tape7 is
+followed by a list of spectral points with corresponding transmissions.
+Each column has a different component of the transmission. For more
+detail, see the modtran documentation.</p>
+<p>The user selects the appropriate columns by listing the column names, as
+listed below.</p>
+<p>The format of the tape7 file changes between different IEMSCT values. For
+the most part the differences are hidden in the details, the user does not
+have to take concern.  The various column headers available are as follows:</p>
+<p>IEMSCT = 0 has two column name lines.  In order to select the column, you
+must concatenate the two column headers with an underscore in between. All
+columns are available with the following column names: [&#8216;FREQ_CM-1&#8217;,
+&#8216;COMBIN_TRANS&#8217;, &#8216;H2O_TRANS&#8217;, &#8216;UMIX_TRANS&#8217;, &#8216;O3_TRANS&#8217;, &#8216;TRACE_TRANS&#8217;,
+&#8216;N2_CONT&#8217;, &#8216;H2O_CONT&#8217;, &#8216;MOLEC_SCAT&#8217;, &#8216;AER+CLD_TRANS&#8217;, &#8216;HNO3_TRANS&#8217;,
+&#8216;AER+CLD_abTRNS&#8217;, &#8216;-LOG_COMBIN&#8217;, &#8216;CO2_TRANS&#8217;, &#8216;CO_TRANS&#8217;, &#8216;CH4_TRANS&#8217;,
+&#8216;N2O_TRANS&#8217;, &#8216;O2_TRANS&#8217;, &#8216;NH3_TRANS&#8217;, &#8216;NO_TRANS&#8217;, &#8216;NO2_TRANS&#8217;,
+&#8216;SO2_TRANS&#8217;, &#8216;CLOUD_TRANS&#8217;, &#8216;CFC11_TRANS&#8217;, &#8216;CFC12_TRANS&#8217;, &#8216;CFC13_TRANS&#8217;,
+&#8216;CFC14_TRANS&#8217;, &#8216;CFC22_TRANS&#8217;, &#8216;CFC113_TRANS&#8217;, &#8216;CFC114_TRANS&#8217;,
+&#8216;CFC115_TRANS&#8217;, &#8216;CLONO2_TRANS&#8217;, &#8216;HNO4_TRANS&#8217;, &#8216;CHCL2F_TRANS&#8217;,
+&#8216;CCL4_TRANS&#8217;, &#8216;N2O5_TRANS&#8217;]</p>
+<p>IEMSCT = 1 has single line column headers. A number of columns has
+headers, but with no column numeric data.  In the following list the
+columns with header names ** are empty and hence not available: [&#8216;FREQ&#8217;,
+&#8216;TOT_TRANS&#8217;, &#8216;PTH_THRML&#8217;, &#8216;THRML_SCT&#8217;, &#8216;SURF_EMIS&#8217;, <em>SOL_SCAT</em>,
+<em>SING_SCAT</em>, &#8216;GRND_RFLT&#8217;, <em>DRCT_RFLT</em>, &#8216;TOTAL_RAD&#8217;, <em>REF_SOL</em>, <em>SOL&#64;OBS</em>,
+&#8216;DEPTH&#8217;, &#8216;DIR_EM&#8217;, <em>TOA_SUN</em>, &#8216;BBODY_T[K]&#8217;]. Hence, these columns do not
+have valid data: [&#8216;SOL_SCAT&#8217;, &#8216;SING_SCAT&#8217;, &#8216;DRCT_RFLT&#8217;, &#8216;REF_SOL&#8217;,
+<a class="reference external" href="mailto:'SOL&#37;&#52;&#48;OBS">'SOL<span>&#64;</span>OBS</a>&#8216;, &#8216;TOA_SUN&#8217;]</p>
+<p>IEMSCT = 2 has single line column headers. All the columns are available:
+[&#8216;FREQ&#8217;, &#8216;TOT_TRANS&#8217;, &#8216;PTH_THRML&#8217;, &#8216;THRML_SCT&#8217;, &#8216;SURF_EMIS&#8217;, &#8216;SOL_SCAT&#8217;,
+&#8216;SING_SCAT&#8217;, &#8216;GRND_RFLT&#8217;, &#8216;DRCT_RFLT&#8217;, &#8216;TOTAL_RAD&#8217;, &#8216;REF_SOL&#8217;, <a class="reference external" href="mailto:'SOL&#37;&#52;&#48;OBS">'SOL<span>&#64;</span>OBS</a>&#8216;,
+&#8216;DEPTH&#8217;, &#8216;DIR_EM&#8217;, &#8216;TOA_SUN&#8217;, &#8216;BBODY_T[K]&#8217;]</p>
+<p>IEMSCT = 3 has single line column headers.  One of these seems to be two
+words, which, in this code must be concatenated with an underscore. There
+is also  additional column (assumed to be depth in this code).  The
+columns available are [&#8216;FREQ&#8217;, &#8216;TRANS&#8217;, &#8216;SOL_TR&#8217;, &#8216;SOLAR&#8217;, &#8216;DEPTH&#8217;]</p>
+<p>The tape7.scn file has missing columns, so this function does not work for
+tape7.scn files.  If you need a tape7.scn file with all the columns populated
+you would have to use the regular tape7 file and convolve this to lower resolution.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rymodtran.fixHeadersList">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">fixHeadersList</tt><big>(</big><em>headcol</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.fixHeadersList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the column headers to be compatible with numpy column lookup.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">list columns ([string]): list of column names.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">list columns ([string]): fixed list of column names.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.rymodtran.savetape7data">
+<tt class="descclassname">pyradi.rymodtran.</tt><tt class="descname">savetape7data</tt><big>(</big><em>filename</em>, <em>tape7</em><big>)</big><a class="headerlink" href="#pyradi.rymodtran.savetape7data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the numpy array to a text file. Numeric precision is &#8216;%.6e&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">filename (string): name of the output ASCII flatfile.</div>
+<div class="line">tape7 (numpy.array): an array with the selected columns. Col[0] is the wavenumber.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">No return.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
@@ -68,7 +215,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Modtran utility</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#module-pyradi.rymodtran">Overview</a></li>
 <li><a class="reference internal" href="#module-classes">Module classes</a></li>
 </ul>
 </li>
@@ -108,6 +255,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="ry3dnoise.html" title="Three-Dimensional Noise Calculation"
              >next</a> |</li>

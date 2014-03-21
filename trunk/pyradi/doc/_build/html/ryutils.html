@@ -35,6 +35,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="ryptw.html" title="Ptw File Functions"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -51,11 +54,406 @@
             
   <div class="section" id="utility-functions">
 <h1>Utility Functions<a class="headerlink" href="#utility-functions" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pyradi.ryutils">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.ryutils" title="Permalink to this headline">¶</a></h2>
+<p>This module provides various utility functions for radiometry calculations.
+Functions are provided for a maximally flat spectral filter, a simple photon
+detector spectral response, effective value calculation, conversion of spectral
+domain variables between [um], [cm^-1] and [Hz], conversion of spectral
+density quantities between [um], [cm^-1] and [Hz] and spectral convolution.</p>
+<p>See the __main__ function for examples of use.</p>
+<p>This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646">http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646</a></p>
 </div>
 <div class="section" id="module-functions">
 <h2>Module functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyradi.ryutils.abshumidity">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">abshumidity</tt><big>(</big><em>T</em>, <em>equationSelect=1</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.abshumidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.</p>
+<p>This function provides two similar equations, but with different constants.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">temperature (np.array[N,] or [N,1]):  in  [K].</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">absolute humidity (np.array[N,] or [N,1]):  abs humidity in [g/m3]</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.sfilter">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">sfilter</tt><big>(</big><em>spectral</em>, <em>center</em>, <em>width</em>, <em>exponent=6</em>, <em>taupass=1.0</em>, <em>taustop=0.0</em>, <em>filtertype='bandpass'</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.sfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a symmetrical filter response of shape exp(-x^n)</p>
+<p>Given a number of parameters, calculates maximally flat,
+symmetrical transmittance.  The function parameters controls
+the width, pass-band and stop-band transmittance and sharpness
+of cutoff. This function is not meant to replace the use of
+properly measured filter responses, but rather serves as a
+starting point if no other information is available.
+This function does not calculate ripple in the pass-band
+or cut-off band.</p>
+<p>Filter types supported include band pass, high (long) pass and
+low (short) pass filters. High pass filters have maximal
+transmittance for all spectral values higher than the central
+value. Low pass filters have maximal transmittance for all
+spectral values lower than the central value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].</div>
+<div class="line">center (float): central value for filter passband</div>
+<div class="line">width (float): proportional to width of filter passband</div>
+<div class="line">exponent (float): even integer, define the sharpness of cutoff.</div>
+<div class="line-block">
+<div class="line">If exponent=2        then gaussian</div>
+<div class="line">If exponent=infinity then square</div>
+</div>
+<div class="line">taupass (float): the transmittance in the pass band (assumed constant)</div>
+<div class="line">taustop (float): peak transmittance in the stop band (assumed constant)</div>
+<div class="line">filtertype (string): filter type, one of &#8216;bandpass&#8217;, &#8216;lowpass&#8217; or &#8216;highpass&#8217;</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">transmittance (np.array[N,] or [N,1]):  transmittances at &#8220;spectral&#8221; intervals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+<div class="line">If an invalid filter type is specified, return None.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.responsivity">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">responsivity</tt><big>(</big><em>wavelength</em>, <em>lwavepeak</em>, <em>cuton=1</em>, <em>cutoff=20</em>, <em>scaling=1.0</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.responsivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a photon detector wavelength spectral responsivity</p>
+<p>Given a number of parameters, calculates a shape that is somewhat similar to a photon
+detector spectral response, on wavelength scale. The function parameters controls the
+cutoff wavelength and shape of the response. This function is not meant to replace the use
+of properly measured  spectral responses, but rather serves as a starting point if no other
+information is available.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">wavelength (np.array[N,] or [N,1]):  vector in  [um].</div>
+<div class="line">lwavepeak (float): approximate wavelength  at peak response</div>
+<div class="line">cutoff (float): cutoff strength  beyond peak, 5 &lt; cutoff &lt; 50</div>
+<div class="line">cuton (float): cuton sharpness below peak, 0.5 &lt; cuton &lt; 5</div>
+<div class="line">scaling (float): scaling factor</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">responsivity (np.array[N,] or [N,1]):  responsivity at wavelength intervals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.effectiveValue">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">effectiveValue</tt><big>(</big><em>spectraldomain</em>, <em>spectralToProcess</em>, <em>spectralBaseline</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.effectiveValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalise a spectral quantity to a scalar, using a weighted mapping by another spectral quantity.</p>
+<p>Effectivevalue =  integral(spectralToProcess * spectralBaseline) / integral( spectralBaseline)</p>
+<p>The data in  spectralToProcess and  spectralBaseline must both be sampled at the same
+domain values     as specified in spectraldomain.</p>
+<p>The integral is calculated with numpy/scipy trapz trapezoidal integration function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line">spectralToProcess (np.array[N,] or [N,1]):  spectral quantity to be normalised</div>
+<div class="line">spectralBaseline (np.array[N,] or [N,1]):  spectral serving as baseline for normalisation</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(float):  effective value</div>
+<div class="line">Returns None if there is a problem</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.convertSpectralDomain">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDomain</tt><big>(</big><em>inspectraldomain</em>, <em>type=''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert spectral domains, i.e. between wavelength [um], wavenummber [cm^-1] and frequency [Hz]</p>
+<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
+&#8216;f&#8217; for temporal frequency, &#8216;l&#8217; for wavelength and &#8216;n&#8217; for wavenumber
+The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
+<p>Note that the &#8216;to&#8217; domain vector is a direct conversion of the &#8216;from&#8217; domain
+to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line-block">
+<div class="line">wavelength vector in  [um]</div>
+<div class="line">frequency vector in  [Hz]</div>
+<div class="line">wavenumber vector in   [cm^-1]</div>
+</div>
+<div class="line">type (string):  specify from and to domains:</div>
+<div class="line-block">
+<div class="line">&#8216;lf&#8217; convert from wavelength to per frequency</div>
+<div class="line">&#8216;ln&#8217; convert from wavelength to per wavenumber</div>
+<div class="line">&#8216;fl&#8217; convert from frequency to per wavelength</div>
+<div class="line">&#8216;fn&#8217; convert from frequency to per wavenumber</div>
+<div class="line">&#8216;nl&#8217; convert from wavenumber to per wavelength</div>
+<div class="line">&#8216;nf&#8217; convert from wavenumber to per frequency</div>
+</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">[N,1]: outspectraldomain</div>
+<div class="line">Returns zero length array if type is illegal, i.e. not one of the expected values</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.convertSpectralDensity">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDensity</tt><big>(</big><em>inspectraldomain</em>, <em>inspectralquantity</em>, <em>type=''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.</p>
+<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
+&#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
+The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
+<p>The return values from this function are always positive, i.e. not mathematically correct,
+but positive in the sense of radiance density.</p>
+<p>The spectral density quantity input is given as a two vectors: the domain value vector
+and the density quantity vector. The output of the function is also two vectors, i.e.
+the &#8216;to&#8217; domain value vector and the &#8216;to&#8217; spectral density. Note that the &#8216;to&#8217; domain
+vector is a direct conversion of the &#8216;from&#8217; domain to the &#8216;to&#8217; domain (not interpolated
+or otherwise sampled).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
+<div class="line">inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain as domain vector above.</div>
+<div class="line-block">
+<div class="line">wavelength vector in  [um]</div>
+<div class="line">frequency vector in  [Hz]</div>
+<div class="line">wavenumber vector in   [cm^-1]</div>
+</div>
+<div class="line">type (string):  specify from and to domains:</div>
+<div class="line-block">
+<div class="line">&#8216;lf&#8217; convert from per wavelength interval density to per frequency interval density</div>
+<div class="line">&#8216;ln&#8217; convert from per wavelength interval density to per wavenumber interval density</div>
+<div class="line">&#8216;fl&#8217; convert from per frequency interval density to per wavelength interval density</div>
+<div class="line">&#8216;fn&#8217; convert from per frequency interval density to per wavenumber interval density</div>
+<div class="line">&#8216;nl&#8217; convert from per wavenumber interval density to per wavelength interval density</div>
+<div class="line">&#8216;nf&#8217; convert from per wavenumber interval density to per frequency interval density</div>
+</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">([N,1],[N,1]): outspectraldomain and outspectralquantity</div>
+<div class="line">Returns zero length arrays is type is illegal, i.e. not one of the expected values</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.convolve">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04A0C030&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convolve (non-circular) a spectral variable with a window function,
+given the input resolution and input and output window widths.</p>
+<p>This function is normally used on wavenumber-domain spectral data.  The spectral
+data is assumed sampled at samplingresolution wavenumber intervals.
+The inwinwidth and outwinwidth window function widths are full width half-max (FWHM)
+for the window functions for the inspectral and returned spectral variables, respectively.
+The Bartlett function is used as default, but the user can use a different function.
+The Bartlett function is a triangular function reaching zero at the ends. Window functio
+width is correct for Bartlett and only approximate for other window functions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">inspectral (np.array[N,] or [N,1]):  vector in  [cm-1].</div>
+<div class="line">samplingresolution (float): wavenumber interval between inspectral samples</div>
+<div class="line">inwinwidth (float): FWHM window width of the input spectral vector</div>
+<div class="line">outwinwidth (float): FWHM window width of the output spectral vector</div>
+<div class="line">windowtype (function): name of a  numpy/scipy function for the window function</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">outspectral (np.array[N,]):  input vector, filtered to new window width.</div>
+<div class="line">windowfn (np.array[N,]):  The window function used.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.rangeEquation">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">rangeEquation</tt><big>(</big><em>Intensity</em>, <em>Irradiance</em>, <em>rangeTab</em>, <em>tauTab</em>, <em>rangeGuess=1</em>, <em>n=2</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.rangeEquation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the range equation for arbitrary transmittance vs range.</p>
+<p>This function solve for the range <img class="math" src="_images/math/9d86170e7de539c0ff999de09621ee0c7b6c8ed0.png" alt="R"/> in the range equation</p>
+<div class="math">
+<p><img src="_images/math/6009619d10680936217c94d56b9cf1f6fef8ce63.png" alt="E = \frac{I\tau_a(R)}{R^n}"/></p>
+</div><p>where <img class="math" src="_images/math/cfd13a0f26eb7ef0093319a7669da7dd3771dbac.png" alt="E"/> is the threshold irradiance in [W/m2],
+and <img class="math" src="_images/math/5d9e7b2aec3287330051a115f2ea3cdc8c7a6587.png" alt="I"/> is the intensity in [W/sr]. This range equation holds for
+the case where the target is smaller than the field of view.</p>
+<p>The range <img class="math" src="_images/math/9d86170e7de539c0ff999de09621ee0c7b6c8ed0.png" alt="R"/> must be in [m], and <img class="math" src="_images/math/d3b5ca3848f185a5bbbfa034b053488cb21e1b24.png" alt="\tau_a(R)"/>
+is calculated from a lookup table of atmospheric transmittance vs. range.
+The transmittance lookup table  can be calculated from the simple Bouguer law,
+or it can have any abritrary shape, provided it decreases with increasing range.
+The user supplies the lookup table in the form of an array of range values and
+an associated array of transmittance values.  The range values need not be on
+constant linear range increment.</p>
+<p>The parameter <img class="math" src="_images/math/413f8a8e40062a9090d9d50b88bc7b551b314c26.png" alt="n"/></p>
+<ul class="simple">
+<li><img class="math" src="_images/math/b2e39c709bfa3fb0acea6a80914b706af361ad9a.png" alt="n=2"/> (default value) the general case of a radiating source
+smaller than the field of view.</li>
+<li><img class="math" src="_images/math/7cd2ddc604774dd4e2206d6311a8cde77efa1c3f.png" alt="n=4"/> the special case of a laser rangefinder illuminating a target
+smaller than the field of view, viewed against the sky. In this case there
+is an <img class="math" src="_images/math/4f58a3b2897df3c0b9d53a442ae896516ecdeaa0.png" alt="R^2"/> attenuation from the laser to the source and another
+<img class="math" src="_images/math/4f58a3b2897df3c0b9d53a442ae896516ecdeaa0.png" alt="R^2"/> attenuation from the source to the receiver, hence
+<img class="math" src="_images/math/8de5b6ad1115306464d4da4f252423ec56a312bd.png" alt="R^4"/> overall.</li>
+</ul>
+<p>If the range solution is doubtful (e.g. not a trustworthy solution) the
+returned value is made negative.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">Intensity (float or np.array[N,] or [N,1]):  in  [W/sr].</div>
+<div class="line">Irradiance (float or np.array[N,] or [N,1]):  in  [W/m2].</div>
+<div class="line">rangeTab (np.array[N,] or [N,1]):  range vector for lookup</div>
+<div class="line">tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup</div>
+<div class="line">rangeGuess (float): starting value range estimate</div>
+<div class="line">n (float): range power (2 or 4)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">range (float or np.array[N,] or [N,1]): Solution to the range equation in [m].
+Value is negative if calculated range exceeds the top value in range table,
+or if calculated range is too near the lower resolution limit.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.detectThresholdToNoise">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">detectThresholdToNoise</tt><big>(</big><em>pulseWidth</em>, <em>FAR</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.detectThresholdToNoise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for threshold to noise ratio, given pulse width and FAR, for matched filter.</p>
+<p>Using the theory of matched filter design, calculate the
+threshold to noise ratio, to achieve a required false alarm rate.</p>
+<p>References:</p>
+<p>&#8220;Electro-optics handbook,&#8221; Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.</p>
+<ol class="upperalpha simple" start="18">
+<li><ol class="first upperalpha" start="4">
+<li>Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002</li>
+</ol>
+</li>
+</ol>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">pulseWidth (float): the signal pulse width in [s].</div>
+<div class="line">FAR (float): the false alarm rate in [alarms/s]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">range (float): threshold to noise ratio</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.detectSignalToNoise">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">detectSignalToNoise</tt><big>(</big><em>ThresholdToNoise</em>, <em>pD</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.detectSignalToNoise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve for signal to noise ratio, given the threshold to noise ratio and
+probability of detection.</p>
+<p>Using the theory of matched filter design, calculate the
+signal to noise ratio, to achieve a required probability of detection.</p>
+<p>References:</p>
+<p>&#8220;Electro-optics handbook,&#8221; Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.</p>
+<ol class="upperalpha simple" start="18">
+<li><ol class="first upperalpha" start="4">
+<li>Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002</li>
+</ol>
+</li>
+</ol>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">ThresholdToNoise (float): the threshold to noise ratio [-]</div>
+<div class="line">pD (float): the probability of detection [-]</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">range (float): signal to noise ratio</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
@@ -68,7 +466,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Utility Functions</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#module-pyradi.ryutils">Overview</a></li>
 <li><a class="reference internal" href="#module-functions">Module functions</a></li>
 </ul>
 </li>
@@ -108,6 +506,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="ryptw.html" title="Ptw File Functions"
              >next</a> |</li>

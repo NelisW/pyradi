@@ -25,6 +25,11 @@ This module provides rudimentary colour coordinate processing.
 Calculate the CIE 1931 rgb chromaticity coordinates for an arbitrary spectrum.
 
 See the __main__ function for examples of use.
+
+This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
 #prepare so long for Python 3
