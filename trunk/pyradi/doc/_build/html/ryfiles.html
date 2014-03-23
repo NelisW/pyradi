@@ -104,14 +104,16 @@ numpy 1.7, when released.</p>
 <dt id="pyradi.ryfiles.loadColumnTextFile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadColumnTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load selected column data from a text file, processing as specified.</p>
-<p>This function loads column data from a text file,
-manipulating the data read in. The individual vector data
-must be given in columns in the file, with the
-abscissa (x-value) in first column (col 0 in Python)
-and any number of ordinate (y-value) vectors in second and
-later columns.</p>
+<p>This function loads column data from a text file, scaling and interpolating 
+the read-in data, according to user specification. The first 0&#8217;th column has 
+special significance: it is considered the abscissa (x-values) of the data 
+set, while the remaining columns are any number of ordinate (y-value) vectors.
+The user passes a list of columns to be read (default is [1]) - only these 
+columns are read, processed and returned when the function exits.The user 
+also passes an abscissa vector to which the input data is interpolated and 
+then subsequently amplitude scaled or normalised.</p>
 <p>Note: leave only single separators (e.g. spaces) between columns!
-Also watch out for a single sapce at the start of line.</p>
+Also watch out for a single space at the start of line.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -142,8 +144,8 @@ Also watch out for a single sapce at the start of line.</p>
 <dl class="function">
 <dt id="pyradi.ryfiles.loadHeaderTextFile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadHeaderTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadHeaderTextFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads column data from a text file, using the csv package.</p>
-<p>Using the csv package, loads column header data from a file, from the firstrow.
+<dd><p>Loads column header data in the first string of a text file.</p>
+<p>loads column header data from a file, from the first row.
 Headers must be delimited by commas. The function [LoadColumnTextFile] provides
 more comprehensive capabilties.</p>
 <dl class="docutils">
@@ -372,6 +374,114 @@ x6 v61 v62 v63 v64
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
 <div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryfiles.downloadFileUrl">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">downloadFileUrl</tt><big>(</big><em>url</em>, <em>saveFilename=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.downloadFileUrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a file, given a URL.</p>
+<p>The URL is used to download a file, to the saveFilename specified.
+If no saveFilename is given, the basename of the URL is used.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">url (string): the url to be accessed.</div>
+<div class="line">saveFilename (string): to where the file must be saved.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(string): Filename saved, or None if failed.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">Exceptions are handled internally and signaled by return value.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryfiles.unzipGZipfile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">unzipGZipfile</tt><big>(</big><em>zipfilename</em>, <em>saveFilename=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.unzipGZipfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unzip a file that was compressed using the gzip format.</p>
+<p>The zipfilename is used to open a file, to the saveFilename specified.
+If no saveFilename is given, the basename of the zipfilename is used, 
+but with the file extension removed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">zipfilename (string): the zipfilename to be decompressed.</div>
+<div class="line">saveFilename (string): to where the file must be saved.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(string): Filename saved, or None if failed.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">Exceptions are handled internally and signaled by return value.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryfiles.untarTarfile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">untarTarfile</tt><big>(</big><em>tarfilename</em>, <em>saveDirname=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.untarTarfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Untar a tar archive, and save all files to specified directory.</p>
+<p>The tarfilename is used to open a file, extraxting to the saveDirname specified.
+If no saveDirname is given, the local directory &#8216;.&#8217; is used,</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">tarfilename (string): the name of the tar archive.</div>
+<div class="line">saveDirname (string): to where the files must be extracted</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">([string]): list of filenames saved, or None if failed.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">Exceptions are handled internally and signaled by return value.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryfiles.downloadUntar">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">downloadUntar</tt><big>(</big><em>tgzFilename</em>, <em>url</em>, <em>destinationDir=None</em>, <em>tarFilename=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.downloadUntar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Untar a tar archive, and save all files to specified directory.</p>
+<p>The tarfilename is used to open a file, extraxting to the saveDirname specified.
+If no saveDirname is given, the local directory &#8216;.&#8217; is used,</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">tgzFilename (string): the name of the tar archive.</div>
+<div class="line">url (string): url where to look for the file.</div>
+<div class="line">destinationDir (string): to where the files must be extracted</div>
+<div class="line">tarFilename (string): unzipped tar filename</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">([string]): list of filenames saved, or None if failed.</div>
+<div class="line">([string]): list of filenames saved, or None if failed.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">Exceptions are handled internally and signaled by return value.</div>
 </div>
 </dd>
 </dl>

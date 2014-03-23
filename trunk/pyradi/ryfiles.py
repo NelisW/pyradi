@@ -43,8 +43,10 @@ from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__='pyradi team'
-__all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 'cleanFilename',
-         'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure','read2DLookupTable']
+__all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
+         'cleanFilename', 'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure',
+         'read2DLookupTable', 'downloadFileUrl', 'unzipGZipfile', 'untarTarfile',
+         'downloadUntar']
 
 import sys
 if sys.version_info[0] > 2:
@@ -55,7 +57,6 @@ if sys.version_info[0] > 2:
 from scipy.interpolate import interp1d
 import numpy
 import os.path, fnmatch
-import csv
 
 ################################################################
 def saveHeaderArrayTextFile(filename,dataArray, header=None,
@@ -99,15 +100,17 @@ def loadColumnTextFile(filename, loadCol=[1],  \
         abscissaScale=1,ordinateScale=1, abscissaOut=None):
     """Load selected column data from a text file, processing as specified.
 
-    This function loads column data from a text file,
-    manipulating the data read in. The individual vector data
-    must be given in columns in the file, with the
-    abscissa (x-value) in first column (col 0 in Python)
-    and any number of ordinate (y-value) vectors in second and
-    later columns.
+    This function loads column data from a text file, scaling and interpolating 
+    the read-in data, according to user specification. The first 0'th column has 
+    special significance: it is considered the abscissa (x-values) of the data 
+    set, while the remaining columns are any number of ordinate (y-value) vectors.
+    The user passes a list of columns to be read (default is [1]) - only these 
+    columns are read, processed and returned when the function exits.The user 
+    also passes an abscissa vector to which the input data is interpolated and 
+    then subsequently amplitude scaled or normalised.  
 
     Note: leave only single separators (e.g. spaces) between columns!
-    Also watch out for a single sapce at the start of line.
+    Also watch out for a single space at the start of line.
 
     Args:
         | filename (string): name of the input ASCII flatfile.
@@ -127,45 +130,40 @@ def loadColumnTextFile(filename, loadCol=[1],  \
         | No exception is raised.
     """
 
-    #numpy.loadtxt(fname, dtype=<type 'float'>, comments='#', \
-    #   delimiter=None, converters=None, skiprows=0, \
-    #   usecols=None, unpack=False, ndmin=0)
+    #prepend the 0'th column to the rest of the list, make local copy first
+    ldCol = loadCol[:]
+    ldCol.insert(0, 0)
 
     #load first column as well as user-specified column from the
     # given file, scale as prescribed
-    abscissa=abscissaScale*numpy.loadtxt(filename, usecols=[0],\
-            comments=comment,  skiprows=skiprows, \
-            delimiter=delimiter,  unpack=True)
-    ordinate = ordinateScale*numpy.loadtxt(filename, \
-            usecols=loadCol,comments=comment,skiprows=skiprows,\
-            delimiter=delimiter, unpack=True)
+    coldata = numpy.loadtxt(filename, usecols=ldCol,
+            comments=comment,  skiprows=skiprows,
+            delimiter=delimiter)
+
+    abscissa = abscissaScale * coldata[:,0]
+    ordinate = ordinateScale * coldata[:,1:]
 
     if  abscissaOut is not None:
         #convert to [N, ] array
         abscissaOut=abscissaOut.reshape(-1,)
         #inpterpolate read values with the given inut vec
-        f=interp1d(abscissa,  ordinate)
+        f=interp1d(abscissa,  ordinate, axis=0)
         interpValue=f(abscissaOut)
     else:
         interpValue=ordinate
-
-    # read more than one column, get back into required shape.
-    if interpValue.ndim > 2:
-        interpValue = interpValue.squeeze().T
 
     #if read-in values must be normalised.
     if normalize != 0:
         interpValue /= numpy.max(interpValue,axis=0)
 
-    #return in a form similar to input
-    return interpValue.reshape(len(loadCol),  -1 ).T
+    return interpValue
 
 
 ################################################################################
 def loadHeaderTextFile(filename, loadCol=[1], comment=None):
-    """Loads column data from a text file, using the csv package.
+    """Loads column header data in the first string of a text file.
 
-    Using the csv package, loads column header data from a file, from the firstrow.
+    loads column header data from a file, from the first row.
     Headers must be delimited by commas. The function [LoadColumnTextFile] provides
     more comprehensive capabilties.
 
@@ -181,14 +179,17 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
         | No exception is raised.
     """
 
-    with open(filename, 'rb') as infile:
-        #read from CVS file, must be comma delimited
-        lstHeader = csv.reader(infile,quoting=csv.QUOTE_ALL)
-        #get rid of leading and trailing whitespace
-        list=[x.strip() for x in lstHeader.next()]
-        #select only those required
-        rtnList =[list[i] for i in loadCol ]
-        infile.close()
+    if isinstance(filename, basestring):
+        infile = open(filename, 'rb')
+    else:
+        infile = filename
+
+    line = infile.readline()
+    line = line.lstrip(' '+comment).split(',')
+    #get rid of leading and trailing whitespace
+    list=[x.strip() for x in line]
+    #select only those column headers required
+    rtnList =[list[i] for i in loadCol ]
 
     return rtnList
 
@@ -210,8 +211,200 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
     Raises:
         | No exception is raised.
     """
-    #remove spaces,comma, ":.%/\[]"
+    #remove the undesireable characters
     return filter(lambda c: c not in removestring, sourcestring)
+
+
+
+################################################################
+def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
+    """Untar a tar archive, and save all files to specified directory.
+
+    The tarfilename is used to open a file, extraxting to the saveDirname specified.
+    If no saveDirname is given, the local directory '.' is used, 
+
+    Args:
+        | tgzFilename (string): the name of the tar archive.
+        | url (string): url where to look for the file.
+        | destinationDir (string): to where the files must be extracted
+        | tarFilename (string): unzipped tar filename
+
+    Returns:
+        | ([string]): list of filenames saved, or None if failed.
+        | ([string]): list of filenames saved, or None if failed.
+
+    Raises:
+        | Exceptions are handled internally and signaled by return value.
+    """
+
+    import os
+
+    if destinationDir is None:
+        dirname = '.'
+    else:
+        dirname = destinationDir
+
+    if tarFilename is None:
+        tarname = tgzFilename + '.tar'
+    else:
+        tarname = tarFilename
+
+    tgzPath = os.path.join(destinationDir, tgzFilename)
+    if  os.path.isfile(tgzPath):
+        tgzAvailable = True
+        # print('{} is already available, download not required'.format(tgzPath))
+    else:    
+        urlfile = url+tgzFilename
+        # print("Attempting to download the data file {}".format(urlfile))
+        if downloadFileUrl(urlfile) is None:
+            print('\ndownload failed, please check url or internet connection')
+            tgzAvailable = False
+        else:
+            tgzAvailable = True
+    result = []
+    if tgzAvailable == True:
+        if unzipGZipfile(tgzPath,tarname) is None:
+            print('Unzipping the tgz file {} to dir {} failed'.format(tgzPath,tarname))
+        else:
+            result = untarTarfile(tarname,destinationDir)
+            if result is None:
+                print('untarTarfile failed for {} to {}'.format(tarname,destinationDir))
+                filesAvailable = False
+            else:
+                filesAvailable = True
+                # print('Sucessfully extracted:\n{}'.format(result))
+
+    return result
+
+
+################################################################
+def untarTarfile(tarfilename, saveDirname=None):
+    """Untar a tar archive, and save all files to specified directory.
+
+    The tarfilename is used to open a file, extraxting to the saveDirname specified.
+    If no saveDirname is given, the local directory '.' is used, 
+
+    Args:
+        | tarfilename (string): the name of the tar archive.
+        | saveDirname (string): to where the files must be extracted
+
+    Returns:
+        | ([string]): list of filenames saved, or None if failed.
+
+    Raises:
+        | Exceptions are handled internally and signaled by return value.
+    """
+
+    if saveDirname is None:
+        dirname = '.'
+    else:
+        dirname = saveDirname
+
+    import tarfile
+    import os
+    import errno
+
+    try:
+        os.makedirs(dirname)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            print('Unable to create directory {}'.format(dirname))
+            return None
+
+
+    f = tarfile.open(tarfilename, 'r')
+    filenames = f.getnames()
+    f.extractall(dirname)
+    f.close()
+
+    # filexextracted = []
+    # for filename in filenames:
+    #     if not os.path.isfile(os.path.join(dirname, filename)):
+    #         filexextracted.append(filename)
+    return filenames
+
+
+################################################################
+def unzipGZipfile(zipfilename, saveFilename=None):
+    """Unzip a file that was compressed using the gzip format.
+
+    The zipfilename is used to open a file, to the saveFilename specified.
+    If no saveFilename is given, the basename of the zipfilename is used, 
+    but with the file extension removed.
+
+    Args:
+        | zipfilename (string): the zipfilename to be decompressed.
+        | saveFilename (string): to where the file must be saved.
+
+    Returns:
+        | (string): Filename saved, or None if failed.
+
+    Raises:
+        | Exceptions are handled internally and signaled by return value.
+    """
+
+    if saveFilename is None:
+        filename = os.path.basename(zipfilename)[:-4]
+    else:
+        filename = saveFilename
+
+    import gzip
+    #get file handle
+    f = gzip.open(zipfilename, 'rb')
+    try:
+        # Open file for writing
+        with open(filename, "wb") as file:
+            file.write(f.read())
+    except:
+        print('Unzipping of {} failed'.format(zipfilename))
+        return None
+    finally:
+        f.close()
+
+    return filename
+
+
+################################################################
+def downloadFileUrl(url,  saveFilename=None):
+    """Download a file, given a URL.
+
+    The URL is used to download a file, to the saveFilename specified.
+    If no saveFilename is given, the basename of the URL is used.
+
+    Args:
+        | url (string): the url to be accessed.
+        | saveFilename (string): to where the file must be saved.
+
+    Returns:
+        | (string): Filename saved, or None if failed.
+
+    Raises:
+        | Exceptions are handled internally and signaled by return value.
+    """
+
+    if saveFilename is None:
+        filename = os.path.basename(url)
+    else:
+        filename = saveFilename
+
+    import urllib2
+    from urllib2 import HTTPError
+
+    try:
+        #get file handle
+        f = urllib2.urlopen(url)
+        # Open file for writing
+        with open(filename, "wb") as file:
+            file.write(f.read())
+    #handle errors
+    except urllib2.HTTPError as e:
+       print('HTTP Error: {} for {}'.format(e.code, url))
+       return None
+    except urllib2. URLError as e:
+       print('URL Error: {} for {}'.format(e.reason, url))
+       return None
+
+    return filename
 
 
 ################################################################
@@ -647,4 +840,43 @@ if __name__ == '__main__':
     for filename in filelist:
         print('  {0}'.format(filename))
 
-    print('module ryfiles done!')
+
+    #######################################################################
+    print("Test downloading a file from internet given a URL")
+    url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+          'data/colourcoordinates/samplesVis.txt'
+    if downloadFileUrl(url) is not None:
+       print('success')
+    else:
+       print('download failed')
+
+    #######################################################################
+    print("Test unzipping a gzip file, then untar the file")
+    if unzipGZipfile('./data/colourcoordinates/colourcoordinates.tgz','tar') is not None:
+        print('success')
+    else:
+        print('unzip failed')
+
+    print("Test untarring a tar file")
+    result = untarTarfile('tar','.')
+    if result is not None:
+        print(result)
+    else:
+        print('untarTarfile failed')
+
+
+    tgzFilename = 'colourcoordinates.tgz'
+    destinationDir = '.'
+    tarFilename = 'colourcoordinates.tar'
+    url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+                                        'data/colourcoordinates/'
+    names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
+    if names:
+        print('Files downloaded and untarred {}!'.format(tgzFilename))
+        print(names)
+    else:
+        print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
+
+
+    #######################################################################
+    print('\nmodule ryfiles done!')
