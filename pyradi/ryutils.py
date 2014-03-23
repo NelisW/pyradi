@@ -457,6 +457,7 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
     """
 
     inspectraldomain = inspectraldomain.reshape(-1,)
+    inspectralquantity = inspectralquantity.reshape(-1,)
 
     #use dictionary to switch between options, lambda fn to calculate, default zero
     outspectraldomain = {
@@ -477,7 +478,7 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
               'fl': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
               }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
 
-    return (outspectraldomain,outspectralquantity )
+    return (outspectraldomain,outspectralquantity.reshape(-1,1) )
 
 
 ##############################################################################

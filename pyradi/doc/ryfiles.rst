@@ -30,4 +30,11 @@ Module functions
 	
 .. autofunction:: pyradi.ryfiles.read2DLookupTable	
 	
-
+.. autofunction:: pyradi.ryfiles.downloadFileUrl	
+	
+.. autofunction:: pyradi.ryfiles.unzipGZipfile	
+	
+.. autofunction:: pyradi.ryfiles.untarTarfile	
+	
+.. autofunction:: pyradi.ryfiles.downloadUntar	
+	
