@@ -66,6 +66,10 @@ exitance can also be calculated by using the Stefan-Boltzman equation, in
 <p>The Planck and temperature-derivative Planck functions take the spectral variable
 (wavelength, wavenumber or frequency) and/or temperature as either a scalar, a 
 single element list, a multi-element list or a numpy array.</p>
+<p>Spectral values must be strictly scalar or shape (N,) or (N,1).  
+Shape (1,N) will not work.</p>
+<p>Temperature values must be strictly scalar, list[M], shape (M,) or (M,1).  
+Shape (1,M) will not work.</p>
 <p>If the spectral variable and temperature are both single numbers (scalars or lists
 with one element), the return value is a scalar.  If either the temperature or the
 spectral variable are single-valued, the return value is a rank-1 vector. If both
@@ -129,8 +133,8 @@ be given in radiant or photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,]):  spectral vector.</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  spectral vector.</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/m^2.*].</div>
@@ -143,7 +147,7 @@ be given in radiant or photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(scalar, np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m^2.um)].</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m^2.Hz)].</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -169,8 +173,8 @@ scalar, a list or an array.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/(m^2.K)].</div>
@@ -183,7 +187,7 @@ scalar, a list or an array.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">(scalar, np.array[N,]):  spectral radiant exitance (not radiance) in units selected.</div>
+<div class="line">(scalar, np.array[N,M]):  spectral radiant exitance (not radiance) in units selected.</div>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m2.um.K)]</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m2.Hz.K)]</div>
 <div class="line">Other return types are similarly defined as above.</div>
@@ -228,13 +232,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.planckel">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckel</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckel" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckel</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in wavelength for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -252,13 +256,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.plancken">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">plancken</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.plancken" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">plancken</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.plancken" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in wavenumber for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -276,13 +280,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.planckef">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckef</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckef" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckef</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in frequency for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">frequency (np.array[N,]):  frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -300,13 +304,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.planckql">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckql</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckql" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckql</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckql" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in wavelength domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -324,13 +328,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.planckqn">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqn</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqn" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqn</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in wavenumber domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -348,13 +352,13 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.planckqf">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqf</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqf" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">planckqf</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.planckqf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Planck function in frequency domain for photon rate exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -372,14 +376,14 @@ photon rate units, depending on user input in type.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckel">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckel</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckel" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckel</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in wavelength domain for
 radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -397,13 +401,13 @@ radiant exitance.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplncken">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplncken</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplncken" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplncken</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplncken" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in wavenumber domain for radiance exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -421,14 +425,14 @@ radiant exitance.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckef">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckef</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckef" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckef</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckef" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in frequency domain
 for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -446,13 +450,13 @@ for radiant exitance.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckql">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckql</tt><big>(</big><em>wavelength</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckql" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckql</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckql" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in wavenumber domain for radiance exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavelength (np.array[N,]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -470,13 +474,13 @@ for radiant exitance.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckqn">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckqn</tt><big>(</big><em>wavenumber</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckqn" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckqn</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckqn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in wavenumber domain for photon rate.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">wavenumber (np.array[N,]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -494,13 +498,13 @@ for radiant exitance.</p>
 
 <dl class="function">
 <dt id="pyradi.ryplanck.dplnckqf">
-<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckqf</tt><big>(</big><em>frequency</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckqf" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryplanck.</tt><tt class="descname">dplnckqf</tt><big>(</big><em>spectral</em>, <em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.ryplanck.dplnckqf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temperature derivative of Planck function in frequency domain for photon rate.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">frequency (np.array[N,]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M, np.array[M,]):  Temperature in [K]</div>
+<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
