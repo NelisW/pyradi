@@ -352,10 +352,10 @@ if __name__ == '__main__':
     #read the tape7 file with path radiance components, plot and integrate.
     colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
     skyrad= loadtape7("data/NIRscat.fl7", colSelect )
-    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,6))
+    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,8))
     # plot the for components separately
     for i in [1,2,3,4]:
-      sr.plot(i,  skyrad[:,0], skyrad[:,i], "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr)]",
+      sr.plot(i,  skyrad[:,0], 1.0e4 * skyrad[:,i], "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr.cm$^{-1}$)]",
              label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
              maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 

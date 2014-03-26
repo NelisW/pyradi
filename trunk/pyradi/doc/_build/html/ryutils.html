@@ -248,8 +248,9 @@ to the &#8216;to&#8217; domain (not interpolated or otherwise sampled.</p>
 <dl class="function">
 <dt id="pyradi.ryutils.convertSpectralDensity">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convertSpectralDensity</tt><big>(</big><em>inspectraldomain</em>, <em>inspectralquantity</em>, <em>type=''</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convertSpectralDensity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.</p>
-<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a single letter:
+<dd><p>Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz).</p>
+<p>In string variable type, the &#8216;from&#8217; domain and &#8216;to&#8217; domains are indicated each with a 
+single letter:
 &#8216;f&#8217; for temporal frequency, &#8216;w&#8217; for wavelength and &#8216;&#8217;n&#8217; for wavenumber
 The &#8216;from&#8217; domain is the first letter and the &#8216;to&#8217; domain the second letter.</p>
 <p>The return values from this function are always positive, i.e. not mathematically correct,
@@ -262,8 +263,10 @@ or otherwise sampled).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.</div>
-<div class="line">inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain as domain vector above.</div>
+<div class="line">inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, 
+frequency or wavenumber.</div>
+<div class="line">inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain 
+as domain vector above.</div>
 <div class="line-block">
 <div class="line">wavelength vector in  [um]</div>
 <div class="line">frequency vector in  [Hz]</div>
@@ -296,7 +299,7 @@ or otherwise sampled).</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04CC4A70&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04C038F0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral

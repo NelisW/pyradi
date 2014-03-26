@@ -419,9 +419,10 @@ def convertSpectralDomain(inspectraldomain,  type=''):
 ################################################################
 ##
 def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
-    """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz). Return always positive.
+    """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz).
 
-    In string variable type, the 'from' domain and 'to' domains are indicated each with a single letter:
+    In string variable type, the 'from' domain and 'to' domains are indicated each with a 
+    single letter:
     'f' for temporal frequency, 'w' for wavelength and ''n' for wavenumber
     The 'from' domain is the first letter and the 'to' domain the second letter.
 
@@ -435,8 +436,10 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
     or otherwise sampled).
 
     Args:
-        | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
-        | inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain as domain vector above.
+        | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, 
+            frequency or wavenumber.
+        | inspectralquantity (np.array[N,] or [N,1]):  spectral density in same domain 
+           as domain vector above.
         |    wavelength vector in  [um]
         |    frequency vector in  [Hz]
         |    wavenumber vector in   [cm^-1]
@@ -457,28 +460,37 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
     """
 
     inspectraldomain = inspectraldomain.reshape(-1,)
-    inspectralquantity = inspectralquantity.reshape(-1,)
+    inspectralquantity = inspectralquantity.reshape(inspectraldomain.shape[0], -1)
+    outspectralquantity = numpy.zeros(inspectralquantity.shape)
 
-    #use dictionary to switch between options, lambda fn to calculate, default zero
-    outspectraldomain = {
-              'lf': lambda inspectraldomain:  constants.c / (inspectraldomain * 1.0e-6),
-              'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
-              'nl': lambda inspectraldomain:  (1.0e4/inspectraldomain),
-              'ln': lambda inspectraldomain:  (1.0e4/inspectraldomain),
-              'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
-              'fl': lambda inspectraldomain:  constants.c  / (inspectraldomain * 1.0e-6),
-              }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
+    # the meshgrid idea does not work well here, because we can have very long
+    # spectral arrays and these become too large for meshgrid -> size **2
+    # we have to loop this one
+    spec = inspectraldomain
+    for col in range(inspectralquantity.shape[1]):
 
-    outspectralquantity = {
-              'lf': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
-              'fn': lambda inspectralquantity: inspectralquantity * (100 *constants.c),
-              'nl': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
-              'ln': lambda inspectralquantity: inspectralquantity / (1.0e4 / inspectraldomain**2) ,
-              'nf': lambda inspectralquantity: inspectralquantity / (100 * constants.c),
-              'fl': lambda inspectralquantity: inspectralquantity / (constants.c *1.0e-6 / ((inspectraldomain * 1.0e-6)**2)),
-              }.get(type, lambda inspectralquantity: numpy.zeros(shape=(0, 0)) )(inspectralquantity)
+        quant = inspectralquantity[:,col]
 
-    return (outspectraldomain,outspectralquantity.reshape(-1,1) )
+        #use dictionary to switch between options, lambda fn to calculate, default zero
+        outspectraldomain = {
+                  'lf': lambda spec:  constants.c / (spec * 1.0e-6),
+                  'fn': lambda spec:  (spec / 100) / constants.c ,
+                  'nl': lambda spec:  (1.0e4/spec),
+                  'ln': lambda spec:  (1.0e4/spec),
+                  'nf': lambda spec:  (spec * 100) * constants.c,
+                  'fl': lambda spec:  constants.c  / (spec * 1.0e-6),
+                  }.get(type, lambda spec: numpy.zeros(shape=(0, 0)) )(spec)
+
+        outspectralquantity[:, col] = {
+                  'lf': lambda quant: quant / (constants.c *1.0e-6 / ((spec * 1.0e-6)**2)),
+                  'fn': lambda quant: quant * (100 *constants.c),
+                  'nl': lambda quant: quant / (1.0e4 / spec**2) ,
+                  'ln': lambda quant: quant / (1.0e4 / spec**2) ,
+                  'nf': lambda quant: quant / (100 * constants.c),
+                  'fl': lambda quant: quant / (constants.c *1.0e-6 / ((spec * 1.0e-6)**2)),
+                  }.get(type, lambda quant: numpy.zeros(shape=(0, 0)) )(quant)
+
+    return (outspectraldomain,outspectralquantity)
 
 
 ##############################################################################

@@ -68,8 +68,8 @@ exitance can also be calculated by using the Stefan-Boltzman equation, in
 single element list, a multi-element list or a numpy array.</p>
 <p>Spectral values must be strictly scalar or shape (N,) or (N,1).  
 Shape (1,N) will not work.</p>
-<p>Temperature values must be strictly scalar, list[M], shape (M,) or (M,1).  
-Shape (1,M) will not work.</p>
+<p>Temperature values must be strictly scalar, list[M], shape (M,), (M,1), or (1,M).
+Shape (Q,M) will not work.</p>
 <p>If the spectral variable and temperature are both single numbers (scalars or lists
 with one element), the return value is a scalar.  If either the temperature or the
 spectral variable are single-valued, the return value is a rank-1 vector. If both
@@ -133,8 +133,8 @@ be given in radiant or photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  spectral vector.</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  spectral vector.</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/m^2.*].</div>
@@ -151,12 +151,12 @@ be given in radiant or photon rate units, depending on user input in type.</p>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m^2.um)].</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m^2.Hz)].</div>
 <div class="line">Other return types are similarly defined as above.</div>
-<div class="line">Returns vector of -1 values if illegal type is requested.</div>
+<div class="line">Returns None on error.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -173,8 +173,8 @@ scalar, a list or an array.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  spectral vector in  [micrometer], [cm-1] or [Hz].</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 <div class="line">type (string):</div>
 <div class="line-block">
 <div class="line">&#8216;e&#8217; signifies Radiant values in [W/(m^2.K)].</div>
@@ -191,12 +191,12 @@ scalar, a list or an array.</p>
 <div class="line">For type = &#8216;el&#8217; units will be [W/(m2.um.K)]</div>
 <div class="line">For type = &#8216;qf&#8217; units will be [q/(s.m2.Hz.K)]</div>
 <div class="line">Other return types are similarly defined as above.</div>
-<div class="line">Returns vector of -1 values if illegal type is requested.</div>
+<div class="line">Returns None on error.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -212,7 +212,7 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">temperature (float):  temperature scalar in [K].</div>
+<div class="line">(scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 <div class="line">type (string):  &#8216;e&#8217; for radiant or &#8216;q&#8217; for photon rate exitance.</div>
 </div>
 </dd>
@@ -237,8 +237,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -248,7 +248,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -261,8 +261,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -272,7 +272,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -285,8 +285,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -296,7 +296,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -309,8 +309,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -320,7 +320,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -333,8 +333,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -344,7 +344,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -357,8 +357,8 @@ photon rate units, depending on user input in type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -368,7 +368,7 @@ photon rate units, depending on user input in type.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -382,8 +382,8 @@ radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -393,7 +393,7 @@ radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -406,8 +406,8 @@ radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -417,7 +417,7 @@ radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -431,8 +431,8 @@ for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -442,7 +442,7 @@ for radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -455,8 +455,8 @@ for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -466,7 +466,7 @@ for radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -479,8 +479,8 @@ for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -490,7 +490,7 @@ for radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>
@@ -503,8 +503,8 @@ for radiant exitance.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]</div>
-<div class="line">temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]</div>
+<div class="line">spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]</div>
+<div class="line">temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -514,7 +514,7 @@ for radiant exitance.</p>
 </dd>
 <dt>Raises:</dt>
 <dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
+<div class="line">No exception is raised, returns None on error.</div>
 </div>
 </dd>
 </dl>

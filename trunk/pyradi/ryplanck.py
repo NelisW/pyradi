@@ -36,8 +36,8 @@ single element list, a multi-element list or a numpy array.
 Spectral values must be strictly scalar or shape (N,) or (N,1).  
 Shape (1,N) will not work.
 
-Temperature values must be strictly scalar, list[M], shape (M,) or (M,1).  
-Shape (1,M) will not work.
+Temperature values must be strictly scalar, list[M], shape (M,), (M,1), or (1,M).
+Shape (Q,M) will not work.
 
 If the spectral variable and temperature are both single numbers (scalars or lists
 with one element), the return value is a scalar.  If either the temperature or the
@@ -182,12 +182,12 @@ class PlanckConstants:
         print('c1nf = {:.14e} with frequency in Hz'.format(self.c1nf))
         print('c2f = {:.14e} with frequency in Hz'.format(self.c2f))
         print(' ')
-        print('wel = {:.14e} um.K'.format(self.wel))
-        print('wql = {:.14e} um.K'.format(self.wql))
-        print('wen = {:.14e} cm-1/K'.format(self.wen))
-        print('wqn = {:.14e} cm-1/K'.format(self.wqn))
-        print('wef = {:.14e} Hz/K'.format(self.wef))
-        print('wqf = {:.14e} Hz/K'.format(self.wqf))
+        print('wel = {:.14e} um.K  Wien for radiant and wavelength'.format(self.wel))
+        print('wql = {:.14e} um.K  Wien for photon rate and wavelength'.format(self.wql))
+        print('wen = {:.14e} cm-1/K  Wien for radiant and wavenumber'.format(self.wen))
+        print('wqn = {:.14e} cm-1/K  Wien for photon rate and wavenumber'.format(self.wqn))
+        print('wef = {:.14e} Hz/K  Wien for radiant and frequency'.format(self.wef))
+        print('wqf = {:.14e} Hz/K  Wien for photon rate and frequency'.format(self.wqf))
         print(' ')
 
 pconst = PlanckConstants()
@@ -195,26 +195,30 @@ pconst = PlanckConstants()
 
 ################################################################
 ##
-def fixDimensions(func):
+def fixDimensions(planckFun):
   """Decorator function to prepare the spectral and temperature array 
   dimensions and order before and after the actual Planck function.
   The Planck functions process elementwise and therefore require 
   flattened arrays.  This decorator flattens, executes the planck function
   and reshape afterwards the correct shape, according to input.
   """
-  @wraps(func)
+  @wraps(planckFun)
   def inner(spectral, temperature):
 
-    #confirm that column vector is not used, break with warning if so.
-    tempIn = numpy.array(temperature, copy=True,  ndmin=1)
-    specIn = numpy.array(spectral, copy=True,  ndmin=1)
-    if len(tempIn.shape) < 2:
-        tempIn = tempIn.reshape(-1,1)
-    if len(specIn.shape) < 2:
-        specIn = specIn.reshape(-1,1)
-    if tempIn.shape[1] > 1 or specIn.shape[1]>1:
-        print('ryplanck - illegal array shape, must be column vector, not row vector')
-        return None
+    #confirm that only vector is used, break with warning if so.
+    if isinstance(temperature, numpy.ndarray):
+        if len(temperature.flat) != max(temperature.shape):
+            print('ryplanck: temperature must be of shape (M,), (M,1) or (1,M)')
+            return None
+    #confirm that no row vector is used, break with warning if so.
+    if isinstance(spectral, numpy.ndarray):
+        if len(spectral.flat) != spectral.shape[0]:
+            print('ryplanck: spectral must be of shape (N,) or (N,1)')
+            return None
+    tempIn = numpy.array(temperature, copy=True,  ndmin=1).astype(float)
+    specIn = numpy.array(spectral, copy=True,  ndmin=1).astype(float)
+    tempIn = tempIn.reshape(-1,1)
+    specIn = specIn.reshape(-1,1)
 
     #create flattened version of the input dataset
     specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
@@ -222,7 +226,7 @@ def fixDimensions(func):
     temp = numpy.ravel(tempgrid)
 
     #this is the actual planck calculation
-    planckA = func(spec,temp) #2
+    planckA = planckFun(spec,temp) 
 
     #now unflatten to proper structure again, spectral along axis=0
     if tempIn.shape[0] == 1 and specIn.shape[0] == 1:
@@ -245,14 +249,14 @@ def planckel(spectral, temperature):
     """ Planck function in wavelength for radiant exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in W/(m^2.um)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     # planckA = pconst.c1el / (spec ** 5 * ( numpy.exp(pconst.c2l / (spec * temp))-1));
@@ -275,14 +279,14 @@ def planckef(spectral, temperature):
     """ Planck function in frequency for radiant exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  frequency vector in  [Hz]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  frequency vector in  [Hz]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]): spectral radiant exitance in W/(m^2.Hz)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     # planckA = pconst.c1ef * spec**3 / (numpy.exp(pconst.c2f * spec / temp)-1);
@@ -306,14 +310,14 @@ def plancken(spectral, temperature):
     """ Planck function in wavenumber for radiant exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  W/(m^2.cm^-1)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     # planckA = pconst.c1en * spec**3 / (numpy.exp(pconst.c2n * (spec / temp))-1)
@@ -336,14 +340,14 @@ def planckqf(spectral, temperature):
     """ Planck function in frequency domain for photon rate exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in q/(s.m^2.Hz)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     #test value of exponent to prevent infinity, force to exponent to zero
@@ -364,14 +368,14 @@ def planckql(spectral, temperature):
     """ Planck function in wavelength domain for photon rate exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.um)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
@@ -391,14 +395,14 @@ def planckqn(spectral, temperature):
     """ Planck function in wavenumber domain for photon rate exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.cm^-1)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     #test value of exponent to prevent infinity, force to exponent to zero
@@ -420,14 +424,14 @@ def dplnckef(spectral, temperature):
     for radiant exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance/K in W/(K.m^2.Hz)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     xx=(pconst.c2f * spectral /temperature);
@@ -447,14 +451,14 @@ def dplnckel(spectral, temperature):
     radiant exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in W/(K.m^2.um)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     # if xx > 350, then we get overflow
@@ -475,14 +479,14 @@ def dplncken(spectral, temperature):
     """Temperature derivative of Planck function in wavenumber domain for radiance exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  W/(K.m^2.cm^-1)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     xx=(pconst.c2n * spectral /temperature)
@@ -501,14 +505,14 @@ def dplnckqf(spectral, temperature):
     """Temperature derivative of Planck function in frequency domain for photon rate.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]): frequency vector in  [Hz]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)): frequency vector in  [Hz]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in q/(K.s.m^2.Hz)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     xx=(pconst.c2f * spectral /temperature)
@@ -527,14 +531,14 @@ def dplnckql(spectral, temperature):
     """Temperature derivative of Planck function in wavenumber domain for radiance exitance.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavelength vector in  [um]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavelength vector in  [um]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  q/(K.s.m^2.um)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     xx=(pconst.c2l /(spectral * temperature))
@@ -553,14 +557,14 @@ def dplnckqn(spectral, temperature):
     """Temperature derivative of Planck function in wavenumber domain for photon rate.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  wavenumber vector in   [cm^-1]
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  wavenumber vector in   [cm^-1]
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
 
     Returns:
         | (scalar, np.array[N,M]):  spectral radiant exitance in  q/(s.m^2.cm^-1)
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     xx=(pconst.c2n * spectral /temperature)
@@ -582,7 +586,7 @@ def stefanboltzman(temperature, type='e'):
     photon rate units, depending on user input in type.
 
     Args:
-        | temperature (float):  temperature scalar in [K].
+        | (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
         | type (string):  'e' for radiant or 'q' for photon rate exitance.
 
     Returns:
@@ -593,12 +597,20 @@ def stefanboltzman(temperature, type='e'):
         | No exception is raised.
     """
 
-    #use dictionary to switch between options, lambda fn to calculate, default zero
+    #confirm that only vector is used, break with warning if so.
+    if isinstance(temperature, numpy.ndarray):
+        if len(temperature.flat) != max(temperature.shape):
+            print('ryplanck.stefanboltzman: temperature must be of shape (M,), (M,1) or (1,M)')
+            return -1
+
+    tempr = numpy.asarray(temperature).astype(float)
+    #use dictionary to switch between options, lambda fn to calculate, default -1
     rtnval = {
-              'e': lambda temperature: pconst.sigmae * temperature**4 ,
-              'q': lambda temperature: pconst.sigmaq * temperature**3
-              }.get(type, lambda temperature: -1)(temperature)
+              'e': lambda temp: pconst.sigmae * numpy.power(temp, 4) ,
+              'q': lambda temp: pconst.sigmaq * numpy.power(temp, 3)
+              }.get(type, lambda temp: -1)(tempr)
     return rtnval
+
 
 
 ################################################################
@@ -619,8 +631,8 @@ def planck(spectral, temperature, type='el'):
     be given in radiant or photon rate units, depending on user input in type.
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  spectral vector.
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  spectral vector.
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
         | type (string):
         |  'e' signifies Radiant values in [W/m^2.*].
         |  'q' signifies photon rate values  [quanta/(s.m^2.*)].
@@ -633,10 +645,10 @@ def planck(spectral, temperature, type='el'):
         | For type = 'el' units will be [W/(m^2.um)].
         | For type = 'qf' units will be [q/(s.m^2.Hz)].
         | Other return types are similarly defined as above.
-        | Returns vector of -1 values if illegal type is requested.
+        | Returns None on error.
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
     if type in plancktype.keys():
         #select the appropriate fn as requested by user
@@ -660,8 +672,8 @@ def dplanck(spectral, temperature, type='el'):
     scalar, a list or an array. 
 
     Args:
-        | spectral (np.array[N,], np.array[N,1]):  spectral vector in  [micrometer], [cm-1] or [Hz].
-        | temperature (scalar, list[M], np.array[M,], np.array[M,1]):  Temperature in [K]
+        | spectral (scalar, np.array (N,) or (N,1)):  spectral vector in  [micrometer], [cm-1] or [Hz].
+        | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
         | type (string):
         |  'e' signifies Radiant values in [W/(m^2.K)].
         |  'q' signifies photon rate values  [quanta/(s.m^2.K)].
@@ -674,10 +686,10 @@ def dplanck(spectral, temperature, type='el'):
         | For type = 'el' units will be [W/(m2.um.K)]
         | For type = 'qf' units will be [q/(s.m2.Hz.K)]
         | Other return types are similarly defined as above.
-        | Returns vector of -1 values if illegal type is requested.
+        | Returns None on error.
 
     Raises:
-        | No exception is raised.
+        | No exception is raised, returns None on error.
     """
 
     if type in dplancktype.keys():
