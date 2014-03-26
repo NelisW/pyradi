@@ -32,7 +32,7 @@ http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
 Visit the google group at http://groups.google.com/group/pyradi-dev
 
 """
-__version__= "0.1.38"
+__version__= "0.1.39"
 __versionSVN__= "svn $Revision$"
 __author__='pyradi team'
 

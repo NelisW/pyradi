@@ -49,6 +49,7 @@ def QueryDelete(recurse,dir,patn):
 #rather do it by type, asking the user first
 QueryDelete(0,'.', '*.eps;*.png;*.jpg;*.pdf;*.txt;*.tiff;*.dat;*.lut')
 QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt')
+QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;' )
 
 
 

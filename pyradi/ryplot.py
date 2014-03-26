@@ -691,14 +691,14 @@ class Plotter:
         ax = self.subplots[pkey]
 
         self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
-                    plotCol, label,legendAlpha, pltaxis,
-                    maxNX, maxNY, linestyle,
-                    powerLimits,titlefsize, xylabelfsize, xytickfsize,
-                    labelfsize,
-                    xScientific=xScientific, yScientific=yScientific,
-                    yInvert=yInvert, xInvert=xInvert, drawGrid=drawGrid,
-                    xIsDate=xIsDate, xTicks=xTicks, xtickRotation=xtickRotation,
-                    markers=markers)
+                    plotCol, label,legendAlpha, 
+                    pltaxis, maxNX, maxNY, linestyle,
+                    powerLimits,titlefsize, 
+                    xylabelfsize, xytickfsize,
+                    labelfsize, drawGrid, 
+                    xScientific, yScientific,
+                    yInvert, xInvert, xIsDate,
+                    xTicks, xtickRotation, markers)
 
     ############################################################
     ##
@@ -707,7 +707,9 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False, xTicks=None, xtickRotation=0, markers=[]    ):
+                    xScientific=False, yScientific=False,
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
+                    xTicks=None, xtickRotation=0, markers=[] ):
         """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -737,6 +739,11 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | drawGrid (bool): draw the grid on the plot
+                | yInvert (bool): invert the y-axis
+                | xInvert (bool): invert the x-axis
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
@@ -755,11 +762,23 @@ class Plotter:
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
         ax = self.subplots[pkey]
 
-        self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
-                    plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize,labelfsize, xTicks, xtickRotation,
-                    markers=markers)
+        # self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
+        #             plotCol, label,legendAlpha, pltaxis, \
+        #             maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
+        #             xytickfsize,labelfsize, drawGrid
+        #             xTicks, xtickRotation,
+        #             markers=markers)
+
+        self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
+                    plotCol, label,legendAlpha, 
+                    pltaxis, maxNX, maxNY, linestyle,
+                    powerLimits,titlefsize, 
+                    xylabelfsize, xytickfsize,
+                    labelfsize, drawGrid, 
+                    xScientific, yScientific,
+                    yInvert, xInvert, xIsDate,
+                    xTicks, xtickRotation, markers)
+
 
     ############################################################
     ##
@@ -768,7 +787,10 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
-                    xIsDate=False,  xTicks=None, xtickRotation=0, markers=[]):
+                    xScientific=False, yScientific=False,
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
+                    xTicks=None, xtickRotation=0, markers=[] ):
+
         """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -798,11 +820,15 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | drawGrid (bool): draw the grid on the plot
+                | yInvert (bool): invert the y-axis
+                | xInvert (bool): invert the x-axis
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
                 | markers ([string]) markers to be used in lines
-
 
             Returns:
                 | Nothing
@@ -818,11 +844,14 @@ class Plotter:
         ax = self.subplots[pkey]
 
         self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
-                    plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
-                     xytickfsize,labelfsize, xIsDate=xIsDate, xTicks=xTicks,
-                     xtickRotation=xtickRotation,
-                    markers=markers)
+                    plotCol, label,legendAlpha, 
+                    pltaxis, maxNX, maxNY, linestyle, 
+                    powerLimits, titlefsize,
+                    xylabelfsize, xytickfsize,
+                    labelfsize, drawGrid, 
+                    xScientific, yScientific,
+                    yInvert, xInvert, xIsDate,
+                    xTicks, xtickRotation, markers)
 
     ############################################################
     ##
@@ -831,7 +860,9 @@ class Plotter:
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
-                    xIsDate=False, xTicks=None, xtickRotation=0, markers=[]  ):
+                    xScientific=False, yScientific=False,
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
+                     xTicks=None, xtickRotation=0, markers=[] ):
         """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -861,6 +892,11 @@ class Plotter:
                 | xylabelfsize (int): x, y label font size, default 12pt (optional)
                 | xytickfsize (int): x, y tick font size, default 10pt (optional)
                 | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xScientific (bool): use scientific notation on x-axis
+                | yScientific (bool): use scientific notation on x-axis
+                | drawGrid (bool): draw the grid on the plot
+                | yInvert (bool): invert the y-axis
+                | xInvert (bool): invert the x-axis
                 | xIsDate (bool): convert the x-values to dates
                 | xTicks ({tick:label}): dict of ticks and associated labels
                 | xtickRotation (float) ax tick rotation angle 
@@ -879,12 +915,15 @@ class Plotter:
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
         ax = self.subplots[pkey]
 
-        self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,\
-                    plotCol, label,legendAlpha, pltaxis, \
-                    maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
-                    xytickfsize, labelfsize, xIsDate=xIsDate, xTicks=xTicks, 
-                    xtickRotation=xtickRotation,
-                    markers=markers)
+        self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
+                    plotCol, label,legendAlpha, 
+                    pltaxis, maxNX, maxNY, linestyle, 
+                    powerLimits, titlefsize,
+                    xylabelfsize, xytickfsize, 
+                    labelfsize, drawGrid, 
+                    xScientific, yScientific,
+                    yInvert, xInvert, xIsDate,
+                    xTicks, xtickRotation, markers)
 
     ############################################################
     ##
