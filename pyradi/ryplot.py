@@ -1081,8 +1081,17 @@ class Plotter:
 
         if xTicks is not None:
             ticks = ax.set_xticks(xTicks.keys())
-            labels = ax.set_xticklabels([xTicks[key] for key in xTicks], 
+            ax.set_xticklabels([xTicks[key] for key in xTicks], 
                 rotation=xtickRotation, fontsize=xytickfsize)
+        
+        if  xTicks is None and xtickRotation is not None:
+            ticks = ax.get_xticks()
+            if xIsDate:
+                from datetime import date
+                ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
+            ax.set_xticklabels(ticks, 
+                rotation=xtickRotation, fontsize=xytickfsize)
+
 
         if(ptitle is not None):
             ax.set_title(ptitle, fontsize=titlefsize)

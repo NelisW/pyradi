@@ -24,7 +24,9 @@
 # Contributor(s):  CJ Willers, PJ Smit.
 ################################################################
 """
-This module provides rudimentary MODTRAN file reading.
+This module provides MODTRAN tape7 file reading.
+Future development may include a class to write tape5 files, but that is 
+a distant target at present.
 
 See the __main__ function for examples of use.
 
@@ -41,7 +43,7 @@ from __future__ import print_function
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['fixHeaders', 'loadtape7','fixHeadersList', 'savetape7data']
+__all__= ['fixHeaders', 'loadtape7','fixHeadersList']
 
 import sys
 if sys.version_info[0] > 2:
@@ -103,7 +105,7 @@ def fixHeadersList(headcol):
 
 ##############################################################################
 ##
-def loadtape7(filename, colspec = [], delimiter=None ):
+def loadtape7(filename, colspec = []):
 
     """
     Read the Modtran tape7 file. This function was tested with Modtran5 files.
@@ -127,17 +129,17 @@ def loadtape7(filename, colspec = [], delimiter=None ):
     run. The header information in the tape7 file contains portions of the
     tape5 information that will be deleted. The header section in tape7 is
     followed by a list of spectral points with corresponding transmissions.
-    Each column has a different component of the transmission. For more
-    detail, see the modtran documentation.
+    Each column has a different component of the transmission or radiance. 
+    For more detail, see the modtran documentation.
 
     The user selects the appropriate columns by listing the column names, as
     listed below.
 
-    The format of the tape7 file changes between different IEMSCT values. For
-    the most part the differences are hidden in the details, the user does not
-    have to take concern.  The various column headers available are as follows:
+    The format of the tape7 file changes for different IEMSCT values. For
+    the most part the differences are hidden in the details.  
+    The various column headers used in the tape7 file are as follows:
 
-    IEMSCT = 0 has two column name lines.  In order to select the column, you
+    IEMSCT = 0 has two column header lines.  In order to select the column, you
     must concatenate the two column headers with an underscore in between. All
     columns are available with the following column names: ['FREQ_CM-1',
     'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS',
@@ -149,7 +151,7 @@ def loadtape7(filename, colspec = [], delimiter=None ):
     'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS',
     'CCL4_TRANS', 'N2O5_TRANS']
 
-    IEMSCT = 1 has single line column headers. A number of columns has
+    IEMSCT = 1 has single line column headers. A number of columns have
     headers, but with no column numeric data.  In the following list the
     columns with header names ** are empty and hence not available: ['FREQ',
     'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', *SOL_SCAT*,
@@ -240,26 +242,6 @@ def loadtape7(filename, colspec = [], delimiter=None ):
     return coldata
 
 
-#################################################################
-##
-def savetape7data(filename,tape7):
-    """
-    Save the numpy array to a text file. Numeric precision is '%.6e'.
-
-    Args:
-        | filename (string): name of the output ASCII flatfile.
-        | tape7 (numpy.array): an array with the selected columns. Col[0] is the wavenumber.
-
-
-    Returns:
-        | No return.
-
-    Raises:
-        | No exception is raised.
-    """
-    np.savetxt(filename, tape7,fmt='%.6e')
-
-
 ################################################################
 ##
 
@@ -278,21 +260,21 @@ if __name__ == '__main__':
     figtype = ".png"  # eps, jpg, png
     #figtype = ".eps"  # eps, jpg, png
 
-    ## ----------------------- wavelength------------------------------------------
-    #create the wavelength scale to be used in all spectral calculations,
-    # wavelength is reshaped to a 2-D  (N,1) column vector
-    wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
-
+    ## ----------------------- -----------------------------------------
     tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
-    savetape7data('tape7-01a.txt',tape7)
+    np.savetxt('tape7-01a.txt', tape7,fmt='%.6e')
+
     tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS', 'N2_CONT', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'HNO3_TRANS', 'AER+CLD_abTRNS', '-LOG_COMBIN', 'CO2_TRANS', 'CO_TRANS', 'CH4_TRANS', 'N2O_TRANS', 'O2_TRANS', 'NH3_TRANS', 'NO_TRANS', 'NO2_TRANS', 'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS', 'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS', 'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS', 'CCL4_TRANS', 'N2O5_TRANS'] )
-    savetape7data('tape7-01.txt',tape7)
+    np.savetxt('tape7-01.txt', tape7,fmt='%.6e')
+
     tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
-    savetape7data('tape7-02.txt',tape7)
+    np.savetxt('tape7-02.txt', tape7,fmt='%.6e')
+
     tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
-    savetape7data('tape7-03.txt',tape7)
+    np.savetxt('tape7-03.txt', tape7,fmt='%.6e')
+
     tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
-    savetape7data('tape7-04.txt',tape7)
+    np.savetxt('tape7-04.txt', tape7,fmt='%.6e')
 
     colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
           'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
@@ -307,7 +289,6 @@ if __name__ == '__main__':
     #mT.saveFig('ModtranPlot.eps')
 
     # this example plots the individual transmittance components
-    wavelength=np.linspace(0.2, 15, 500).reshape(-1, 1)
     colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
        'O3_TRANS', 'O2_TRANS', 'N2O_TRANS', 'AER+CLD_TRANS', 'SO2_TRANS']
     tape7= loadtape7("data/horizon5kmtropical.fl7", colSelect )
@@ -353,18 +334,38 @@ if __name__ == '__main__':
     colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
     skyrad= loadtape7("data/NIRscat.fl7", colSelect )
     sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,8))
-    # plot the for components separately
+    # plot the components separately
     for i in [1,2,3,4]:
-      sr.plot(i,  skyrad[:,0], 1.0e4 * skyrad[:,i], "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr.cm$^{-1}$)]",
+      Lpath = 1.0e4 * skyrad[:,i]
+      sr.plot(i,  skyrad[:,0], Lpath, "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr.cm$^{-1}$)]",
              label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
              maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
       #convert from /cm^2 to /m2 and integrate using the wavenumber vector
       #normally you would multiply with a sensor spectral response before integration
       #this calculation is over the whole band, equally weighted.
-      totinband = 1.0e4 * numpy.trapz(skyrad[:,i].reshape(-1, 1),skyrad[:,0], axis=0)[0]
+      totinband = numpy.trapz(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
       print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
     sr.saveFig('NIRPathradiance.png')
     print('Note that multiple scatter contributes significantly to the total path radiance')
+
+    #repeat the same calculation, but this time do in wavelength domain
+    colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
+    skyrad= loadtape7("data/NIRscat.fl7", colSelect )
+    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",
+                        figsize=(12,8))
+    # plot the components separately
+    for i in [1,2,3,4]:
+      wl, Lpath = ryutils.convertSpectralDensity(skyrad[:,0], skyrad[:,i],'nl')
+      Lpath *= 1.0e4
+      sr.plot(i,  wl, Lpath, "","Wavelength [$\mu$m]","L [W/(m$^2$.sr.$\mu$m)]",
+             label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
+             maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+      totinband = - numpy.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
+      print('{0} integral is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+
+    sr.saveFig('NIRPathradiancewl.png')
+    print('Note that multiple scatter contributes significantly to total path radiance')
+
 
     print('Done!')
