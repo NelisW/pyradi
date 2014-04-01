@@ -19,7 +19,5 @@ Module classes
 
 .. autofunction:: pyradi.rymodtran.fixHeadersList	
 
-.. autofunction:: pyradi.rymodtran.savetape7data	
-
 
 	
