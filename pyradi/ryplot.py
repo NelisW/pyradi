@@ -1834,7 +1834,8 @@ class Plotter:
     def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, \
                 xlabel=None, ylabel=None, zlabel=None, zscale=None,  \
                titlefsize=12, xylabelfsize = 12,
-               thetaStride=1, radialstride=1, meshCmap = cm.rainbow):
+               thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
+               linewidth=0.1, azim=45, elev=30):
         """3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1851,7 +1852,7 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number
-                | theta (np.array[N,] or [N,1]): vector of angular values
+                | theta (np.array[N,] or [N,1]): vector of angular values (rad)
                 | radial (np.array[M,] or [M,1]): vector if radial values
                 | zvals (np.array[N,M]): values on a (theta,radial) grid
                 | ptitle (string): plot title (optional)
@@ -1864,6 +1865,9 @@ class Plotter:
                 | thetaStride (int): theta stride in input data (optional)
                 | radialstride (int): radial stride in input data  (optional)
                 | meshCmap (cm): color map for the mesh (optional)
+                | linewidth (float): width of the mesh lines
+                | azim (float): camera azimuth angle viewing the graph [degrees]
+                | elev (float): camera evelation angle viewing the graph [degrees]
 
             Returns:
                 | Nothing
@@ -1883,7 +1887,9 @@ class Plotter:
         #get axis
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
         #do the plot
-        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, cmap=meshCmap)
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+            linewidth=linewidth, cmap=meshCmap)
+        ax.view_init(azim=azim, elev=elev)
 
         #label and clean up
         if zscale==None:
@@ -2091,9 +2097,10 @@ class Plotter:
         #get axis
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
- ############################################################
+    
+    ############################################################
     ##
-    def plotArray(self, plotnum, inarray, slicedim = 0, subtitles = None, xlabel=None, \
+    def plotArray(self, plotnum, inarray, slicedim = 0, subtitles = None, xlabel=None, 
                         maxNX=0, maxNY=0, titlefsize = 8, xylabelfsize = 8,
                         xytickfsize = 8  ):
         """Creates a plot from an input array.
@@ -2128,67 +2135,67 @@ class Plotter:
 
         #if slicedim = 0, slice across columns
         if slicedim == 0:
+            #x-axis is first vector
+            x = inarray[:,0]
+            #xlabel is time
+            xlabel = subtitles[0]
 
-	   #x-axis is first vector
-	   x = inarray[:,0]
-	   #xlabel is time
-	   xlabel = subtitles[0]
+            yAll = inarray[:,1:].transpose()
 
-	   yAll = inarray[:,1:].transpose()
+            nestnrow = inarray.shape[1]-1
+            nestncol = 1
+            plottitles = subtitles[1:]
 
-	   nestnrow = inarray.shape[1]-1
-	   nestncol = 1
-	   plottitles = subtitles[1:]
+        #if slicedim = 1, slice across rows
+        elif slicedim == 1:
+            x = range(0,inarray.shape[1]-1)
+            #for slicedim = 1, the tick labels are in the x title
+            xlabel = subtitles[1:inarray.shape[1]]
 
-	#if slicedim = 1, slice across rows
-	elif slicedim == 1:
-	   x = range(0,inarray.shape[1]-1)
-	   #for slicedim = 1, the tick labels are in the x title
-	   xlabel = subtitles[1:inarray.shape[1]]
-
-	   yAll = inarray[:,1:]
-	   nestnrow = inarray.shape[0]
-	   nestncol = 1
-	   plottitles = inarray[:,0]
+            yAll = inarray[:,1:]
+            nestnrow = inarray.shape[0]
+            nestncol = 1
+            plottitles = inarray[:,0]
 
 
-	#inner_grid (nested):
-        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, \
-                    subplot_spec=outer_grid[0],wspace=0, hspace=0.2)
+        #inner_grid (nested):
+        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, 
+                        subplot_spec=outer_grid[0],wspace=0, hspace=0.2)
 
-	#create subplot for each y-axis vector
+        #create subplot for each y-axis vector
         nestplotnum = 0
 
-	for y in yAll:
+        for y in yAll:
 
-	   ax = plt.Subplot(fig, inner_grid[nestplotnum])
-	   ax.plot(x,y)
-	   if subtitles is not None:
-	       ax.set_ylabel(plottitles[nestplotnum], fontsize=xylabelfsize)
-	       #align ylabels
-	       ax.yaxis.set_label_coords(-0.05, 0.5)
+            ax = plt.Subplot(fig, inner_grid[nestplotnum])
+            ax.plot(x,y)
+            if subtitles is not None:
+                ax.set_ylabel(plottitles[nestplotnum], fontsize=xylabelfsize)
+                #align ylabels
+                ax.yaxis.set_label_coords(-0.05, 0.5)
 
-	   #tick label fonts
-	   for tick in ax.yaxis.get_major_ticks():
-               tick.label.set_fontsize(xytickfsize)
-           for tick in ax.xaxis.get_major_ticks():
-               tick.label.set_fontsize(xytickfsize)
+            #tick label fonts
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(xytickfsize)
+                for tick in ax.xaxis.get_major_ticks():
+                    tick.label.set_fontsize(xytickfsize)
 
-           if maxNX > 0:
-	       ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
-           if maxNY > 0:
-	       ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-	   nestplotnum = nestplotnum + 1
-           fig.add_subplot(ax)
+            if maxNX > 0:
+                ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+            if maxNY > 0:
+                ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+            
+            nestplotnum = nestplotnum + 1
+            fig.add_subplot(ax)
 
-        #share x ticklabels and label to avoid clutter and overlapping
-        plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
-        if xlabel is not None:
-            fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
+            #share x ticklabels and label to avoid clutter and overlapping
+            plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
+            if xlabel is not None:
+                fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
 
-        # minor ticks are two points smaller than major
-        # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
-        # ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+            # minor ticks are two points smaller than major
+            # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+            # ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
 ################################################################
 ################################################################
@@ -2249,6 +2256,44 @@ if __name__ == '__main__':
     import datetime as dt
 
 
+
+    ############################################################################
+    #demonstrate the use of a polar 3d plot
+    #create the radial and angular vectors
+    r = numpy.linspace(0,1.25,25)
+    p = numpy.linspace(0,2*numpy.pi,50)
+    #the r and p vectors may have non-constant grid-intervals
+    # r = numpy.logspace(numpy.log10(0.001),numpy.log10(1.25),50)
+    # p = numpy.logspace(numpy.log10(0.001),numpy.log10(2*numpy.pi),100)
+    #build a meshgrid (2-D array of values)
+    R,P = numpy.meshgrid(r,p)
+    #calculate the z values on the cartesian grid
+    # value = (numpy.tan(P**3)*numpy.cos(P**2)*(R**2 - 1)**2)
+    value = ((R**2 - 1)**2)
+    p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
+    p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
+        xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
+    p3D.saveFig('p3D.png')
+    #p3D.saveFig('p3D.eps')
+
+    with open('./data/Intensity-max.dat', 'rt') as fin:
+        aArray = numpy.loadtxt( fin, skiprows=1 , dtype=float )
+        azim = aArray[1:,0] + numpy.pi   # to positive angles
+        elev = aArray[0,1:] + numpy.pi/2 # get out of negative data on polar
+        intensity = aArray[1:,1:]
+
+        p3D = Plotter(1, 2, 2,'Polar plot in 3-D',figsize=(12,8))
+        elev1 = elev
+        p3D.polar3d(1, azim, elev1, intensity, zlabel='zlabel',zscale=[0, 600], azim=45, elev=30)
+        p3D.polar3d(2, azim, elev, intensity, zlabel='zlabel',zscale=[0, 2000], azim=-45, elev=30)
+        elev3 = elev + numpy.pi/2 # get hole in centre
+        p3D.polar3d(3, azim, elev3, intensity, zlabel='zlabel',zscale=[0, 2000], azim=60, elev=60)
+        p3D.polar3d(4, azim, elev, intensity, zlabel='zlabel',zscale=[0, 1000], azim=110, elev=-30)
+
+        p3D.saveFig('p3D2.png')
+        #p3D.saveFig('p3D2.eps')
+
+    ############################################################################
     xv,yv = numpy.mgrid[-2:2:21j, -2:2:21j]
     z = numpy.exp(numpy.exp(-(xv**2 + yv**2)))
     I = Plotter(4, 1, 2,'High dynamic range image', figsize=(8, 4))
@@ -2425,26 +2470,6 @@ if __name__ == '__main__':
     Ar.plotArray(1,arrDummyDemo, 0, titles, titlefsize = 12, maxNX = 5, maxNY=3)
     # Ar.saveFig('ArrayPlot.eps')
     Ar.saveFig('ArrayPlot.png')
-
-    ############################################################################
-    #demonstrate the use of a polar 3d plot
-    #create the radial and angular vectors
-    r = numpy.linspace(0,1.25,25)
-    p = numpy.linspace(0,2*numpy.pi,50)
-    #the r and p vectors may have non-constant grid-intervals
-    # r = numpy.logspace(numpy.log10(0.001),numpy.log10(1.25),50)
-    # p = numpy.logspace(numpy.log10(0.001),numpy.log10(2*numpy.pi),100)
-    #build a meshgrid (2-D array of values)
-    R,P = numpy.meshgrid(r,p)
-    # transform radial/theta to cartesian system
-    X,Y = R*numpy.cos(P),R*numpy.sin(P)
-    #calculate the z values on the cartesian grid
-    value = (numpy.tan(P**3)*numpy.cos(P**2)*(R**2 - 1)**2)
-    p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
-    p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
-        xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
-    p3D.saveFig('p3D.png')
-    #p3D.saveFig('p3D.eps')
 
 
     ############################################################################
