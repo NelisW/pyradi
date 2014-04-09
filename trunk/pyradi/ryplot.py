@@ -1060,7 +1060,10 @@ class Plotter:
                 else:
                     linestyleL = '-' 
             else:
-                linestyleL = linestyle[i] 
+                if type(linestyle) == type([1]):
+                    linestyleL = linestyle[i] 
+                else:
+                    linestyleL = linestyle
 
 
             if not label:

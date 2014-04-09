@@ -124,7 +124,8 @@ def loadColumnTextFile(filename, loadCol=[1],  \
         | abscissaOut (np.array[N,] or [N,1]): abscissa vector on which output variables are interpolated.
 
     Returns:
-        | (np.array[N,M]): The interpolated, M columns of N rows, processed array.
+        | ordinatesOut (np.array[N,M]): The interpolated, M columns of N rows, processed array.
+        | abscissaOut (np.array[N,M]): The ascissa where the ordinates are interpolated
 
     Raises:
         | No exception is raised.
@@ -150,13 +151,14 @@ def loadColumnTextFile(filename, loadCol=[1],  \
         f=interp1d(abscissa,  ordinate, axis=0)
         interpValue=f(abscissaOut)
     else:
-        interpValue=ordinate
+        interpValue = ordinate
+        abscissaOut = abscissa
 
     #if read-in values must be normalised.
     if normalize != 0:
         interpValue /= numpy.max(interpValue,axis=0)
 
-    return interpValue
+    return interpValue, abscissaOut
 
 
 ################################################################################
