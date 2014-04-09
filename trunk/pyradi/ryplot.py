@@ -1056,14 +1056,17 @@ class Plotter:
 
             if linestyle is None:
                 if len(col)>1:
-                    linestyle = col[1:]
+                    linestyleL = col[1:]
                 else:
-                    linestyle = '-' 
+                    linestyleL = '-' 
+            else:
+                linestyleL = linestyle[i] 
+
 
             if not label:
-                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyle, marker=mmrk)
+                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, marker=mmrk)
             else:
-                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyle, marker=mmrk)
+                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, marker=mmrk)
 
                 leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
                 leg.get_frame().set_alpha(legendAlpha)
