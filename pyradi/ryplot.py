@@ -417,7 +417,9 @@ class Plotter:
         __all__ = ['__init__', 'saveFig', 'getPlot', 'plot', 'logLog', 'semilogX',
                         'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol', 
                         'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
-                        'plotMarkers', 'polarMesh', 'resetPlotCol', 'mesh3D'  ]
+                        'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
+                        # 'plotMarkers',   
+                        ]
 
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -593,7 +595,7 @@ class Plotter:
     ############################################################
     ##
     def getPlot(self):
-        """Returns a handle to the current plot
+      """Returns a handle to the current plot
 
             Args:
                 | None
@@ -603,8 +605,39 @@ class Plotter:
 
             Raises:
                 | No exception is raised.
-        """
-        return self.fig
+      """
+      return self.fig
+
+
+    ############################################################
+    ##
+    def labelSubplot(self, spax, ptitle=None, xlabel=None, ylabel=None, zlabel=None,
+      titlefsize=10, labelfsize=10, ):
+      """Set the sub-figure title and axes labels (cartesian plots only).
+
+            Args:
+                | spax (handle): subplot axis handle where labels must be drawn
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | zlabel (string): z axis label (optional)
+                | titlefsize (float): title  fontsize (optional)
+                | labelfsize (float): x,y,z label fontsize (optional)
+
+            Returns:
+                | None.
+
+            Raises:
+                | No exception is raised.
+      """
+      if xlabel is not None:
+        spax.set_xlabel(xlabel,fontsize=labelfsize)
+      if ylabel is not None:
+        spax.set_ylabel(ylabel,fontsize=labelfsize)
+      if zlabel is not None:
+        spax.set_ylabel(zlabel,fontsize=labelfsize)
+      if ptitle is not None:
+        spax.set_title(ptitle,fontsize=titlefsize)
 
 
     ############################################################
@@ -638,7 +671,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[] ):
-        """Cartesian plot on linear scales for abscissa and ordinates.
+      """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the y-values
@@ -678,19 +711,19 @@ class Plotter:
                 | markers ([string]) markers to be used in lines
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
        """
-        ## see self.MyPlot for parameter details.
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
+      ## see self.MyPlot for parameter details.
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
-        ax = self.subplots[pkey]
+      ax = self.subplots[pkey]
 
-        self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
+      self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
                     plotCol, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
@@ -699,6 +732,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers)
+      return ax
 
     ############################################################
     ##
@@ -710,7 +744,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ):
-        """Plot data on logarithmic scales for abscissa and ordinates.
+      """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the y-values
@@ -750,17 +784,17 @@ class Plotter:
                 | markers ([string]) markers to be used in lines
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-       """
-        ## see self.MyPlot for parameter details.
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
+      """
+      ## see self.MyPlot for parameter details.
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
-        ax = self.subplots[pkey]
+      ax = self.subplots[pkey]
 
         # self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
         #             plotCol, label,legendAlpha, pltaxis, \
@@ -769,7 +803,7 @@ class Plotter:
         #             xTicks, xtickRotation,
         #             markers=markers)
 
-        self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
+      self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
                     plotCol, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
@@ -778,6 +812,8 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers)
+
+      return ax
 
 
     ############################################################
@@ -791,7 +827,7 @@ class Plotter:
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ):
 
-        """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
+      """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the y-values
@@ -831,19 +867,19 @@ class Plotter:
                 | markers ([string]) markers to be used in lines
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
        """
-        ## see self.MyPlot for parameter details.
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
+      ## see self.MyPlot for parameter details.
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
-        ax = self.subplots[pkey]
+      ax = self.subplots[pkey]
 
-        self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
+      self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
                     plotCol, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
@@ -852,6 +888,8 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers)
+
+      return ax
 
     ############################################################
     ##
@@ -863,7 +901,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[] ):
-        """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
+      """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the y-values
@@ -903,19 +941,19 @@ class Plotter:
                 | markers ([string]) markers to be used in lines
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-       """
-        ## see self.MyPlot for parameter details.
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
+      """
+      ## see self.MyPlot for parameter details.
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
-        ax = self.subplots[pkey]
+      ax = self.subplots[pkey]
 
-        self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
+      self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
                     plotCol, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
@@ -924,6 +962,8 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers)
+
+      return ax
 
     ############################################################
     ##
@@ -936,180 +976,183 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ):
-        """Low level helper function to create a subplot and plot the data as required.
+      """Low level helper function to create a subplot and plot the data as required.
 
-        This function does the actual plotting, labelling etc. It uses the plotting
-        function provided by its user functions.
+      This function does the actual plotting, labelling etc. It uses the plotting
+      function provided by its user functions.
 
-        lineStyles = {
-        '': '_draw_nothing',
-        ' ': '_draw_nothing',
-        'None': '_draw_nothing',
-        '--': '_draw_dashed',
-        '-.': '_draw_dash_dot',
-        '-': '_draw_solid',
-        ':': '_draw_dotted'}
+      lineStyles = {
+      '': '_draw_nothing',
+      ' ': '_draw_nothing',
+      'None': '_draw_nothing',
+      '--': '_draw_dashed',
+      '-.': '_draw_dash_dot',
+      '-': '_draw_solid',
+      ':': '_draw_dotted'}
 
-            Args:
-                | plotcommand: name of a MatplotLib plotting function
-                | plotnum (int): subplot number
-                | ptitle (string): plot title
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
-                | x (np.array[N,] or [N,1]): abscissa
-                | y (np.array[N,] or [N,M]): ordinates - could be M columns
-                | plotCol ([strings]): plot line style, list with M entries, use default if []
-                | label  ([strings]): legend label for ordinate, list with M entries
-                | legendAlpha (float): transparancy for legend
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
-                | linestyle (string): linestyle for this plot
-                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
-                | titlefsize (int): title font size, default 12pt (optional)
-                | xylabelfsize (int): x, y label font size, default 12pt (optional)
-                | xytickfsize (int): x, y tick font size, default 10pt (optional)
-                | labelfsize (int): label/legend font size, default 10pt (optional)
-                | drawGrid (bool): draw the grid on the plot
-                | xScientific (bool): use scientific notation on x-axis
-                | yScientific (bool): use scientific notation on x-axis
-                | yInvert (bool): invert the y-axis
-                | xInvert (bool): invert the x-axis
-                | xIsDate (bool): convert the x-values to dates
-                | xTicks ({tick:label}): dict of ticks and associated labels
-                | xtickRotation (float) ax tick rotation angle 
-                | markers ([string]) markers to be used in lines
+          Args:
+              | plotcommand: name of a MatplotLib plotting function
+              | plotnum (int): subplot number
+              | ptitle (string): plot title
+              | xlabel (string): x axis label
+              | ylabel (string): y axis label
+              | x (np.array[N,] or [N,1]): abscissa
+              | y (np.array[N,] or [N,M]): ordinates - could be M columns
+              | plotCol ([strings]): plot line style, list with M entries, use default if []
+              | label  ([strings]): legend label for ordinate, list with M entries
+              | legendAlpha (float): transparancy for legend
+              | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.
+              | maxNX (int): draw maxNX+1 tick labels on x axis
+              | maxNY (int): draw maxNY+1 tick labels on y axis
+              | linestyle (string): linestyle for this plot
+              | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]
+              | titlefsize (int): title font size, default 12pt (optional)
+              | xylabelfsize (int): x, y label font size, default 12pt (optional)
+              | xytickfsize (int): x, y tick font size, default 10pt (optional)
+              | labelfsize (int): label/legend font size, default 10pt (optional)
+              | drawGrid (bool): draw the grid on the plot
+              | xScientific (bool): use scientific notation on x-axis
+              | yScientific (bool): use scientific notation on x-axis
+              | yInvert (bool): invert the y-axis
+              | xInvert (bool): invert the x-axis
+              | xIsDate (bool): convert the x-values to dates
+              | xTicks ({tick:label}): dict of ticks and associated labels
+              | xtickRotation (float) ax tick rotation angle 
+              | markers ([string]) markers to be used in lines
 
-            Returns:
-                | Nothing
+          Returns:
+              | the axis object for the plot
 
-            Raises:
-                | No exception is raised.
-        """
+          Raises:
+              | No exception is raised.
+      """
 
-        if x.ndim>1:
-            xx=x
-        else:
-            xx=x.reshape(-1, 1)
+      if x.ndim>1:
+          xx=x
+      else:
+          xx=x.reshape(-1, 1)
 
-        if y.ndim>1:
-            yy=y
-        else:
-            yy=y.reshape(-1, 1)
+      if y.ndim>1:
+          yy=y
+      else:
+          yy=y.reshape(-1, 1)
 
-        # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
+      # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
 
-        pkey = (self.nrow, self.ncol, plotnum)
-        ax = self.subplots[pkey]
+      pkey = (self.nrow, self.ncol, plotnum)
+      ax = self.subplots[pkey]
 
-        if drawGrid:
-            ax.grid(True)
-        else:
-            ax.grid(False)
+      if drawGrid:
+          ax.grid(True)
+      else:
+          ax.grid(False)
 
-        # use scientific format on axes
-        #yfm = sbp.yaxis.get_major_formatter()
-        #yfm.set_powerlimits([ -3, 3])
+      # use scientific format on axes
+      #yfm = sbp.yaxis.get_major_formatter()
+      #yfm.set_powerlimits([ -3, 3])
 
-        if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize=xylabelfsize)
-            if xScientific:
-                formx = plt.ScalarFormatter()
-                formx.set_scientific(True)
-                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-                ax.xaxis.set_major_formatter(formx)
-        if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize=xylabelfsize)
-            if yScientific:
-                formy = plt.ScalarFormatter()
-                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
-                formy.set_scientific(True)
-                ax.yaxis.set_major_formatter(formy)
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+          if xScientific:
+              formx = plt.ScalarFormatter()
+              formx.set_scientific(True)
+              formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+              ax.xaxis.set_major_formatter(formx)
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+          if yScientific:
+              formy = plt.ScalarFormatter()
+              formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+              formy.set_scientific(True)
+              ax.yaxis.set_major_formatter(formy)
 
-        if xIsDate:
-            ax.xaxis_date()
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-            ax.xaxis.set_major_locator(mdates.DayLocator())
+      if xIsDate:
+          ax.xaxis_date()
+          ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+          ax.xaxis.set_major_locator(mdates.DayLocator())
 
-        if maxNX >0:
-            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
-        if maxNY >0:
-            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-
-
-        for i in range(yy.shape[1]):
-            #set up the line style, either given or next in sequence
-            mmrk = ''
-            if markers:
-                if i >= len(markers):
-                    mmrk = markers[-1]
-                else:
-                    mmrk = markers[i]
-
-            if plotCol:
-                if i >= len(plotCol):
-                    col = plotCol[-1] 
-                else:
-                    col = plotCol[i]
-            else:
-                col = self.nextPlotCol()
-
-            if linestyle is None:
-                if len(col)>1:
-                    linestyleL = col[1:]
-                else:
-                    linestyleL = '-' 
-            else:
-                if type(linestyle) == type([1]):
-                    linestyleL = linestyle[i] 
-                else:
-                    linestyleL = linestyle
+      if maxNX >0:
+          ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+      if maxNY >0:
+          ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
 
 
-            if not label:
-                plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, marker=mmrk)
-            else:
-                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, marker=mmrk)
+      for i in range(yy.shape[1]):
+          #set up the line style, either given or next in sequence
+          mmrk = ''
+          if markers:
+              if i >= len(markers):
+                  mmrk = markers[-1]
+              else:
+                  mmrk = markers[i]
 
-                leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
-                leg.get_frame().set_alpha(legendAlpha)
-                self.bbox_extra_artists.append(leg)
+          if plotCol:
+              if i >= len(plotCol):
+                  col = plotCol[-1] 
+              else:
+                  col = plotCol[i]
+          else:
+              col = self.nextPlotCol()
 
-        if xIsDate:
-            plt.gcf().autofmt_xdate()
-
-        #scale the axes
-        if pltaxis is not None:
-            # ax.axis(pltaxis)
-            if not xIsDate:
-                ax.set_xlim(pltaxis[0],pltaxis[1])
-            ax.set_ylim(pltaxis[2],pltaxis[3])
-
-        if xTicks is not None:
-            ticks = ax.set_xticks(xTicks.keys())
-            ax.set_xticklabels([xTicks[key] for key in xTicks], 
-                rotation=xtickRotation, fontsize=xytickfsize)
-        
-        if  xTicks is None and xtickRotation is not None:
-            ticks = ax.get_xticks()
-            if xIsDate:
-                from datetime import date
-                ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
-            ax.set_xticklabels(ticks, 
-                rotation=xtickRotation, fontsize=xytickfsize)
+          if linestyle is None:
+              if len(col)>1:
+                  linestyleL = col[1:]
+              else:
+                  linestyleL = '-' 
+          else:
+              if type(linestyle) == type([1]):
+                  linestyleL = linestyle[i] 
+              else:
+                  linestyleL = linestyle
 
 
-        if(ptitle is not None):
-            ax.set_title(ptitle, fontsize=titlefsize)
+          if not label:
+              plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, marker=mmrk)
+          else:
+              plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, marker=mmrk)
 
-        # minor ticks are two points smaller than major
-        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
-        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+              leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
+              leg.get_frame().set_alpha(legendAlpha)
+              self.bbox_extra_artists.append(leg)
 
-        if yInvert:
-            ax.set_ylim(ax.get_ylim()[::-1])
-        if xInvert:
-            ax.set_xlim(ax.get_xlim()[::-1])
+      if xIsDate:
+          plt.gcf().autofmt_xdate()
+
+      #scale the axes
+      if pltaxis is not None:
+          # ax.axis(pltaxis)
+          if not xIsDate:
+              ax.set_xlim(pltaxis[0],pltaxis[1])
+          ax.set_ylim(pltaxis[2],pltaxis[3])
+
+      if xTicks is not None:
+          ticks = ax.set_xticks(xTicks.keys())
+          ax.set_xticklabels([xTicks[key] for key in xTicks], 
+              rotation=xtickRotation, fontsize=xytickfsize)
+      
+      if  xTicks is None and xtickRotation is not None:
+          ticks = ax.get_xticks()
+          if xIsDate:
+              from datetime import date
+              ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
+          ax.set_xticklabels(ticks, 
+              rotation=xtickRotation, fontsize=xytickfsize)
+
+
+      if(ptitle is not None):
+          ax.set_title(ptitle, fontsize=titlefsize)
+
+      # minor ticks are two points smaller than major
+      ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+      ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+
+      if yInvert:
+          ax.set_ylim(ax.get_ylim()[::-1])
+      if xInvert:
+          ax.set_xlim(ax.get_xlim()[::-1])
+
+      return ax
+
     ############################################################
     ##
     def meshContour(self, plotnum, xvals, yvals, zvals, numLevels=10,
@@ -1124,7 +1167,7 @@ class Plotter:
                   drawGrid = False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=False ):
-        """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
+      """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
 
@@ -1176,129 +1219,128 @@ class Plotter:
                 | zeroContourLine (bool): draw the contour at zero
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        #to rank 2
-        xx=xvals.reshape(-1, 1)
-        yy=yvals.reshape(-1, 1)
+      #to rank 2
+      xx=xvals.reshape(-1, 1)
+      yy=yvals.reshape(-1, 1)
 
-        #if this is a log scale plot
-        if logScale is True:
-            zvals = numpy.log10(zvals) 
+      #if this is a log scale plot
+      if logScale is True:
+          zvals = numpy.log10(zvals) 
 
-        if contourLine:
-            if negativeSolid:
-                plt.rcParams['contour.negative_linestyle'] = 'solid'
-            else:
-                plt.rcParams['contour.negative_linestyle'] = 'dashed'
+      if contourLine:
+          if negativeSolid:
+              plt.rcParams['contour.negative_linestyle'] = 'solid'
+          else:
+              plt.rcParams['contour.negative_linestyle'] = 'dashed'
 
-        #create subplot if not existing
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum)#, projection='polar')
+      #create subplot if not existing
+      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+          self.subplots[(self.nrow,self.ncol, plotnum)] = \
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum)#, projection='polar')
 
-        #get axis
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+      #get axis
+      ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
-        if drawGrid:
-            ax.grid(True)
-        else:
-            ax.grid(False)
+      if drawGrid:
+          ax.grid(True)
+      else:
+          ax.grid(False)
 
-        if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize=xylabelfsize)
-            if xScientific:
-                formx = plt.ScalarFormatter()
-                formx.set_scientific(True)
-                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-                ax.xaxis.set_major_formatter(formx)
-        if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize=xylabelfsize)
-            if yScientific:
-                formy = plt.ScalarFormatter()
-                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
-                formy.set_scientific(True)
-                ax.yaxis.set_major_formatter(formy)
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+          if xScientific:
+              formx = plt.ScalarFormatter()
+              formx.set_scientific(True)
+              formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+              ax.xaxis.set_major_formatter(formx)
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+          if yScientific:
+              formy = plt.ScalarFormatter()
+              formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+              formy.set_scientific(True)
+              ax.yaxis.set_major_formatter(formy)
 
-        if maxNX >0:
-            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
-        if maxNY >0:
-            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+      if maxNX >0:
+          ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+      if maxNY >0:
+          ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
 
-        if plotCol:
-            col = plotCol[0]
-        else:
-            col = self.nextPlotCol()
+      if plotCol:
+          col = plotCol[0]
+      else:
+          col = self.nextPlotCol()
 
-        #do the plot
-        if contourLine:
-            pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
-                 colors=col)
+      #do the plot
+      if contourLine:
+          pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
+               colors=col)
 
-        if zeroContourLine:
-            pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths = 0.5,
-                 colors=col)
+      if zeroContourLine:
+          pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths = 0.5,
+               colors=col)
 
-        if contourFill:
-            pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading,
-                cmap=meshCmap)
+      if contourFill:
+          pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading,
+              cmap=meshCmap)
 
-        if cbarshow is True:
-            if not cbarcustomticks:
-                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
-                if logScale:
-                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
-                    tickVals = []
-                    # need this roundabout trick to handle minus sign in unicode
-                    for item in cbartickvals:
-                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
-                        val = 10**float(valstr)
-                        if abs(val) < 1000:
-                            str = '{0:f}'.format(val)
-                        else:
-                            str = '{0:e}'.format(val)
-                        tickVals.append(str)
-                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-            else:
-                ticks,  ticklabels = zip(*cbarcustomticks)
-                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
-                if cbarorientation == 'vertical':
-                    cbar.ax.set_yticklabels(ticklabels)
-                else:
-                    cbar.ax.set_xticklabels(ticklabels)
+      if cbarshow is True:
+          if not cbarcustomticks:
+              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              if logScale:
+                  cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                  tickVals = []
+                  # need this roundabout trick to handle minus sign in unicode
+                  for item in cbartickvals:
+                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      val = 10**float(valstr)
+                      if abs(val) < 1000:
+                          str = '{0:f}'.format(val)
+                      else:
+                          str = '{0:e}'.format(val)
+                      tickVals.append(str)
+                  cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+          else:
+              ticks,  ticklabels = zip(*cbarcustomticks)
+              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              if cbarorientation == 'vertical':
+                  cbar.ax.set_yticklabels(ticklabels)
+              else:
+                  cbar.ax.set_xticklabels(ticklabels)
 
-            if cbarorientation == 'vertical':
-                for t in cbar.ax.get_yticklabels():
-                     t.set_fontsize(cbarfontsize)
-            else:
-                for t in cbar.ax.get_xticklabels():
-                     t.set_fontsize(cbarfontsize)
+          if cbarorientation == 'vertical':
+              for t in cbar.ax.get_yticklabels():
+                   t.set_fontsize(cbarfontsize)
+          else:
+              for t in cbar.ax.get_xticklabels():
+                   t.set_fontsize(cbarfontsize)
 
-        if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          plt.title(ptitle, fontsize=titlefsize)
 
-        #scale the axes
-        if pltaxis is not None:
-            ax.axis(pltaxis)
+      #scale the axes
+      if pltaxis is not None:
+          ax.axis(pltaxis)
 
-        if(ptitle is not None):
-            ax.set_title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          ax.set_title(ptitle, fontsize=titlefsize)
 
-        # minor ticks are two points smaller than major
-        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
-        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+      # minor ticks are two points smaller than major
+      ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+      ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
-        if yInvert:
-            ax.set_ylim(ax.get_ylim()[::-1])
-        if xInvert:
-            ax.set_xlim(ax.get_xlim()[::-1])
+      if yInvert:
+          ax.set_ylim(ax.get_ylim()[::-1])
+      if xInvert:
+          ax.set_xlim(ax.get_xlim()[::-1])
 
-
-
+      return ax
 
     ############################################################
     ##
@@ -1314,7 +1356,7 @@ class Plotter:
                   drawGrid = True, xInvert=False, yInvert=False, zInvert=False,
                   logScale=False, elevation=30, azimuth=45, alpha=1, 
                    ):
-        """XY colour mesh plot for (xvals, yvals, zvals) input sets.
+      """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
 
@@ -1372,127 +1414,129 @@ class Plotter:
                 | alpha (float): surface transparency
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        from mpl_toolkits.mplot3d.axes3d import Axes3D
+      from mpl_toolkits.mplot3d.axes3d import Axes3D
 
-        #if this is a log scale plot
-        if logScale is True:
-            zvals = numpy.log10(zvals) 
+      #if this is a log scale plot
+      if logScale is True:
+          zvals = numpy.log10(zvals) 
 
-        #create subplot if not existing
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+      #create subplot if not existing
+      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+          self.subplots[(self.nrow,self.ncol, plotnum)] = \
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
-        #get axis
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+      #get axis
+      ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
-        if drawGrid:
-            ax.grid(True)
-        else:
-            ax.grid(False)
+      if drawGrid:
+          ax.grid(True)
+      else:
+          ax.grid(False)
 
-        if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize=xylabelfsize)
-            if xScientific:
-                formx = plt.ScalarFormatter()
-                formx.set_scientific(True)
-                formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-                ax.xaxis.set_major_formatter(formx)
-        if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize=xylabelfsize)
-            if yScientific:
-                formy = plt.ScalarFormatter()
-                formy.set_powerlimits([powerLimits[2], powerLimits[3]])
-                formy.set_scientific(True)
-                ax.yaxis.set_major_formatter(formy)
-        if zlabel is not None:
-            ax.set_zlabel(zlabel, fontsize=xylabelfsize)
-            if zScientific:
-                formz = plt.ScalarFormatter()
-                formz.set_powerlimits([powerLimits[4], powerLimits[5]])
-                formz.set_scientific(True)
-                ax.zaxis.set_major_formatter(formz)
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+          if xScientific:
+              formx = plt.ScalarFormatter()
+              formx.set_scientific(True)
+              formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+              ax.xaxis.set_major_formatter(formx)
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+          if yScientific:
+              formy = plt.ScalarFormatter()
+              formy.set_powerlimits([powerLimits[2], powerLimits[3]])
+              formy.set_scientific(True)
+              ax.yaxis.set_major_formatter(formy)
+      if zlabel is not None:
+          ax.set_zlabel(zlabel, fontsize=xylabelfsize)
+          if zScientific:
+              formz = plt.ScalarFormatter()
+              formz.set_powerlimits([powerLimits[4], powerLimits[5]])
+              formz.set_scientific(True)
+              ax.zaxis.set_major_formatter(formz)
 
-        if maxNX >0:
-            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
-        if maxNY >0:
-            ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-        if maxNZ >0:
-            ax.zaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNZ))
+      if maxNX >0:
+          ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+      if maxNY >0:
+          ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+      if maxNZ >0:
+          ax.zaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNZ))
 
-        if plotCol:
-            col = plotCol[0]
-        else:
-            col = self.nextPlotCol()
+      if plotCol:
+          col = plotCol[0]
+      else:
+          col = self.nextPlotCol()
 
-        #do the plot
-        if not wireframe:
-            pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
-                color=col[0], cmap=cmap, linewidth=linewidth, alpha=alpha)
-        else:
-            pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
-                color=col[0], linewidth=linewidth, alpha=alpha)
+      #do the plot
+      if not wireframe:
+          pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
+              color=col[0], cmap=cmap, linewidth=linewidth, alpha=alpha)
+      else:
+          pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
+              color=col[0], linewidth=linewidth, alpha=alpha)
 
-        if cbarshow is True and cmap is not None:
-            if not cbarcustomticks:
-                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
-                if logScale:
-                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
-                    tickVals = []
-                    # need this roundabout trick to handle minus sign in unicode
-                    for item in cbartickvals:
-                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
-                        val = 10**float(valstr)
-                        if abs(val) < 1000:
-                            str = '{0:f}'.format(val)
-                        else:
-                            str = '{0:e}'.format(val)
-                        tickVals.append(str)
-                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-            else:
-                ticks,  ticklabels = zip(*cbarcustomticks)
-                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
-                if cbarorientation == 'vertical':
-                    cbar.ax.set_yticklabels(ticklabels)
-                else:
-                    cbar.ax.set_xticklabels(ticklabels)
+      if cbarshow is True and cmap is not None:
+          if not cbarcustomticks:
+              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              if logScale:
+                  cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                  tickVals = []
+                  # need this roundabout trick to handle minus sign in unicode
+                  for item in cbartickvals:
+                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      val = 10**float(valstr)
+                      if abs(val) < 1000:
+                          str = '{0:f}'.format(val)
+                      else:
+                          str = '{0:e}'.format(val)
+                      tickVals.append(str)
+                  cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+          else:
+              ticks,  ticklabels = zip(*cbarcustomticks)
+              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              if cbarorientation == 'vertical':
+                  cbar.ax.set_yticklabels(ticklabels)
+              else:
+                  cbar.ax.set_xticklabels(ticklabels)
 
-            if cbarorientation == 'vertical':
-                for t in cbar.ax.get_yticklabels():
-                     t.set_fontsize(cbarfontsize)
-            else:
-                for t in cbar.ax.get_xticklabels():
-                     t.set_fontsize(cbarfontsize)
+          if cbarorientation == 'vertical':
+              for t in cbar.ax.get_yticklabels():
+                   t.set_fontsize(cbarfontsize)
+          else:
+              for t in cbar.ax.get_xticklabels():
+                   t.set_fontsize(cbarfontsize)
 
-        if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          plt.title(ptitle, fontsize=titlefsize)
 
-        #scale the axes
-        if pltaxis is not None:
-            ax.axis(pltaxis)
+      #scale the axes
+      if pltaxis is not None:
+          ax.axis(pltaxis)
 
-        if(ptitle is not None):
-            ax.set_title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          ax.set_title(ptitle, fontsize=titlefsize)
 
-        # minor ticks are two points smaller than major
-        ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
-        ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
- 
-        if xInvert:
-            ax.set_xlim(ax.get_xlim()[::-1])
-        if yInvert:
-            ax.set_ylim(ax.get_ylim()[::-1])
-        if zInvert:
-            ax.set_zlim(ax.get_zlim()[::-1])
+      # minor ticks are two points smaller than major
+      ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+      ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
-        #set the view direction
-        ax.view_init(elevation, azimuth)
+      if xInvert:
+          ax.set_xlim(ax.get_xlim()[::-1])
+      if yInvert:
+          ax.set_ylim(ax.get_ylim()[::-1])
+      if zInvert:
+          ax.set_zlim(ax.get_zlim()[::-1])
+
+      #set the view direction
+      ax.view_init(elevation, azimuth)
+
+      return ax
 
     ############################################################
     ##
@@ -1502,7 +1546,7 @@ class Plotter:
                     legendAlpha=0.0, \
                     rscale=None, rgrid=None, thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0, titlefsize=12):
-        """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
+      """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail. Note that the radial values
@@ -1539,161 +1583,162 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        if theta.ndim>1:
-            tt=theta
-        else:
-            tt=theta.reshape(-1, 1)
+      if theta.ndim>1:
+          tt=theta
+      else:
+          tt=theta.reshape(-1, 1)
 
-        if r.ndim>1:
-            rr=r
-        else:
-            rr=r.reshape(-1, 1)
-
-
-        MakeAbs = True
-        if rscale is not None:
-            if rscale[0] < 0:
-                MakeAbs = False
-            else:
-                highlightNegative=True #override the function value
-        else:
-            highlightNegative=True #override the function value
-
-        #plotCol = self.buildPlotCol(plotCol, rr.shape[1])
-
-        ax = None
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
-            self.subplots[pkey] = \
-                         self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
-
-        ax = self.subplots[pkey]
-
-        ax.grid(True)
-
-        rmax=0
-
-        for i in range(rr.shape[1]):
-            # negative val :forcing positive and phase shifting
-            # if forceAbsolute:
-            #     ttt = tt + numpy.pi*(rr[:, i] < 0).reshape(-1, 1)
-            #     rrr = numpy.abs(rr[:, i])
-            # else:
-            ttt = tt.reshape(-1,)
-            rrr = rr[:, i].reshape(-1,)
-
-            #print(rrr)
-
-            if highlightNegative:
-                #find zero crossings in data
-                zero_crossings = numpy.where(numpy.diff(numpy.sign(rr),axis=0))[0] + 1
-                #split the input into different subarrays according to crossings
-                negrrr = numpy.split(rr,zero_crossings)
-                negttt = numpy.split(tt,zero_crossings)
-
-                # print('zero crossing',zero_crossings)
-                # print(len(negrrr))
-                # print(negrrr)
-
-            #set up the line style, either given or next in sequence
-            if plotCol:
-                col = plotCol[i]
-            else:
-                col = self.nextPlotCol()
-
-            # print('p',ttt.shape)
-            # print('p',rrr.shape)
-
-            if not label:
-                if highlightNegative:
-                    lines = ax.plot(ttt, rrr, col)
-                    neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
-                    for ii in range(0,len(negrrr)):
-                        if len(negrrr[ii]) > 0:
-                            if negrrr[ii][0] < 0:
-                                if MakeAbs:
-                                    ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
-                                else:
-                                    ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-                ax.plot(ttt, rrr, col)
-                rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
-            else:
-                if highlightNegative:
-                    lines = ax.plot(ttt, rrr, col)
-                    neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
-                    for ii in range(0,len(negrrr)):
-                        if len(negrrr[ii]) > 0:
-                            # print(len(negrrr[ii]))
-                            # if negrrr[ii][0] < 0:
-                            if negrrr[ii][0][0] < 0:
-                                if MakeAbs:
-                                    ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
-                                else:
-                                    ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-                ax.plot(ttt, rrr, col,label=label[i])
-                rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
-
-            if MakeAbs:
-                ax.plot(ttt, numpy.abs(rrr), col)
-            else:
-                ax.plot(ttt, rrr, col)
-
-        if label:
-            fontP = mpl.font_manager.FontProperties()
-            fontP.set_size('small')
-            leg = ax.legend(loc='upper left',
-                    bbox_to_anchor=(labelLocation[0], labelLocation[1]),
-                    prop = fontP, fancybox=True)
-            leg.get_frame().set_alpha(legendAlpha)
-            self.bbox_extra_artists.append(leg)
+      if r.ndim>1:
+          rr=r
+      else:
+          rr=r.reshape(-1, 1)
 
 
-        ax.set_theta_direction(direction)
-        ax.set_theta_offset(zerooffset)
+      MakeAbs = True
+      if rscale is not None:
+          if rscale[0] < 0:
+              MakeAbs = False
+          else:
+              highlightNegative=True #override the function value
+      else:
+          highlightNegative=True #override the function value
+
+      #plotCol = self.buildPlotCol(plotCol, rr.shape[1])
+
+      ax = None
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
+          self.subplots[pkey] = \
+                       self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
+
+      ax = self.subplots[pkey]
+
+      ax.grid(True)
+
+      rmax=0
+
+      for i in range(rr.shape[1]):
+          # negative val :forcing positive and phase shifting
+          # if forceAbsolute:
+          #     ttt = tt + numpy.pi*(rr[:, i] < 0).reshape(-1, 1)
+          #     rrr = numpy.abs(rr[:, i])
+          # else:
+          ttt = tt.reshape(-1,)
+          rrr = rr[:, i].reshape(-1,)
+
+          #print(rrr)
+
+          if highlightNegative:
+              #find zero crossings in data
+              zero_crossings = numpy.where(numpy.diff(numpy.sign(rr),axis=0))[0] + 1
+              #split the input into different subarrays according to crossings
+              negrrr = numpy.split(rr,zero_crossings)
+              negttt = numpy.split(tt,zero_crossings)
+
+              # print('zero crossing',zero_crossings)
+              # print(len(negrrr))
+              # print(negrrr)
+
+          #set up the line style, either given or next in sequence
+          if plotCol:
+              col = plotCol[i]
+          else:
+              col = self.nextPlotCol()
+
+          # print('p',ttt.shape)
+          # print('p',rrr.shape)
+
+          if not label:
+              if highlightNegative:
+                  lines = ax.plot(ttt, rrr, col)
+                  neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
+                  for ii in range(0,len(negrrr)):
+                      if len(negrrr[ii]) > 0:
+                          if negrrr[ii][0] < 0:
+                              if MakeAbs:
+                                  ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                              else:
+                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
+              ax.plot(ttt, rrr, col)
+              rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
+          else:
+              if highlightNegative:
+                  lines = ax.plot(ttt, rrr, col)
+                  neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
+                  for ii in range(0,len(negrrr)):
+                      if len(negrrr[ii]) > 0:
+                          # print(len(negrrr[ii]))
+                          # if negrrr[ii][0] < 0:
+                          if negrrr[ii][0][0] < 0:
+                              if MakeAbs:
+                                  ax.plot(negttt[ii], numpy.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                              else:
+                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
+              ax.plot(ttt, rrr, col,label=label[i])
+              rmax=numpy.maximum(numpy.abs(rrr).max(), rmax)
+
+          if MakeAbs:
+              ax.plot(ttt, numpy.abs(rrr), col)
+          else:
+              ax.plot(ttt, rrr, col)
+
+      if label:
+          fontP = mpl.font_manager.FontProperties()
+          fontP.set_size('small')
+          leg = ax.legend(loc='upper left',
+                  bbox_to_anchor=(labelLocation[0], labelLocation[1]),
+                  prop = fontP, fancybox=True)
+          leg.get_frame().set_alpha(legendAlpha)
+          self.bbox_extra_artists.append(leg)
 
 
-        #set up the grids
-        plt.thetagrids(range(0, 360, thetagrid[0]))
-
-        if rgrid is None:
-            ax.set_yticks(numpy.linspace(0,rmax,5))
-        else:
-            if rgrid[0]==0:
-                if rmax>0:
-                    #round and increase the max value for nice numbers
-                    lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
-                    frmax=rmax/(rgrid[1]*10**lrmax)
-                    rinc=10**lrmax*math.ceil(frmax)
-                    plt.rgrids(numpy.arange(rinc, rinc*rgrid[1], rinc))
-            else:
-                plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
+      ax.set_theta_direction(direction)
+      ax.set_theta_offset(zerooffset)
 
 
+      #set up the grids
+      plt.thetagrids(range(0, 360, thetagrid[0]))
 
-        #Set increment and maximum radial limits
-        if rscale is not None:
-            ax.set_ylim(rscale[0],rscale[1])
-            ax.set_yticks(numpy.linspace(rscale[0],rscale[1],5))
-        else:
-            ax.set_ylim(0,rmax)
+      if rgrid is None:
+          ax.set_yticks(numpy.linspace(0,rmax,5))
+      else:
+          if rgrid[0]==0:
+              if rmax>0:
+                  #round and increase the max value for nice numbers
+                  lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
+                  frmax=rmax/(rgrid[1]*10**lrmax)
+                  rinc=10**lrmax*math.ceil(frmax)
+                  plt.rgrids(numpy.arange(rinc, rinc*rgrid[1], rinc))
+          else:
+              plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
 
 
-        if(ptitle is not None):
-            ax.set_title(ptitle, fontsize=titlefsize, \
-                verticalalignment ='bottom', horizontalalignment='center')
 
+      #Set increment and maximum radial limits
+      if rscale is not None:
+          ax.set_ylim(rscale[0],rscale[1])
+          ax.set_yticks(numpy.linspace(rscale[0],rscale[1],5))
+      else:
+          ax.set_ylim(0,rmax)
+
+
+      if(ptitle is not None):
+          ax.set_title(ptitle, fontsize=titlefsize, \
+              verticalalignment ='bottom', horizontalalignment='center')
+
+      return ax
 
     ############################################################
     ##
     def showImage(self, plotnum, img,  ptitle=None, cmap=plt.cm.gray, titlefsize=12, cbarshow=False, \
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
-        """Creates a subplot and show the image using the colormap provided.
+      """Creates a subplot and show the image using the colormap provided.
 
             Args:
                 | plotnum (int): subplot number
@@ -1707,46 +1752,45 @@ class Plotter:
                 | cbarfontsize (int): font size for color bar
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
     #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
-        pkey = (self.nrow, self.ncol, plotnum)
-        if pkey not in self.subplots.keys():
-            self.subplots[pkey] = \
-                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in self.subplots.keys():
+          self.subplots[pkey] = \
+                       self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
-        ax = self.subplots[pkey]
+      ax = self.subplots[pkey]
 
-        cimage = ax.imshow(img, cmap)
-        ax.axis('off')
-        if cbarshow is True:
-            if not cbarcustomticks:
-                cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
-            else:
-                ticks,  ticklabels = zip(*cbarcustomticks)
-                cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
-                if cbarorientation == 'vertical':
-                    cbar.ax.set_yticklabels(ticklabels)
-                else:
-                    cbar.ax.set_xticklabels(ticklabels)
+      cimage = ax.imshow(img, cmap)
+      ax.axis('off')
+      if cbarshow is True:
+          if not cbarcustomticks:
+              cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
+          else:
+              ticks,  ticklabels = zip(*cbarcustomticks)
+              cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
+              if cbarorientation == 'vertical':
+                  cbar.ax.set_yticklabels(ticklabels)
+              else:
+                  cbar.ax.set_xticklabels(ticklabels)
 
-            if cbarorientation == 'vertical':
-                for t in cbar.ax.get_yticklabels():
-                     t.set_fontsize(cbarfontsize)
-            else:
-                for t in cbar.ax.get_xticklabels():
-                     t.set_fontsize(cbarfontsize)
+          if cbarorientation == 'vertical':
+              for t in cbar.ax.get_yticklabels():
+                   t.set_fontsize(cbarfontsize)
+          else:
+              for t in cbar.ax.get_xticklabels():
+                   t.set_fontsize(cbarfontsize)
 
-        if(ptitle is not None):
-            ax.set_title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          ax.set_title(ptitle, fontsize=titlefsize)
 
-
-
+      return ax
 
 
     ############################################################
@@ -1754,7 +1798,7 @@ class Plotter:
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, \
                plotCol=[], label=None, legendAlpha=0.0, titlefsize=12,
                xylabelfsize = 12 , xInvert=False, yInvert=False, zInvert=False):
-        """3D plot on linear scales for x y z input sets.
+      """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail.
@@ -1783,57 +1827,57 @@ class Plotter:
                 | zInvert (bool): invert the z-axis
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        # if required convert 1D arrays into 2D arrays
-        if x.ndim < 2:
-            x = x.reshape(-1,1)
-        if y.ndim < 2:
-            y = y.reshape(-1,1)
-        if z.ndim < 2:
-            z = z.reshape(-1,1)
+      # if required convert 1D arrays into 2D arrays
+      if x.ndim < 2:
+          x = x.reshape(-1,1)
+      if y.ndim < 2:
+          y = y.reshape(-1,1)
+      if z.ndim < 2:
+          z = z.reshape(-1,1)
 
-        # if not plotCol:
-        #     plotCol = [self.nextPlotCol()]
-        # else:
-        plotCol = self.buildPlotCol(plotCol, x.shape[-1])
+      # if not plotCol:
+      #     plotCol = [self.nextPlotCol()]
+      # else:
+      plotCol = self.buildPlotCol(plotCol, x.shape[-1])
 
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+          self.subplots[(self.nrow,self.ncol, plotnum)] = \
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+      ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
-        for i in range(x.shape[-1]):
-            ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
+      for i in range(x.shape[-1]):
+          ax.plot(x[:,i], y[:,i], z[:,i], plotCol[i])
 
-        if xInvert:
-            ax.set_xlim(ax.get_xlim()[::-1])
-        if yInvert:
-            ax.set_ylim(ax.get_ylim()[::-1])
-        if zInvert:
-            ax.set_zlim(ax.get_zlim()[::-1])
+      if xInvert:
+          ax.set_xlim(ax.get_xlim()[::-1])
+      if yInvert:
+          ax.set_ylim(ax.get_ylim()[::-1])
+      if zInvert:
+          ax.set_zlim(ax.get_zlim()[::-1])
 
-        if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize = xylabelfsize)
-        if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize = xylabelfsize)
-        if zlabel is not None:
-            ax.set_zlabel(zlabel, fontsize = xylabelfsize)
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize = xylabelfsize)
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize = xylabelfsize)
+      if zlabel is not None:
+          ax.set_zlabel(zlabel, fontsize = xylabelfsize)
 
-        if label is not None:
-            leg = plt.legend(label, loc='best', fancybox=True)
-            leg.get_frame().set_alpha(legendAlpha)
-            self.bbox_extra_artists.append(leg)
+      if label is not None:
+          leg = plt.legend(label, loc='best', fancybox=True)
+          leg.get_frame().set_alpha(legendAlpha)
+          self.bbox_extra_artists.append(leg)
 
-        if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          plt.title(ptitle, fontsize=titlefsize)
 
-
+      return ax
 
     ############################################################
     ##
@@ -1842,7 +1886,7 @@ class Plotter:
                titlefsize=12, xylabelfsize = 12,
                thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
                linewidth=0.1, azim=45, elev=30):
-        """3D polar surface/mesh plot for (r, theta, zvals) input sets.
+      """3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
 
@@ -1876,42 +1920,44 @@ class Plotter:
                 | elev (float): camera evelation angle viewing the graph [degrees]
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        # transform to cartesian system, using meshgrid
-        Radial,Theta = numpy.meshgrid(radial,theta)
-        X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+      # transform to cartesian system, using meshgrid
+      Radial,Theta = numpy.meshgrid(radial,theta)
+      X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
 
-        #create subplot if not existing
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
-        #get axis
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
-        #do the plot
-        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
-            linewidth=linewidth, cmap=meshCmap)
-        ax.view_init(azim=azim, elev=elev)
+      #create subplot if not existing
+      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+          self.subplots[(self.nrow,self.ncol, plotnum)] = \
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
+      #get axis
+      ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+      #do the plot
+      ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+          linewidth=linewidth, cmap=meshCmap)
+      ax.view_init(azim=azim, elev=elev)
 
-        #label and clean up
-        if zscale==None:
-            ax.set_zlim3d(numpy.min(zvals), numpy.max(zvals))
-        else:
-            ax.set_zlim3d(zscale[0], zscale[1])
+      #label and clean up
+      if zscale==None:
+          ax.set_zlim3d(numpy.min(zvals), numpy.max(zvals))
+      else:
+          ax.set_zlim3d(zscale[0], zscale[1])
 
-        if xlabel is not None:
-            ax.set_xlabel(xlabel, fontsize = xylabelfsize)
-        if ylabel is not None:
-            ax.set_ylabel(ylabel, fontsize = xylabelfsize)
-        if zlabel is not None:
-            ax.set_zlabel(zlabel, fontsize = xylabelfsize)
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize = xylabelfsize)
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize = xylabelfsize)
+      if zlabel is not None:
+          ax.set_zlabel(zlabel, fontsize = xylabelfsize)
 
-        if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          plt.title(ptitle, fontsize=titlefsize)
+
+      return ax
 
     ############################################################
     ##
@@ -1922,7 +1968,7 @@ class Plotter:
                   thetagridfontsize = 12, radialgridfontsize=12,\
                   direction='counterclockwise', zerooffset=0, logScale=False,
                   plotCol=[], numLevels=10, contourLine=True, zeroContourLine=False):
-        """Polar colour mesh plot for (r, theta, zvals) input sets.
+      """Polar colour mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
 
@@ -1967,141 +2013,139 @@ class Plotter:
                 | zeroContourLine (bool): draw the contour at zero
 
             Returns:
-                | Nothing
+                | the axis object for the plot
 
             Raises:
                 | No exception is raised.
-        """
+      """
 
-        # # transform to cartesian system, using meshgrid
-        # Radial,Theta = numpy.meshgrid(radial,theta)
-        # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
+      # # transform to cartesian system, using meshgrid
+      # Radial,Theta = numpy.meshgrid(radial,theta)
+      # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
 
-        #if this is a log scale plot
-        if logScale is True:
-            zvals = numpy.log10(zvals) 
+      #if this is a log scale plot
+      if logScale is True:
+          zvals = numpy.log10(zvals) 
 
-        #create subplot if not existing
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
-        #get axis
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+      #create subplot if not existing
+      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+          self.subplots[(self.nrow,self.ncol, plotnum)] = \
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
+      #get axis
+      ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
-        if plotCol:
-            col = plotCol[0]
-        else:
-            col = self.nextPlotCol()
+      if plotCol:
+          col = plotCol[0]
+      else:
+          col = self.nextPlotCol()
 
-        #do the plot
-        if contourLine:
-            pmplot = ax.contour(theta, radial, zvals, numLevels, cmap=None,
-                 colors=col)
+      #do the plot
+      if contourLine:
+          pmplot = ax.contour(theta, radial, zvals, numLevels, cmap=None,
+               colors=col)
 
-        if zeroContourLine:
-            pmplot = ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths = 0.5,
-                 colors=col)
+      if zeroContourLine:
+          pmplot = ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths = 0.5,
+               colors=col)
 
-        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
+      pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
 
-        #label and clean up
-        if radscale==None:
-            ax.set_ylim(numpy.min(radial), numpy.max(radial))
-        else:
-            ax.set_ylim(radscale[0], radscale[1])
+      #label and clean up
+      if radscale==None:
+          ax.set_ylim(numpy.min(radial), numpy.max(radial))
+      else:
+          ax.set_ylim(radscale[0], radscale[1])
 
-        ax.grid(drawGrid)
+      ax.grid(drawGrid)
 
-        if cbarshow is True:
-            if not cbarcustomticks:
-                cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
-                if logScale:
-                    cbartickvals = cbar.ax.yaxis.get_ticklabels()
-                    tickVals = []
-                    # need this roundabout trick to handle minus sign in unicode
-                    for item in cbartickvals:
-                        valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
-                        val = 10**float(valstr)
-                        if abs(val) < 1000:
-                            str = '{0:f}'.format(val)
-                        else:
-                            str = '{0:e}'.format(val)
-                        tickVals.append(str)
-                    cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-            else:
-                ticks,  ticklabels = zip(*cbarcustomticks)
-                cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
-                if cbarorientation == 'vertical':
-                    cbar.ax.set_yticklabels(ticklabels)
-                else:
-                    cbar.ax.set_xticklabels(ticklabels)
+      if cbarshow is True:
+          if not cbarcustomticks:
+              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              if logScale:
+                  cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                  tickVals = []
+                  # need this roundabout trick to handle minus sign in unicode
+                  for item in cbartickvals:
+                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      val = 10**float(valstr)
+                      if abs(val) < 1000:
+                          str = '{0:f}'.format(val)
+                      else:
+                          str = '{0:e}'.format(val)
+                      tickVals.append(str)
+                  cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+          else:
+              ticks,  ticklabels = zip(*cbarcustomticks)
+              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              if cbarorientation == 'vertical':
+                  cbar.ax.set_yticklabels(ticklabels)
+              else:
+                  cbar.ax.set_xticklabels(ticklabels)
 
-            if cbarorientation == 'vertical':
-                for t in cbar.ax.get_yticklabels():
-                     t.set_fontsize(cbarfontsize)
-            else:
-                for t in cbar.ax.get_xticklabels():
-                     t.set_fontsize(cbarfontsize)
+          if cbarorientation == 'vertical':
+              for t in cbar.ax.get_yticklabels():
+                   t.set_fontsize(cbarfontsize)
+          else:
+              for t in cbar.ax.get_xticklabels():
+                   t.set_fontsize(cbarfontsize)
 
-        if(ptitle is not None):
-            plt.title(ptitle, fontsize=titlefsize)
+      if(ptitle is not None):
+          plt.title(ptitle, fontsize=titlefsize)
 
-        #set up the grids
-        if thetagrid is None:
-            plt.thetagrids([])
-        else:
-            plt.thetagrids(range(0, 360, thetagrid[0]))
-        plt.tick_params(axis='x', which='major', labelsize=thetagridfontsize)
+      #set up the grids
+      if thetagrid is None:
+          plt.thetagrids([])
+      else:
+          plt.thetagrids(range(0, 360, thetagrid[0]))
+      plt.tick_params(axis='x', which='major', labelsize=thetagridfontsize)
 
-        if rgrid is None:
-            ax.set_yticks([])
-        elif len(rgrid) is 1:
-            ax.set_yticks(numpy.linspace(0,numpy.max(radial),rgrid[0]))
-        elif len(rgrid) is 2:
-            plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
-        else:
-            pass
-        plt.tick_params(axis='y', which='major', labelsize=radialgridfontsize)
+      if rgrid is None:
+          ax.set_yticks([])
+      elif len(rgrid) is 1:
+          ax.set_yticks(numpy.linspace(0,numpy.max(radial),rgrid[0]))
+      elif len(rgrid) is 2:
+          plt.rgrids(numpy.arange(rgrid[0], rgrid[1], rgrid[0]))
+      else:
+          pass
+      plt.tick_params(axis='y', which='major', labelsize=radialgridfontsize)
 
-        ax.set_theta_direction(direction)
-        ax.set_theta_offset(zerooffset)
+      ax.set_theta_direction(direction)
+      ax.set_theta_offset(zerooffset)
 
-           # rmax = numpy.max(radial)
-            # if rmax>0:
-            #     #round and increase the max value for nice numbers
-            #     lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
-            #     frmax=rmax/(rgrid[1]*10**lrmax)
-            #     rinc=10**lrmax*math.ceil(frmax)
-            #     plt.rgrids(numpy.arange(rinc, rinc*rgrid[1], rinc))
-            # else:
-            #     ax.set_yticks(numpy.linspace(0,numpy.max(radial),5))
+         # rmax = numpy.max(radial)
+          # if rmax>0:
+          #     #round and increase the max value for nice numbers
+          #     lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
+          #     frmax=rmax/(rgrid[1]*10**lrmax)
+          #     rinc=10**lrmax*math.ceil(frmax)
+          #     plt.rgrids(numpy.arange(rinc, rinc*rgrid[1], rinc))
+          # else:
+          #     ax.set_yticks(numpy.linspace(0,numpy.max(radial),5))
+
+      return ax
 
     ############################################################
     ##
-    def plotMarkers(self, plotnum, ):
-        """Add markers to the subplot
+    # def plotMarkers(self, plotnum, ):
+    #     """Add markers to the subplot
 
 
-            Args:
-                | plotnum (int): subplot number
+    #         Args:
+    #             | plotnum (int): subplot number
 
-            Returns:
-                | Nothing
+    #         Returns:
+    #             | Nothing
 
-            Raises:
-                | No exception is raised.
-        """
+    #         Raises:
+    #             | No exception is raised.
+    #     """
 
-        # # transform to cartesian system, using meshgrid
-        # Radial,Theta = numpy.meshgrid(radial,theta)
-        # X,Y = Radial*numpy.cos(Theta),Radial*numpy.sin(Theta)
-
-        #create subplot if not existing
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
-            self.subplots[(self.nrow,self.ncol, plotnum)] = \
-                 self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
-        #get axis
-        ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+    #     #create subplot if not existing
+    #     if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+    #         self.subplots[(self.nrow,self.ncol, plotnum)] = \
+    #              self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
+    #     #get axis
+    #     ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
     
     ############################################################
@@ -2316,7 +2360,7 @@ if __name__ == '__main__':
     x = numpy.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
     y = numpy.asarray(range(len(x)))
     pd = Plotter(1)
-    pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4])
+    pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
     pd.saveFig('plotdateX.png')
 
     #demonstrate the use of arbitrary x-axis tick marks
@@ -2332,8 +2376,9 @@ if __name__ == '__main__':
 
     r = numpy.linspace(0,1.25,100)
     p = numpy.linspace(0,2*numpy.pi,100)
-    R,P = numpy.meshgrid(r,p)
-    value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
+    P,R = numpy.meshgrid(p,r)
+    # value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
+    value = ((R**2 - 1)**2) * numpy.sin(2 * P)
     pmesh = Plotter(1, 2, 2,'Polar plot in mesh',figsize=(12,8))
     pmesh.polarMesh(1, p, r, value, meshCmap = cm.jet_r, cbarshow=True,\
                   drawGrid=False, rgrid=None, thetagrid=None,\
@@ -2484,8 +2529,8 @@ if __name__ == '__main__':
 
     r = numpy.linspace(0,1.25,100)
     p = numpy.linspace(0,2*numpy.pi,100)
-    R,P = numpy.meshgrid(r,p)
-    value = ((numpy.sin(P))**2 + numpy.cos(P)*(R**2 - 1)**2)
+    P, R = numpy.meshgrid(p, r)
+    value =  ((R**2 - 1)**2) * numpy.sin(2 * P)
     pmesh = Plotter(1, 1, 1,'Polar plot in mesh',figsize=(12,8))
     pmesh.polarMesh(1, p, r, value, cbarshow=True, \
                   cbarorientation = 'vertical', cbarfontsize = 10,  \
