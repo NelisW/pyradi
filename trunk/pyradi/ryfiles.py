@@ -158,7 +158,7 @@ def loadColumnTextFile(filename, loadCol=[1],  \
     if normalize != 0:
         interpValue /= numpy.max(interpValue,axis=0)
 
-    return interpValue, abscissaOut
+    return interpValue, abscissaOut.reshape(-1,1)
 
 
 ################################################################################
