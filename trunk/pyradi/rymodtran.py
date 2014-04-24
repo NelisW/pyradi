@@ -115,7 +115,7 @@ def loadtape7(filename, colspec = []):
         | colspec ([string]): list of column names required in the output the spectral transmittance data.
 
     Returns:
-        | numpy.array: an array with the selected columns. Col[0] is the wavenumber.
+        | np.array: an array with the selected columns. Col[0] is the wavenumber.
 
     Raises:
         | No exception is raised.
@@ -252,7 +252,7 @@ if __name__ == '__main__':
 
     import math
     import sys
-    import numpy
+    import numpy as np
 
     import pyradi.ryplot as ryplot
     import pyradi.ryutils as ryutils
@@ -344,7 +344,7 @@ if __name__ == '__main__':
       #convert from /cm^2 to /m2 and integrate using the wavenumber vector
       #normally you would multiply with a sensor spectral response before integration
       #this calculation is over the whole band, equally weighted.
-      totinband = numpy.trapz(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
+      totinband = np.trapz(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
       print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
     sr.saveFig('NIRPathradiance.png')
     print('Note that multiple scatter contributes significantly to the total path radiance')
@@ -361,7 +361,7 @@ if __name__ == '__main__':
       sr.plot(i,  wl, Lpath, "","Wavelength [$\mu$m]","L [W/(m$^2$.sr.$\mu$m)]",
              label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
              maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-      totinband = - numpy.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
+      totinband = - np.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
       print('{0} integral is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
 
     sr.saveFig('NIRPathradiancewl.png')

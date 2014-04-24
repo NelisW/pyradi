@@ -53,7 +53,7 @@ if sys.version_info[0] > 2:
     exit(-1)
 
 
-import numpy
+import numpy as np
 from scipy import constants
 
 
@@ -101,7 +101,7 @@ def detectThresholdToNoise(pulseWidth, FAR):
         | No exception is raised.
     """
 
-    ThresholdToNoise = numpy.sqrt(-2 * numpy.log (2 * pulseWidth * numpy.sqrt(3) * FAR ))
+    ThresholdToNoise = np.sqrt(-2 * np.log (2 * pulseWidth * np.sqrt(3) * FAR ))
 
     return ThresholdToNoise
 
@@ -135,7 +135,7 @@ def detectSignalToNoise(ThresholdToNoise, pD):
 
     import scipy.special
 
-    SignalToNoise = numpy.sqrt(2) * scipy.special.erfinv(2 * pD -1) + ThresholdToNoise
+    SignalToNoise = np.sqrt(2) * scipy.special.erfinv(2 * pD -1) + ThresholdToNoise
 
     return SignalToNoise
 
@@ -200,7 +200,7 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
 
     Range = fsolve(_rangeEquationCalc, rangeGuess,
-        args = (Intensity,Irradiance,tauTable,n,numpy.max(rangeTab),))
+        args = (Intensity,Irradiance,tauTable,n,np.max(rangeTab),))
 
     #near the bottom (minimum) range of the table
     if(Range < rangeTab[2] ):
@@ -292,16 +292,16 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  \
         | If an invalid filter type is specified, return None.
     """
 
-    tau = taustop+(taupass-taustop)*numpy.exp(-(2*(spectral-center)/width)**exponent)
-    maxtau=numpy.max(tau)
+    tau = taustop+(taupass-taustop)*np.exp(-(2*(spectral-center)/width)**exponent)
+    maxtau=np.max(tau)
     if filtertype == 'bandpass':
         pass
     elif filtertype == 'lowpass':
-        tau = tau * numpy.greater(spectral,center) + \
-                maxtau * numpy.ones(spectral.shape) * numpy.less(spectral,center)
+        tau = tau * np.greater(spectral,center) + \
+                maxtau * np.ones(spectral.shape) * np.less(spectral,center)
     elif filtertype == 'highpass':
-        tau = tau * numpy.less(spectral,center) + \
-                maxtau * numpy.ones(spectral.shape) * numpy.greater(spectral,center)
+        tau = tau * np.less(spectral,center) + \
+                maxtau * np.ones(spectral.shape) * np.greater(spectral,center)
     else:
         return None
 
@@ -365,8 +365,8 @@ def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
         | No exception is raised.
     """
 
-    num=numpy.trapz(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
-    den=numpy.trapz(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    num=np.trapz(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    den=np.trapz(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
     return num/den
 
 
@@ -411,7 +411,7 @@ def convertSpectralDomain(inspectraldomain,  type=''):
               'fn': lambda inspectraldomain:  (inspectraldomain / 100) / constants.c ,
               'nl': lambda inspectraldomain:  (1.0e4/inspectraldomain),
               'nf': lambda inspectraldomain:  (inspectraldomain * 100) * constants.c,
-              }.get(type, lambda inspectraldomain: numpy.zeros(shape=(0, 0)) )(inspectraldomain)
+              }.get(type, lambda inspectraldomain: np.zeros(shape=(0, 0)) )(inspectraldomain)
 
     return outspectraldomain
 
@@ -461,7 +461,7 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
 
     inspectraldomain = inspectraldomain.reshape(-1,)
     inspectralquantity = inspectralquantity.reshape(inspectraldomain.shape[0], -1)
-    outspectralquantity = numpy.zeros(inspectralquantity.shape)
+    outspectralquantity = np.zeros(inspectralquantity.shape)
 
     # the meshgrid idea does not work well here, because we can have very long
     # spectral arrays and these become too large for meshgrid -> size **2
@@ -479,7 +479,7 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
                   'ln': lambda spec:  (1.0e4/spec),
                   'nf': lambda spec:  (spec * 100) * constants.c,
                   'fl': lambda spec:  constants.c  / (spec * 1.0e-6),
-                  }.get(type, lambda spec: numpy.zeros(shape=(0, 0)) )(spec)
+                  }.get(type, lambda spec: np.zeros(shape=(0, 0)) )(spec)
 
         outspectralquantity[:, col] = {
                   'lf': lambda quant: quant / (constants.c *1.0e-6 / ((spec * 1.0e-6)**2)),
@@ -488,14 +488,14 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
                   'ln': lambda quant: quant / (1.0e4 / spec**2) ,
                   'nf': lambda quant: quant / (100 * constants.c),
                   'fl': lambda quant: quant / (constants.c *1.0e-6 / ((spec * 1.0e-6)**2)),
-                  }.get(type, lambda quant: numpy.zeros(shape=(0, 0)) )(quant)
+                  }.get(type, lambda quant: np.zeros(shape=(0, 0)) )(quant)
 
     return (outspectraldomain,outspectralquantity)
 
 
 ##############################################################################
 ##
-def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowtype=numpy.bartlett):
+def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowtype=np.bartlett):
     """ Convolve (non-circular) a spectral variable with a window function,
     given the input resolution and input and output window widths.
 
@@ -525,8 +525,8 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
     winbins = round(2*(outwinwidth/(inwinwidth*samplingresolution)), 0)
     winbins = winbins if winbins%2==1 else winbins+1
     windowfn=windowtype(winbins)
-    #numpy.convolve is unfriendly towards unicode strings
-    outspectral = numpy.convolve(windowfn/(samplingresolution*windowfn.sum()),
+    #np.convolve is unfriendly towards unicode strings
+    outspectral = np.convolve(windowfn/(samplingresolution*windowfn.sum()),
                         inspectral.reshape(-1, ),mode='same'.encode('utf-8'))
     return outspectral,  windowfn
 
@@ -563,8 +563,8 @@ if __name__ == '__main__':
 
     #demonstrate the range equation solver
     #create a range table and its associated transmittance table
-    rangeTab = numpy.linspace(0, 10000, 1000)
-    tauTab = numpy.exp(- 0.00015 * rangeTab)
+    rangeTab = np.linspace(0, 10000, 1000)
+    tauTab = np.exp(- 0.00015 * rangeTab)
     Intensity=200
     Irradiancetab=[10e-100, 10e-6, 10e-1]
     for Irradiance in Irradiancetab:
@@ -574,10 +574,10 @@ if __name__ == '__main__':
         #test the solution by calculating the irradiance at this range.
         tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
 
-        if numpy.abs(r[0]) < rangeTab[2]:
+        if np.abs(r[0]) < rangeTab[2]:
             rr = rangeTab[2]
             strError = "Check range resolution in lookup table"
-        elif numpy.abs(r[0]) > rangeTab[-1]:
+        elif np.abs(r[0]) > rangeTab[-1]:
             rr = rangeTab[-1]
             strError = "Check maximum range in lookup table"
         else:
@@ -592,9 +592,9 @@ if __name__ == '__main__':
 
     #########################################################################################
     # demo the spectral density conversions
-    wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
-    wavenumRef = numpy.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
-    frequenRef = numpy.asarray([  2.99792458e+15,   2.99792458e+14,   2.99792458e+13, 2.99792458e+12])
+    wavelenRef = np.asarray([0.1,  1,  10 ,  100]) # in units of um
+    wavenumRef = np.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
+    frequenRef = np.asarray([  2.99792458e+15,   2.99792458e+14,   2.99792458e+13, 2.99792458e+12])
     print('Input spectral vectors:')
     print(wavelenRef)
     print(wavenumRef)
@@ -654,11 +654,11 @@ if __name__ == '__main__':
     print(wavelenRef/wavel)
 
     ## plot some conversions
-    wl = numpy.linspace(1, 14, 101)#.reshape(-1,1) # wavelength 
+    wl = np.linspace(1, 14, 101)#.reshape(-1,1) # wavelength 
     wn = convertSpectralDomain(wl, type='ln') # wavenumber
-    radiancewl = ryplanck.planck(wl,1000, 'el') / numpy.pi
+    radiancewl = ryplanck.planck(wl,1000, 'el') / np.pi
     _,radiancewn1 = convertSpectralDensity(wl,radiancewl, 'ln')
-    radiancewn2 = ryplanck.planck(wn,1000, 'en') / numpy.pi
+    radiancewn2 = ryplanck.planck(wn,1000, 'en') / np.pi
     p = ryplot.Plotter(2,1,3,figsize=(18,6))
     p.plot(1,wl, radiancewl,'Planck radiance','Wavelength $\mu$m', 'Radiance W/(m$^2$.sr.$\mu$m)')
     p.plot(2,wn, radiancewn1,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
@@ -670,8 +670,8 @@ if __name__ == '__main__':
     #do a few tests first to check basic functionality. Place single lines and then convolve.
     ## ----------------------- basic functionality------------------------------------------
     samplingresolution=0.5
-    wavenum=numpy.linspace(0, 100, 100/samplingresolution)
-    inspectral=numpy.zeros(wavenum.shape)
+    wavenum=np.linspace(0, 100, 100/samplingresolution)
+    inspectral=np.zeros(wavenum.shape)
     inspectral[10/samplingresolution] = 1
     inspectral[11/samplingresolution] = 1
     inspectral[45/samplingresolution] = 1
@@ -706,7 +706,7 @@ if __name__ == '__main__':
     bunsen = bunInterp1(wavenum)
 
     atmoplot = tauA.copy()
-    atmoplot =  numpy.vstack((atmoplot, tauAtmo4))
+    atmoplot =  np.vstack((atmoplot, tauAtmo4))
     convplot02 = ryplot.Plotter(1, 1, 1,figsize=(20,5))
     convplot02.plot(1, wavenum, atmoplot.T, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
                 r'Transmittance', ['r-', 'g-'],['1 cm-1', '4 cm-1' ],0.5)
@@ -735,7 +735,7 @@ if __name__ == '__main__':
     ## ----------------------- wavelength------------------------------------------
     #create the wavelength scale to be used in all spectral calculations,
     # wavelength is reshaped to a 2-D  (N,1) column vector
-    wavelength=numpy.linspace(0.1, 1.3, 350).reshape(-1, 1)
+    wavelength=np.linspace(0.1, 1.3, 350).reshape(-1, 1)
 
     ##------------------------filter -------------------------------------
     #test the different filter types
@@ -743,13 +743,13 @@ if __name__ == '__main__':
     center = 0.9
     filterExp=[2, 2,  4, 6,  8, 12, 1000]
     filterPass=[0.4, 0.5,  0.6, 0.7,  0.8, 0.9, 0.99]
-    filterSupp = numpy.asarray(filterPass) * 0.1
+    filterSupp = np.asarray(filterPass) * 0.1
     filterType=['bandpass', 'lowpass', 'highpass', 'bandpass', 'lowpass', 'highpass', 'bandpass']
     filterTxt = [r's={0}, $\tau_p$={2}, {1}'.format(s,y,z) for s,y,z in zip(filterExp, filterType, filterPass) ]
     filters = sfilter(wavelength,center, width, filterExp[0], filterPass[0],  filterSupp[0], filterType[0])
     for i, exponent in enumerate(filterExp[1:]):
         tau=sfilter(wavelength,center, width, filterExp[i],filterPass[i],  filterSupp[i], filterType[i])
-        filters =  numpy.hstack((filters,tau))
+        filters =  np.hstack((filters,tau))
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
@@ -768,7 +768,7 @@ if __name__ == '__main__':
     filterTxt = ['s={0}'.format(s) for s in filterExp ]
     filters = sfilter(wavelength,center, width, filterExp[0], 0.8,  0.1)
     for exponent in filterExp[1:]:
-        filters =  numpy.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
+        filters =  np.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
 
     ##------------------------- plot sample filters ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
@@ -787,7 +787,7 @@ if __name__ == '__main__':
     parameterTxt = ['a={0}, n={1}'.format(s[0], s[1]) for s in params ]
     responsivities = responsivity(wavelength,lwavepeak, params[0][0], params[0][1], 1.0)
     for param in params[1:]:
-        responsivities =  numpy.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
+        responsivities =  np.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
 
     ##------------------------- plot sample detector ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
@@ -824,7 +824,7 @@ if __name__ == '__main__':
     ##++++++++++++++++++++ demo the absolute humidity function ++++++++++++++++++++++++++++
     #http://rolfb.ch/tools/thtable.php?tmin=-25&tmax=50&tstep=5&hmin=10&hmax=100&hstep=10&acc=2&calculate=calculate
     # check absolute humidity function. temperature in C and humudity in g/m3
-    data=numpy.asarray([
+    data=np.asarray([
     [   50  ,   82.78  ]   ,
     [   45  ,   65.25    ]   ,
     [   40  ,   50.98    ]   ,
@@ -843,13 +843,13 @@ if __name__ == '__main__':
     [   -25 ,   0.71 ] ])
     temperature = data[:,0]+273.15
     absh = abshumidity(temperature).reshape(-1,1)
-    data = numpy.hstack((data,absh))
-    data = numpy.hstack((data, 100 * numpy.reshape((data[:,1]-data[:,2])/data[:,2],(-1,1))))
+    data = np.hstack((data,absh))
+    data = np.hstack((data, 100 * np.reshape((data[:,1]-data[:,2])/data[:,2],(-1,1))))
     print('        deg C          Testvalue           Fn value       \% Error')
     print(data)
 
     p=ryplot.Plotter(1)
-    temperature = numpy.linspace(-20,70,90)
+    temperature = np.linspace(-20,70,90)
     abshum = abshumidity(temperature + 273.15).reshape(-1,1)
     p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
     p.saveFig('abshum.eps')
@@ -857,6 +857,6 @@ if __name__ == '__main__':
 
     #highest ever recorded absolute humidity was at dew point of 34C
     print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
-        format(abshumidity(numpy.asarray([34 + 273.15]))[0],34))
+        format(abshumidity(np.asarray([34 + 273.15]))[0],34))
 
     print('module ryutils done!')

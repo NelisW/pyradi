@@ -175,7 +175,7 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],    
     keywords='radiometry, electro-optical infrared planck',
-    install_requires=['matplotlib', 'numpy', 'scipy', 'scikit-image'],
+#    install_requires=['matplotlib', 'numpy', 'scipy', 'scikit-image'],
     classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',

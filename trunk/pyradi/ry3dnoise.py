@@ -50,7 +50,7 @@ if sys.version_info[0] > 2:
     exit(-1)
 
 
-import numpy
+import numpy as np
 import ryfiles
 import ryplot
 import ryptw
@@ -62,7 +62,7 @@ def oprDV(imgSeq):
     """ Operator DV averages over rows for each pixel.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (frames,1,cols)
@@ -73,7 +73,7 @@ def oprDV(imgSeq):
 
     frames,  rows,  cols = imgSeq.shape
 
-    im = numpy.mean(imgSeq, axis=1, dtype=numpy.float64)
+    im = np.mean(imgSeq, axis=1, dtype=np.float64)
     imShaped = im.reshape(frames*cols)
     return imShaped.reshape(frames, 1, cols)
 
@@ -84,7 +84,7 @@ def oprDH(imgSeq):
     """ Operator DH averages over columns for each pixel.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (frames,rows,1)
@@ -95,7 +95,7 @@ def oprDH(imgSeq):
 
     frames,  rows,  cols = imgSeq.shape
 
-    im = numpy.mean(imgSeq, axis=2, dtype=numpy.float64)
+    im = np.mean(imgSeq, axis=2, dtype=np.float64)
     imShaped = im.reshape(frames*rows)
     return imShaped.reshape(frames, rows, 1)
 
@@ -106,7 +106,7 @@ def oprDT(imgSeq):
     """ Operator DT averages over frames for each pixel.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (1,rows,cols)
@@ -117,7 +117,7 @@ def oprDT(imgSeq):
 
     frames,  rows,  cols = imgSeq.shape
 
-    im = numpy.mean(imgSeq, axis=0, dtype=numpy.float64)
+    im = np.mean(imgSeq, axis=0, dtype=np.float64)
     imShaped = im.reshape(rows*cols)
     return imShaped.reshape(1, rows, cols)
 
@@ -129,7 +129,7 @@ def oprSDT(imgSeq):
     subtracted from all images.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (frames,rows,cols)
@@ -147,7 +147,7 @@ def oprSDH(imgSeq):
     """ Operator SDH first averages over columns for each pixel. The result is subtracted from all images.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (frames,rows,cols)
@@ -165,7 +165,7 @@ def oprSDV(imgSeq):
     """ Operator SDV first averages over rows for each pixel. The result is subtracted from all images.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | numpy array of dimensions (frames,rows,cols)
@@ -183,7 +183,7 @@ def getS(imgSeq):
     """ Average over all pixels.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): average of all pixels
@@ -204,7 +204,7 @@ def getNT(imgSeq):
     the mean of each frame.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): frame-to-frame intensity variation
@@ -223,7 +223,7 @@ def getNT(imgSeq):
     # The standard deviation computed in this function is the square root of the estimated variance, so even with ddof=1,
     # it will not be an unbiased estimate of the standard deviation per se.
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1),im)
+    return (np.std(im, dtype=np.float64,  ddof=1),im)
 
 
 ################################################################
@@ -233,7 +233,7 @@ def getNVH(imgSeq):
     spatial noise that does not change from frame-to-frame.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): fixed sparial noise
@@ -244,7 +244,7 @@ def getNVH(imgSeq):
 
     im = oprDT(oprSDV(oprSDH(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1),im)
+    return (np.std(im, dtype=np.float64,  ddof=1),im)
 
 
 ################################################################
@@ -254,7 +254,7 @@ def getNTV(imgSeq):
     Represents variations in row averages that change from frame-to-frame.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): row temporal noise
@@ -265,7 +265,7 @@ def getNTV(imgSeq):
 
     im = oprDH(oprSDT(oprSDV(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1), im)
+    return (np.std(im, dtype=np.float64,  ddof=1), im)
 
 
 ################################################################
@@ -275,7 +275,7 @@ def getNTH(imgSeq):
     Represents variations in column averages that change from frame-to-frame.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): column temporal noise
@@ -286,7 +286,7 @@ def getNTH(imgSeq):
 
     im = oprDV(oprSDT(oprSDH(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1), im)
+    return (np.std(im, dtype=np.float64,  ddof=1), im)
 
 
 ################################################################
@@ -296,7 +296,7 @@ def getNV(imgSeq):
     Represents variations in row averages that are fixed in time.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): fixed row noise
@@ -307,7 +307,7 @@ def getNV(imgSeq):
 
     im = oprDT(oprDH(oprSDV(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1), im)
+    return (np.std(im, dtype=np.float64,  ddof=1), im)
 
 
 ################################################################
@@ -317,7 +317,7 @@ def getNH(imgSeq):
     Represents variations in column averages that are fixed in time.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): fixed column noise
@@ -328,7 +328,7 @@ def getNH(imgSeq):
 
     im = oprDT(oprDV(oprSDH(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1), im)
+    return (np.std(im, dtype=np.float64,  ddof=1), im)
 
 
 ################################################################
@@ -338,7 +338,7 @@ def getNTVH(imgSeq):
     Represents random noise in the detector and electronics.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): temporal pixel noise
@@ -349,7 +349,7 @@ def getNTVH(imgSeq):
 
     im = oprSDT(oprSDV(oprSDH(imgSeq)))
 
-    return (numpy.std(im, dtype=numpy.float64,  ddof=1), im)
+    return (np.std(im, dtype=np.float64,  ddof=1), im)
 
 
 ################################################################
@@ -358,7 +358,7 @@ def getTotal(imgSeq):
     """ Total system noise.
 
     Args:
-        | imgSeq (numpy.ndarray): numpy array of dimensions (frames,rows,cols)
+        | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
         | noise (double): total system noise
@@ -375,7 +375,7 @@ def getTotal(imgSeq):
     nh,im    = getNH(imgSeq)
     ntvh,im = getNTVH(imgSeq)
 
-    return  numpy.sqrt(nt**2 + nvh**2 + ntv**2 + nth**2 + nv**2 + nh**2 + ntvh**2)
+    return  np.sqrt(nt**2 + nvh**2 + ntv**2 + nth**2 + nv**2 + nh**2 + ntvh**2)
 
 
 ################################################################
@@ -388,7 +388,7 @@ if __name__ == '__main__':
     rows      = 100
     cols        = 100
 
-    vartype   = numpy.uint16
+    vartype   = np.uint16
     imagefile  = 'data/sensornoise.raw'
     outfilename = 'sensornoise.txt'
 
@@ -466,7 +466,7 @@ if __name__ == '__main__':
     data = ryptw.getPTWFrame (header, framesToLoad[0])
     for frame in framesToLoad[1:]:
         f = (ryptw.getPTWFrame (header, frame))
-        data = numpy.concatenate((data, f))
+        data = np.concatenate((data, f))
 
     img = data.reshape(frames, rows ,cols)
 

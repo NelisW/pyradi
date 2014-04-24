@@ -599,7 +599,7 @@ def getPTWFrame (header, frameindex):
         | frameindex (integer): The frame to be extracted
 
     Returns:
-        | header.data (numpy.ndarray): requested frame DL values, dimensions (rows,cols)
+        | header.data (np.ndarray): requested frame DL values, dimensions (rows,cols)
 
     Raises:
         | No exception is raised.
@@ -633,7 +633,7 @@ def getPTWFrames (header, loadFrames=[]):
         | loadFrames ([int]): List of indices for frames to be extracted
 
     Returns:
-        | data (numpy.ndarray): requested image frame DL values, dimensions (frames,rows,cols)
+        | data (np.ndarray): requested image frame DL values, dimensions (frames,rows,cols)
 
     Raises:
         | No exception is raised.
