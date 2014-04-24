@@ -55,7 +55,7 @@ if sys.version_info[0] > 2:
 
 
 from scipy.interpolate import interp1d
-import numpy
+import numpy as np
 import os.path, fnmatch
 
 ################################################################
@@ -89,7 +89,7 @@ def saveHeaderArrayTextFile(filename,dataArray, header=None,
             file.write(comment+line+'\n')
 
     #then write the array, using the file handle (and not filename)
-    numpy.savetxt(file, dataArray, delimiter=delimiter)
+    np.savetxt(file, dataArray, delimiter=delimiter)
     #neatly close the file
     file.close()
 
@@ -97,7 +97,7 @@ def saveHeaderArrayTextFile(filename,dataArray, header=None,
 ################################################################
 def loadColumnTextFile(filename, loadCol=[1],  \
         comment=None, normalize=0, skiprows=0, delimiter=None,\
-        abscissaScale=1,ordinateScale=1, abscissaOut=None):
+        abscissaScale=1,ordinateScale=1, abscissaOut=None, returnAbscissa=False):
     """Load selected column data from a text file, processing as specified.
 
     This function loads column data from a text file, scaling and interpolating 
@@ -122,6 +122,7 @@ def loadColumnTextFile(filename, loadCol=[1],  \
         | abscissaScale (float): scale by which abscissa (column 0) must be multiplied
         | ordinateScale (float): scale by which ordinate (column >0) must be multiplied
         | abscissaOut (np.array[N,] or [N,1]): abscissa vector on which output variables are interpolated.
+        | returnAbscissa (bool): return the abscissa vector as second item in return tuple.
 
     Returns:
         | ordinatesOut (np.array[N,M]): The interpolated, M columns of N rows, processed array.
@@ -137,7 +138,7 @@ def loadColumnTextFile(filename, loadCol=[1],  \
 
     #load first column as well as user-specified column from the
     # given file, scale as prescribed
-    coldata = numpy.loadtxt(filename, usecols=ldCol,
+    coldata = np.loadtxt(filename, usecols=ldCol,
             comments=comment,  skiprows=skiprows,
             delimiter=delimiter)
 
@@ -156,9 +157,12 @@ def loadColumnTextFile(filename, loadCol=[1],  \
 
     #if read-in values must be normalised.
     if normalize != 0:
-        interpValue /= numpy.max(interpValue,axis=0)
+        interpValue /= np.max(interpValue,axis=0)
 
-    return interpValue, abscissaOut.reshape(-1,1)
+    if returnAbscissa:
+        return interpValue, abscissaOut.reshape(-1,1)
+    else:
+        return interpValue
 
 
 ################################################################################
@@ -474,7 +478,7 @@ def rawFrameToImageFile(image, filename):
     'png','jpg','tiff','eps'.
 
     Args:
-        | image (numpy.ndarray): two-dimensional array representing an image
+        | image (np.ndarray): two-dimensional array representing an image
         | filename (string): name of file to be written to, with extension
 
     Returns:
@@ -502,7 +506,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
         | fname (string): path and filename
         | rows (int): number of rows in frames
         | cols (int): number of columns in frames
-        | vartype (numpy.dtype): numpy data type of data to be read
+        | vartype (np.dtype): numpy data type of data to be read
         |                                      int8, int16, int32, int64
         |                                      uint8, uint16, uint32, uint64
         |                                      float16, float32, float64
@@ -511,7 +515,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
     Returns:
         | frames (int) : number of frames in the returned data set,
         |                      0 if error occurred
-        | rawShaped (numpy.ndarray): vartype numpy array of dimensions (frames,rows,cols),
+        | rawShaped (np.ndarray): vartype numpy array of dimensions (frames,rows,cols),
         |                                              None if error occurred
 
     Raises:
@@ -526,7 +530,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
     if not loadFrames:
         try:
             with open(fname, 'rb') as fin:
-                data = numpy.fromfile(fin, vartype,-1)
+                data = np.fromfile(fin, vartype,-1)
 
         except IOError:
             #print('  File not found, returning {0} frames'.format(frames))
@@ -542,12 +546,12 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
 
             with open(fname, 'rb') as fin:
                 for frame in range(0, lastframe+1, 1):
-                    dataframe = numpy.fromfile(fin, vartype,framesize)
+                    dataframe = np.fromfile(fin, vartype,framesize)
                     if frame in loadFrames:
                         if data == None:
                             data = dataframe
                         else:
-                            data = numpy.concatenate((data, dataframe))
+                            data = np.concatenate((data, dataframe))
 
         except IOError:
             #print('  File not found, returning {0} frames'.format(frames))
@@ -615,7 +619,7 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
         | arr (np.array[N,M]): array with table data
         | header (string): column header in final latex format
         | leftCol ([string]): left column each row, in final latex format
-        | formatstring (string): output format precision for array data (see numpy.savetxt)
+        | formatstring (string): output format precision for array data (see np.savetxt)
         | filemode (string): file open mode (a=append, w=new file)
 
     Returns:
@@ -647,12 +651,12 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
     #write the array data
     if leftCol is None:
         #then write the array, using the file handle (and not filename)
-        numpy.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
+        np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
     else:
         # first write left col for each row, then array data for that row
         for i,entry in enumerate(leftCol[1:]):
             file.write(entry+'&')
-            numpy.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
+            np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
 
     file.write('\hline\n\end{tabular}')
     file.close()
@@ -699,12 +703,12 @@ def read2DLookupTable(filename):
     Raises:
         | No exception is raised.
     """
-    import numpy 
+    import numpy  as np
 
     with open(filename,'r') as f:
         lines = f.readlines()
         xlabel, ylabel, title = lines[0].split()
-    aArray = numpy.loadtxt(filename, skiprows=1, dtype=float)
+    aArray = np.loadtxt(filename, skiprows=1, dtype=float)
     xVec = aArray[1:, 0]
     yVec = aArray[0, 1:] 
     data = aArray[1:, 1:]
@@ -735,7 +739,7 @@ if __name__ == '__main__':
     p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
     print ('Test writing latex format arrays:')
-    arr = numpy.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
+    arr = np.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
     arrayToLaTex('arr0.txt', arr)
     arrayToLaTex('arr1.txt', arr, formatstring='%.1f')
     headeronly = 'Col1 & Col2 & Col3'
@@ -750,14 +754,14 @@ if __name__ == '__main__':
 
     print ('Test writing and reading numpy array to text file, with header:')
     #create a two-dimensional array of 25 rows and 7 columns as an outer product
-    twodA=numpy.outer(numpy.arange(0, 5, .2),numpy.arange(1, 8))
+    twodA=np.outer(np.arange(0, 5, .2),np.arange(1, 8))
     #write this out as a test file
     filename='ryfilestesttempfile.txt'
     saveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
                        delimiter=' ', comment='%')
 
     #create a new range to be used for interpolation
-    tim=numpy.arange(1, 3, .3).reshape(-1, 1)
+    tim=np.arange(1, 3, .3).reshape(-1, 1)
     #read the test file and interpolate the selected columns on the new range tim
     # the comment parameter is superfluous, since there are no comments in this file
 
@@ -769,7 +773,7 @@ if __name__ == '__main__':
     # read space separated file containing wavelength in um, then samples.
     # select the samples to be read in and then load all in one call!
     # first line in file contains labels for columns.
-    wavelength=numpy.linspace(0.38, 0.72, 350).reshape(-1, 1)
+    wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
     samplesSelect = [1,2,3,8,10,11]
     samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength, \
                 loadCol=samplesSelect,  comment='%')
@@ -803,7 +807,7 @@ if __name__ == '__main__':
     imagefile = 'data/sample.ulong'
     rows = 100
     cols = 100
-    vartype = numpy.uint32
+    vartype = np.uint32
     framesToLoad =  [1, 3, 5, 7]
     frames, img = readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
 
@@ -821,7 +825,7 @@ if __name__ == '__main__':
         img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
 
         #now write the raw frames to image files
-        type = ['png','jpg','tiff','png']
+        type = ['png','png','png','png']
         for i in range(frames):
             print(i)
             filename = 'rawIm{0}.{1}'.format(i,type[i])

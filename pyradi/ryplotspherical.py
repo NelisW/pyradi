@@ -123,7 +123,7 @@ if sys.version_info[0] > 2:
 
 
 import os.path, fnmatch
-import numpy
+import numpy as np
 from scipy.interpolate import interp1d
 from mayavi import mlab
 
@@ -139,8 +139,8 @@ def readOffFile(filename):
         | filename (string): name of the OFF file
 
     Returns:
-        | vertices(numpy.array([])): array of vertices as [x y z]
-        | triangles(numpy.array([])): array of triangles as []
+        | vertices(np.array([])): array of vertices as [x y z]
+        | triangles(np.array([])): array of triangles as []
 
     Raises:
         | No exception is raised.
@@ -160,21 +160,21 @@ def readOffFile(filename):
             faceCount, edgeCount))
         #calculate the approx sampling density as surface of sphere divided by
         #number of faces, then size of each face, then angle from size
-        areaFace = 4 * (numpy.pi)**2 / faceCount
-        sizeFace = numpy.sqrt(areaFace / 2)
+        areaFace = 4 * (np.pi)**2 / faceCount
+        sizeFace = np.sqrt(areaFace / 2)
         resAngle = sizeFace
         print('sampling density is approx {0:.2f} mrad or {1:.3f} degrees.'.format(
-            1000 * resAngle,resAngle * 180 / numpy.pi))
+            1000 * resAngle,resAngle * 180 / np.pi))
         # then follows vertices from lines[2] to lines[2+vertexCount]
-        vertices = numpy.asarray([float(s) for s in lines[2].split()])
+        vertices = np.asarray([float(s) for s in lines[2].split()])
         for line in lines[3:2+vertexCount]:
-            vertices = numpy.vstack((vertices,numpy.asarray([float(s) \
+            vertices = np.vstack((vertices,np.asarray([float(s) \
                 for s in line.split()])))
         # now extract the triangles lines[2+vertexCount] to lines(-1)
-        triangles = numpy.asarray([int(s) for s in lines[2+vertexCount].split()[1:]],dtype='i4')
+        triangles = np.asarray([int(s) for s in lines[2+vertexCount].split()[1:]],dtype='i4')
         for line in lines[3+vertexCount:2+vertexCount+faceCount]:
             if len(line) > 0:
-                triangles = numpy.vstack((triangles,numpy.asarray([int(s) \
+                triangles = np.vstack((triangles,np.asarray([int(s) \
                     for s in line.split()[1:]])))
 
         if triangles.shape[0] != faceCount or vertices.shape[0] != vertexCount:
@@ -209,14 +209,14 @@ def getRotateFromOffFile(filename, xPos, yPos, zPos):
 
 
     Returns:
-        | x(numpy.array()): array of x object location values
-        | y(numpy.array()): array of y object location values
-        | z(numpy.array()): array of z object location values
-        | roll(numpy.array()): array of object location roll values
-        | pitch(numpy.array()): array of object location pitch values
-        | yaw(numpy.array()): array of object location yaw values
-        | vertices(numpy.array([])): array of vertices as [x y z]
-        | triangles(numpy.array([])): array of triangles as []
+        | x(np.array()): array of x object location values
+        | y(np.array()): array of y object location values
+        | z(np.array()): array of z object location values
+        | roll(np.array()): array of object location roll values
+        | pitch(np.array()): array of object location pitch values
+        | yaw(np.array()): array of object location yaw values
+        | vertices(np.array([])): array of vertices as [x y z]
+        | triangles(np.array([])): array of triangles as []
 
     Raises:
         | No exception is raised.
@@ -228,17 +228,17 @@ def getRotateFromOffFile(filename, xPos, yPos, zPos):
 
         ysign = (1 * (vertices[:,1] < 0) - 1 * (vertices[:,1] >= 0)).reshape(-1, 1)
 
-        xyradial = (numpy.sqrt((vertices[:,0]) ** 2 + \
+        xyradial = (np.sqrt((vertices[:,0]) ** 2 + \
             (vertices[:,1]) ** 2)).reshape(-1, 1)
 
         deltaX = (-vertices[:,0]).reshape(-1, 1)
         #the strange '+ (xyradial==0)' below is to prevent divide by zero
         cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
-        yaw = ysign * numpy.arccos(cosyaw)
-        pitch = - numpy.arctan2((-vertices[:,2]).reshape(-1, 1), xyradial).reshape(-1, 1)
-        roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+        yaw = ysign * np.arccos(cosyaw)
+        pitch = - np.arctan2((-vertices[:,2]).reshape(-1, 1), xyradial).reshape(-1, 1)
+        roll = np.zeros(yaw.shape).reshape(-1, 1)
 
-        onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+        onesv = np.ones(yaw.shape).reshape(-1, 1)
         x = xPos * onesv
         y = yPos * onesv
         z = zPos * onesv
@@ -272,14 +272,14 @@ def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
         | distance (double): range at which sensor orbits the target
 
     Returns:
-        | x(numpy.array()): array of x sensor position values
-        | y(numpy.array()): array of y sensor position values
-        | z(numpy.array()): array of z sensor position values
-        | roll(numpy.array()): array of sensor roll values
-        | pitch(numpy.array()): array of sensor pitch values
-        | yaw(numpy.array()): array of sensor yaw values
-        | vertices(numpy.array([])): array of vertices as [x y z]
-        | triangles(numpy.array([])): array of triangles as []
+        | x(np.array()): array of x sensor position values
+        | y(np.array()): array of y sensor position values
+        | z(np.array()): array of z sensor position values
+        | roll(np.array()): array of sensor roll values
+        | pitch(np.array()): array of sensor pitch values
+        | yaw(np.array()): array of sensor yaw values
+        | vertices(np.array([])): array of vertices as [x y z]
+        | triangles(np.array([])): array of triangles as []
 
     Raises:
         | No exception is raised.
@@ -290,7 +290,7 @@ def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
 
     if vertices is not None:
 
-        targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
+        targPosition = np.asarray([xTargPos, yTargPos, zTargPos])
 
         sensorPos = distance * vertices
         sensorPos[:,0] = sensorPos[:,0] + xTargPos
@@ -298,15 +298,15 @@ def getOrbitFromOffFile(filename, xTargPos, yTargPos, zTargPos, distance):
         sensorPos[:,2] = sensorPos[:,2] + zTargPos
 
         ysign = (1 * (sensorPos[:,1] < 0) - 1 * (sensorPos[:,1] >= 0)).reshape(-1, 1)
-        xyradial = (numpy.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
+        xyradial = (np.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
             (targPosition[1]-sensorPos[:,1]) ** 2)).reshape(-1, 1)
         deltaX = (targPosition[0]-sensorPos[:,0]).reshape(-1, 1)
         #the strange '+ (xyradial==0)' below is to prevent divide by zero
         cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
-        yaw = ysign * numpy.arccos(cosyaw)
-        pitch = - numpy.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
+        yaw = ysign * np.arccos(cosyaw)
+        pitch = - np.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
             xyradial).reshape(-1, 1)
-        roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+        roll = np.zeros(yaw.shape).reshape(-1, 1)
 
         return (sensorPos[:,0].reshape(-1, 1), sensorPos[:,1].reshape(-1, 1), \
             sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw, vertices, triangles)
@@ -393,23 +393,23 @@ def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
         print('Unkown trajectory type')
         return
 
-    zerov = numpy.zeros(yaw.shape).reshape(-1, 1)
-    onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+    zerov = np.zeros(yaw.shape).reshape(-1, 1)
+    onesv = np.ones(yaw.shape).reshape(-1, 1)
 
-    time = numpy.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
-    #time = numpy.around(time,2) # rounding does not help. internal representation!!
+    time = np.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
+    #time = np.around(time,2) # rounding does not help. internal representation!!
 
     outp = time
-    outp = numpy.hstack((outp, x))
-    outp = numpy.hstack((outp, y))
-    outp = numpy.hstack((outp, z))
-    outp = numpy.hstack((outp, roll))
-    outp = numpy.hstack((outp, yaw))
-    outp = numpy.hstack((outp, pitch))
-    outp = numpy.hstack((outp, xVel * onesv)) # x-velocity
-    outp = numpy.hstack((outp, yVel * onesv)) # y-velocity
-    outp = numpy.hstack((outp, zVel * onesv)) # z-velocity
-    outp = numpy.hstack((outp, engine * onesv)) # engine setting
+    outp = np.hstack((outp, x))
+    outp = np.hstack((outp, y))
+    outp = np.hstack((outp, z))
+    outp = np.hstack((outp, roll))
+    outp = np.hstack((outp, yaw))
+    outp = np.hstack((outp, pitch))
+    outp = np.hstack((outp, xVel * onesv)) # x-velocity
+    outp = np.hstack((outp, yVel * onesv)) # y-velocity
+    outp = np.hstack((outp, zVel * onesv)) # z-velocity
+    outp = np.hstack((outp, engine * onesv)) # engine setting
 
     outfile = os.path.basename(filename)
     idx=outfile.find('.')
@@ -420,19 +420,19 @@ def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
     fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
-    numpy.savetxt(fid , outp)
+    np.savetxt(fid , outp)
     fid.close()
 
     # fid = open('triangles{0}.txt'.format(outfile), 'w' )
     fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(-zTargPos,distance,'Triangles',outfile), 'w' )
     for i in range(triangles.shape[0]):
         fid.write('{0:d} {1:d} {2:d}\n'.format(triangles[i][0],triangles[i][1],triangles[i][2] ))
-    # numpy.savetxt( fid , triangles, fmt=r'%d' )
+    # np.savetxt( fid , triangles, fmt=r'%d' )
     fid.close()
 
     # fid = open('vertex{0}.txt'.format(outfile), 'w' )
     fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(-zTargPos,distance,'Vertices',outfile), 'w' )
-    numpy.savetxt( fid , vertices )
+    np.savetxt( fid , vertices )
     fid.close()
 
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
@@ -501,9 +501,9 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
     #obtain odd number of samples around equator 2*pi
     if numSamplesAz % 2 == 0:
         numSamplesAz += 1
-    azimuth = numpy.linspace(0,2 * numpy.pi, numSamplesAz)
+    azimuth = np.linspace(0,2 * np.pi, numSamplesAz)
     #create twice to many elevation samples, then take every second
-    elevation2 = numpy.linspace(numpy.pi/2., -numpy.pi/2., numSamplesAz)
+    elevation2 = np.linspace(np.pi/2., -np.pi/2., numSamplesAz)
     elevation = elevation2[::2]
 
     if trajType == 'Rotate':
@@ -515,23 +515,23 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
     else:
         print('Unkown trajectory type')
         return
-    zerov = numpy.zeros(yaw.shape).reshape(-1, 1)
-    onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+    zerov = np.zeros(yaw.shape).reshape(-1, 1)
+    onesv = np.ones(yaw.shape).reshape(-1, 1)
 
-    time = numpy.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
-    #time = numpy.around(time,2) # rounding does not help. internal representation!!
+    time = np.array([deltaTime * i for i in range(0,zerov.shape[0])]).reshape(-1, 1)
+    #time = np.around(time,2) # rounding does not help. internal representation!!
 
     outp = time
-    outp = numpy.hstack((outp, x))
-    outp = numpy.hstack((outp, y))
-    outp = numpy.hstack((outp, z))
-    outp = numpy.hstack((outp, roll))
-    outp = numpy.hstack((outp, yaw))
-    outp = numpy.hstack((outp, pitch))
-    outp = numpy.hstack((outp, xVel * onesv)) # x-velocity
-    outp = numpy.hstack((outp, yVel * onesv)) # y-velocity
-    outp = numpy.hstack((outp, zVel * onesv)) # z-velocity
-    outp = numpy.hstack((outp, engine * onesv)) # engine setting
+    outp = np.hstack((outp, x))
+    outp = np.hstack((outp, y))
+    outp = np.hstack((outp, z))
+    outp = np.hstack((outp, roll))
+    outp = np.hstack((outp, yaw))
+    outp = np.hstack((outp, pitch))
+    outp = np.hstack((outp, xVel * onesv)) # x-velocity
+    outp = np.hstack((outp, yVel * onesv)) # y-velocity
+    outp = np.hstack((outp, zVel * onesv)) # z-velocity
+    outp = np.hstack((outp, engine * onesv)) # engine setting
 
     outfile = os.path.basename(filename)
     idx=outfile.find('.') 
@@ -543,12 +543,12 @@ def writeOSSIMTrajElevAzim(numSamplesAz,filename, trajType, distance, xTargPos,
     fid.write( 'Time x y z rol yaw pit vx vy vz engine \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty \n' )
     fid.write( '0.0 infty infty infty infty infty infty infty infty infty infty\n' )
-    numpy.savetxt(fid , outp)
+    np.savetxt(fid , outp)
     fid.close()
 
     fid = open('Alt{0}Range{1}{2}-{3}-Azel.dat'.format(-zTargPos,distance,trajType,outfile), 'w' )
     fid.write( 'Azimuth Elevation \n' )
-    numpy.savetxt( fid, azel )
+    np.savetxt( fid, azel )
  
     print('Set OSSIM clock to {0} increments and max time {1}\n'.\
         format(deltaTime, deltaTime * yaw.shape[0]))
@@ -571,38 +571,38 @@ def getRotateFromElevAzim(azimuth, elevation,  xPos, yPos, zPos):
     but all values in each individual array are all the same.
 
     Args:
-        | azimuth (numpy.array(N,)): azimuth values
-        | elevation (numpy.array(N,)): azimuth values
+        | azimuth (np.array(N,)): azimuth values
+        | elevation (np.array(N,)): azimuth values
         | xPos (double): object position on x axis
         | yPos (double): object position on y axis
         | zPos (double): object position on z axis
 
 
     Returns:
-        | x(numpy.array()): array of x object location values
-        | y(numpy.array()): array of y object location values
-        | z(numpy.array()): array of z object location values
-        | roll(numpy.array()): array of object location roll values
-        | pitch(numpy.array()): array of object location pitch values
-        | yaw(numpy.array()): array of object location yaw values
-        | azel(numpy.array()): array of azimuth,elevation values for each sample
+        | x(np.array()): array of x object location values
+        | y(np.array()): array of y object location values
+        | z(np.array()): array of z object location values
+        | roll(np.array()): array of object location roll values
+        | pitch(np.array()): array of object location pitch values
+        | yaw(np.array()): array of object location yaw values
+        | azel(np.array()): array of azimuth,elevation values for each sample
 
     Raises:
         | No exception is raised.
     """
-    azimgrid, elevgrid = numpy.meshgrid(azimuth,elevation)
+    azimgrid, elevgrid = np.meshgrid(azimuth,elevation)
     
     yaw = azimgrid.reshape(-1,1)
     pitch = elevgrid.reshape(-1,1)
-    roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+    roll = np.zeros(yaw.shape).reshape(-1, 1)
 
-    onesv = numpy.ones(yaw.shape).reshape(-1, 1)
+    onesv = np.ones(yaw.shape).reshape(-1, 1)
     x = xPos * onesv
     y = yPos * onesv
     z = zPos * onesv
 
     azel = azimgrid.reshape(-1, 1)
-    azel = numpy.hstack((azel, azimgrid.reshape(-1, 1).reshape(-1, 1)))
+    azel = np.hstack((azel, azimgrid.reshape(-1, 1).reshape(-1, 1)))
     return (x, y, z, roll, pitch, yaw, azel)
 
 
@@ -625,8 +625,8 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
     (xTargPos, yTargPos, zTargPos).
 
     Args:
-        | azimuth (numpy.array(N,)): azimuth values
-        | elevation (numpy.array(N,)): azimuth values
+        | azimuth (np.array(N,)): azimuth values
+        | elevation (np.array(N,)): azimuth values
         | filename (string): OFF file filename
         | xTargPos (double): x target object position (fixed)
         | yTargPos (double): y target object position (fixed)
@@ -634,19 +634,19 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
         | distance (double): range at which sensor orbits the target
 
     Returns:
-        | x(numpy.array()): array of x sensor position values
-        | y(numpy.array()): array of y sensor position values
-        | z(numpy.array()): array of z sensor position values
-        | roll(numpy.array()): array of sensor roll values
-        | pitch(numpy.array()): array of sensor pitch values
-        | yaw(numpy.array()): array of sensor yaw values
-        | azel(numpy.array()): array of azimuth,elevation values for each sample
+        | x(np.array()): array of x sensor position values
+        | y(np.array()): array of y sensor position values
+        | z(np.array()): array of z sensor position values
+        | roll(np.array()): array of sensor roll values
+        | pitch(np.array()): array of sensor pitch values
+        | yaw(np.array()): array of sensor yaw values
+        | azel(np.array()): array of azimuth,elevation values for each sample
 
     Raises:
         | No exception is raised.
     """
 
-    targPosition = numpy.asarray([xTargPos, yTargPos, zTargPos])
+    targPosition = np.asarray([xTargPos, yTargPos, zTargPos])
     print(targPosition)
 
     #get the sensor position from the azimuth and elevation angles
@@ -654,19 +654,19 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
     firstTime = True
     for elev in elevation:
         for azim in azimuth:
-            x = numpy.cos(azim) * numpy.cos(elev)
-            y = numpy.sin(azim) * numpy.cos(elev)
-            z = - numpy.sin(elev)   # NED coordinate system
-            vertex = numpy.asarray([x, y, z])
-            azelelement = numpy.asarray([azim, elev])
-            # print(numpy.linalg.norm(vertex))
+            x = np.cos(azim) * np.cos(elev)
+            y = np.sin(azim) * np.cos(elev)
+            z = - np.sin(elev)   # NED coordinate system
+            vertex = np.asarray([x, y, z])
+            azelelement = np.asarray([azim, elev])
+            # print(np.linalg.norm(vertex))
             if firstTime:
                 azel = azelelement
                 vertices = vertex
                 firstTime = False
             else:
-                vertices = numpy.vstack((vertices, vertex))
-                azel = numpy.vstack((azel, azelelement))
+                vertices = np.vstack((vertices, vertex))
+                azel = np.vstack((azel, azelelement))
 
     sensorPos = distance * vertices
     sensorPos[:,0] = sensorPos[:,0] + xTargPos
@@ -674,15 +674,15 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
     sensorPos[:,2] = sensorPos[:,2] + zTargPos
 
     ysign = (1 * (sensorPos[:,1] < 0) - 1 * (sensorPos[:,1] >= 0)).reshape(-1, 1)
-    xyradial = (numpy.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
+    xyradial = (np.sqrt((targPosition[0]-sensorPos[:,0]) ** 2 + \
         (targPosition[1]-sensorPos[:,1]) ** 2)).reshape(-1, 1)
     deltaX = (targPosition[0]-sensorPos[:,0]).reshape(-1, 1)
     #the strange '+ (xyradial==0)' below is to prevent divide by zero
     cosyaw = ((deltaX/(xyradial + (xyradial==0))) * (xyradial!=0) + 0 * (xyradial==0))
-    yaw = ysign * numpy.arccos(cosyaw)
-    pitch = - numpy.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
+    yaw = ysign * np.arccos(cosyaw)
+    pitch = - np.arctan2((targPosition[2]-sensorPos[:,2]).reshape(-1, 1),
         xyradial).reshape(-1, 1)
-    roll = numpy.zeros(yaw.shape).reshape(-1, 1)
+    roll = np.zeros(yaw.shape).reshape(-1, 1)
 
     return (sensorPos[:,0].reshape(-1, 1), sensorPos[:,1].reshape(-1, 1), \
         sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw, azel)
@@ -700,9 +700,9 @@ def plotSpherical(figure, dataset, vertices, triangles, ptitle='', tsize=0.4, th
 
     Args:
         | figure(int): mlab figure number
-        | dataset(numpy.array(double)): array of data set values
-        | vertices(numpy.array([])): array of direction cosine vertices as [x y z]
-        | triangles(numpy.array([])): array of triangles as []
+        | dataset(np.array(double)): array of data set values
+        | vertices(np.array([])): array of direction cosine vertices as [x y z]
+        | triangles(np.array([])): array of triangles as []
         | ptitle(string): title or header for this display
         | tsize(double): title width in in normalised figure width
         | theight(double): title top vertical location in normalised figure height
@@ -755,9 +755,9 @@ def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, tr
     Raises:
         | No exception is raised.
 """
-    vertices = numpy.genfromtxt(vertexfile, autostrip=True,comments='%')
-    triangles = numpy.genfromtxt(trianglefile, autostrip=True,comments='%')
-    radianArray = numpy.loadtxt(datafile, skiprows=1, dtype = float)
+    vertices = np.genfromtxt(vertexfile, autostrip=True,comments='%')
+    triangles = np.genfromtxt(trianglefile, autostrip=True,comments='%')
+    radianArray = np.loadtxt(datafile, skiprows=1, dtype = float)
     specBand = ['LWIR', 'MWIR', 'SWIR1', 'SWIR2']
     for i in nColours:
         dataset = radianArray[:,5+i]
@@ -767,33 +767,33 @@ def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, tr
     #calculate colour ratio
     #   log() to compress the scales
     #   abs() to not loose negative values
-    colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,5]))
+    colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,5]))
     ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/LWIR))')
     plotSpherical(basefigure+2,colourratio, vertices, triangles, ptitle)
 
-    colourratio = numpy.log(numpy.abs(radianArray[:,6]/radianArray[:,7]))
+    colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,7]))
     ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/SWIR1))')
     plotSpherical(basefigure+3,colourratio, vertices, triangles, ptitle)
 
-    colourratio = numpy.log(radianArray[:,7]/radianArray[:,6])
+    colourratio = np.log(radianArray[:,7]/radianArray[:,6])
     ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(SWIR1/MWIR)')
     plotSpherical(basefigure+4,colourratio, vertices, triangles, ptitle)
 
-    colourratio = numpy.log(-radianArray[:,7]/radianArray[:,6])
+    colourratio = np.log(-radianArray[:,7]/radianArray[:,6])
     ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1SWIR1/MWIR))')
     plotSpherical(basefigure+5,colourratio, vertices, triangles, ptitle)
 
 
-    colourratio = numpy.log(numpy.abs(radianArray[:,8]/radianArray[:,6]))
+    colourratio = np.log(np.abs(radianArray[:,8]/radianArray[:,6]))
     ptitle = '{0} {1}'.format(plottitle,'log(abs(SWIR2/MWIR))')
     plotSpherical(basefigure+6,colourratio, vertices, triangles, ptitle)
 
 
-    colourratio = numpy.log(radianArray[:,8]/radianArray[:,6])
+    colourratio = np.log(radianArray[:,8]/radianArray[:,6])
     ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +SWIR2/MWIR)')
     plotSpherical(basefigure+7,colourratio, vertices, triangles, ptitle)
 
-    colourratio = numpy.log(-radianArray[:,8]/radianArray[:,6])
+    colourratio = np.log(-radianArray[:,8]/radianArray[:,6])
     ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(SWIR2/MWIR))')
     plotSpherical(basefigure+8,colourratio, vertices, triangles, ptitle)
 
@@ -830,10 +830,10 @@ def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
     Raises:
         | No exception is raised.
 """
-    phi, theta = numpy.meshgrid(elevation,azimuth)
-    x = value * numpy.sin(phi) * numpy.cos(theta)
-    y = value * numpy.sin(phi) * numpy.sin(theta)
-    z = - value * numpy.cos(phi)
+    phi, theta = np.meshgrid(elevation,azimuth)
+    x = value * np.sin(phi) * np.cos(theta)
+    y = value * np.sin(phi) * np.sin(theta)
+    z = - value * np.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
@@ -875,11 +875,11 @@ def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
         | No exception is raised.
 """
     line_width = 0.5
-    rmax = numpy.amax(numpy.amax(value))
-    phi, theta = numpy.meshgrid(elevation,azimuth)
-    x = rmax * numpy.sin(phi) * numpy.cos(theta)
-    y = rmax * numpy.sin(phi) * numpy.sin(theta)
-    z = - value * numpy.cos(phi)
+    rmax = np.amax(np.amax(value))
+    phi, theta = np.meshgrid(elevation,azimuth)
+    x = rmax * np.sin(phi) * np.cos(theta)
+    y = rmax * np.sin(phi) * np.sin(theta)
+    z = - value * np.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
@@ -919,11 +919,11 @@ def globePlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
     Raises:
         | No exception is raised.
 """
-    rmax = numpy.amax(numpy.amax(value))
-    phi, theta = numpy.meshgrid(elevation,azimuth)
-    x = numpy.sin(phi) * numpy.cos(theta)
-    y = numpy.sin(phi) * numpy.sin(theta)
-    z = - numpy.cos(phi)
+    rmax = np.amax(np.amax(value))
+    phi, theta = np.meshgrid(elevation,azimuth)
+    x = np.sin(phi) * np.cos(theta)
+    y = np.sin(phi) * np.sin(theta)
+    z = - np.cos(phi)
     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
     mlab.clf()
     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
@@ -957,12 +957,12 @@ def plotVertexSphere(figure, filename):
         | No exception is raised.
 """
     #load the data
-    dataset = numpy.loadtxt(filename)
+    dataset = np.loadtxt(filename)
 
     #prepare the vertex vector structures
-    x = numpy.zeros(2)
-    y = numpy.zeros(2)
-    z = numpy.zeros(2)
+    x = np.zeros(2)
+    y = np.zeros(2)
+    z = np.zeros(2)
     x[0] = 0
     y[0] = 0
     z[0] = 0
@@ -974,14 +974,14 @@ def plotVertexSphere(figure, filename):
         z[1] = dataset[i][2]
         mlab.plot3d(x, y, z, tube_radius=0.025, colormap='Spectral')
     #plot the three planes
-    x,y = numpy.mgrid[-1:1:2j, -1:1:2j]
-    z = numpy.zeros(x.shape)
+    x,y = np.mgrid[-1:1:2j, -1:1:2j]
+    z = np.zeros(x.shape)
     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(1,0,0))
-    x,z = numpy.mgrid[-1:1:2j, -1:1:2j]
-    y = numpy.zeros(x.shape)
+    x,z = np.mgrid[-1:1:2j, -1:1:2j]
+    y = np.zeros(x.shape)
     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,1,0))
-    z,y = numpy.mgrid[-1:1:2j, -1:1:2j]
-    x = numpy.zeros(y.shape)
+    z,y = np.mgrid[-1:1:2j, -1:1:2j]
+    x = np.zeros(y.shape)
     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,0,1))
 
 ################################################################
@@ -1034,9 +1034,9 @@ if __name__ == '__main__':
     with open('data/plotspherical/source-H10-C2.dat') as f:
         lines = f.readlines()
         xlabel, ylabel, ptitle = lines[0].split()
-    aArray = numpy.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
-    azim1D = aArray[1:,0] * (numpy.pi/180)
-    elev1D = aArray[0,1:] * (numpy.pi/180) - numpy.pi
+    aArray = np.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
+    azim1D = aArray[1:,0] * (np.pi/180)
+    elev1D = aArray[0,1:] * (np.pi/180) - np.pi
     pRad = aArray[1:,1:]
     polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
     sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)

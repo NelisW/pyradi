@@ -72,7 +72,7 @@ if sys.version_info[0] > 2:
     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
     exit(-1)
 
-import numpy
+import numpy as np
 import scipy.constants as const
 from functools import wraps
 
@@ -100,15 +100,15 @@ class PlanckConstants:
 
         import scipy.optimize
 
-        self.c1em = 2 * numpy.pi * const.h * const.c * const.c
+        self.c1em = 2 * np.pi * const.h * const.c * const.c
         self.c1el = self.c1em * (1.0e6)**(5-1) # 5 for lambda power and -1 for density
         self.c1en = self.c1em * (100)**3 * 100 # 3 for wavenumber, 1 for density
-        self.c1ef = 2 * numpy.pi * const.h / (const.c * const.c)
+        self.c1ef = 2 * np.pi * const.h / (const.c * const.c)
 
-        self.c1qm = 2 * numpy.pi * const.c
+        self.c1qm = 2 * np.pi * const.c
         self.c1ql = self.c1qm * (1.0e6)**(4-1) # 5 for lambda power and -1 for density
         self.c1qn = self.c1qm * (100)**2 * 100 # 2 for wavenumber, 1 for density
-        self.c1nf = 2 * numpy.pi  / (const.c * const.c)
+        self.c1nf = 2 * np.pi  / (const.c * const.c)
 
         self.c2m = const.h * const.c / const.k
         self.c2l = self.c2m * 1.0e6 # 1 for wavelength density
@@ -117,7 +117,7 @@ class PlanckConstants:
 
         self.sigmae = const.sigma
         self.zeta3 = 1.2020569031595942853
-        self.sigmaq = 4 * numpy.pi * self.zeta3 * const.k ** 3 \
+        self.sigmaq = 4 * np.pi * self.zeta3 * const.k ** 3 \
                / (const.h ** 3 * const.c ** 2)
 
         self.a2 = scipy.optimize.brentq(self.an, 1, 2, (2) )
@@ -134,7 +134,7 @@ class PlanckConstants:
 
 
     def an(self,x,n):
-        return n * (1-numpy.exp(-x)) - x
+        return n * (1-np.exp(-x)) - x
 
     def printConstants(self):
         """Print Planck function constants.
@@ -155,7 +155,7 @@ class PlanckConstants:
 
         print(' ')
         print('pi = {:.14e}'.format(const.pi))
-        print('e = {:.14e}'.format(numpy.exp(1)))
+        print('e = {:.14e}'.format(np.exp(1)))
         print('zeta(3) = {:.14e}'.format(self.zeta3 ))
         print('a2 = {:.14e}, root of 2(1-exp(-x))-x'.format(self.a2 ))
         print('a3 = {:.14e}, root of 3(1-exp(-x))-x'.format(self.a3 ))
@@ -206,24 +206,24 @@ def fixDimensions(planckFun):
   def inner(spectral, temperature):
 
     #confirm that only vector is used, break with warning if so.
-    if isinstance(temperature, numpy.ndarray):
+    if isinstance(temperature, np.ndarray):
         if len(temperature.flat) != max(temperature.shape):
             print('ryplanck: temperature must be of shape (M,), (M,1) or (1,M)')
             return None
     #confirm that no row vector is used, break with warning if so.
-    if isinstance(spectral, numpy.ndarray):
+    if isinstance(spectral, np.ndarray):
         if len(spectral.flat) != spectral.shape[0]:
             print('ryplanck: spectral must be of shape (N,) or (N,1)')
             return None
-    tempIn = numpy.array(temperature, copy=True,  ndmin=1).astype(float)
-    specIn = numpy.array(spectral, copy=True,  ndmin=1).astype(float)
+    tempIn = np.array(temperature, copy=True,  ndmin=1).astype(float)
+    specIn = np.array(spectral, copy=True,  ndmin=1).astype(float)
     tempIn = tempIn.reshape(-1,1)
     specIn = specIn.reshape(-1,1)
 
     #create flattened version of the input dataset
-    specgrid, tempgrid = numpy.meshgrid(specIn,tempIn)
-    spec = numpy.ravel(specgrid)
-    temp = numpy.ravel(tempgrid)
+    specgrid, tempgrid = np.meshgrid(specIn,tempIn)
+    spec = np.ravel(specgrid)
+    temp = np.ravel(tempgrid)
 
     #this is the actual planck calculation
     planckA = planckFun(spec,temp) 
@@ -259,15 +259,15 @@ def planckel(spectral, temperature):
         | No exception is raised, returns None on error.
     """
 
-    # planckA = pconst.c1el / (spec ** 5 * ( numpy.exp(pconst.c2l / (spec * temp))-1));
+    # planckA = pconst.c1el / (spec ** 5 * ( np.exp(pconst.c2l / (spec * temp))-1));
 
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2l / (spectral * temperature)
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = (pconst.c1el / ( numpy.exp(exP2)-1)) / (spectral ** 5)
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = (pconst.c1el / ( np.exp(exP2)-1)) / (spectral ** 5)
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -289,15 +289,15 @@ def planckef(spectral, temperature):
         | No exception is raised, returns None on error.
     """
 
-    # planckA = pconst.c1ef * spec**3 / (numpy.exp(pconst.c2f * spec / temp)-1);
+    # planckA = pconst.c1ef * spec**3 / (np.exp(pconst.c2f * spec / temp)-1);
 
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2f * spectral / temperature
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = pconst.c1ef * spectral**3 / (numpy.exp(exP2)-1);
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = pconst.c1ef * spectral**3 / (np.exp(exP2)-1);
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -320,15 +320,15 @@ def plancken(spectral, temperature):
         | No exception is raised, returns None on error.
     """
 
-    # planckA = pconst.c1en * spec**3 / (numpy.exp(pconst.c2n * (spec / temp))-1)
+    # planckA = pconst.c1en * spec**3 / (np.exp(pconst.c2n * (spec / temp))-1)
 
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2n * (spectral / temperature)
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = ( pconst.c1en  / (numpy.exp(exP)-1) ) * spectral**3
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = ( pconst.c1en  / (np.exp(exP)-1) ) * spectral**3
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -353,10 +353,10 @@ def planckqf(spectral, temperature):
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2f * spectral / temperature
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = pconst.c1nf * spectral**2 / (numpy.exp(exP2)-1)
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = pconst.c1nf * spectral**2 / (np.exp(exP2)-1)
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -380,10 +380,10 @@ def planckql(spectral, temperature):
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP = pconst.c2l / (spectral * temperature)
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = (pconst.c1ql /( numpy.exp(exP2)-1) )  / (spectral**4 )
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = (pconst.c1ql /( np.exp(exP2)-1) )  / (spectral**4 )
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -408,10 +408,10 @@ def planckqn(spectral, temperature):
     #test value of exponent to prevent infinity, force to exponent to zero
     #this happens for low temperatures and short wavelengths
     exP =  pconst.c2n * spectral / temperature
-    exP2 = numpy.where(exP<explimit, exP, 1);
-    p = pconst.c1qn * spectral**2 / (numpy.exp(exP2)-1);
+    exP2 = np.where(exP<explimit, exP, 1);
+    p = pconst.c1qn * spectral**2 / (np.exp(exP2)-1);
     #if exponent is exP>=explimit, force Planck to zero
-    planckA = numpy.where(exP<explimit, p, 0);
+    planckA = np.where(exP<explimit, p, 0);
 
     return planckA
 
@@ -435,8 +435,8 @@ def dplnckef(spectral, temperature):
     """
 
     xx=(pconst.c2f * spectral /temperature);
-    f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=pconst.c1ef * spectral**3 / (numpy.exp(pconst.c2f * spectral \
+    f=xx*np.exp(xx)/(temperature*(np.exp(xx)-1))
+    y=pconst.c1ef * spectral**3 / (np.exp(pconst.c2f * spectral \
             / temperature)-1);
     dplanckA = f*y;
 
@@ -463,11 +463,11 @@ def dplnckel(spectral, temperature):
 
     # if xx > 350, then we get overflow
     xx = pconst.c2l /(spectral * temperature)
-    # return (3.7418301e8 * xx * numpy.exp(xx) ) \
-    #     / (temperature* spectral ** 5 * (numpy.exp(xx)-1) **2 )
-    # refactor (numpy.exp(xx)-1)**2 to prevent overflow problem
-    dplanckA = (pconst.c1el * xx * numpy.exp(xx) / (numpy.exp(xx)-1) ) \
-        / (temperature* spectral ** 5 * (numpy.exp(xx)-1) )
+    # return (3.7418301e8 * xx * np.exp(xx) ) \
+    #     / (temperature* spectral ** 5 * (np.exp(xx)-1) **2 )
+    # refactor (np.exp(xx)-1)**2 to prevent overflow problem
+    dplanckA = (pconst.c1el * xx * np.exp(xx) / (np.exp(xx)-1) ) \
+        / (temperature* spectral ** 5 * (np.exp(xx)-1) )
 
     return dplanckA
 
@@ -490,8 +490,8 @@ def dplncken(spectral, temperature):
     """
 
     xx=(pconst.c2n * spectral /temperature)
-    f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=(pconst.c1en* spectral **3 / (numpy.exp(pconst.c2n * spectral \
+    f=xx*np.exp(xx)/(temperature*(np.exp(xx)-1))
+    y=(pconst.c1en* spectral **3 / (np.exp(pconst.c2n * spectral \
             / temperature)-1))
     dplanckA = f*y;
 
@@ -516,8 +516,8 @@ def dplnckqf(spectral, temperature):
     """
 
     xx=(pconst.c2f * spectral /temperature)
-    f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=pconst.c1nf * spectral **2 / (numpy.exp(pconst.c2f * spectral \
+    f=xx*np.exp(xx)/(temperature*(np.exp(xx)-1))
+    y=pconst.c1nf * spectral **2 / (np.exp(pconst.c2f * spectral \
             / temperature)-1)
     dplanckA = f*y;
 
@@ -542,8 +542,8 @@ def dplnckql(spectral, temperature):
     """
 
     xx=(pconst.c2l /(spectral * temperature))
-    f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=pconst.c1ql / (spectral ** 4 * ( numpy.exp(pconst.c2l \
+    f=xx*np.exp(xx)/(temperature*(np.exp(xx)-1))
+    y=pconst.c1ql / (spectral ** 4 * ( np.exp(pconst.c2l \
             / (temperature * spectral))-1))
     dplanckA = f*y;
 
@@ -568,8 +568,8 @@ def dplnckqn(spectral, temperature):
     """
 
     xx=(pconst.c2n * spectral /temperature)
-    f=xx*numpy.exp(xx)/(temperature*(numpy.exp(xx)-1))
-    y=pconst.c1qn * spectral **2 / (numpy.exp(pconst.c2n * spectral \
+    f=xx*np.exp(xx)/(temperature*(np.exp(xx)-1))
+    y=pconst.c1qn * spectral **2 / (np.exp(pconst.c2n * spectral \
             / temperature)-1)
     dplanckA = f*y;
 
@@ -598,16 +598,16 @@ def stefanboltzman(temperature, type='e'):
     """
 
     #confirm that only vector is used, break with warning if so.
-    if isinstance(temperature, numpy.ndarray):
+    if isinstance(temperature, np.ndarray):
         if len(temperature.flat) != max(temperature.shape):
             print('ryplanck.stefanboltzman: temperature must be of shape (M,), (M,1) or (1,M)')
             return -1
 
-    tempr = numpy.asarray(temperature).astype(float)
+    tempr = np.asarray(temperature).astype(float)
     #use dictionary to switch between options, lambda fn to calculate, default -1
     rtnval = {
-              'e': lambda temp: pconst.sigmae * numpy.power(temp, 4) ,
-              'q': lambda temp: pconst.sigmaq * numpy.power(temp, 3)
+              'e': lambda temp: pconst.sigmae * np.power(temp, 4) ,
+              'q': lambda temp: pconst.sigmaq * np.power(temp, 3)
               }.get(type, lambda temp: -1)(tempr)
     return rtnval
 
@@ -655,7 +655,7 @@ def planck(spectral, temperature, type='el'):
         exitance = plancktype[type](spectral, temperature)
     else:
         # return all minus one if illegal type
-        exitance = - numpy.ones(spectral.shape)
+        exitance = - np.ones(spectral.shape)
 
     return exitance
 
@@ -697,7 +697,7 @@ def dplanck(spectral, temperature, type='el'):
         exitance = dplancktype[type](spectral, temperature)
     else:
         # return all zeros if illegal type
-        exitance = - numpy.ones(spectral.shape)
+        exitance = - np.ones(spectral.shape)
 
     return exitance
 
@@ -719,7 +719,7 @@ if __name__ == '__main__':
     if True:
         #--------------------------------------------------------------------------------------
         # test different input types for temperature but with spectral array
-        wavelen = numpy.linspace(1.0, 2.0, 100)
+        wavelen = np.linspace(1.0, 2.0, 100)
         #test for scalar temperature
         m = planckel(wavelen, 300) 
         print('Array spectral {} & scalar temperature input, output shape is {}'.format(wavelen.shape, m.shape))
@@ -732,11 +732,11 @@ if __name__ == '__main__':
         m = planckel(wavelen,temp) 
         print('Array spectral {} & list with len()={} temperature input, output shape is {}'.format(wavelen.shape, len(temp), m.shape))
         #test for array of temperature values
-        temp =  numpy.asarray([300, 350, 400, 450, 500])
+        temp =  np.asarray([300, 350, 400, 450, 500])
         m = planckel(wavelen,temp) 
         print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
         #test for array of temperature values
-        temp =  numpy.asarray([300, 350, 400, 450, 500]).reshape(1,-1)
+        temp =  np.asarray([300, 350, 400, 450, 500]).reshape(1,-1)
         m = planckel(wavelen,temp.T) 
         print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
 
@@ -753,7 +753,7 @@ if __name__ == '__main__':
         m = planckel(wavelen[0],temp) 
         print('Scalar spectral & list temperature with len()={} input, output shape is {}'.format(len(temp), m.shape))
         #test for list of temperature values
-        temp =  numpy.asarray([300, 350, 400, 450, 500])
+        temp =  np.asarray([300, 350, 400, 450, 500])
         m = planckel(wavelen[0],temp) 
         print('Scalar spectral & array temperature with shape={}  input, output shape is {}'.format(temp.shape, m.shape))
 
@@ -777,7 +777,7 @@ if __name__ == '__main__':
         wl1=.05            # lower integration limit
         wl2= 1000         # upper integration limit
         wld=(wl2-wl1)/numIntPts  #integration increment
-        wl=numpy.arange(wl1, wl2+wld, wld)
+        wl=np.arange(wl1, wl2+wld, wld)
 
         print('\nplanckel WAVELENGTH DOMAIN, RADIANT EXITANCE')
         M =planckel(wl,tmprtr)
@@ -817,7 +817,7 @@ if __name__ == '__main__':
         f1=const.c/ (wl2*1e-6)
         f2=const.c/ (wl1*1e-6)
         fd=(f2-f1)/numIntPts  # integration increment
-        f=numpy.arange(f1, f2+fd, fd)
+        f=np.arange(f1, f2+fd, fd)
 
         print('\nplanckef FREQUENCY DOMAIN, RADIANT EXITANCE');
         M =planckef(f,tmprtr);
@@ -858,7 +858,7 @@ if __name__ == '__main__':
         n1=1e4 / wl2
         n2=1e4 / wl1
         nd=(n2-n1)/numIntPts  # integration increment
-        n=numpy.arange(n1, n2+nd, nd)
+        n=np.arange(n1, n2+nd, nd)
 
         print('\nplancken WAVENUMBER DOMAIN, RADIANT EXITANCE');
         M =plancken(n,tmprtr);
@@ -897,9 +897,9 @@ if __name__ == '__main__':
         print(' ')
 
         print('Test the functions by converting between different spectral domains.')
-        wavelenRef = numpy.asarray([0.1,  1,  10 ,  100]) # in units of um
-        wavenumRef = numpy.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
-        frequenRef = numpy.asarray([  2.99792458e+15,   2.99792458e+14,   2.99792458e+13, 2.99792458e+12])
+        wavelenRef = np.asarray([0.1,  1,  10 ,  100]) # in units of um
+        wavenumRef = np.asarray([1.0e5,  1.0e4,  1.0e3,  1.0e2]) # in units of cm-1
+        frequenRef = np.asarray([  2.99792458e+15,   2.99792458e+14,   2.99792458e+13, 2.99792458e+12])
         print('Input spectral vectors:')
         print('{0} micrometers'.format(wavelenRef))
         print('{0} wavenumber'.format(wavenumRef))
@@ -951,7 +951,7 @@ if __name__ == '__main__':
         import ryplot
 
         #plot a single planck curve on linear scale for 300K source
-        wl=numpy.logspace(numpy.log10(0.2), numpy.log10(20), num=100).reshape(-1, 1)
+        wl=np.logspace(np.log10(0.2), np.log10(20), num=100).reshape(-1, 1)
         Mel = planck(wl, 300, type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
 
         lp = ryplot.Plotter(1)
@@ -960,17 +960,17 @@ if __name__ == '__main__':
         lp.saveFig('M300k.eps')
 
         #plot all the planck functions.
-        wl=numpy.logspace(numpy.log10(0.1), numpy.log10(100), num=100).reshape(-1, 1)
-        n=numpy.logspace(numpy.log10(1e4/100),numpy. log10(1e4/0.1), num=100).reshape(-1, 1)
-        f=numpy.logspace(numpy.log10(const.c/ (100*1e-6)),numpy. log10(const.c/ (0.1*1e-6)), num=100).reshape(-1, 1)
+        wl=np.logspace(np.log10(0.1), np.log10(100), num=100).reshape(-1, 1)
+        n=np.logspace(np.log10(1e4/100),np. log10(1e4/0.1), num=100).reshape(-1, 1)
+        f=np.logspace(np.log10(const.c/ (100*1e-6)),np. log10(const.c/ (0.1*1e-6)), num=100).reshape(-1, 1)
         temperature=[280,300,450,650,1000,1800,3000,6000]
 
-        Mel = planck(wl, numpy.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m)]
-        Mql = planck(wl, numpy.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m)]
-        Men = planck(n, numpy.asarray(temperature).reshape(-1,1), type='en')  # [W/(m$^2$.cm$^{-1}$)]
-        Mqn = planck(n, numpy.asarray(temperature).reshape(-1,1), type='qn')  # [q/(s.m$^2$.cm$^{-1}$)]
-        Mef = planck(f, numpy.asarray(temperature).reshape(-1,1), type='ef')  # [W/(m$^2$.Hz)]
-        Mqf = planck(f, numpy.asarray(temperature).reshape(-1,1), type='qf')  # [q/(s.m$^2$.Hz)]
+        Mel = planck(wl, np.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m)]
+        Mql = planck(wl, np.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m)]
+        Men = planck(n, np.asarray(temperature).reshape(-1,1), type='en')  # [W/(m$^2$.cm$^{-1}$)]
+        Mqn = planck(n, np.asarray(temperature).reshape(-1,1), type='qn')  # [q/(s.m$^2$.cm$^{-1}$)]
+        Mef = planck(f, np.asarray(temperature).reshape(-1,1), type='ef')  # [W/(m$^2$.Hz)]
+        Mqf = planck(f, np.asarray(temperature).reshape(-1,1), type='qf')  # [q/(s.m$^2$.Hz)]
 
         legend = ["{0:.0f} K".format(temperature[0])]
         for temp in temperature[1:] :
@@ -1001,12 +1001,12 @@ if __name__ == '__main__':
         fplanck.saveFig('planck.png')
 
         #now plot temperature derivatives
-        Mel = dplanck(wl, numpy.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m.K)]
-        Mql = dplanck(wl, numpy.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m.K)]
-        Men = dplanck(n , numpy.asarray(temperature).reshape(-1,1), type='en') # [W/(m$^2$.cm$^{-1}$.K)]
-        Mqn = dplanck(n,  numpy.asarray(temperature).reshape(-1,1), type='qn') # [q/(s.m$^2$.cm$^{-1}$.K)]
-        Mef = dplanck(f,  numpy.asarray(temperature).reshape(-1,1), type='ef') # [W/(m$^2$.Hz.K)]
-        Mqf = dplanck(f,  numpy.asarray(temperature).reshape(-1,1), type='qf') # [q/(s.m$^2$.Hz.K)]
+        Mel = dplanck(wl, np.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m.K)]
+        Mql = dplanck(wl, np.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m.K)]
+        Men = dplanck(n , np.asarray(temperature).reshape(-1,1), type='en') # [W/(m$^2$.cm$^{-1}$.K)]
+        Mqn = dplanck(n,  np.asarray(temperature).reshape(-1,1), type='qn') # [q/(s.m$^2$.cm$^{-1}$.K)]
+        Mef = dplanck(f,  np.asarray(temperature).reshape(-1,1), type='ef') # [W/(m$^2$.Hz.K)]
+        Mqf = dplanck(f,  np.asarray(temperature).reshape(-1,1), type='qf') # [q/(s.m$^2$.Hz.K)]
 
         fdplanck = ryplot.Plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
         fdplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
@@ -1039,15 +1039,15 @@ if __name__ == '__main__':
         print('Calculate the number of bits required to express the colour ratio')
         print('between an MTV flare and a relatively cold aircraft fuselage.')
         #calculate the radiance ratio of aircraft fuselage to MTV flare in 3-5 um band
-        wl=numpy.arange(3.5, 5, 0.001)
+        wl=np.arange(3.5, 5, 0.001)
         #MTV flare temperature is 2200 K. emissivity=0.15
         flareEmis = 0.15
-        flareM = flareEmis * numpy.trapz(planckel(wl,2200).reshape(-1, 1),wl, axis=0)[0]
+        flareM = flareEmis * np.trapz(planckel(wl,2200).reshape(-1, 1),wl, axis=0)[0]
         #aircraft fuselage temperature is 250 K. emissivity=1,
-        aircraftM =  numpy.trapz(planckel(wl,250).reshape(-1, 1),wl, axis=0)[0]
+        aircraftM =  np.trapz(planckel(wl,250).reshape(-1, 1),wl, axis=0)[0]
         print('Mflare={0:.2f} W/m2 \nMaircraft={1:.1f} W/m2'.format(flareM, aircraftM))
         print('Colour ratio: ratio={0:.3e} minimum number of bits required={1:.1f}'.\
-            format(flareM/aircraftM,  numpy.log2(flareM/aircraftM)))
+            format(flareM/aircraftM,  np.log2(flareM/aircraftM)))
 
     #--------------------------------------------------------------------------------------
     print('\n\nmodule planck done!')
