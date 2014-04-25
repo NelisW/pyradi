@@ -1,7 +1,7 @@
 #  $Id$
 #  $HeadURL$
 ################################################################
-# The contents of this file are subject to the Mozilla Public License
+# The contents of this file are subject to the Mozilla Publiccense
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
@@ -671,7 +671,8 @@ class Plotter:
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                     xTicks=None, xtickRotation=0, markers=[] ):
+                    xTicks=None, xtickRotation=0, markers=[],
+                    markevery=None ):
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -696,7 +697,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high]
+                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -710,6 +711,7 @@ class Plotter:
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
 
             Returns:
                 | the axis object for the plot
@@ -732,7 +734,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers)
+                    xTicks, xtickRotation, markers, markevery)
       return ax
 
     ############################################################
@@ -744,7 +746,8 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[] ):
+                    xTicks=None, xtickRotation=0, markers=[],
+                    markevery=None  ):
       """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -769,7 +772,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high] (optional)
+                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -783,6 +786,7 @@ class Plotter:
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
 
             Returns:
                 | the axis object for the plot
@@ -812,7 +816,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers)
+                    xTicks, xtickRotation, markers, markevery)
 
       return ax
 
@@ -826,7 +830,8 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[] ):
+                    xTicks=None, xtickRotation=0, markers=[],
+                    markevery=None  ):
 
       """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
@@ -852,7 +857,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high] (optional)
+                | powerLimits[float]: scientific tick label notation power limits [x-low, x-high, y-low, y-high] (optional) (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -866,6 +871,7 @@ class Plotter:
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
 
             Returns:
                 | the axis object for the plot
@@ -888,7 +894,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers)
+                    xTicks, xtickRotation, markers, markevery)
 
       return ax
 
@@ -901,7 +907,8 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                     xTicks=None, xtickRotation=0, markers=[] ):
+                     xTicks=None, xtickRotation=0, markers=[],
+                    markevery=None ):
       """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -926,7 +933,7 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high] (optional)
+                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -940,6 +947,7 @@ class Plotter:
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
 
             Returns:
                 | the axis object for the plot
@@ -962,7 +970,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers)
+                    xTicks, xtickRotation, markers, markevery)
 
       return ax
 
@@ -976,7 +984,8 @@ class Plotter:
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[] ):
+                    xTicks=None, xtickRotation=0, markers=[] ,
+                    markevery=None ):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1006,7 +1015,7 @@ class Plotter:
               | maxNX (int): draw maxNX+1 tick labels on x axis
               | maxNY (int): draw maxNY+1 tick labels on y axis
               | linestyle (string): linestyle for this plot (optional)
-              | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high]
+              | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)
               | titlefsize (int): title font size, default 12pt (optional)
               | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
               | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1020,6 +1029,7 @@ class Plotter:
               | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
               | xtickRotation (float) x-axis tick label rotation angle (optional) 
               | markers ([string]) markers to be used for plotting data points (optional)
+              | markevery (int | (startind, stride)) subsample when using markers (optional)
 
           Returns:
               | the axis object for the plot
@@ -1119,9 +1129,11 @@ class Plotter:
 
 
           if not label:
-              plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, marker=mmrk)
+              plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, 
+                marker=mmrk, markevery=markevery)
           else:
-              plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, marker=mmrk)
+              plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
+                marker=mmrk, markevery=markevery)
 
               leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
               leg.get_frame().set_alpha(legendAlpha)
@@ -1212,7 +1224,7 @@ class Plotter:
                 | maxNY (int): draw maxNY+1 tick labels on y axis
                 | xScientific (bool): use scientific notation on x axis (optional)
                 | yScientific (bool): use scientific notation on y axis (optional)
-                | powerLimits[float]: axis notation power limits [x-low, x-high, y-low, y-high]
+                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1406,7 +1418,7 @@ class Plotter:
                 | xScientific (bool): use scientific notation on x axis (optional)
                 | yScientific (bool): use scientific notation on y axis (optional)
                 | zScientific (bool): use scientific notation on z-axis (optional)
-                | powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]
+                | powerLimits[float]:  scientific tick label power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -2253,9 +2265,9 @@ class Plotter:
 from contextlib import contextmanager
 
 @contextmanager
-def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,\
+def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
                  figuretitle=None, figsize=(9,9), saveName=None):
-    """Uses with statement to create a plot and save to file on exit.
+    """Uses 'with' statement to create a plot and save to file on exit.
 
     Use as follows::
 
