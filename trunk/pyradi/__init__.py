@@ -24,15 +24,21 @@
 radiometry (flux flow) calculations. 
 
 The toolkit is available at 
+
 http://code.google.com/p/pyradi
 
 See docs at 
+
 http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
 
 Visit the google group at http://groups.google.com/group/pyradi-dev
 
+IPython notebooks demonstrating the use of pyradi is available at  
+
+https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
+
 """
-__version__= "0.1.41"
+__version__= "0.1.42"
 __versionSVN__= "svn $Revision$"
 __author__='pyradi team'
 

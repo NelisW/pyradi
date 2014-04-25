@@ -74,17 +74,17 @@ PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x6
 <dl class="class">
 <dt id="pyradi.ryplot.Plotter">
 <em class="property">class </em><tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">Plotter</tt><big>(</big><em>fignumber=0</em>, <em>subpltnrow=1</em>, <em>subpltncol=1</em>, <em>figuretitle=None</em>, <em>figsize=(9</em>, <em>9)</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encapsulates a plotting environment, optimized for
-radiometry plots.</p>
+<dd><p>Encapsulates a plotting environment, optimized for compact code.</p>
 <p>This class provides a wrapper around Matplotlib to provide a plotting
-environment specialised towards radiometry results.  These functions
-were developed to provide well labelled plots by entering only one or two lines.</p>
-<p>Provision is made for plots containing subplots (i.e. multiple plots on the same figure),
-linear scale and log scale plots, and cartesian and polar plots.
-Simple 3D line plots can also be made.</p>
+environment specialised towards typical pyradi visualisation.  
+These functions were developed to provide sophisticated plots by entering 
+the various plot options on a few lines, instead of typing many commands.</p>
+<p>Provision is made for plots containing subplots (i.e., multiple plots on 
+the same figure), linear scale and log scale plots, images, and cartesian,
+3-D and polar plots.</p>
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.buildPlotCol">
-<tt class="descname">buildPlotCol</tt><big>(</big><em>plotCol</em>, <em>n</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.buildPlotCol" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">buildPlotCol</tt><big>(</big><em>plotCol=None</em>, <em>n=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.buildPlotCol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a sequence of default colour styles of
 appropriate length.</p>
 <p>The constructor provides a sequence with length
@@ -127,7 +127,7 @@ See <a class="reference external" href="http://html-color-codes.info/">http://ht
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.getPlot">
 <tt class="descname">getPlot</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.getPlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a handle to the current plot</p>
+<dd><p>Returns a handle to the current figure</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -136,7 +136,7 @@ See <a class="reference external" href="http://html-color-codes.info/">http://ht
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">A handle to the current plot.</div>
+<div class="line">A handle to the current figure.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -161,7 +161,7 @@ Subplot numbers range from 1 upwards.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">A handle to the requested subplot.</div>
+<div class="line">A handle to the requested subplot or None if not found.</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -174,8 +174,37 @@ Subplot numbers range from 1 upwards.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyradi.ryplot.Plotter.labelSubplot">
+<tt class="descname">labelSubplot</tt><big>(</big><em>spax</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>titlefsize=10</em>, <em>labelfsize=10</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.labelSubplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the sub-figure title and axes labels (cartesian plots only).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">spax (handle): subplot axis handle where labels must be drawn</div>
+<div class="line">ptitle (string): plot title (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
+<div class="line">zlabel (string): z axis label (optional)</div>
+<div class="line">titlefsize (float): title  fontsize (optional)</div>
+<div class="line">labelfsize (float): x,y,z label fontsize (optional)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -188,38 +217,39 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">x (np.array[N,] or [N,1]): abscissa</div>
 <div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries (optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
-<div class="line">linestyle (string): linestyle for this plot</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">labelfsize (int): label/legend font size, default 10pt (optional)</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">xIsDate (bool): convert the x-values to dates</div>
-<div class="line">xTicks ({tick:label}): dict of ticks and associated labels</div>
-<div class="line">xtickRotation (float) ax tick rotation angle </div>
-<div class="line">markers ([string]) markers to be used in lines</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">xIsDate (bool): convert the datetime x-values to dates (optional)</div>
+<div class="line">xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)</div>
+<div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
+<div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -233,7 +263,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.mesh3D">
-<tt class="descname">mesh3D</tt><big>(</big><em>plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=[], pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits=[-4, 2, -4, 2, -2, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05F717B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, elevation=30, azimuth=45, alpha=1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.mesh3D" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">mesh3D</tt><big>(</big><em>plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=[], pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits=[-4, 2, -4, 2, -2, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05789EF0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, elevation=30, azimuth=45, alpha=1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.mesh3D" title="Permalink to this definition">¶</a></dt>
 <dd><p>XY colour mesh plot for (xvals, yvals, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -249,7 +279,7 @@ have to be on regular intervals.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">xvals (np.array[N,] or [N,1]): vector of x values</div>
 <div class="line">yvals (np.array[M,] or [M,1]): vector of y values</div>
 <div class="line">zvals (np.array[N,M]): values on a (x,y) grid</div>
@@ -260,27 +290,27 @@ have to be on regular intervals.</p>
 <div class="line">rstride (int): row stride</div>
 <div class="line">cstride (int): column stride</div>
 <div class="line">linewidth (float): line width</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if []</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
 <div class="line">maxNZ (int): draw maxNY+1 tick labels on z axis</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">zScientific (bool): use scientific notation on z-axis</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">zScientific (bool): use scientific notation on z-axis (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">wireframe (bool): If True, do a wireframe plot</div>
 <div class="line">cmap (cm): color map for the mesh (optional)</div>
 <div class="line">cbarshow (bool): if true, the show a color bar</div>
 <div class="line">cbarorientation (string): &#8216;vertical&#8217; (right) or &#8216;horizontal&#8217; (below)</div>
 <div class="line">cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels</div>
 <div class="line">cbarfontsize (int): font size for color bar</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">invertX (bool): invert the x-axis</div>
-<div class="line">invertY (bool): invert the y-axis</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">invertX (bool): invert the x-axis (optional)</div>
+<div class="line">invertY (bool): invert the y-axis (optional)</div>
 <div class="line">invertZ (bool): invert the z-axis</div>
 <div class="line">logScale (bool): do Z values on log scale, recompute colourbar vals</div>
 <div class="line">elevation (float): view elevation in degrees</div>
@@ -290,7 +320,7 @@ have to be on regular intervals.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -304,7 +334,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.meshContour">
-<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, numLevels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05F717B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, numLevels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05789EF0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
 <dd><p>XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -320,7 +350,7 @@ have to be on regular intervals.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">xvals (np.array[N,] or [N,1]): vector of x values</div>
 <div class="line">yvals (np.array[M,] or [M,1]): vector of y values</div>
 <div class="line">zvals (np.array[N,M]): values on a (x,y) grid</div>
@@ -329,24 +359,24 @@ have to be on regular intervals.</p>
 <div class="line">xlabel (string): x axis label</div>
 <div class="line">ylabel (string): y axis label</div>
 <div class="line">shading (string): &#8216;flat&#8217; | &#8216;gouraud&#8217;  (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if []</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">meshCmap (cm): color map for the mesh (optional)</div>
 <div class="line">cbarshow (bool): if true, the show a color bar</div>
 <div class="line">cbarorientation (string): &#8216;vertical&#8217; (right) or &#8216;horizontal&#8217; (below)</div>
 <div class="line">cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels</div>
 <div class="line">cbarfontsize (int): font size for color bar</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">invertY (bool): invert the y-axis</div>
-<div class="line">invertX (bool): invert the x-axis</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">invertY (bool): invert the y-axis (optional)</div>
+<div class="line">invertX (bool): invert the x-axis (optional)</div>
 <div class="line">contourFill (bool): fill contours with colour</div>
 <div class="line">contourLine (bool): draw a series of contour lines</div>
 <div class="line">logScale (bool): do Z values on log scale, recompute colourbar vals</div>
@@ -356,7 +386,7 @@ have to be on regular intervals.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -370,7 +400,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.myPlot">
-<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False, xIsDate=False, xTicks=None, xtickRotation=0, markers=[]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting
 function provided by its user functions.</p>
@@ -387,38 +417,39 @@ function provided by its user functions.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">plotcommand: name of a MatplotLib plotting function</div>
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">ptitle (string): plot title</div>
 <div class="line">xlabel (string): x axis label</div>
 <div class="line">ylabel (string): y axis label</div>
 <div class="line">x (np.array[N,] or [N,1]): abscissa</div>
 <div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if []</div>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries</div>
-<div class="line">legendAlpha (float): transparancy for legend</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros.</div>
+<div class="line">legendAlpha (float): transparancy for legend box</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis</div>
-<div class="line">linestyle (string): linestyle for this plot</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
+<div class="line">linestyle (string): linestyle for this plot (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">labelfsize (int): label/legend font size, default 10pt (optional)</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">xIsDate (bool): convert the x-values to dates</div>
-<div class="line">xTicks ({tick:label}): dict of ticks and associated labels</div>
-<div class="line">xtickRotation (float) ax tick rotation angle </div>
-<div class="line">markers ([string]) markers to be used in lines</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">xIsDate (bool): convert the datetime x-values to dates (optional)</div>
+<div class="line">xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)</div>
+<div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
+<div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -459,7 +490,7 @@ One day I want to do this with a generator....</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -472,38 +503,39 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">x (np.array[N,] or [N,1]): abscissa</div>
 <div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries (optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
-<div class="line">linestyle (string): linestyle for this plot</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos]</div>
+<div class="line">linestyle (string): linestyle for this plot (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">labelfsize (int): label/legend font size, default 10pt (optional)</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">xIsDate (bool): convert the x-values to dates</div>
-<div class="line">xTicks ({tick:label}): dict of ticks and associated labels</div>
-<div class="line">xtickRotation (float) ax tick rotation angle </div>
-<div class="line">markers ([string]) markers to be used in lines</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">xIsDate (bool): convert the datetime x-values to dates (optional)</div>
+<div class="line">xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)</div>
+<div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
+<div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -529,27 +561,27 @@ the label argument can contain the legend labels for each of the columns/lines.<
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">x (np.array[N,] or [N,M]): x coordinates of vertices</div>
 <div class="line">y (np.array[N,] or [N,M]): y coordinates of vertices</div>
 <div class="line">z (np.array[N,] or [N,M]): z coordinates of vertices</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
 <div class="line">zlabel (string): z axis label (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries (optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x, y, z label font size, default 12pt (optional)</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
 <div class="line">zInvert (bool): invert the z-axis</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -572,16 +604,16 @@ columns (0) or rows (1).</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">inarray (array): np.array</div>
 <div class="line">slicedim (int): slice along columns (0) or rows (1)</div>
 <div class="line">subtitles (list): a list of strings as subtitles for each subplot</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -596,29 +628,6 @@ columns (0) or rows (1).</p>
 </dd>
 </dl>
 </div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyradi.ryplot.Plotter.plotMarkers">
-<tt class="descname">plotMarkers</tt><big>(</big><em>plotnum</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plotMarkers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add markers to the subplot</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
-</div>
-</dd>
-<dt>Returns:</dt>
-<dd><div class="first last line-block">
-<div class="line">Nothing</div>
-</div>
-</dd>
-<dt>Raises:</dt>
-<dd><div class="first last line-block">
-<div class="line">No exception is raised.</div>
-</div>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
@@ -642,17 +651,17 @@ polar plot.  We therefore force the plot by making the values positive and then 
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">theta (np.array[N,] or [N,1]): angular abscissa</div>
 <div class="line">r (np.array[N,] or [N,M]): radial ordinates - could be M columns</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label, list with M entries (optional)</div>
 <div class="line">labelLocation ([x,y]): where the legend should located (optional)</div>
 <div class="line">highlightNegative (bool): indicate if negative data be highlighted (optional)</div>
 <div class="line">highlightCol (string): highlighted colour string (optional)</div>
 <div class="line">highlightWidth (int): highlighted line width(optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
 <div class="line">rscale ([rmin, rmax]): plotting limits. default if all 0 (optional)</div>
 <div class="line">rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals. (optional)</div>
 <div class="line">thetagrids (float): theta grid interval [degrees] (optional)</div>
@@ -663,7 +672,7 @@ polar plot.  We therefore force the plot by making the values positive and then 
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -677,7 +686,7 @@ polar plot.  We therefore force the plot by making the values positive and then 
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar3d">
-<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05F717B0&gt;</em>, <em>linewidth=0.1</em>, <em>azim=45</em>, <em>elev=30</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05789EF0&gt;</em>, <em>linewidth=0.1</em>, <em>azim=45</em>, <em>elev=30</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D polar surface/mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -691,13 +700,13 @@ have to be on regular intervals.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">theta (np.array[N,] or [N,1]): vector of angular values (rad)</div>
 <div class="line">radial (np.array[M,] or [M,1]): vector if radial values</div>
 <div class="line">zvals (np.array[N,M]): values on a (theta,radial) grid</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
 <div class="line">zlabel (string): z axis label (optional)</div>
 <div class="line">zscale ([float]): z axis [min, max] in the plot.</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
@@ -712,7 +721,7 @@ have to be on regular intervals.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -726,7 +735,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polarMesh">
-<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05F717B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol=[], numLevels=10, contourLine=True, zeroContourLine=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05789EF0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol=[], numLevels=10, contourLine=True, zeroContourLine=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Polar colour mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -742,7 +751,7 @@ have to be on regular intervals.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">theta (np.array[N,] or [N,1]): vector of angular values [0..2pi]</div>
 <div class="line">radial (np.array[M,] or [M,1]): vector of radial values</div>
 <div class="line">zvals (np.array[N,M]): values on a (theta,radial) grid</div>
@@ -757,13 +766,13 @@ have to be on regular intervals.</p>
 <div class="line">cbarfontsize (int): font size for color bar</div>
 <div class="line">rgrid ([float]): radial grid - None, [number], [inc,max]</div>
 <div class="line">thetagrid ([float]): angular grid - None, [inc]</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
 <div class="line">thetagridfontsize (float): font size for the angular grid</div>
 <div class="line">radialgridfontsize (float): font size for the radial grid</div>
 <div class="line">direction (string)= &#8216;counterclockwise&#8217; or &#8216;clockwise&#8217; (optional)</div>
 <div class="line">zerooffset (float) = rotation offset where zero should be [rad] (optional)</div>
 <div class="line">logScale (bool): do Z values on log scale, recompute colourbar vals</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if []</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if []</div>
 <div class="line">numLevels (int): values of contour levels</div>
 <div class="line">contourLine (bool): draw a series of contour lines</div>
 <div class="line">zeroContourLine (bool): draw the contour at zero</div>
@@ -771,7 +780,7 @@ have to be on regular intervals.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -822,6 +831,8 @@ that is smaller than the size of all the objects on the page.  It took a while t
 but the current default values for bbox_inches and pad_inches seem to create meaningful
 bounding boxes. These are however larger than the true bounding box. You still need a
 tool such as epstools or Adobe Acrobat to trim eps files to the true bounding box.</p>
+<p>The type of file written is picked up in the filename. 
+Most backends support png, pdf, ps, eps and svg.</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Args:</dt>
@@ -849,7 +860,7 @@ tool such as epstools or Adobe Acrobat to trim eps files to the true bounding bo
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -862,38 +873,39 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">x (np.array[N,] or [N,1]): abscissa</div>
 <div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label for ordinate, list with M entries (optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
-<div class="line">linestyle (string): linestyle for this plot</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot (optional)</div>
+<div class="line">powerLimits[float]: scientific tick label notation power limits [x-low, x-high, y-low, y-high] (optional) (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">labelfsize (int): label/legend font size, default 10pt (optional)</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">xIsDate (bool): convert the x-values to dates</div>
-<div class="line">xTicks ({tick:label}): dict of ticks and associated labels</div>
-<div class="line">xtickRotation (float) ax tick rotation angle </div>
-<div class="line">markers ([string]) markers to be used in lines</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">xIsDate (bool): convert the datetime x-values to dates (optional)</div>
+<div class="line">xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)</div>
+<div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
+<div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -907,7 +919,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[]</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -920,38 +932,39 @@ for the x and y axes.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">x (np.array[N,] or [N,1]): abscissa</div>
 <div class="line">y (np.array[N,] or [N,M]): ordinates - could be M columns</div>
 <div class="line">ptitle (string): plot title (optional)</div>
-<div class="line">xlabel (string): x axis label (optional)</div>
-<div class="line">ylabel (string): y axis label (optional)</div>
-<div class="line">plotCol ([strings]): plot line style, list with M entries, use default if [] (optional)</div>
+<div class="line">xlabel (string): x-axis label (optional)</div>
+<div class="line">ylabel (string): y-axis label (optional)</div>
+<div class="line">plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)</div>
 <div class="line">label  ([strings]): legend label for ordinate, list withM entries (optional)</div>
-<div class="line">legendAlpha (float): transparancy for legend (optional)</div>
-<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. default if all zeros. (optional)</div>
+<div class="line">legendAlpha (float): transparancy for legend box (optional)</div>
+<div class="line">pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)</div>
 <div class="line">maxNX (int): draw maxNX+1 tick labels on x axis (optional)</div>
 <div class="line">maxNY (int): draw maxNY+1 tick labels on y axis (optional)</div>
-<div class="line">linestyle (string): linestyle for this plot</div>
-<div class="line">powerLimits[float]: axis notation power limits [x-neg, x-pos, y-neg, y-pos] (optional)</div>
+<div class="line">linestyle (string): linestyle for this plot (optional)</div>
+<div class="line">powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
-<div class="line">xylabelfsize (int): x, y label font size, default 12pt (optional)</div>
-<div class="line">xytickfsize (int): x, y tick font size, default 10pt (optional)</div>
+<div class="line">xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)</div>
+<div class="line">xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)</div>
 <div class="line">labelfsize (int): label/legend font size, default 10pt (optional)</div>
-<div class="line">xScientific (bool): use scientific notation on x-axis</div>
-<div class="line">yScientific (bool): use scientific notation on x-axis</div>
-<div class="line">drawGrid (bool): draw the grid on the plot</div>
-<div class="line">yInvert (bool): invert the y-axis</div>
-<div class="line">xInvert (bool): invert the x-axis</div>
-<div class="line">xIsDate (bool): convert the x-values to dates</div>
-<div class="line">xTicks ({tick:label}): dict of ticks and associated labels</div>
-<div class="line">xtickRotation (float) ax tick rotation angle </div>
-<div class="line">markers ([string]) markers to be used in lines</div>
+<div class="line">xScientific (bool): use scientific notation on x axis (optional)</div>
+<div class="line">yScientific (bool): use scientific notation on y axis (optional)</div>
+<div class="line">drawGrid (bool): draw the grid on the plot (optional)</div>
+<div class="line">yInvert (bool): invert the y-axis (optional)</div>
+<div class="line">xInvert (bool): invert the x-axis (optional)</div>
+<div class="line">xIsDate (bool): convert the datetime x-values to dates (optional)</div>
+<div class="line">xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)</div>
+<div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
+<div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -965,12 +978,12 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05F63AF0&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation='vertical'</em>, <em>cbarcustomticks=</em>, <span class="optional">[</span><span class="optional">]</span><em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05789250&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation='vertical'</em>, <em>cbarcustomticks=</em>, <span class="optional">[</span><span class="optional">]</span><em>cbarfontsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">plotnum (int): subplot number</div>
+<div class="line">plotnum (int): subplot number, 1-based index</div>
 <div class="line">img (np.ndarray): numpy 2d array</div>
 <div class="line">ptitle (string): plot title (optional)</div>
 <div class="line">cmap: matplotlib colormap, default gray (optional)</div>
@@ -983,7 +996,7 @@ for the x and y axes.</p>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">Nothing</div>
+<div class="line">the axis object for the plot</div>
 </div>
 </dd>
 <dt>Raises:</dt>
@@ -1016,7 +1029,7 @@ Default values are provided that can be overridden in user plots.</p>
 <dl class="class">
 <dt id="pyradi.ryplot.Markers">
 <em class="property">class </em><tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">Markers</tt><big>(</big><em>markerfacecolor=None</em>, <em>markerfacecoloralt=None</em>, <em>markeredgecolor=None</em>, <em>marker=None</em>, <em>markersize=None</em>, <em>fillstyle=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Markers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect maker location and types and mark subplot.</p>
+<dd><p>Collect marker location and types and mark subplot.</p>
 <p>Build a list of markers at plot locations with the specified marker.</p>
 <dl class="method">
 <dt id="pyradi.ryplot.Markers.add">
@@ -1106,9 +1119,9 @@ histogram equalised in all cases.</p>
 <dl class="function">
 <dt id="pyradi.ryplot.savePlot">
 <tt class="descclassname">pyradi.ryplot.</tt><tt class="descname">savePlot</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.savePlot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses with statement to create a plot and save to file on exit.</p>
+<dd><p>Uses &#8216;with&#8217; statement to create a plot and save to file on exit.</p>
 <p>Use as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">x</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
 <span class="k">with</span> <span class="n">savePlot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">saveName</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;testwith.png&#39;</span><span class="p">,</span><span class="s">&#39;testwith.eps&#39;</span><span class="p">])</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
     <span class="n">p</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
 </pre></div>

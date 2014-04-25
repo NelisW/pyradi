@@ -102,7 +102,7 @@ numpy 1.7, when released.</p>
 
 <dl class="function">
 <dt id="pyradi.ryfiles.loadColumnTextFile">
-<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadColumnTextFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">loadColumnTextFile</tt><big>(</big><em>filename, loadCol=[1], comment=None, normalize=0, skiprows=0, delimiter=None, abscissaScale=1, ordinateScale=1, abscissaOut=None, returnAbscissa=False</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.loadColumnTextFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load selected column data from a text file, processing as specified.</p>
 <p>This function loads column data from a text file, scaling and interpolating 
 the read-in data, according to user specification. The first 0&#8217;th column has 
@@ -126,6 +126,7 @@ Also watch out for a single space at the start of line.</p>
 <div class="line">abscissaScale (float): scale by which abscissa (column 0) must be multiplied</div>
 <div class="line">ordinateScale (float): scale by which ordinate (column &gt;0) must be multiplied</div>
 <div class="line">abscissaOut (np.array[N,] or [N,1]): abscissa vector on which output variables are interpolated.</div>
+<div class="line">returnAbscissa (bool): return the abscissa vector as second item in return tuple.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -236,7 +237,7 @@ continue into sub-directories.  A list of matching names is returned.</p>
 <div class="line">fname (string): path and filename</div>
 <div class="line">rows (int): number of rows in frames</div>
 <div class="line">cols (int): number of columns in frames</div>
-<div class="line">vartype (numpy.dtype): numpy data type of data to be read</div>
+<div class="line">vartype (np.dtype): numpy data type of data to be read</div>
 <div class="line-block">
 <div class="line">int8, int16, int32, int64</div>
 <div class="line">uint8, uint16, uint32, uint64</div>
@@ -251,7 +252,7 @@ continue into sub-directories.  A list of matching names is returned.</p>
 <div class="line-block">
 <div class="line">0 if error occurred</div>
 </div>
-<div class="line">rawShaped (numpy.ndarray): vartype numpy array of dimensions (frames,rows,cols),</div>
+<div class="line">rawShaped (np.ndarray): vartype numpy array of dimensions (frames,rows,cols),</div>
 <div class="line-block">
 <div class="line">None if error occurred</div>
 </div>
@@ -284,7 +285,7 @@ scientific notation or fixed decimal point.</p>
 <div class="line">arr (np.array[N,M]): array with table data</div>
 <div class="line">header (string): column header in final latex format</div>
 <div class="line">leftCol ([string]): left column each row, in final latex format</div>
-<div class="line">formatstring (string): output format precision for array data (see numpy.savetxt)</div>
+<div class="line">formatstring (string): output format precision for array data (see np.savetxt)</div>
 <div class="line">filemode (string): file open mode (a=append, w=new file)</div>
 </div>
 </dd>
