@@ -42,6 +42,47 @@ Setup script for pyradi. This procedure must be followed for each Python version
 
 See the bottom of this file for additional notes.
 
+Release cycle when updating PyRadi
+
+1.  Make the code changes required in the googlecode svn checkout.
+    Test as necessary.
+
+2.  Raise the software version one count in __init()__.py
+
+3.  Build the Python Sphinx documentation in googlecode directories.
+    Do both the HTML and PDF docs.
+    See that the documentation is correct (spot checks).
+
+4.  Update the IPython notebook documentation in the local git clone.
+    Do a complete rebuild of the notebooks: restart kernel and run all cells.
+    Check that all cells are rendered.
+
+5.  Create the HTML conversions (for dropbox upload).
+
+6.  Sync the ipynb and html files to the dropbox folder.
+
+7.  If a new notebook name is used, get the nbviewer link to the html rendering.
+
+8.  Update README.md with the new notebook name.
+
+9.  Commit the ipynb files to the local git repo.
+
+10. Push the local git repo changes to github repo.
+
+11. cd to root pyradi directory and do in a command window:
+    python setup.py register   [[this will register new release on pyPI]]
+
+12. Create the package files zip and installers (not uploading)
+    python setup.py sdist bdist_wininst [[ built in dist directory ]]
+
+13. Test locally by unzipping the package and running
+    python setup.py install  [[ will install to site-packages]]
+    test this installation prior to uploading to pyPI
+
+14. Upload the packages to PyPIy
+    python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
+    
+
 most of the code in this script comes from 
 https://github.com/paltman/python-setup-template/blob/master/setup.py
 I am just not using much of it :-((
