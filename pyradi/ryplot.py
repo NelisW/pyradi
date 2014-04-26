@@ -45,7 +45,8 @@ from __future__ import print_function
 
 __version__ = "$Revision$"
 __author__ = 'pyradi team'
-__all__ = ['Plotter']
+__all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
+            'savePlot']
 
 import sys
 if sys.version_info[0] > 2:
@@ -2308,6 +2309,136 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
 
 
 ################################################################
+##
+def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=256.):
+    """
+    A full implementation of Dave Green's "cubehelix" for Matplotlib.
+    Based on the FORTRAN 77 code provided in 
+    D.A. Green, 2011, BASI, 39, 289. 
+    
+    http://adsabs.harvard.edu/abs/2011arXiv1108.5083G
+    http://www.astron-soc.in/bulletin/11June/289392011.pdf
+
+    User can adjust all parameters of the cubehelix algorithm. 
+    This enables much greater flexibility in choosing color maps, while 
+    always ensuring the color map scales in intensity from black 
+    to white. A few simple examples:
+    
+    Default color map settings produce the standard "cubehelix".
+
+    Create color map in only blues by setting rot=0 and start=0.
+
+    Create reverse (white to black) backwards through the rainbow once
+    by setting rot=1 and reverse=True.
+    
+
+    Parameters
+    ----------
+    start : scalar, optional
+        Sets the starting position in the color space. 0=blue, 1=red, 
+        2=green. Defaults to 0.5.
+    rot : scalar, optional
+        The number of rotations through the rainbow. Can be positive 
+        or negative, indicating direction of rainbow. Negative values
+        correspond to Blue->Red direction. Defaults to -1.5
+    gamma : scalar, optional
+        The gamma correction for intensity. Defaults to 1.0        
+    hue : scalar, optional
+        The hue intensity factor. Defaults to 1.2
+    reverse : boolean, optional
+        Set to True to reverse the color map. Will go from black to
+        white. Good for density plots where shade~density. Defaults to False
+    nevl : scalar, optional
+        Defines the number of discrete levels to render colors at.
+        Defaults to 256.
+
+    Returns
+    -------
+    matplotlib.colors.LinearSegmentedColormap object
+
+    Example
+    -------
+    >>> import cubehelix
+    >>> cx = cubehelix.cmap(start=0., rot=-0.5)
+    >>> plot(x,cmap=cx)
+
+    Revisions
+    ---------
+    2014-04 (@jradavenport) Ported from IDL version
+
+    source
+    ------
+    https://github.com/jradavenport/cubehelix
+
+    Licence
+    -------
+    Copyright (c) 2014, James R. A. Davenport and contributors All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, 
+    are permitted provided that the following conditions are met:
+
+    Redistributions of source code must retain the above copyright notice, this list of 
+    conditions and the following disclaimer.
+
+    Redistributions in binary form must reproduce the above copyright notice, this 
+    list of conditions and the following disclaimer in the documentation and/or 
+    other materials provided with the distribution.
+    
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+    EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    """
+
+    from matplotlib.colors import LinearSegmentedColormap as LSC
+
+ #-- set up the parameters
+    fract = np.arange(nlev)/(nlev-1.)
+    angle = 2.0*np.pi * (start/3.0 + 1.0 + rot*fract)
+    fract = fract**gamma
+    amp   = hue*fract*(1.-fract)/2.
+
+#-- compute the RGB vectors according to main equations
+    red   = fract+amp*(-0.14861*np.cos(angle)+1.78277*np.sin(angle))
+    grn   = fract+amp*(-0.29227*np.cos(angle)-0.90649*np.sin(angle))
+    blu   = fract+amp*(1.97294*np.cos(angle))
+
+#-- find where RBB are outside the range [0,1], clip
+    red[np.where((red > 1.))] = 1.   
+    grn[np.where((grn > 1.))] = 1.   
+    blu[np.where((blu > 1.))] = 1.
+
+    red[np.where((red < 0.))] = 0.   
+    grn[np.where((grn < 0.))] = 0.   
+    blu[np.where((blu < 0.))] = 0.
+
+#-- optional color reverse
+    if reverse==True:
+        red = red[::-1]
+        blu = blu[::-1]
+        grn = grn[::-1]
+
+#-- put in to tuple & dictionary structures needed
+    rr = []
+    bb = []
+    gg = []
+    for k in range(0,int(nlev)):
+        rr.append((float(k)/(nlev-1.), red[k], red[k]))
+        bb.append((float(k)/(nlev-1.), blu[k], blu[k]))
+        gg.append((float(k)/(nlev-1.), grn[k], grn[k]))
+    
+    cdict = {'red':rr, 'blue':bb, 'green':gg}
+    return LSC('cubehelix_map',cdict)
+
+
+
+################################################################
 ################################################################
 ##
 ## plot graphs and confirm the correctness of the functions
@@ -2315,8 +2446,6 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
 if __name__ == '__main__':
 
     import datetime as dt
-
-
 
     ############################################################################
     #demonstrate the use of a polar 3d plot
@@ -2718,11 +2847,11 @@ if __name__ == '__main__':
     I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm.winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
     I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
-    I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
+    I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
     I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
     I.saveFig('I.png')
 #    I.saveFig('I.eps')
-    #do new plots on top of existing images/plots
+    #plot on existing
     I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
     barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
     I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
@@ -2731,6 +2860,13 @@ if __name__ == '__main__':
     I.saveFig('II.png')
 #    I.saveFig('II.eps')
 
+    I = Plotter(5, 2, 2,'Images & Array Linear', figsize=(12, 8))
+    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+    I.showImage(2, z, ptitle='cubehelix colormap, default font ',cmap=cubehelixcmap(), cbarshow=True, cbarcustomticks=barticks)
+    I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
+    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+    I.saveFig('cmaps.png')
 
     #demonstrate setting axis values
     x=np.linspace(-3,3,20)
