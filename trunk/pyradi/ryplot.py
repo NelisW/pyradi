@@ -1267,7 +1267,7 @@ class Plotter:
       #create subplot if not existing
       if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
           self.subplots[(self.nrow,self.ncol, plotnum)] = \
-               self.fig.add_subplot(self.nrow,self.ncol, plotnum)#, projection='polar')
+               self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
       #get axis
       ax = self.subplots[(self.nrow,self.ncol, plotnum)]
@@ -1582,29 +1582,32 @@ class Plotter:
         The number of radial grid circles can be set with rgrid - this provides a somewhat
         better control over the built-in radial grid in matplotlib. thetagrids defines the angular
         grid interval.  The angular rotation direction can be set to be clockwise or
-        counterclockwise. Likewise the rotation offset where the plot zero angle must be,
-        is set with zerooffset.
+        counterclockwise. Likewise, the rotation offset where the plot zero angle must be,
+        is set with `zerooffset`.
 
-        For some obscure reason the current version 1.13 does not plot negative values on the 
+        For some obscure reason Matplitlib version 1.13 does not plot negative values on the 
         polar plot.  We therefore force the plot by making the values positive and then highlight it as negative.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | theta (np.array[N,] or [N,1]): angular abscissa
+                | theta (np.array[N,] or [N,1]): angular abscissa in radians
                 | r (np.array[N,] or [N,M]): radial ordinates - could be M columns
                 | ptitle (string): plot title (optional)
-                | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | plotCol ([strings]): plot colour and line style, list with M entries, use default if None (optional)
                 | label  ([strings]): legend label, list with M entries (optional)
                 | labelLocation ([x,y]): where the legend should located (optional)
-                | highlightNegative (bool): indicate if negative data be highlighted (optional)
-                | highlightCol (string): highlighted colour string (optional)
-                | highlightWidth (int): highlighted line width(optional)
+                | highlightNegative (bool): indicate if negative data must be highlighted (optional)
+                | highlightCol (string): negative highlight colour string (optional)
+                | highlightWidth (int): negative highlight line width(optional)
                 | legendAlpha (float): transparancy for legend box (optional)
-                | rscale ([rmin, rmax]): plotting limits. default if all 0 (optional)
-                | rgrid ([rinc, rmax]): radial grid default if all 0. if rinc=0 then rmax is number of ntervals. (optional)
+                | rscale ([rmin, rmax]): radial plotting limits. use default setting if None.  
+                  If rmin is negative the zero is a circle and rmin is at the centre of the graph (optional)
+                | rgrid ([rinc, numinc]): radial grid, use default if None. if rinc=0 then numinc is number 
+                  of intervals.  If rinc is not zero then rinc is the increment and numinc is ignored (optional)
                 | thetagrids (float): theta grid interval [degrees] (optional)
-                | direction (string)= 'counterclockwise' or 'clockwise' (optional)
-                | zerooffset (float) = rotation offset where zero should be [rad] (optional)
+                | direction (string): direction in increasing angle, 'counterclockwise' or 'clockwise' (optional)
+                | zerooffset (float):  rotation offset where zero should be [rad]. Positive 
+                  zero-offset rotation is counterclockwise from 3'o'clock (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
 
             Returns:
@@ -1730,28 +1733,19 @@ class Plotter:
       #set up the grids
       plt.thetagrids(range(0, 360, thetagrid[0]))
 
-      if rgrid is None:
-          ax.set_yticks(np.linspace(0,rmax,5))
-      else:
-          if rgrid[0]==0:
-              if rmax>0:
-                  #round and increase the max value for nice numbers
-                  lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
-                  frmax=rmax/(rgrid[1]*10**lrmax)
-                  rinc=10**lrmax*math.ceil(frmax)
-                  plt.rgrids(np.arange(rinc, rinc*rgrid[1], rinc))
-          else:
-              plt.rgrids(np.arange(rgrid[0], rgrid[1], rgrid[0]))
-
-
-
       #Set increment and maximum radial limits
-      if rscale is not None:
+      if rscale is None:
+          ax.set_ylim(0,rmax)
+      else:
+        if rgrid is None:
           ax.set_ylim(rscale[0],rscale[1])
           ax.set_yticks(np.linspace(rscale[0],rscale[1],5))
-      else:
-          ax.set_ylim(0,rmax)
-
+        else:
+          if rgrid[0] is 0:
+            ax.set_yticks(np.linspace(rscale[0],rscale[1],rgrid[1]))
+          if rgrid[0] is not 0:
+            numrgrid = (rscale[1] - rscale[0] ) / rgrid[0]
+            ax.set_yticks(np.linspace(rscale[0],rscale[1],numrgrid+1))
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize, \
