@@ -683,9 +683,9 @@ if __name__ == '__main__':
     outspectral,  windowfn = convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth)
     convplot = ryplot.Plotter(1, 1, 1)
     convplot.plot(1, wavenum, inspectral, "Convolution Test", r'Wavenumber cm$^{-1}$',\
-                r'Signal', ['r-'],['Input'],0.5)
+                r'Signal', ['r-'],label=['Input'],legendAlpha=0.5)
     convplot.plot(1, wavenum, outspectral, "Convolution Test", r'Wavenumber cm$^{-1}$',\
-                r'Signal', ['g-'],['Output'],0.5)
+                r'Signal', ['g-'],label=['Output'],legendAlpha=0.5)
     convplot.saveFig('convplot01'+figtype)
 
     ## ----------------------- spectral convolution practical example ----------
@@ -709,22 +709,22 @@ if __name__ == '__main__':
     atmoplot =  np.vstack((atmoplot, tauAtmo4))
     convplot02 = ryplot.Plotter(1, 1, 1,figsize=(20,5))
     convplot02.plot(1, wavenum, atmoplot.T, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
-                r'Transmittance', ['r-', 'g-'],['1 cm-1', '4 cm-1' ],0.5)
+                r'Transmittance', ['r-', 'g-'],label=['1 cm-1', '4 cm-1' ],legendAlpha=0.5)
     convplot02.saveFig('convplot02'+figtype)
 
     bunsenPlt = ryplot.Plotter(1,3, 2, figsize=(20,7))
     bunsenPlt.plot(1, wavenum, bunsen, "Bunsen Flame Measurement 4 cm-1", r'',\
-                r'Signal', ['r-'],[], legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+                r'Signal', ['r-'], pltaxis =[2000, 4000, 0,1.5])
     bunsenPlt.plot(2, wavenum, bunsen, "Bunsen Flame Measurement 4 cm-1", r'',\
-                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+                r'Signal', ['r-'], pltaxis =[2000, 4000, 0,1.5])
     bunsenPlt.plot(3, wavenum, tauA, "Atmospheric Transmittance 1 cm-1", r'',\
-                r'Transmittance', ['r-'],[],legendAlpha=0.5)
+                r'Transmittance', ['r-'])
     bunsenPlt.plot(4, wavenum, tauAtmo4, "Atmospheric Transmittance 4 cm-1", r'',\
-                r'Transmittance', ['r-'],[],legendAlpha=0.5)
+                r'Transmittance', ['r-'])
     bunsenPlt.plot(5, wavenum, bunsen/tauA, "Atmospheric-corrected Bunsen Flame Measurement 1 cm-1", r'Wavenumber cm$^{-1}$',\
-                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+                r'Signal', ['r-'], pltaxis =[2000, 4000, 0,1.5])
     bunsenPlt.plot(6, wavenum, bunsen/tauAtmo4, "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
-                r'Signal', ['r-'],[],legendAlpha=0.5, pltaxis =[2000, 4000, 0,1.5])
+                r'Signal', ['r-'], pltaxis =[2000, 4000, 0,1.5])
 
     bunsenPlt.saveFig('bunsenPlt01'+figtype)
 
@@ -756,7 +756,7 @@ if __name__ == '__main__':
     smpleplt.plot(1, wavelength, filters,
         r"Optical filter for $\lambda_c$={0}, $\Delta\lambda$={1}".format(center,width),
         r'Wavelength [$\mu$m]', r'Transmittance', \
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
+                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=filterTxt)
 
     smpleplt.saveFig('sfilterVar2'+figtype)
 
@@ -775,7 +775,7 @@ if __name__ == '__main__':
     smpleplt.plot(1, wavelength, filters,
         r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8",
         r'Wavelength [$\mu$m]', r'Transmittance', \
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],filterTxt)
+                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=filterTxt)
     smpleplt.saveFig('sfilterVar'+figtype)
 
 
@@ -793,7 +793,7 @@ if __name__ == '__main__':
     smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
     smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength [$\mu$m]',\
                r'Responsivity', \
-               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt)
+               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=parameterTxt)
     smpleplt.saveFig('responsivityVar'+figtype)
 
     ##--------------------filtered responsivity ------------------------------
@@ -805,7 +805,7 @@ if __name__ == '__main__':
     smpleplt = ryplot.Plotter(1, 1, 1)
     smpleplt.plot(1, wavelength, filtreps, "Filtered Detector Responsivity", r'Wavelength $\mu$m',\
                r'Responsivity', \
-               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],parameterTxt,0.5)
+               ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=parameterTxt,legendAlpha=0.5)
     smpleplt.saveFig('filtrespVar'+figtype)
 
     ##++++++++++++++++++++ demo the demo effectivevalue  ++++++++++++++++++++++++++++

@@ -53,33 +53,35 @@ Release cycle when updating PyRadi
     Do both the HTML and PDF docs.
     See that the documentation is correct (spot checks).
 
-4.  Update the IPython notebook documentation in the local git clone.
+4.  Commit the pyradi code & docs to google code svn
+
+5.  Update the IPython notebook documentation in the local git clone.
     Do a complete rebuild of the notebooks: restart kernel and run all cells.
     Check that all cells are rendered.
 
-5.  Create the HTML conversions (for dropbox upload).
+6.  Create the HTML conversions (for dropbox upload).
 
-6.  Sync the ipynb and html files to the dropbox folder.
+7.  Sync the ipynb and html files to the dropbox folder.
 
-7.  If a new notebook name is used, get the nbviewer link to the html rendering.
+8.  If a new notebook name is used, get the nbviewer link to the html rendering.
 
-8.  Update README.md with the new notebook name.
+9.  Update README.md with the new notebook name.
 
-9.  Commit the ipynb files to the local git repo.
+10.  Commit the ipynb files to the local git repo.
 
-10. Push the local git repo changes to github repo.
+11. Push the local git repo changes to github repo.
 
-11. cd to root pyradi directory and do in a command window:
+12. cd to root pyradi directory and do in a command window:
     python setup.py register   [[this will register new release on pyPI]]
 
-12. Create the package files zip and installers (not uploading)
+13. Create the package files zip and installers (not uploading)
     python setup.py sdist bdist_wininst [[ built in dist directory ]]
 
-13. Test locally by unzipping the package and running
+14. Test locally by unzipping the package and running
     python setup.py install  [[ will install to site-packages]]
     test this installation prior to uploading to pyPI
 
-14. Upload the packages to PyPIy
+15 Upload the packages to PyPIy
     python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
     
 
