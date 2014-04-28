@@ -331,12 +331,26 @@ class ProcessImage:
    
 
     ############################################################
-    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20):
+    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20, cbarformat='.3f'):
         """Compress an image (and then inversely expand the color bar values), 
            prior to histogram equalisation to ensure that the two keep in step, 
-           we store the function names as pairs, and below invoke the pair elements
-           cases are as follows:  linear, log. sqrt.  Note that the image is 
-           histogram equalised in all cases.    
+           we store the compression function names as pairs, and invoke the 
+           compression function as follows:  linear, log. sqrt.  Note that the
+           image is histogram equalised in all cases. 
+
+           Args:
+                | image (np.ndarray):  the image to be processed
+                | selectCompressSet (int): compression selection [0,1,2] (optional)
+                | numCbarlevels (int): number of labels in the colourbar (optional)
+                | cbarformat (string): colourbar label format, e.g., '10.3f', '.5e' (optional)
+
+            Returns:
+                | imgHEQ  (np.ndarray): the equalised image array
+                | customticksz (zip(float, string)): colourbar levels and associated levels
+
+            Raises:
+                | No exception is raised.
+
      """  
 
         #compress the input image  - rescale color bar tick to match below
@@ -368,7 +382,9 @@ class ProcessImage:
         #map back from image values to original values as read it (inverse to above)
         irrLevels=np.interp(imgLevels,cdf, imgFlatSort)
         #uncompress the tick labels  - match  with compression above
-        customticksz = zip(imgLevels, ['{0:10.3e}'.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels])
+
+        fstr = '{0:' + cbarformat + '}'
+        customticksz = zip(imgLevels, [fstr.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels])
 
         return imgHEQ, customticksz
 
@@ -666,7 +682,7 @@ class Plotter:
     ############################################################
     ##
     def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
-                    plotCol=[], label=[],legendAlpha=0.0,
+                    plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
@@ -692,8 +708,9 @@ class Plotter:
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -728,7 +745,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
-                    plotCol, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
                     xylabelfsize, xytickfsize,
@@ -741,7 +758,7 @@ class Plotter:
     ############################################################
     ##
     def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
-                    plotCol=[], label=[],legendAlpha=0.0,
+                    plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
@@ -767,8 +784,9 @@ class Plotter:
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -810,7 +828,7 @@ class Plotter:
         #             markers=markers)
 
       self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
-                    plotCol, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
                     xylabelfsize, xytickfsize,
@@ -825,7 +843,7 @@ class Plotter:
     ############################################################
     ##
     def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
-                    plotCol=[], label=[],legendAlpha=0.0,
+                    plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
@@ -852,8 +870,9 @@ class Plotter:
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -888,7 +907,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
-                    plotCol, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
                     xylabelfsize, xytickfsize,
@@ -902,7 +921,7 @@ class Plotter:
     ############################################################
     ##
     def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
-                    plotCol=[], label=[],legendAlpha=0.0,
+                    plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
@@ -928,8 +947,9 @@ class Plotter:
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list withM entries (optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -964,7 +984,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
-                    plotCol, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
                     xylabelfsize, xytickfsize, 
@@ -978,7 +998,7 @@ class Plotter:
     ############################################################
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
-                     plotCol=[],label=[],legendAlpha=0.0,
+                     plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
                     pltaxis=None, maxNX=0, maxNY=0, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, 
@@ -1010,8 +1030,9 @@ class Plotter:
               | x (np.array[N,] or [N,1]): abscissa
               | y (np.array[N,] or [N,M]): ordinates - could be M columns
               | plotCol ([strings]): plot colour and line style, list with M entries, use default if []
+              | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
               | label  ([strings]): legend label for ordinate, list with M entries
-              | legendAlpha (float): transparancy for legend box
+              | legendAlpha (float): transparency for legend box
               | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.
               | maxNX (int): draw maxNX+1 tick labels on x axis
               | maxNY (int): draw maxNY+1 tick labels on y axis
@@ -1130,11 +1151,20 @@ class Plotter:
 
 
           if not label:
-              plotcommand(xx, yy[:, i], col ,label=None, linestyle=linestyleL, 
-                marker=mmrk, markevery=markevery)
+              if linewidths is not None:
+                plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                       marker=mmrk, markevery=markevery, linewidth=linewidths[i])
+              else:
+                plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                       marker=mmrk, markevery=markevery)
           else:
-              plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
-                marker=mmrk, markevery=markevery)
+              if linewidths is not None:
+                # print('***************',linewidths)
+                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
+                    marker=mmrk, markevery=markevery, linewidth=linewidths[i])
+              else:
+                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
+                    marker=mmrk, markevery=markevery)
 
               leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
               leg.get_frame().set_alpha(legendAlpha)
@@ -1180,69 +1210,78 @@ class Plotter:
 
     ############################################################
     ##
-    def meshContour(self, plotnum, xvals, yvals, zvals, numLevels=10,
-                  ptitle=None,
-                  xlabel=None, ylabel=None, shading = 'flat',\
+    def meshContour(self, plotnum, xvals, yvals, zvals, levels=10,
+                  ptitle=None, xlabel=None, ylabel=None, shading='flat',
                   plotCol=[], pltaxis=None, maxNX=0, maxNY=0,
-                  xScientific=False, yScientific=False,  \
-                  powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                  xylabelfsize = 12, xytickfsize = 10,
-                  meshCmap = cm.rainbow, cbarshow=False, \
-                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
-                  drawGrid = False, yInvert=False, xInvert=False,
+                  xScientific=False, yScientific=False,  
+                  powerLimits=[-4,  2,  -4,  2], titlefsize=12,
+                  xylabelfsize=12, xytickfsize=10,
+                  meshCmap=cm.rainbow, cbarshow=False, cbarorientation='vertical',
+                  cbarcustomticks=[], cbarfontsize=12,
+                  drawGrid=False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
-                  negativeSolid=False, zeroContourLine=False ):
+                  negativeSolid=False, zeroContourLine=False,
+                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5 ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
-        Given an existing figure, this function plots in a specified subplot position.
+        The data values must be given on a fixed mesh grid of three-dimensional 
+        $(x,y,z)$ array input sets. The mesh grid is defined in $(x,y)$, while the height 
+        of the mesh is the $z$ value.
 
-        Only one mesh is drawn at a time.  Future meshes in the same subplot
-        will cover any previous meshes.
+        Given an existing figure, this function plots in a specified subplot position. 
+        Only one contour plot is drawn at a time.  Future contours in the same subplot 
+        will cover any previous contours.
 
-        The data in zvals must be on a grid where the xvals vector correspond to
-        the number of rows in zvals and the yvals vector corresponds to the
-        number of columns in zvals.
+        The data set must have three two dimensional arrays, each for x, y, and z.  
+        The data in x, y, and z arrays must have matching data points.  The x and y arrays each define the grid in terms of x and y values, i.e., the x array contains the x values for the data set, while the y array contains the y values.  The z array contains the z values for the corresponding x and y values in the contour mesh.
 
-        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted 
         to show true values, but on the nonlinear scale.
+
+        The current version only saves png files, since there appears to be a problem 
+        saving eps files.
 
         The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
         have to be on regular intervals.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | xvals (np.array[N,] or [N,1]): vector of x values
-                | yvals (np.array[M,] or [M,1]): vector of y values
+                | xvals (np.array[N,M]): array of x values
+                | yvals (np.array[N,M]): array of y values
                 | zvals (np.array[N,M]): values on a (x,y) grid
-                | numLevels (int): values of contour levels
+                | levels (int or [float]): number of contour levels or a list of levels (optional)
                 | ptitle (string): plot title (optional)
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
-                | shading (string): 'flat' | 'gouraud'  (optional)
-                | plotCol ([strings]): plot colour and line style, list with M entries, use default if []
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | shading (string):  type of shading, 'flat' | 'gouraud'  (optional)
+                | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | xScientific (bool): use scientific notation on x axis (optional)
                 | yScientific (bool): use scientific notation on y axis (optional)
                 | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
-                | meshCmap (cm): color map for the mesh (optional)
-                | cbarshow (bool): if true, the show a color bar
-                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
-                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
-                | cbarfontsize (int): font size for color bar
+                | meshCmap (cm): colour map for the mesh (optional)
+                | cbarshow (bool): if true, the show a colour bar (optional)
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below) (optional)
+                | cbarcustomticks zip([z values/float],[tick labels/string])`  define custom colourbar ticks locations for given z values(optional)
+                | cbarfontsize (int): font size for colour bar (optional)
                 | drawGrid (bool): draw the grid on the plot (optional)
-                | invertY (bool): invert the y-axis (optional)
-                | invertX (bool): invert the x-axis (optional)
-                | contourFill (bool): fill contours with colour
-                | contourLine (bool): draw a series of contour lines
-                | logScale (bool): do Z values on log scale, recompute colourbar vals
-                | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise
-                | zeroContourLine (bool): draw the contour at zero
-
+                | yInvert (bool): invert the y-axis. Flip the y-axis up-down (optional)
+                | xInvert (bool): invert the x-axis. Flip the x-axis left-right (optional)
+                | contourFill (bool): fill contours with colour (optional)
+                | contourLine (bool): draw a series of contour lines (optional)
+                | logScale (bool): do Z values on log scale, recompute colourbar values (optional)
+                | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise (optional)
+                | zeroContourLine (bool): draw the contour at zero (optional)
+                | contLabel (bool): label the contours with values (optional)
+                | contFmt (string): contour label c-printf format (optional)
+                | contCol (string): contour label colour, e.g., 'k' (optional)
+                | contFonSz (float): contour label fontsize (optional)
+                | contLinWid (float): contour line width in points (optional)
             Returns:
                 | the axis object for the plot
 
@@ -1304,16 +1343,21 @@ class Plotter:
 
       #do the plot
       if contourLine:
-          pmplot = ax.contour(xvals, yvals, zvals, numLevels, cmap=None,
+          pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
                colors=col)
 
       if zeroContourLine:
-          pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths = 0.5,
+          pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths=contLinWid,
                colors=col)
 
       if contourFill:
-          pmplot = ax.contourf(xvals, yvals, zvals, numLevels, shading=shading,
+          pmplot = ax.contourf(xvals, yvals, zvals, levels, shading=shading,
               cmap=meshCmap)
+
+      if contLabel:
+        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz)
+
+
 
       if cbarshow is True:
           if not cbarcustomticks:
@@ -1371,72 +1415,79 @@ class Plotter:
     ##
     def mesh3D(self, plotnum, xvals, yvals, zvals, 
                   ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
-                  rstride=1, cstride=1, linewidth= 0, 
-                  plotCol=[], pltaxis=None, maxNX=0, maxNY=0, maxNZ=0,
+                  rstride=1, cstride=1, linewidth=0, 
+                  plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0,
                   xScientific=False, yScientific=False, zScientific=False,  
-                  powerLimits = [-4,  2,  -4,  2, -2, 2], titlefsize = 12,
-                  xylabelfsize = 12, xytickfsize = 10, wireframe=False,
-                  cmap = cm.rainbow, cbarshow=False, 
+                  powerLimits=[-4,  2,  -4,  2, -2, 2], titlefsize=12,
+                  xylabelfsize=12, xytickfsize=10, wireframe=False,
+                  cmap=cm.rainbow, cbarshow=False, 
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
-                  drawGrid = True, xInvert=False, yInvert=False, zInvert=False,
+                  drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
                   logScale=False, elevation=30, azimuth=45, alpha=1, 
                    ):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
-
         Only one mesh is drawn at a time.  Future meshes in the same subplot
         will cover any previous meshes.
 
-        The data in xvals, yvals, and zvals must have matching points, all in 
-        two-dimensional arrays.
+        The mesh grid is defined in (x,y), while the height of the mesh is the z value.
 
-        Use cmap=None to obtain a wireframe plot.
+        The data set must have three two dimensional arrays, each for x, y, and z.  
+        The data in x, y, and z arrays must have matching data points.  
+        The x and y arrays each define the grid in terms of x and y values, i.e.,
+        the x array contains the x values for the data set, while the y array 
+        contains the y values.  The z array contains the z values for the 
+        corresponding x and y values in the mesh.
+
+        Use wireframe=True to obtain a wireframe plot with no fill colours.
 
         Z-values can be plotted on a log scale, in which case the colourbar is adjusted
         to show true values, but on the nonlinear scale.
 
-        The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
-        have to be on regular intervals.
+        The xvals and yvals vectors may have non-constant grid-intervals, i.e., 
+        they do not have to be on regular intervals, but z array must correspond 
+        to the (x,y) grid.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | xvals (np.array[N,] or [N,1]): vector of x values
-                | yvals (np.array[M,] or [M,1]): vector of y values
-                | zvals (np.array[N,M]): values on a (x,y) grid
+                | xvals (np.array[N,M]): array of x values, corresponding to (x,y) grid
+                | yvals (np.array[N,M]): array of y values, corresponding to (x,y) grid
+                | zvals (np.array[N,M]): array of z values, corresponding to (x,y) grid
                 | ptitle (string): plot title (optional)
-                | xlabel (string): x axis label
-                | ylabel (string): y axis label
-                | zlabel (string): z axis label
-                | rstride (int): row stride
-                | cstride (int): column stride
-                | linewidth (float): line width
-                | plotCol ([strings]): plot colour and line style, list with M entries, use default if []
-                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.
-                | maxNX (int): draw maxNX+1 tick labels on x axis
-                | maxNY (int): draw maxNY+1 tick labels on y axis
-                | maxNZ (int): draw maxNY+1 tick labels on z axis
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
+                | zlabel (string): z axis label (optional)
+                | rstride (int): mesh line row (y axis) stride, every rstride value along y axis (optional)
+                | cstride (int): mesh line column (x axis)  stride, every cstride value along x axis (optional)
+                | linewidth (float): mesh line width in points (optional)
+                | plotCol ([strings]): fill colour, list with M=1 entries, use default if None (optional)
+                | edgeCol ([strings]): mesh line colour , list with M=1 entries, use default if None (optional)
+                | pltaxis ([xmin, xmax, ymin, ymax]): scale for x,y axes. z scale is not settable.  Let Matplotlib decide if None (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | maxNZ (int): draw maxNY+1 tick labels on z axis (optional)
                 | xScientific (bool): use scientific notation on x axis (optional)
                 | yScientific (bool): use scientific notation on y axis (optional)
                 | zScientific (bool): use scientific notation on z-axis (optional)
-                | powerLimits[float]:  scientific tick label power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]
+                | powerLimits[float]:  scientific tick label power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]  (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
-                | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
-                | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
-                | wireframe (bool): If True, do a wireframe plot
+                | xylabelfsize (int): x-axis, y-axis, z-axis label font size, default 12pt (optional)
+                | xytickfsize (int): x-axis, y-axis, z-axis tick font size, default 10pt (optional)
+                | wireframe (bool): If True, do a wireframe plot, otherwise fill mesh with colour map (optional)
                 | cmap (cm): color map for the mesh (optional)
-                | cbarshow (bool): if true, the show a color bar
-                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
-                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
-                | cbarfontsize (int): font size for color bar
+                | cbarshow (bool): if true, the show a color bar (optional)
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below) (optional)
+                | cbarcustomticks zip([z values/float],[tick labels/string]):  define custom colourbar ticks locations for given z values(optional)
+                | cbarfontsize (int): font size for color bar (optional)
                 | drawGrid (bool): draw the grid on the plot (optional)
-                | invertX (bool): invert the x-axis (optional)
-                | invertY (bool): invert the y-axis (optional)
-                | invertZ (bool): invert the z-axis
-                | logScale (bool): do Z values on log scale, recompute colourbar vals
-                | elevation (float): view elevation in degrees
-                | azimuth (float): view azimuth in degrees
-                | alpha (float): surface transparency
+                | xInvert (bool): invert the x-axis. Flip the x-axis left-right (optional)
+                | yInvert (bool): invert the y-axis. Flip the y-axis left-right (optional)
+                | zInvert (bool): invert the z-axis. Flip the z-axis up-down (optional)
+                | logScale (bool): do Z values on log scale, recompute colourbar vals (optional)
+                | elevation (float): view elevation in degrees (optional)
+                | azimuth (float): view azimuth in degrees (optional)
+                | alpha (float): surface and mesh transparency (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1498,16 +1549,23 @@ class Plotter:
       else:
           col = self.nextPlotCol()
 
+      if edgeCol:
+          edcol = edgeCol[0]
+      else:
+          edcol = self.nextPlotCol()[0]
+
+
+
       #do the plot
       if not wireframe:
-          pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
-              color=col[0], cmap=cmap, linewidth=linewidth, alpha=alpha)
+        pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
+              edgecolor=edcol, cmap=cmap, linewidth=linewidth, alpha=alpha)
       else:
-          pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
-              color=col[0], linewidth=linewidth, alpha=alpha)
+        pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
+              color=col, edgecolor=edcol, linewidth=linewidth, alpha=alpha)
 
       if cbarshow is True and cmap is not None:
-          if not cbarcustomticks:
+        if not cbarcustomticks:
               cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
               if logScale:
                   cbartickvals = cbar.ax.yaxis.get_ticklabels()
@@ -1522,7 +1580,7 @@ class Plotter:
                           str = '{0:e}'.format(val)
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-          else:
+        else:
               ticks,  ticklabels = zip(*cbarcustomticks)
               cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
               if cbarorientation == 'vertical':
@@ -1530,10 +1588,10 @@ class Plotter:
               else:
                   cbar.ax.set_xticklabels(ticklabels)
 
-          if cbarorientation == 'vertical':
+        if cbarorientation == 'vertical':
               for t in cbar.ax.get_yticklabels():
                    t.set_fontsize(cbarfontsize)
-          else:
+        else:
               for t in cbar.ax.get_xticklabels():
                    t.set_fontsize(cbarfontsize)
 
@@ -1542,7 +1600,10 @@ class Plotter:
 
       #scale the axes
       if pltaxis is not None:
-          ax.axis(pltaxis)
+          # ax.axis(pltaxis)
+          ax.set_xlim(pltaxis[0], pltaxis[1])
+          ax.set_ylim(pltaxis[2], pltaxis[3])
+          ax.set_zlim(pltaxis[4], pltaxis[5])
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize)
@@ -1569,8 +1630,8 @@ class Plotter:
                     plotCol=None, label=[],labelLocation=[-0.1, 0.1], \
                     highlightNegative=True, highlightCol='#ffff00', highlightWidth=4,\
                     legendAlpha=0.0, \
-                    rscale=None, rgrid=None, thetagrid=[30], \
-                    direction='counterclockwise', zerooffset=0, titlefsize=12):
+                    rscale=None, rgrid=[0,5], thetagrid=[30], \
+                    direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True):
       """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1599,16 +1660,18 @@ class Plotter:
                 | highlightNegative (bool): indicate if negative data must be highlighted (optional)
                 | highlightCol (string): negative highlight colour string (optional)
                 | highlightWidth (int): negative highlight line width(optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | rscale ([rmin, rmax]): radial plotting limits. use default setting if None.  
                   If rmin is negative the zero is a circle and rmin is at the centre of the graph (optional)
-                | rgrid ([rinc, numinc]): radial grid, use default if None. if rinc=0 then numinc is number 
-                  of intervals.  If rinc is not zero then rinc is the increment and numinc is ignored (optional)
-                | thetagrids (float): theta grid interval [degrees] (optional)
+                | rgrid ([rinc, numinc]): radial grid, use default is [0,5]. 
+                  If rgrid is None don't show. If rinc=0 then numinc is number of intervals.  
+                  If rinc is not zero then rinc is the increment and numinc is ignored (optional)
+                | thetagrids (float): theta grid interval [degrees], if None don't show (optional)
                 | direction (string): direction in increasing angle, 'counterclockwise' or 'clockwise' (optional)
                 | zerooffset (float):  rotation offset where zero should be [rad]. Positive 
                   zero-offset rotation is counterclockwise from 3'o'clock (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
+                | drawGrid (bool): draw a grid on the graph (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1647,7 +1710,7 @@ class Plotter:
 
       ax = self.subplots[pkey]
 
-      ax.grid(True)
+      ax.grid(drawGrid)
 
       rmax=0
 
@@ -1694,7 +1757,8 @@ class Plotter:
                               else:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
               ax.plot(ttt, rrr, col)
-              rmax=np.maximum(np.abs(rrr).max(), rmax)
+              rmax = np.maximum(np.abs(rrr).max(), rmax)
+              rmin = 0
           else:
               if highlightNegative:
                   lines = ax.plot(ttt, rrr, col)
@@ -1710,6 +1774,7 @@ class Plotter:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
               ax.plot(ttt, rrr, col,label=label[i])
               rmax=np.maximum(np.abs(rrr).max(), rmax)
+              rmin = 0
 
           if MakeAbs:
               ax.plot(ttt, np.abs(rrr), col)
@@ -1731,21 +1796,25 @@ class Plotter:
 
 
       #set up the grids
-      plt.thetagrids(range(0, 360, thetagrid[0]))
+      if thetagrid is None:
+        ax.set_xticklabels([])
+      else:
+        plt.thetagrids(range(0, 360, thetagrid[0]))
 
       #Set increment and maximum radial limits
       if rscale is None:
-          ax.set_ylim(0,rmax)
+        rscale = [rmin, rmax]
+
+      if rgrid is None:
+        ax.set_yticklabels([])
       else:
-        if rgrid is None:
-          ax.set_ylim(rscale[0],rscale[1])
-          ax.set_yticks(np.linspace(rscale[0],rscale[1],5))
-        else:
-          if rgrid[0] is 0:
-            ax.set_yticks(np.linspace(rscale[0],rscale[1],rgrid[1]))
-          if rgrid[0] is not 0:
-            numrgrid = (rscale[1] - rscale[0] ) / rgrid[0]
-            ax.set_yticks(np.linspace(rscale[0],rscale[1],numrgrid+1))
+        if rgrid[0] is 0:
+          ax.set_yticks(np.linspace(rscale[0],rscale[1],rgrid[1]))
+        if rgrid[0] is not 0:
+          numrgrid = (rscale[1] - rscale[0] ) / rgrid[0]
+          ax.set_yticks(np.linspace(rscale[0],rscale[1],numrgrid++1.000001))
+
+      ax.set_ylim(rscale[0],rscale[1])
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize, \
@@ -1755,20 +1824,20 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle=None, cmap=plt.cm.gray, titlefsize=12, cbarshow=False, \
+    def showImage(self, plotnum, img,  ptitle=None, cmap=plt.cm.gray, titlefsize=12, cbarshow=False, 
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
       """Creates a subplot and show the image using the colormap provided.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | img (np.ndarray): numpy 2d array
+                | img (np.ndarray): numpy 2d array containing the image
                 | ptitle (string): plot title (optional)
                 | cmap: matplotlib colormap, default gray (optional)
                 | fsize (int): title font size, default 12pt (optional)
-                | cbarshow (bool): if true, the show a color bar
-                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)
-                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels
-                | cbarfontsize (int): font size for color bar
+                | cbarshow (bool): if true, the show a colour bar (optional)
+                | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)  (optional)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels  (optional)
+                | cbarfontsize (int): font size for colour bar  (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1814,31 +1883,34 @@ class Plotter:
 
     ############################################################
     ##
-    def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, \
-               plotCol=[], label=None, legendAlpha=0.0, titlefsize=12,
-               xylabelfsize = 12 , xInvert=False, yInvert=False, zInvert=False):
+    def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
+               plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
+               xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail.
 
-        Note that multiple 3D data sets can be plotted simultaneously by adding additional columns to
-        the input coordinates of vertices, each column representing a different function in the plot.
-        This is convenient if large arrays of data must be plotted. If more than one column is present,
-        the label argument can contain the legend labels for each of the columns/lines.
+        Note that multiple 3D data sets can be plotted simultaneously by adding additional 
+        columns to the input coordinates of  the (x,y,z) arrays, each set of columns representing 
+        a different line in the plot. This is convenient if large arrays of data must 
+        be plotted. If more than one column is present, the label argument can contain the 
+        legend labels for each of the columns/lines.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | x (np.array[N,] or [N,M]): x coordinates of vertices
-                | y (np.array[N,] or [N,M]): y coordinates of vertices
-                | z (np.array[N,] or [N,M]): z coordinates of vertices
+                | x (np.array[N,] or [N,M]) x coordinates of each line.
+                | y (np.array[N,] or [N,M]) y coordinates of each line.
+                | z (np.array[N,] or [N,M]) z coordinates of each line.
                 | ptitle (string): plot title (optional)
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
                 | zlabel (string): z axis label (optional)
-                | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | plotCol ([strings]): plot colour and line style, list with M entries, use default if None (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
+                | pltaxis ([xmin, xmax, ymin, ymax, zmin, zmax])  scale for x,y,z axes.  Let Matplotlib decide if None. (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
-                | legendAlpha (float): transparancy for legend box (optional)
+                | legendAlpha (float): transparency for legend box (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y, z label font size, default 12pt (optional)
                 | xInvert (bool): invert the x-axis (optional)
@@ -1881,7 +1953,19 @@ class Plotter:
                     col = plotCol[i]
             else:
                 col = self.nextPlotCol()
-            ax.plot(x[:,i], y[:,i], z[:,i], col)
+            if linewidths is not None:
+                ax.plot(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i])
+            else:
+                ax.plot(x[:,i], y[:,i], z[:,i], col)
+
+        #scale the axes
+        if pltaxis is not None:
+            # ax.axis(pltaxis)
+            # if not xIsDate:
+            ax.set_xlim(pltaxis[0],pltaxis[1])
+            ax.set_ylim(pltaxis[2],pltaxis[3])
+            ax.set_zlim(pltaxis[4],pltaxis[5])
+
 
         if xInvert:
             ax.set_xlim(ax.get_xlim()[::-1])
@@ -1909,8 +1993,8 @@ class Plotter:
 
     ############################################################
     ##
-    def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, \
-                xlabel=None, ylabel=None, zlabel=None, zscale=None,  \
+    def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, 
+                xlabel=None, ylabel=None, zlabel=None, zscale=None,  
                titlefsize=12, xylabelfsize = 12,
                thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
                linewidth=0.1, azim=45, elev=30):
@@ -1930,13 +2014,13 @@ class Plotter:
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | theta (np.array[N,] or [N,1]): vector of angular values (rad)
-                | radial (np.array[M,] or [M,1]): vector if radial values
-                | zvals (np.array[N,M]): values on a (theta,radial) grid
+                | theta (np.array[N,M]): array of angular values [0..2pi] corresponding to (theta,rho) grid.
+                | radial (np.array[N,M]): array of radial values  corresponding to (theta,rho) grid.
+                | zvals (np.array[N,M]): array of z values  corresponding to (theta,rho) grid.
                 | ptitle (string): plot title (optional)
                 | xlabel (string): x-axis label (optional)
                 | ylabel (string): y-axis label (optional)
-                | zlabel (string): z axis label (optional)
+                | zlabel (string): z-axis label (optional)
                 | zscale ([float]): z axis [min, max] in the plot.
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x, y, z label font size, default 12pt (optional)
@@ -1989,35 +2073,45 @@ class Plotter:
 
     ############################################################
     ##
-    def polarMesh(self, plotnum, theta, radial, zvals, ptitle=None, shading = 'flat',\
-                radscale=None, titlefsize=12,  meshCmap = cm.rainbow, cbarshow=False, \
-                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,\
-                  rgrid=[5], thetagrid=[30], drawGrid = False,\
-                  thetagridfontsize = 12, radialgridfontsize=12,\
+    def polarMesh(self, plotnum, theta, radial, zvals, ptitle=None, shading='flat',
+                radscale=None, titlefsize=12,  meshCmap=cm.rainbow, cbarshow=False, 
+                  cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
+                  rgrid=[0,5], thetagrid=[30], drawGrid=False,
+                  thetagridfontsize=12, radialgridfontsize=12,
                   direction='counterclockwise', zerooffset=0, logScale=False,
-                  plotCol=[], numLevels=10, contourLine=True, zeroContourLine=False):
-      """Polar colour mesh plot for (r, theta, zvals) input sets.
+                  plotCol=[], levels=10, contourFill=True, contourLine=True, 
+                  zeroContourLine=False, negativeSolid=False,
+                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5):
+      """Polar colour contour and filled contour plot for (theta, r, zvals) input sets.
 
-        Given an existing figure, this function plots in a specified subplot position.
+        The data values must be given on a fixed mesh grid of three-dimensional (theta,rho,z)
+        array input sets (theta is angle,  and rho is radial distance). The mesh grid is 
+        defined in (theta,rho), while the height of the mesh is the z value. The 
+        (theta,rho) arrays may have non-constant grid-intervals, i.e., they do not 
+        have to be on regular intervals.
 
-        Only one mesh is drawn at a time.  Future meshes in the same subplot
-        will cover any previous meshes.
+        Given an existing figure, this function plots in a specified subplot position. 
+        Only one contour plot is drawn at a time.  Future contours in the same subplot 
+        will cover any previous contours.
 
-        The data in zvals must be on a grid where the theta vector correspond to
-        the number of rows in zvals and the radial vector corresponds to the
-        number of columns in zvals.
+        The data set must have three two dimensional arrays, each for theta, rho, and z.  
+        The data in theta, rho, and z arrays must have matching data points.  
+        The theta and rho arrays each define the grid in terms of theta and rho values,
+        i.e., the theta array contains the angular values for the data set, while the 
+        rho array contains the radial values.  The z array contains the z values for the 
+        corresponding theta and rho values in the contour mesh.
 
-        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted 
         to show true values, but on the nonlinear scale.
 
-        The r and p vectors may have non-constant grid-intervals, i.e., they do not
-        have to be on regular intervals.
+        The current version only saves png files, since there appears to be a problem 
+        saving eps files.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
-                | theta (np.array[N,] or [N,1]): vector of angular values [0..2pi]
-                | radial (np.array[M,] or [M,1]): vector of radial values
-                | zvals (np.array[N,M]): values on a (theta,radial) grid
+                | theta (np.array[N,M]) array of angular values [0..2pi] corresponding to (theta,rho) grid.
+                | radial (np.array[N,M]) array of radial values  corresponding to (theta,rho) grid.
+                | zvals (np.array[N,M]) array of z values  corresponding to (theta,rho) grid.
                 | ptitle (string): plot title (optional)
                 | shading (string): 'flat' | 'gouraud'  (optional)
                 | radscale ([float]): inner and outer radial scale max in the plot.
@@ -2036,15 +2130,23 @@ class Plotter:
                 | zerooffset (float) = rotation offset where zero should be [rad] (optional)
                 | logScale (bool): do Z values on log scale, recompute colourbar vals
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if []
-                | numLevels (int): values of contour levels
+                | levels (int or [float]): number of contour levels or a list of levels (optional)
+                | contourFill (bool): fill contours with colour (optional)
                 | contourLine (bool): draw a series of contour lines
                 | zeroContourLine (bool): draw the contour at zero
+                | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise (optional)
+                | contLabel (bool): label the contours with values (optional)
+                | contFmt (string): contour label c-printf format (optional)
+                | contCol (string): contour label colour, e.g., 'k' (optional)
+                | contFonSz (float): contour label fontsize (optional)
+                | contLinWid (float): contour line width in points (optional)
 
             Returns:
                 | the axis object for the plot
 
             Raises:
                 | No exception is raised.
+
       """
 
       # # transform to cartesian system, using meshgrid
@@ -2054,6 +2156,13 @@ class Plotter:
       #if this is a log scale plot
       if logScale is True:
           zvals = np.log10(zvals) 
+
+      if contourLine:
+          if negativeSolid:
+              plt.rcParams['contour.negative_linestyle'] = 'solid'
+          else:
+              plt.rcParams['contour.negative_linestyle'] = 'dashed'
+
 
       #create subplot if not existing
       if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
@@ -2069,20 +2178,18 @@ class Plotter:
 
       #do the plot
       if contourLine:
-          pmplot = ax.contour(theta, radial, zvals, numLevels, cmap=None,
+          pmplot = ax.contour(theta, radial, zvals, levels, cmap=None, linewidths=contLinWid,
                colors=col)
 
       if zeroContourLine:
-          pmplot = ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths = 0.5,
+          ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths=contLinWid,
                colors=col)
 
-      pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
+      if contourFill:
+        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
 
-      #label and clean up
-      if radscale==None:
-          ax.set_ylim(np.min(radial), np.max(radial))
-      else:
-          ax.set_ylim(radscale[0], radscale[1])
+      if contLabel:
+        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz)
 
       ax.grid(drawGrid)
 
@@ -2121,37 +2228,40 @@ class Plotter:
           plt.title(ptitle, fontsize=titlefsize)
 
       #set up the grids
+      # add own labels: http://astrometry.net/svn/trunk/projects/masers/py/poster/plot_data.py
+      #                 http://matplotlib.org/devel/add_new_projection.html
       if thetagrid is None:
           plt.thetagrids([])
       else:
           plt.thetagrids(range(0, 360, thetagrid[0]))
       plt.tick_params(axis='x', which='major', labelsize=thetagridfontsize)
 
-      if rgrid is None:
-          ax.set_yticks([])
-      elif len(rgrid) is 1:
-          ax.set_yticks(np.linspace(0,np.max(radial),rgrid[0]))
-      elif len(rgrid) is 2:
-          plt.rgrids(np.arange(rgrid[0], rgrid[1], rgrid[0]))
+          # plt.thetagrids(radscale[0], radscale[1],5)
+
+      if radscale==None:
+        rscale = [np.min(radial), np.max(radial)]
       else:
-          pass
+        rscale = radscale
+
+      ax.set_ylim(rscale[0],rscale[1])
+
+      if rgrid is None:
+        ax.set_yticklabels([])
+      else :
+        #set the number of intervals
+        if rgrid[0] is 0:
+          ax.set_yticks(np.linspace(rscale[0],rscale[1],rgrid[1]))
+        #set the interval incremental size
+        if rgrid[0] is not 0:
+          numrgrid = (rscale[1] - rscale[0] ) / (rgrid[0])
+          ax.set_yticks(np.linspace(rscale[0],rscale[1],numrgrid+1.000001))
+
       plt.tick_params(axis='y', which='major', labelsize=radialgridfontsize)
 
       ax.set_theta_direction(direction)
       ax.set_theta_offset(zerooffset)
 
-         # rmax = np.max(radial)
-          # if rmax>0:
-          #     #round and increase the max value for nice numbers
-          #     lrmax=round(math.floor(math.log10(rmax/rgrid[1])))
-          #     frmax=rmax/(rgrid[1]*10**lrmax)
-          #     rinc=10**lrmax*math.ceil(frmax)
-          #     plt.rgrids(np.arange(rinc, rinc*rgrid[1], rinc))
-          # else:
-          #     ax.set_yticks(np.linspace(0,np.max(radial),5))
-
       return ax
-
 
     
     ############################################################
@@ -2594,7 +2704,7 @@ if __name__ == '__main__':
     # difference of Gaussians
     Z = 10.0 * (Z2 - Z1)
     pmc = Plotter(1)
-    pmc.meshContour(1, X, Y, Z, numLevels=15,
+    pmc.meshContour(1, X, Y, Z, levels=15,
                 ptitle='meshContour', shading='gouraud',plotCol=['k'],
                 titlefsize=12,  meshCmap=cm.rainbow, cbarshow=True,
                 cbarorientation='vertical', cbarfontsize=12,

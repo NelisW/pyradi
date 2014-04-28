@@ -154,20 +154,20 @@ if __name__ == '__main__':
     ##------------------------- plot sample spectra ------------------------------
     smpleplt = ryplot.Plotter(1, 1, 1)
     smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
-                r'Reflectance', ['r-', 'g-', 'y-','g--', 'b-', 'm-'],samplesTxt,0.5)
+                r'Reflectance', ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=samplesTxt,legendAlpha=0.5)
     smpleplt.saveFig('SampleReflectance'+figtype)
 
     ##------------------------- plot source spectra ------------------------------
     srceplt = ryplot.Plotter(2, 1, 1)
     srceplt.plot(1, wavelength, sources, "Normalized source radiance",
                 r'Wavelength $\mu$m', r'Radiance',
-                ['k:', 'k-.', 'k--', 'k-'],sourcesTxt,0.5 )
+                ['k:', 'k-.', 'k--', 'k-'],label=sourcesTxt,legendAlpha=0.5 )
     srceplt.saveFig('SourceRadiance'+figtype)
 
     ##------------------------- plot cie tristimulus spectra ---------------------
     cietriplt = ryplot.Plotter(3, 1, 1)
     cietriplt.plot(1, wavelength, bar,"CIE tristimulus values",r'Wavelength $\mu$m',
-            r'Response', 'k--', ['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],0.5)
+            r'Response', 'k--', label=['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],legendAlpha=0.5)
     cietriplt.saveFig('tristimulus'+figtype)
 
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     styleSample=['r--', 'g-.', 'y-', 'g-', 'b-', 'k-']
     for iSmpl in range(samples.shape[1]):
         ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y',
-                [styleSample[iSmpl]] ,[samplesTxt[iSmpl]],0.5 )
+                [styleSample[iSmpl]], label=[samplesTxt[iSmpl]],legendAlpha=0.5 )
     #plot source markers
     styleSource=['bo', 'yo', 'ro', 'go']
     for iSmpl in range(samples.shape[1]):
@@ -213,7 +213,7 @@ if __name__ == '__main__':
             else:
                 legend=''
             ciexyplt.plot(1,xs[iSmpl,iSrc],ys[iSmpl,iSrc],"CIE chromaticity diagram", r'x',r'y',\
-                    [styleSource[iSrc]],legend,0.5 )
+                    [styleSource[iSrc]],label=legend,legendAlpha=0.5 )
 
     ciexyplt.saveFig('chromaticity'+figtype)
 
