@@ -110,7 +110,7 @@ def detectThresholdToNoise(pulseWidth, FAR):
 ##############################################################################
 ##
 def detectSignalToNoise(ThresholdToNoise, pD):
-    """ Solve for signal to noise ratio, given the threshold to noise ratio and
+    """ Solve for the signal to noise ratio, given the threshold to noise ratio and
     probability of detection.
 
     Using the theory of matched filter design, calculate the
@@ -180,10 +180,10 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     Args:
         | Intensity (float or np.array[N,] or [N,1]):  in  [W/sr].
         | Irradiance (float or np.array[N,] or [N,1]):  in  [W/m2].
-        | rangeTab (np.array[N,] or [N,1]):  range vector for lookup
-        | tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup
-        | rangeGuess (float): starting value range estimate
-        | n (float): range power (2 or 4)
+        | rangeTab (np.array[N,] or [N,1]):  range vector for tauTab lookup in [m]
+        | tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup in [m]
+        | rangeGuess (float): starting value range estimate in [m] (optional)
+        | n (float): range power (2 or 4) (optional)
 
     Returns:
         | range (float or np.array[N,] or [N,1]): Solution to the range equation in [m].
@@ -225,13 +225,15 @@ def _rangeEquationCalc(r,i,e,tauTable,n,rMax):
 ##############################################################################
 ##
 def abshumidity(T, equationSelect = 1):
-    """ Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.
+    """ Atmopsheric absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.
 
     This function provides two similar equations, but with different constants.
 
 
     Args:
         | temperature (np.array[N,] or [N,1]):  in  [K].
+        | equationSelect (int): select the equation to be used.
+
 
     Returns:
         | absolute humidity (np.array[N,] or [N,1]):  abs humidity in [g/m3]
