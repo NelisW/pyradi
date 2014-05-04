@@ -72,12 +72,13 @@ PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x6
 <dl class="function">
 <dt id="pyradi.ryutils.abshumidity">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">abshumidity</tt><big>(</big><em>T</em>, <em>equationSelect=1</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.abshumidity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.</p>
+<dd><p>Atmopsheric absolute humidity [g/m3] for temperature in [K] between 248 K and 342 K.</p>
 <p>This function provides two similar equations, but with different constants.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">temperature (np.array[N,] or [N,1]):  in  [K].</div>
+<div class="line">equationSelect (int): select the equation to be used.</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -299,7 +300,7 @@ as domain vector above.</div>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04DE4630&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04FD4630&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -367,10 +368,10 @@ returned value is made negative.</p>
 <dd><div class="first last line-block">
 <div class="line">Intensity (float or np.array[N,] or [N,1]):  in  [W/sr].</div>
 <div class="line">Irradiance (float or np.array[N,] or [N,1]):  in  [W/m2].</div>
-<div class="line">rangeTab (np.array[N,] or [N,1]):  range vector for lookup</div>
-<div class="line">tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup</div>
-<div class="line">rangeGuess (float): starting value range estimate</div>
-<div class="line">n (float): range power (2 or 4)</div>
+<div class="line">rangeTab (np.array[N,] or [N,1]):  range vector for tauTab lookup in [m]</div>
+<div class="line">tauTab (np.array[N,] or [N,1]):   transmittance vector for lookup in [m]</div>
+<div class="line">rangeGuess (float): starting value range estimate in [m] (optional)</div>
+<div class="line">n (float): range power (2 or 4) (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -425,7 +426,7 @@ threshold to noise ratio, to achieve a required false alarm rate.</p>
 <dl class="function">
 <dt id="pyradi.ryutils.detectSignalToNoise">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">detectSignalToNoise</tt><big>(</big><em>ThresholdToNoise</em>, <em>pD</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.detectSignalToNoise" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve for signal to noise ratio, given the threshold to noise ratio and
+<dd><p>Solve for the signal to noise ratio, given the threshold to noise ratio and
 probability of detection.</p>
 <p>Using the theory of matched filter design, calculate the
 signal to noise ratio, to achieve a required probability of detection.</p>

@@ -175,13 +175,14 @@ more comprehensive capabilties.</p>
 <dt id="pyradi.ryfiles.cleanFilename">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">cleanFilename</tt><big>(</big><em>sourcestring</em>, <em>removestring=u' %:/</em>, <em>.\\[]'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.cleanFilename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean a string by removing selected characters.</p>
-<p>Creates a legal and &#8216;clean&#8217; sourcestring from a string by removing some clutter and illegals.
+<p>Creates a legal and &#8216;clean&#8217; source string from a string by removing some 
+clutter and  characters not allowed in filenames.
 A default set is given but the user can override the default string.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">sourcestring (string): the string to be cleaned.</div>
-<div class="line">removestring (string): remove all these characters from the source.</div>
+<div class="line">removestring (string): remove all these characters from the string (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -201,17 +202,20 @@ A default set is given but the user can override the default string.</p>
 <dt id="pyradi.ryfiles.listFiles">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">listFiles</tt><big>(</big><em>root</em>, <em>patterns=u'*'</em>, <em>recurse=1</em>, <em>return_folders=0</em>, <em>useRegex=False</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.listFiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists the files/directories meeting specific requirement</p>
-<p>Searches a directory structure along the specified path, looking
-for files that matches the glob pattern. If specified, the search will
-continue into sub-directories.  A list of matching names is returned.</p>
+<blockquote>
+<div>Returns a list of file paths to files in a file system, searching a 
+directory structure along the specified path, looking for files 
+that matches the glob pattern. If specified, the search will continue 
+into sub-directories.  A list of matching names is returned. The 
+function supports a local or network reachable filesystem, but not URLs.</div></blockquote>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">root (string): root directory from where the search must take place</div>
-<div class="line">patterns (string): glob pattern for filename matching</div>
-<div class="line">recurse (unt): should the search extend to subdirs of root?</div>
-<div class="line">return_folders (int): should foldernames also be returned?</div>
-<div class="line">useRegex (bool): should regular expression evaluation be used?</div>
+<div class="line">root (string): directory root from where the search must take place</div>
+<div class="line">patterns (string): glob/regex pattern for filename matching</div>
+<div class="line">recurse (unt): flag to indicate if subdirectories must also be searched (optional)</div>
+<div class="line">return_folders (int): flag to indicate if folder names must also be returned (optional)</div>
+<div class="line">useRegex (bool): flag to indicate if patterns areregular expression strings (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -281,12 +285,12 @@ scientific notation or fixed decimal point.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">fname (string): output path and filename</div>
+<div class="line">fname (string): text writing output path and filename</div>
 <div class="line">arr (np.array[N,M]): array with table data</div>
-<div class="line">header (string): column header in final latex format</div>
-<div class="line">leftCol ([string]): left column each row, in final latex format</div>
-<div class="line">formatstring (string): output format precision for array data (see np.savetxt)</div>
-<div class="line">filemode (string): file open mode (a=append, w=new file)</div>
+<div class="line">header (string): column header in final latex format (optional)</div>
+<div class="line">leftCol ([string]): left column each row, in final latex format (optional)</div>
+<div class="line">formatstring (string): output format precision for array data (see np.savetxt) (optional)</div>
+<div class="line">filemode (string): file open mode (a=append, w=new file) (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -306,15 +310,15 @@ scientific notation or fixed decimal point.</p>
 <dt id="pyradi.ryfiles.epsLaTexFigure">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">epsLaTexFigure</tt><big>(</big><em>filename</em>, <em>epsname</em>, <em>caption</em>, <em>scale</em>, <em>filemode=u'a'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.epsLaTexFigure" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Write the code to include an eps graphic as a latex figure.</dt>
+<dt>Write the LaTeX code to include an eps graphic as a latex figure.</dt>
 <dd>The text is added to an existing file.</dd>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">fname (string): output path and filename</div>
-<div class="line">epsname (string): filename/path to eps file</div>
+<div class="line">fname (string):  text writing output path and filename.</div>
+<div class="line">epsname (string): filename/path to eps file (relative to where the LaTeX document is built).</div>
 <div class="line">caption (string): figure caption</div>
-<div class="line">scale (double): scale to textwidth [0..1]</div>
-<div class="line">filemode (string): file open mode (a=append, w=new file)</div>
+<div class="line">scale (double): figure scale to textwidth [0..1]</div>
+<div class="line">filemode (string): file open mode (a=append, w=new file) (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -343,8 +347,8 @@ by table data.
 </pre></div>
 </div>
 <p>From line/row 3 onwards the first element is the x abscissa value
-followed by the row of data, one point for each y abscissa value.
-The format can depicted as follows:</p>
+followed by the row of data, one point for each y abscissa value.</p>
+<p>The file format can depicted as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre>x-name y-name ordinates-name
 0 y1 y2 y3 y4
 x1 v11 v12 v13 v14
@@ -391,7 +395,7 @@ If no saveFilename is given, the basename of the URL is used.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">url (string): the url to be accessed.</div>
-<div class="line">saveFilename (string): to where the file must be saved.</div>
+<div class="line">saveFilename (string): path to where the file must be saved (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -418,7 +422,7 @@ but with the file extension removed.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">zipfilename (string): the zipfilename to be decompressed.</div>
-<div class="line">saveFilename (string): to where the file must be saved.</div>
+<div class="line">saveFilename (string): to where the file must be saved (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -437,9 +441,9 @@ but with the file extension removed.</p>
 <dl class="function">
 <dt id="pyradi.ryfiles.untarTarfile">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">untarTarfile</tt><big>(</big><em>tarfilename</em>, <em>saveDirname=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.untarTarfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Untar a tar archive, and save all files to specified directory.</p>
+<dd><p>Untar a tar archive, and save all files to the specified directory.</p>
 <p>The tarfilename is used to open a file, extraxting to the saveDirname specified.
-If no saveDirname is given, the local directory &#8216;.&#8217; is used,</p>
+If no saveDirname is given, the local directory &#8216;.&#8217; is used.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -463,21 +467,22 @@ If no saveDirname is given, the local directory &#8216;.&#8217; is used,</p>
 <dl class="function">
 <dt id="pyradi.ryfiles.downloadUntar">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">downloadUntar</tt><big>(</big><em>tgzFilename</em>, <em>url</em>, <em>destinationDir=None</em>, <em>tarFilename=None</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.downloadUntar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Untar a tar archive, and save all files to specified directory.</p>
-<p>The tarfilename is used to open a file, extraxting to the saveDirname specified.
-If no saveDirname is given, the local directory &#8216;.&#8217; is used,</p>
+<dd><p>Download and untar a compressed tar archive, and save all files to the specified directory.</p>
+<p>The tarfilename is used to open the tar file, extracting to the destinationDir specified.
+If no destinationDir is given, the local directory &#8216;.&#8217; is used.
+Before downloading, a check is done to determine if the file was already downloaded
+and exists in the local file system.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">tgzFilename (string): the name of the tar archive.</div>
-<div class="line">url (string): url where to look for the file.</div>
-<div class="line">destinationDir (string): to where the files must be extracted</div>
-<div class="line">tarFilename (string): unzipped tar filename</div>
+<div class="line">tgzFilename (string): the name of the tar archive file</div>
+<div class="line">url (string): url where to look for the file (not including the filename)</div>
+<div class="line">destinationDir (string): to where the files must be extracted (optional)</div>
+<div class="line">tarFilename (string): downloaded tar filename (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
-<div class="line">([string]): list of filenames saved, or None if failed.</div>
 <div class="line">([string]): list of filenames saved, or None if failed.</div>
 </div>
 </dd>

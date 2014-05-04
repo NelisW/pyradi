@@ -204,12 +204,13 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
 def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
     """Clean a string by removing selected characters.
 
-    Creates a legal and 'clean' sourcestring from a string by removing some clutter and illegals.
+    Creates a legal and 'clean' source string from a string by removing some 
+    clutter and  characters not allowed in filenames.
     A default set is given but the user can override the default string.
 
     Args:
         | sourcestring (string): the string to be cleaned.
-        | removestring (string): remove all these characters from the source.
+        | removestring (string): remove all these characters from the string (optional).
 
     Returns:
         | (string): A cleaned-up string.
@@ -224,21 +225,22 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
 
 ################################################################
 def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
-    """Untar a tar archive, and save all files to specified directory.
+    """Download and untar a compressed tar archive, and save all files to the specified directory.
 
-    The tarfilename is used to open a file, extraxting to the saveDirname specified.
-    If no saveDirname is given, the local directory '.' is used, 
+    The tarfilename is used to open the tar file, extracting to the destinationDir specified.
+    If no destinationDir is given, the local directory '.' is used.
+    Before downloading, a check is done to determine if the file was already downloaded
+    and exists in the local file system.
 
     Args:
-        | tgzFilename (string): the name of the tar archive.
-        | url (string): url where to look for the file.
-        | destinationDir (string): to where the files must be extracted
-        | tarFilename (string): unzipped tar filename
+        | tgzFilename (string): the name of the tar archive file
+        | url (string): url where to look for the file (not including the filename)
+        | destinationDir (string): to where the files must be extracted (optional)
+        | tarFilename (string): downloaded tar filename (optional)
 
     Returns:
         | ([string]): list of filenames saved, or None if failed.
-        | ([string]): list of filenames saved, or None if failed.
-
+ 
     Raises:
         | Exceptions are handled internally and signaled by return value.
     """
@@ -285,10 +287,10 @@ def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
 
 ################################################################
 def untarTarfile(tarfilename, saveDirname=None):
-    """Untar a tar archive, and save all files to specified directory.
+    """Untar a tar archive, and save all files to the specified directory.
 
     The tarfilename is used to open a file, extraxting to the saveDirname specified.
-    If no saveDirname is given, the local directory '.' is used, 
+    If no saveDirname is given, the local directory '.' is used.
 
     Args:
         | tarfilename (string): the name of the tar archive.
@@ -340,7 +342,7 @@ def unzipGZipfile(zipfilename, saveFilename=None):
 
     Args:
         | zipfilename (string): the zipfilename to be decompressed.
-        | saveFilename (string): to where the file must be saved.
+        | saveFilename (string): to where the file must be saved (optional).
 
     Returns:
         | (string): Filename saved, or None if failed.
@@ -379,7 +381,7 @@ def downloadFileUrl(url,  saveFilename=None):
 
     Args:
         | url (string): the url to be accessed.
-        | saveFilename (string): to where the file must be saved.
+        | saveFilename (string): path to where the file must be saved (optional).
 
     Returns:
         | (string): Filename saved, or None if failed.
@@ -419,16 +421,18 @@ def downloadFileUrl(url,  saveFilename=None):
 def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     """Lists the files/directories meeting specific requirement
 
-    Searches a directory structure along the specified path, looking
-    for files that matches the glob pattern. If specified, the search will
-    continue into sub-directories.  A list of matching names is returned.
+        Returns a list of file paths to files in a file system, searching a 
+        directory structure along the specified path, looking for files 
+        that matches the glob pattern. If specified, the search will continue 
+        into sub-directories.  A list of matching names is returned. The 
+        function supports a local or network reachable filesystem, but not URLs.
 
     Args:
-        | root (string): root directory from where the search must take place
-        | patterns (string): glob pattern for filename matching
-        | recurse (unt): should the search extend to subdirs of root?
-        | return_folders (int): should foldernames also be returned?
-        | useRegex (bool): should regular expression evaluation be used?
+        | root (string): directory root from where the search must take place
+        | patterns (string): glob/regex pattern for filename matching
+        | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
+        | return_folders (int): flag to indicate if folder names must also be returned (optional)
+        | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
 
     Returns:
         | A list with matching file/directory names
@@ -574,15 +578,15 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
 ################################################################
 ##
 def epsLaTexFigure(filename, epsname, caption, scale, filemode='a'):
-    """ Write the code to include an eps graphic as a latex figure.
+    """ Write the LaTeX code to include an eps graphic as a latex figure.
         The text is added to an existing file.
 
     Args:
-        | fname (string): output path and filename
-        | epsname (string): filename/path to eps file
+        | fname (string):  text writing output path and filename.
+        | epsname (string): filename/path to eps file (relative to where the LaTeX document is built).
         | caption (string): figure caption
-        | scale (double): scale to textwidth [0..1]
-        | filemode (string): file open mode (a=append, w=new file)
+        | scale (double): figure scale to textwidth [0..1]
+        | filemode (string): file open mode (a=append, w=new file) (optional)
 
     Returns:
         | None, writes a file to disk
@@ -615,12 +619,12 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
         scientific notation or fixed decimal point.
 
     Args:
-        | fname (string): output path and filename
+        | fname (string): text writing output path and filename
         | arr (np.array[N,M]): array with table data
-        | header (string): column header in final latex format
-        | leftCol ([string]): left column each row, in final latex format
-        | formatstring (string): output format precision for array data (see np.savetxt)
-        | filemode (string): file open mode (a=append, w=new file)
+        | header (string): column header in final latex format (optional)
+        | leftCol ([string]): left column each row, in final latex format (optional)
+        | formatstring (string): output format precision for array data (see np.savetxt) (optional)
+        | filemode (string): file open mode (a=append, w=new file) (optional)
 
     Returns:
         | None, writes a file to disk
@@ -658,7 +662,7 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
             file.write(entry+'&')
             np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
 
-    file.write('\hline\n\end{tabular}')
+    file.write('\hline\n\end{tabular}\n\n')
     file.close()
 
 
@@ -676,7 +680,8 @@ def read2DLookupTable(filename):
 
         From line/row 3 onwards the first element is the x abscissa value
         followed by the row of data, one point for each y abscissa value.
-        The format can depicted as follows: ::
+        
+        The file format can depicted as follows: ::
 
             x-name y-name ordinates-name
             0 y1 y2 y3 y4
@@ -740,14 +745,14 @@ if __name__ == '__main__':
 
     print ('Test writing latex format arrays:')
     arr = np.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
-    arrayToLaTex('arr0.txt', arr)
-    arrayToLaTex('arr1.txt', arr, formatstring='%.1f')
+    arrayToLaTex('array.txt', arr)
+    arrayToLaTex('array.txt', arr, formatstring='%.1f')
     headeronly = 'Col1 & Col2 & Col3'
-    arrayToLaTex('arr2.txt', arr, headeronly, formatstring='%.3f')
+    arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f')
     header = 'Col 1 & Col 2 & Col 3'
     leftcol = ['XX','Row 1','Row 2','Row 3']
     #with \usepackage{siunitx} you can even do this:
-    arrayToLaTex('arr3.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
+    arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
 
     print ('Test writing eps file figure latex fragments:')
     epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
