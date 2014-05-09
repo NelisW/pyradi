@@ -44,8 +44,10 @@ from __future__ import unicode_literals
 __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
-         'cleanFilename', 'listFiles','readRawFrames','arrayToLaTex','epsLaTexFigure',
-         'read2DLookupTable', 'downloadFileUrl', 'unzipGZipfile', 'untarTarfile',
+         'cleanFilename', 'listFiles','readRawFrames','rawFrameToImageFile',
+         'arrayToLaTex','epsLaTexFigure',
+         'read2DLookupTable', 
+         'downloadFileUrl', 'unzipGZipfile', 'untarTarfile',
          'downloadUntar']
 
 import sys
@@ -478,8 +480,10 @@ def rawFrameToImageFile(image, filename):
     """Writes a single raw image frame to image file.
     The file type must be given, e.g. png or jpg.
     The image need not be scaled beforehand, it is done prior 
-    to writing out the image. File types tested with are
-    'png','jpg','tiff','eps'.
+    to writing out the image. Could be one of
+    BMP, JPG, JPEG, PNG, PPM, TIFF, XBM, XPM)
+    but the file types available depends
+    on the QT imsave plugin in use.
 
     Args:
         | image (np.ndarray): two-dimensional array representing an image
@@ -493,10 +497,10 @@ def rawFrameToImageFile(image, filename):
     """
     #normalise input image (img) data to between 0 and 1
     from scipy import ndimage
-    image = image - ndimage.minimum(image)
-    image =  image/ndimage.maximum(image)
 
-    # http://scikit-image.org/docs/dev/api/skimage.io.html#imread
+    image = (image - ndimage.minimum(image)) / (ndimage.maximum(image) - ndimage.minimum(image))
+
+    # http://scikit-image.org/docs/dev/api/skimage.io.html#imsave
     import skimage.io as io
     io.imsave(filename, image) 
 
@@ -504,12 +508,16 @@ def rawFrameToImageFile(image, filename):
 ################################################################
 ##
 def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
-    """ Constructs a numpy array from data in a binary file with known data-type.
+    """ Loading multi-frame two-dimensional arrays from a raw data file of known data type.
+
+        The file must consist of multiple frames, all with the same number of rows and columns.
+        Frames of different data types can be read, according to the user specification.  
+        The user can specify which frames must be loaded (if not the whole file).
 
     Args:
-        | fname (string): path and filename
-        | rows (int): number of rows in frames
-        | cols (int): number of columns in frames
+        | fname (string): filename
+        | rows (int): number of rows in each frame
+        | cols (int): number of columns in each frame
         | vartype (np.dtype): numpy data type of data to be read
         |                                      int8, int16, int32, int64
         |                                      uint8, uint16, uint32, uint64

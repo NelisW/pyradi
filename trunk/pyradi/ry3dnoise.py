@@ -236,7 +236,7 @@ def getNVH(imgSeq):
         | imgSeq (np.ndarray): numpy array of dimensions (frames,rows,cols)
 
     Returns:
-        | noise (double): fixed sparial noise
+        | noise (double): fixed spatial noise
 
     Raises:
         | No exception is raised.
@@ -250,7 +250,7 @@ def getNVH(imgSeq):
 ################################################################
 ##
 def getNTV(imgSeq):
-    """ Average for each row and frame over all columns .
+    """ Average for each row and frame over all columns.
     Represents variations in row averages that change from frame-to-frame.
 
     Args:
@@ -292,7 +292,7 @@ def getNTH(imgSeq):
 ################################################################
 ##
 def getNV(imgSeq):
-    """ Average for each column over all frames and rows .
+    """ Average for each column over all frames and rows.
     Represents variations in row averages that are fixed in time.
 
     Args:
@@ -428,24 +428,16 @@ if __name__ == '__main__':
     NTVH = getNTVH(img)[1][0,:,:]
     NT = getNT(img)[1].reshape(frames).reshape(frames,1)
 
-    # print(NH.shape)
-    # print(NTH.shape)
-    # print(NV.shape)
-    # print(NTV.shape)
-    # print(NVH.shape)
-    # print(NTVH.shape)
-    # print(NT.shape)
-
     P = ryplot.Plotter(1, 3, 3,'Simulated Image Sequence 3-D Noise Components', figsize=(12, 12))
-    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt)', titlefsize=10)
-    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v)', titlefsize=10)
-    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht)', titlefsize=10)
-    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h)', titlefsize=10)
-    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity', titlefsize=10)
-    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise', titlefsize=10)
-    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv)', titlefsize=10)
-    P.showImage(3, img[0,:,:], ptitle='First Frame', titlefsize=10)
-    P.showImage(6, img[-1,:,:], ptitle='Last Frame', titlefsize=10)
+    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(NH.shape), titlefsize=10)
+    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(NTH.shape), titlefsize=10)
+    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(NV.shape), titlefsize=10)
+    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(NTV.shape), titlefsize=10)
+    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(NVH.shape), titlefsize=10)
+    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(NTVH.shape), titlefsize=10)
+    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(NT.shape), titlefsize=10)
+    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(img[0,:,:].shape), titlefsize=10)
+    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(img[-1,:,:].shape), titlefsize=10)
     P.getPlot().show()
     P.saveFig('simnoise.png')
 
@@ -500,24 +492,18 @@ if __name__ == '__main__':
     NTVH = getNTVH(img)[1][0,:,:]
     NT = getNT(img)[1].reshape(frames).reshape(frames,1)
 
-    # print(NH.shape)
-    # print(NTH.shape)
-    # print(NV.shape)
-    # print(NTV.shape)
-    # print(NVH.shape)
-    # print(NTVH.shape)
-    # print(NT.shape)
+
 
     P = ryplot.Plotter(1, 3, 3,'PTW Image Sequence 3-D Noise Components', figsize=(12, 12))
-    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt)')
-    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v)')
-    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht)')
-    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h)')
-    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity')
-    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise')
-    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv)')
-    P.showImage(3, img[0,:,:], ptitle='First Frame')
-    P.showImage(6, img[-1,:,:], ptitle='Last Frame')
+    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(NH.shape), titlefsize=10)
+    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(NTH.shape), titlefsize=10)
+    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(NV.shape), titlefsize=10)
+    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(NTV.shape), titlefsize=10)
+    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(NVH.shape), titlefsize=10)
+    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(NTVH.shape), titlefsize=10)
+    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(NT.shape), titlefsize=10)
+    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(img[0,:,:].shape), titlefsize=10)
+    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(img[-1,:,:].shape), titlefsize=10)
     P.getPlot().show()
 
     P.saveFig('ptwnoise.png')

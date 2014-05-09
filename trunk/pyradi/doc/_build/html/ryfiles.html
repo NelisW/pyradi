@@ -234,13 +234,17 @@ function supports a local or network reachable filesystem, but not URLs.</div></
 <dl class="function">
 <dt id="pyradi.ryfiles.readRawFrames">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">readRawFrames</tt><big>(</big><em>fname</em>, <em>rows</em>, <em>cols</em>, <em>vartype</em>, <em>loadFrames=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pyradi.ryfiles.readRawFrames" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructs a numpy array from data in a binary file with known data-type.</p>
+<dd><p>Loading multi-frame two-dimensional arrays from a raw data file of known data type.</p>
+<blockquote>
+<div>The file must consist of multiple frames, all with the same number of rows and columns.
+Frames of different data types can be read, according to the user specification.  
+The user can specify which frames must be loaded (if not the whole file).</div></blockquote>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">fname (string): path and filename</div>
-<div class="line">rows (int): number of rows in frames</div>
-<div class="line">cols (int): number of columns in frames</div>
+<div class="line">fname (string): filename</div>
+<div class="line">rows (int): number of rows in each frame</div>
+<div class="line">cols (int): number of columns in each frame</div>
 <div class="line">vartype (np.dtype): numpy data type of data to be read</div>
 <div class="line-block">
 <div class="line">int8, int16, int32, int64</div>
