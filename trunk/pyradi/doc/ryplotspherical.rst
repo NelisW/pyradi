@@ -36,10 +36,7 @@ Module functions
 
 .. autofunction:: pyradi.ryplotspherical.globePlotElevAzim	
 
-
-
-
-
+.. autofunction:: pyradi.ryplotspherical.plotVertexSphere	
 
 
 

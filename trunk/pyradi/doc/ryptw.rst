@@ -28,3 +28,17 @@ Module functions
 .. autofunction:: pyradi.ryptw.GetPTWFrameFromFile  
 
 .. autofunction:: pyradi.ryptw.getPTWFrames  
+
+.. autofunction:: pyradi.ryptw.myint  
+
+.. autofunction:: pyradi.ryptw.mylong  
+
+.. autofunction:: pyradi.ryptw.myfloat  
+
+.. autofunction:: pyradi.ryptw.mybyte  
+
+.. autofunction:: pyradi.ryptw.mydouble  
+
+.. autofunction:: pyradi.ryptw.terminateStrOnZero  
+
+

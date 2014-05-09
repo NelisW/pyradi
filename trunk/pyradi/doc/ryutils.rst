@@ -26,7 +26,21 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.rangeEquation
 
+.. autofunction:: pyradi.ryutils._rangeEquationCalc
+
 .. autofunction:: pyradi.ryutils.detectThresholdToNoise
 
 .. autofunction:: pyradi.ryutils.detectSignalToNoise
+
+.. autofunction:: pyradi.ryutils.upMu
+
+.. autofunction:: pyradi.ryutils.cart2polar
+
+.. autofunction:: pyradi.ryutils.polar2cart
+
+.. autofunction:: pyradi.ryutils.index_coords
+
+.. autofunction:: pyradi.ryutils.framesFirst
+
+.. autofunction:: pyradi.ryutils.framesLast
 

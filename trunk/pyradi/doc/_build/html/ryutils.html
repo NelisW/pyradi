@@ -300,7 +300,7 @@ as domain vector above.</div>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04F05BB0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x0300EBF0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -390,6 +390,11 @@ or if calculated range is too near the lower resolution limit.</div>
 </dd></dl>
 
 <dl class="function">
+<dt id="pyradi.ryutils._rangeEquationCalc">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">_rangeEquationCalc</tt><big>(</big><em>r</em>, <em>i</em>, <em>e</em>, <em>tauTable</em>, <em>n</em>, <em>rMax</em><big>)</big><a class="headerlink" href="#pyradi.ryutils._rangeEquationCalc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="pyradi.ryutils.detectThresholdToNoise">
 <tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">detectThresholdToNoise</tt><big>(</big><em>pulseWidth</em>, <em>FAR</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.detectThresholdToNoise" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve for threshold to noise ratio, given pulse width and FAR, for matched filter.</p>
@@ -448,6 +453,179 @@ signal to noise ratio, to achieve a required probability of detection.</p>
 <dt>Returns:</dt>
 <dd><div class="first last line-block">
 <div class="line">range (float): signal to noise ratio</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.upMu">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">upMu</tt><big>(</big><em>uprightMu=True</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.upMu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a LaTeX micron symbol, either an upright version or the normal symbol.</p>
+<p>The upright symbol requires that the siunitx LaTeX package be installed on the 
+computer running the code.  This function also changes the Matplotlib rcParams
+file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">uprightMu (bool): signals upright (True) or regular (False) symbol (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">range (string): LaTeX code for the micro symbol.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.cart2polar">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">cart2polar</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.cart2polar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts from cartesian to polar coordinates, given (x,y) to (r,theta).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">x (float np.array): x values in array format.</div>
+<div class="line">y (float np.array): y values in array format.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">r (float np.array): radial component for given (x,y).</div>
+<div class="line">theta (float np.array): angular component for given (x,y).</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+<p>original code by Joe Kington
+<a class="reference external" href="https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system">https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.polar2cart">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">polar2cart</tt><big>(</big><em>r</em>, <em>theta</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.polar2cart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts from polar to cartesian coordinates, given (r,theta) to (x,y).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">r (float np.array): radial values in array format.</div>
+<div class="line">theta (float np.array): angular values in array format.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">x (float np.array): x component for given (r, theta).</div>
+<div class="line">y (float np.array): y component for given (r, theta).</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+<p>original code by Joe Kington
+<a class="reference external" href="https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system">https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.index_coords">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">index_coords</tt><big>(</big><em>data</em>, <em>origin=None</em>, <em>framesFirst=True</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.index_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates (x,y) zero-based coordinate arrrays for a numpy array indices, relative to some origin.</p>
+<p>This function calculates two meshgrid arrays containing the coordinates of the 
+input array.  The origin of the new coordinate system  defaults to the 
+center of the image, unless the user supplies a new origin.</p>
+<p>The data format can be data.shape = (rows, cols, frames) or 
+data.shape = (frames, rows, cols), the format of which is indicated by the 
+framesFirst parameter.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">data (np.array): array for which coordinates must be calculated.</div>
+<div class="line">origin ( (x-orig, y-orig) ): data-coordinates of where origin should be</div>
+<div class="line">framesFirst (bool): True if data.shape is (frames, rows, cols), False if 
+data.shape is (rows, cols, frames)</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">x (float np.array): x coordinates in array format.</div>
+<div class="line">y (float np.array): y coordinates in array format.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+<p>original code by Joe Kington
+<a class="reference external" href="https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system">https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.framesFirst">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">framesFirst</tt><big>(</big><em>imageSequence</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.framesFirst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image sequence with frames along axis=2 (last index), reordered such that 
+frames are along axis=0 (first index).</p>
+<p>Image sequences are stored in three-dimensional arrays, in rows, columns and frames.
+Not all libraries share the same sequencing, some store frames along axis=0 and 
+others store frames along axis=2.  This function reorders an image sequence with 
+frames along axis=2  to an image sequence with frames along axis=0. The function
+uses np.transpose(imageSequence, (2,0,1))</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">imageSequence (3-D np.array): image sequence in three-dimensional array, frames along axis=2</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">((3-D np.array): reordered three-dimensional array (view or copy)</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyradi.ryutils.framesLast">
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">framesLast</tt><big>(</big><em>imageSequence</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.framesLast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image sequence with frames along axis=0 (first index), reordered such that 
+frames are along axis=2 (last index).</p>
+<p>Image sequences are stored in three-dimensional arrays, in rows, columns and frames.
+Not all libraries share the same sequencing, some store frames along axis=0 and 
+others store frames along axis=2.  This function reorders an image sequence with 
+frames along axis=0  to an image sequence with frames along axis=2.  The function
+uses np.transpose(imageSequence, (1,2,0))</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">imageSequence (3-D np.array): image sequence in three-dimensional array, frames along axis=0</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">((3-D np.array): reordered three-dimensional array (view or copy)</div>
 </div>
 </dd>
 <dt>Raises:</dt>

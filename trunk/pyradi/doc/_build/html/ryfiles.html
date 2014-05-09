@@ -275,6 +275,36 @@ The user can specify which frames must be loaded (if not the whole file).</div><
 </dd></dl>
 
 <dl class="function">
+<dt id="pyradi.ryfiles.rawFrameToImageFile">
+<tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">rawFrameToImageFile</tt><big>(</big><em>image</em>, <em>filename</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.rawFrameToImageFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a single raw image frame to image file.
+The file type must be given, e.g. png or jpg.
+The image need not be scaled beforehand, it is done prior 
+to writing out the image. Could be one of
+BMP, JPG, JPEG, PNG, PPM, TIFF, XBM, XPM)
+but the file types available depends
+on the QT imsave plugin in use.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">image (np.ndarray): two-dimensional array representing an image</div>
+<div class="line">filename (string): name of file to be written to, with extension</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">Nothing</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyradi.ryfiles.arrayToLaTex">
 <tt class="descclassname">pyradi.ryfiles.</tt><tt class="descname">arrayToLaTex</tt><big>(</big><em>filename</em>, <em>arr</em>, <em>header=None</em>, <em>leftCol=None</em>, <em>formatstring=u'%1.4e'</em>, <em>filemode=u'wt'</em><big>)</big><a class="headerlink" href="#pyradi.ryfiles.arrayToLaTex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a numpy array to latex table format in output file.</p>
