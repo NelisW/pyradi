@@ -114,7 +114,7 @@ __all__= ['readOffFile', 'getRotateFromOffFile', 'getOrbitFromOffFile',
         'writeOSSIMTrajElevAzim', 'getOrbitFromElevAzim','getRotateFromElevAzim', 
         'plotSpherical', 'plotOSSIMSpherical', 
         'sphericalPlotElevAzim', 'polarPlotElevAzim',
-        'globePlotElevAzim']
+        'globePlotElevAzim','plotVertexSphere',]
 
 import sys
 if sys.version_info[0] > 2:

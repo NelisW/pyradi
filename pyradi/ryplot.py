@@ -46,7 +46,7 @@ from __future__ import print_function
 __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
-            'savePlot']
+            'savePlot', 'cubehelixcmap']
 
 import sys
 if sys.version_info[0] > 2:
@@ -148,8 +148,8 @@ class Markers:
 
 ####################################################################
 ##
-    def __init__(self, markerfacecolor = None, markerfacecoloralt = None,\
-                markeredgecolor = None, marker = None, markersize = None, \
+    def __init__(self, markerfacecolor = None, markerfacecoloralt = None,
+                markeredgecolor = None, marker = None, markersize = None, 
                 fillstyle = None):
         """Set default marker values for this collection
 
@@ -262,7 +262,7 @@ class Markers:
             if self.fillstyle is not None:
                 fillstyle = self.fillstyle
 
-        marker = FilledMarker(markerfacecolor, markerfacecoloralt ,\
+        marker = FilledMarker(markerfacecolor, markerfacecoloralt ,
                         markeredgecolor , marker, markersize , fillstyle)
         self.markers.append((x,y,marker))
 
@@ -328,10 +328,12 @@ class ProcessImage:
                 | No exception is raised.
         """
 
+        __all__ = ['__init__', 'compressEqualizeImage',  'reprojectImageIntoPolar']
    
 
     ############################################################
-    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20, cbarformat='.3f'):
+    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20, 
+                    cbarformat='.3f'):
         """Compress an image (and then inversely expand the color bar values), 
            prior to histogram equalisation to ensure that the two keep in step, 
            we store the compression function names as pairs, and invoke the 
@@ -387,6 +389,77 @@ class ProcessImage:
         customticksz = zip(imgLevels, [fstr.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels])
 
         return imgHEQ, customticksz
+
+    ##############################################################################
+    ##
+    def reprojectImageIntoPolar(self, data, origin=None, framesFirst=True):
+        """Reprojects a 3D numpy array into a polar coordinate system, relative to some origin.
+
+        This function reprojects an image from cartesial to polar coordinates.
+        The origin of the new coordinate system  defaults to the center of the image, 
+        unless the user supplies a new origin. 
+
+        The data format can be data.shape = (rows, cols, frames) or 
+        data.shape = (frames, rows, cols), the format of which is indicated by the 
+        framesFirst parameter.
+
+        Args:
+            | data (np.array): 3-D array to which transformation must be applied.
+            | origin ( (x-orig, y-orig) ): data-coordinates of where origin should be placed
+            | framesFirst (bool): True if data.shape is (frames, rows, cols), False if 
+                data.shape is (rows, cols, frames)
+
+        Returns:
+            | output (float np.array): transformed images/array data in the same sequence as input sequence.
+            | r_i (np.array[N,]): radial values for returned image.
+            | theta_i (np.array[M,]): angular values for returned image.
+
+        Raises:
+            | No exception is raised.
+
+        original code by Joe Kington
+        https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+        """
+
+        import pyradi.ryutils as ryutils
+        # import scipy as sp
+        import scipy.ndimage as spndi
+
+        if framesFirst:
+            data = ryutils.framesLast(data)
+
+        ny, nx = data.shape[:2]
+
+        if origin is None:
+            origin = (nx//2, ny//2)
+
+        # Determine what the min and max r and theta coords will be
+        x, y = ryutils.index_coords(data, origin=origin, framesFirst=framesFirst )
+
+        r, theta = ryutils.cart2polar(x, y)
+
+        # Make a regular (in polar space) grid based on the min and max r & theta
+        r_i = np.linspace(r.min(), r.max(), nx)
+        theta_i = np.linspace(theta.min(), theta.max(), ny)
+        theta_grid, r_grid = np.meshgrid(theta_i, r_i)
+
+        # Project the r and theta grid back into pixel coordinates
+        xi, yi = ryutils.polar2cart(r_grid, theta_grid)
+        xi += origin[0] # We need to shift the origin back to 
+        yi += origin[1] # back to the lower-left corner...
+        xi, yi = xi.flatten(), yi.flatten()
+        coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
+
+        # Reproject each band individually and the restack
+        # (uses less memory than reprojection the 3-dimensional array in one step)
+        bands = []
+        for band in data.T:
+            zi = spndi.map_coordinates(band, coords, order=1)
+            bands.append(zi.reshape((nx, ny)))
+        output = np.dstack(bands)
+        if framesFirst:
+            output = ryutils.framesFirst(output)
+        return output, r_i, theta_i
 
 ###################################################################################
 ###################################################################################
@@ -1824,20 +1897,26 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle=None, cmap=plt.cm.gray, titlefsize=12, cbarshow=False, 
-                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12):
+    def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None, 
+                  cmap=plt.cm.gray, titlefsize=12, cbarshow=False, 
+                  cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
+                  labelfsize=10, xylabelfsize = 12,):
       """Creates a subplot and show the image using the colormap provided.
 
             Args:
                 | plotnum (int): subplot number, 1-based index
                 | img (np.ndarray): numpy 2d array containing the image
                 | ptitle (string): plot title (optional)
+                | xlabel (string): x axis label (optional)
+                | ylabel (string): y axis label (optional)
                 | cmap: matplotlib colormap, default gray (optional)
                 | fsize (int): title font size, default 12pt (optional)
                 | cbarshow (bool): if true, the show a colour bar (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)  (optional)
                 | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels  (optional)
                 | cbarfontsize (int): font size for colour bar  (optional)
+                | titlefsize (int): title font size, default 12pt (optional)
+                | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1856,6 +1935,13 @@ class Plotter:
       ax = self.subplots[pkey]
 
       cimage = ax.imshow(img, cmap)
+
+      if xlabel is not None:
+          ax.set_xlabel(xlabel, fontsize=xylabelfsize)
+
+      if ylabel is not None:
+          ax.set_ylabel(ylabel, fontsize=xylabelfsize)
+
       ax.axis('off')
       if cbarshow is True:
           if not cbarcustomticks:

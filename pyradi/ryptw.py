@@ -66,7 +66,8 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 __version__= "$Revision$"
 __author__='JJ Calitz'
-__all__=['myint','mylong','myfloat','mybyte',  'ReadPTWHeader', 'GetPTWFrameFromFile',
+__all__=['myint','mylong','myfloat','mybyte', 'mydouble', 'ReadPTWHeader', 
+'GetPTWFrameFromFile', 'terminateStrOnZero',
 'ShowHeader', 'GetPTWFrame', 'GetPTWFrames']
 
 import sys

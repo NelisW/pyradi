@@ -65,7 +65,7 @@ __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken',
 'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf',
-'dplnckql', 'dplnckqn','an']
+'dplnckql', 'dplnckqn','an','printConstants']
 
 import sys
 if sys.version_info[0] > 2:

@@ -44,7 +44,8 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'convertSpectralDensity', 'convolve', 'abshumidity', 'rangeEquation',
-         'detectThresholdToNoise','detectSignalToNoise'
+         '_rangeEquationCalc', 'detectThresholdToNoise','detectSignalToNoise','upMu',
+         'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
          ]
 
 import sys
@@ -56,9 +57,167 @@ if sys.version_info[0] > 2:
 import numpy as np
 from scipy import constants
 
+##############################################################################
+##
+def framesFirst(imageSequence):
+    """Image sequence with frames along axis=2 (last index), reordered such that 
+    frames are along axis=0 (first index).
 
+    Image sequences are stored in three-dimensional arrays, in rows, columns and frames.
+    Not all libraries share the same sequencing, some store frames along axis=0 and 
+    others store frames along axis=2.  This function reorders an image sequence with 
+    frames along axis=2  to an image sequence with frames along axis=0. The function
+    uses np.transpose(imageSequence, (2,0,1))
+
+    Args:
+        | imageSequence (3-D np.array): image sequence in three-dimensional array, frames along axis=2
+
+
+    Returns:
+        |  ((3-D np.array): reordered three-dimensional array (view or copy)
+
+
+    Raises:
+        | No exception is raised.
+    """
+    return np.transpose(imageSequence, (2,0,1))
+
+##############################################################################
+##
+def framesLast(imageSequence):
+    """Image sequence with frames along axis=0 (first index), reordered such that 
+    frames are along axis=2 (last index).
+
+    Image sequences are stored in three-dimensional arrays, in rows, columns and frames.
+    Not all libraries share the same sequencing, some store frames along axis=0 and 
+    others store frames along axis=2.  This function reorders an image sequence with 
+    frames along axis=0  to an image sequence with frames along axis=2.  The function
+    uses np.transpose(imageSequence, (1,2,0))
+
+    Args:
+        | imageSequence (3-D np.array): image sequence in three-dimensional array, frames along axis=0
+
+
+    Returns:
+        |  ((3-D np.array): reordered three-dimensional array (view or copy)
+
+
+    Raises:
+        | No exception is raised.
+    """
+    return np.transpose(imageSequence, (1,2,0))
+
+
+
+##############################################################################
+##
+def index_coords(data, origin=None, framesFirst=True):
+    """Creates (x,y) zero-based coordinate arrrays for a numpy array indices, relative to some origin.
+
+    This function calculates two meshgrid arrays containing the coordinates of the 
+    input array.  The origin of the new coordinate system  defaults to the 
+    center of the image, unless the user supplies a new origin. 
+
+    The data format can be data.shape = (rows, cols, frames) or 
+    data.shape = (frames, rows, cols), the format of which is indicated by the 
+    framesFirst parameter.
+
+    Args:
+        | data (np.array): array for which coordinates must be calculated.
+        | origin ( (x-orig, y-orig) ): data-coordinates of where origin should be
+        | framesFirst (bool): True if data.shape is (frames, rows, cols), False if 
+            data.shape is (rows, cols, frames)
+
+    Returns:
+        | x (float np.array): x coordinates in array format.
+        | y (float np.array): y coordinates in array format.
+
+    Raises:
+        | No exception is raised.
+
+    original code by Joe Kington
+    https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+    """
+    if framesFirst:
+        ny, nx = data.shape[1:3]
+    else:
+        ny, nx = data.shape[:2]
+
+    if origin is None:
+        origin_x, origin_y = nx // 2, ny // 2
+    else:
+        origin_x, origin_y = origin
+
+    x, y = np.meshgrid(np.arange(nx), np.arange(ny))
+    x -= origin_x
+    y -= origin_y
+    return x, y
+
+##############################################################################
+##
+def cart2polar(x, y):
+    """Converts from cartesian to polar coordinates, given (x,y) to (r,theta).
+
+    Args:
+        | x (float np.array): x values in array format.
+        | y (float np.array): y values in array format.
+
+    Returns:
+        | r (float np.array): radial component for given (x,y).
+        | theta (float np.array): angular component for given (x,y).
+
+    Raises:
+        | No exception is raised.
+
+    original code by Joe Kington
+    https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+    """
+    r = np.sqrt(x**2 + y**2)
+    theta = np.arctan2(y, x)
+    return r, theta
+
+##############################################################################
+##
+def polar2cart(r, theta):
+    """Converts from polar to cartesian coordinates, given (r,theta) to (x,y).
+
+    Args:
+        | r (float np.array): radial values in array format.
+        | theta (float np.array): angular values in array format.
+
+    Returns:
+        | x (float np.array): x component for given (r, theta).
+        | y (float np.array): y component for given (r, theta).
+
+    Raises:
+        | No exception is raised.
+
+    original code by Joe Kington
+    https://stackoverflow.com/questions/3798333/image-information-along-a-polar-coordinate-system
+    """
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+    return x, y
+
+
+##############################################################################
+##
 def upMu(uprightMu=True):
-    #all this to get an upright micron
+    """Returns a LaTeX micron symbol, either an upright version or the normal symbol.
+
+    The upright symbol requires that the siunitx LaTeX package be installed on the 
+    computer running the code.  This function also changes the Matplotlib rcParams
+    file.
+
+    Args:
+        | uprightMu (bool): signals upright (True) or regular (False) symbol (optional).
+
+    Returns:
+        | range (string): LaTeX code for the micro symbol.
+
+    Raises:
+        | No exception is raised.
+    """
     if uprightMu:
       from matplotlib import rc, font_manager
       import matplotlib as mpl
@@ -860,5 +1019,10 @@ if __name__ == '__main__':
     #highest ever recorded absolute humidity was at dew point of 34C
     print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
         format(abshumidity(np.asarray([34 + 273.15]))[0],34))
+
+    ###################################################
+    print('{} renders in LaTeX as an upright symbol'.format(upMu()))
+    print('{} renders in LaTeX as an upright symbol'.format(upMu(True)))
+    print('{} renders in LaTeX as an italic/slanted symbol'.format(upMu(False)))
 
     print('module ryutils done!')
