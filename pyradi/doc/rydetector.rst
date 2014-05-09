@@ -38,3 +38,5 @@ Module functions
 
 .. autofunction:: pyradi.rydetector.Noise
 
+.. autofunction:: pyradi.rydetector.DstarSpectralFlatPhotonLim
+

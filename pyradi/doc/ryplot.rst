@@ -30,3 +30,5 @@ Module functions
 ------------------
 
 .. autofunction:: pyradi.ryplot.savePlot	
+
+.. autofunction:: pyradi.ryplot.cubehelixcmap	

@@ -46,7 +46,7 @@ from __future__ import print_function
 __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
-            'savePlot', 'cubehelixcmap']
+            'savePlot']
 
 import sys
 if sys.version_info[0] > 2:
@@ -2522,46 +2522,40 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
     by setting rot=1 and reverse=True.
     
 
-    Parameters
-    ----------
-    start : scalar, optional
-        Sets the starting position in the color space. 0=blue, 1=red, 
-        2=green. Defaults to 0.5.
-    rot : scalar, optional
-        The number of rotations through the rainbow. Can be positive 
-        or negative, indicating direction of rainbow. Negative values
-        correspond to Blue->Red direction. Defaults to -1.5
-    gamma : scalar, optional
-        The gamma correction for intensity. Defaults to 1.0        
-    hue : scalar, optional
-        The hue intensity factor. Defaults to 1.2
-    reverse : boolean, optional
-        Set to True to reverse the color map. Will go from black to
-        white. Good for density plots where shade~density. Defaults to False
-    nevl : scalar, optional
-        Defines the number of discrete levels to render colors at.
-        Defaults to 256.
+    Args:
+        | start : scalar, optional
+        |    Sets the starting position in the color space. 0=blue, 1=red, 
+        |    2=green. Defaults to 0.5.
+        | rot : scalar, optional
+        |   The number of rotations through the rainbow. Can be positive 
+        |    or negative, indicating direction of rainbow. Negative values
+        |    correspond to Blue->Red direction. Defaults to -1.5
+        | gamma : scalar, optional
+        |    The gamma correction for intensity. Defaults to 1.0        
+        | hue : scalar, optional
+        |    The hue intensity factor. Defaults to 1.2
+        | reverse : boolean, optional
+        |    Set to True to reverse the color map. Will go from black to
+        |    white. Good for density plots where shade~density. Defaults to False
+        | nevl : scalar, optional
+        |    Defines the number of discrete levels to render colors at.
+        |    Defaults to 256.
 
-    Returns
-    -------
-    matplotlib.colors.LinearSegmentedColormap object
+    Returns:
+        |   matplotlib.colors.LinearSegmentedColormap object
 
-    Example
-    -------
+    Example:
     >>> import cubehelix
     >>> cx = cubehelix.cmap(start=0., rot=-0.5)
     >>> plot(x,cmap=cx)
 
     Revisions
-    ---------
     2014-04 (@jradavenport) Ported from IDL version
 
     source
-    ------
     https://github.com/jradavenport/cubehelix
 
     Licence
-    -------
     Copyright (c) 2014, James R. A. Davenport and contributors All rights reserved.
 
     Redistribution and use in source and binary forms, with or without modification, 
