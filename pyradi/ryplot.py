@@ -762,7 +762,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None ):
+                    markevery=None, zorders=None, clip_on=True ):
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -803,6 +803,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -825,7 +827,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
       return ax
 
     ############################################################
@@ -838,7 +840,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None  ):
+                    markevery=None, zorders=None, clip_on=True   ):
       """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -879,6 +881,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -908,7 +912,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
 
       return ax
 
@@ -923,7 +927,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None  ):
+                    markevery=None, zorders=None, clip_on=True   ):
 
       """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
@@ -965,6 +969,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -987,7 +993,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
 
       return ax
 
@@ -1001,7 +1007,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None ):
+                    markevery=None, zorders=None, clip_on=True  ):
       """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1042,6 +1048,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional) 
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1064,7 +1072,7 @@ class Plotter:
                     labelfsize, drawGrid, 
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
 
       return ax
 
@@ -1079,7 +1087,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ,
-                    markevery=None ):
+                    markevery=None, zorders=None, clip_on=True  ):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1125,6 +1133,8 @@ class Plotter:
               | xtickRotation (float) x-axis tick label rotation angle (optional) 
               | markers ([string]) markers to be used for plotting data points (optional)
               | markevery (int | (startind, stride)) subsample when using markers (optional)
+              | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+              | clip_on (bool) clips objects to drawing axes (optional)
 
           Returns:
               | the axis object for the plot
@@ -1212,7 +1222,7 @@ class Plotter:
               col = self.nextPlotCol()
 
           if linestyle is None:
-              if len(col)>1:
+              if len(col) > 1:
                   linestyleL = col[1:]
               else:
                   linestyleL = '-' 
@@ -1222,22 +1232,33 @@ class Plotter:
               else:
                   linestyleL = linestyle
 
+          if zorders:
+            if len(zorders) > 1:
+              zorder = zorders[i]
+            else:
+              zorder = zorders[0]
+          else:
+            zorder = 2
 
           if not label:
               if linewidths is not None:
                 plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
-                       marker=mmrk, markevery=markevery, linewidth=linewidths[i])
+                       marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                       clip_on=clip_on, zorder=zorder)
               else:
                 plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
-                       marker=mmrk, markevery=markevery)
+                       marker=mmrk, markevery=markevery,
+                       clip_on=clip_on, zorder=zorder)
           else:
               if linewidths is not None:
                 # print('***************',linewidths)
                 plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
-                    marker=mmrk, markevery=markevery, linewidth=linewidths[i])
+                    marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                       clip_on=clip_on, zorder=zorder)
               else:
                 plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
-                    marker=mmrk, markevery=markevery)
+                    marker=mmrk, markevery=markevery,
+                       clip_on=clip_on, zorder=zorder)
 
               leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
               leg.get_frame().set_alpha(legendAlpha)
@@ -1294,7 +1315,8 @@ class Plotter:
                   drawGrid=False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=False,
-                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5 ):
+                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
+                  zorders=None, clip_on=True ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional 
@@ -1355,6 +1377,9 @@ class Plotter:
                 | contCol (string): contour label colour, e.g., 'k' (optional)
                 | contFonSz (float): contour label fontsize (optional)
                 | contLinWid (float): contour line width in points (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
+
             Returns:
                 | the axis object for the plot
 
@@ -1414,23 +1439,29 @@ class Plotter:
       else:
           col = self.nextPlotCol()
 
+      if zorders:
+        if len(zorders) > 1:
+          zorder = zorders[i]
+        else:
+          zorder = zorders[0]
+      else:
+        zorder = 2
+
       #do the plot
       if contourLine:
           pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
-               colors=col)
+               colors=col, zorder=zorder, clip_on=clip_on)
 
       if zeroContourLine:
           pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths=contLinWid,
-               colors=col)
+               colors=col, zorder=zorder, clip_on=clip_on)
 
       if contourFill:
           pmplot = ax.contourf(xvals, yvals, zvals, levels, shading=shading,
-              cmap=meshCmap)
+              cmap=meshCmap, zorder=zorder, clip_on=clip_on)
 
       if contLabel:
-        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz)
-
-
+        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder, clip_on=clip_on)
 
       if cbarshow is True:
           if not cbarcustomticks:
@@ -1492,11 +1523,12 @@ class Plotter:
                   plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0,
                   xScientific=False, yScientific=False, zScientific=False,  
                   powerLimits=[-4,  2,  -4,  2, -2, 2], titlefsize=12,
-                  xylabelfsize=12, xytickfsize=10, wireframe=False,
+                  xylabelfsize=12, xytickfsize=10, wireframe=False, surface=True,
                   cmap=cm.rainbow, cbarshow=False, 
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
-                  logScale=False, elevation=30, azimuth=45, alpha=1, 
+                  logScale=False, alpha=1, alphawire=1, 
+                  azim=45, elev=30, zorders=None, clip_on=True
                    ):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
@@ -1513,7 +1545,9 @@ class Plotter:
         contains the y values.  The z array contains the z values for the 
         corresponding x and y values in the mesh.
 
-        Use wireframe=True to obtain a wireframe plot with no fill colours.
+        Use wireframe=True to obtain a wireframe plot.
+
+        Use surface=True to obtain a surface plot with fill colours.
 
         Z-values can be plotted on a log scale, in which case the colourbar is adjusted
         to show true values, but on the nonlinear scale.
@@ -1547,7 +1581,8 @@ class Plotter:
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis, z-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis, z-axis tick font size, default 10pt (optional)
-                | wireframe (bool): If True, do a wireframe plot, otherwise fill mesh with colour map (optional)
+                | wireframe (bool): If True, do a wireframe plot,  (optional)
+                | surface (bool): If True, do a surface plot,  (optional)
                 | cmap (cm): color map for the mesh (optional)
                 | cbarshow (bool): if true, the show a color bar (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below) (optional)
@@ -1558,9 +1593,12 @@ class Plotter:
                 | yInvert (bool): invert the y-axis. Flip the y-axis left-right (optional)
                 | zInvert (bool): invert the z-axis. Flip the z-axis up-down (optional)
                 | logScale (bool): do Z values on log scale, recompute colourbar vals (optional)
-                | elevation (float): view elevation in degrees (optional)
-                | azimuth (float): view azimuth in degrees (optional)
-                | alpha (float): surface and mesh transparency (optional)
+                | alpha (float): surface transparency (optional)
+                | alphawire (float): mesh transparency (optional)
+                | azim (float): graph view azimuth angle  [degrees] (optional)
+                | elev (float): graph view evelation angle  [degrees] (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1627,16 +1665,29 @@ class Plotter:
       else:
           edcol = self.nextPlotCol()[0]
 
-
+      if zorders:
+        if len(zorders) > 1:
+          zorder = zorders[i]
+        else:
+          zorder = zorders[0]
+      else:
+        zorder = 1
 
       #do the plot
-      if not wireframe:
-        pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
-              edgecolor=edcol, cmap=cmap, linewidth=linewidth, alpha=alpha)
-      else:
-        pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
-              color=col, edgecolor=edcol, linewidth=linewidth, alpha=alpha)
 
+      if surface:
+        pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
+              edgecolor=edcol, cmap=cmap, linewidth=linewidth, alpha=alpha,
+              zorder=zorder, clip_on=clip_on)
+
+      if wireframe:
+        pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
+              color=col, edgecolor=edcol, linewidth=linewidth, alpha=alphawire,
+              zorder=zorder, clip_on=clip_on)
+
+
+      ax.view_init(azim=azim, elev=elev)
+ 
       if cbarshow is True and cmap is not None:
         if not cbarcustomticks:
               cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
@@ -1692,8 +1743,6 @@ class Plotter:
       if zInvert:
           ax.set_zlim(ax.get_zlim()[::-1])
 
-      #set the view direction
-      ax.view_init(elevation, azimuth)
 
       return ax
 
@@ -1704,7 +1753,8 @@ class Plotter:
                     highlightNegative=True, highlightCol='#ffff00', highlightWidth=4,\
                     legendAlpha=0.0, \
                     rscale=None, rgrid=[0,5], thetagrid=[30], \
-                    direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True):
+                    direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True,
+                    zorders=None, clip_on=True):
       """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1745,6 +1795,8 @@ class Plotter:
                   zero-offset rotation is counterclockwise from 3'o'clock (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | drawGrid (bool): draw a grid on the graph (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1817,24 +1869,33 @@ class Plotter:
 
           # print('p',ttt.shape)
           # print('p',rrr.shape)
+          if zorders:
+            if len(zorders) > 1:
+              zorder = zorders[i]
+            else:
+              zorder = zorders[0]
+          else:
+            zorder = 2
 
           if not label:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
                           if negrrr[ii][0] < 0:
                               if MakeAbs:
-                                  ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                                  ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
                               else:
-                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-              ax.plot(ttt, rrr, col)
+                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
               rmax = np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
           else:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -1842,17 +1903,19 @@ class Plotter:
                           # if negrrr[ii][0] < 0:
                           if negrrr[ii][0][0] < 0:
                               if MakeAbs:
-                                  ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,linewidth=neglinewith)
+                                  ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
                               else:
-                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,linewidth=neglinewith)
-              ax.plot(ttt, rrr, col,label=label[i])
+                                  ax.plot(negttt[ii], negrrr[ii], highlightCol,
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
+              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder)
               rmax=np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
 
           if MakeAbs:
-              ax.plot(ttt, np.abs(rrr), col)
+              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder)
           else:
-              ax.plot(ttt, rrr, col)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
 
       if label:
           fontP = mpl.font_manager.FontProperties()
@@ -1971,7 +2034,8 @@ class Plotter:
     ##
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
                plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
-               xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False):
+               xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False,scatter=False,
+               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2001,7 +2065,14 @@ class Plotter:
                 | xylabelfsize (int): x, y, z label font size, default 12pt (optional)
                 | xInvert (bool): invert the x-axis (optional)
                 | yInvert (bool): invert the y-axis (optional)
-                | zInvert (bool): invert the z-axis
+                | zInvert (bool): invert the z-axis (optional)
+                | scatter (bool): draw only the points, no lines (optional)
+                | markers ([string]): markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)): subsample when using markers (optional)
+                | azim (float): graph view azimuth angle  [degrees] (optional)
+                | elev (float): graph view evelation angle  [degrees] (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -2030,6 +2101,8 @@ class Plotter:
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+        
+        # print(x.shape[-1])
 
         for i in range(x.shape[-1]):
             if plotCol:
@@ -2039,10 +2112,34 @@ class Plotter:
                     col = plotCol[i]
             else:
                 col = self.nextPlotCol()
-            if linewidths is not None:
-                ax.plot(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i])
+
+            if markers:
+                marker = markers[i]
             else:
-                ax.plot(x[:,i], y[:,i], z[:,i], col)
+                marker = None 
+
+            if zorders:
+                if len(zorders) > 1:
+                  zorder = zorders[i]
+                else:
+                  zorder = zorders[0]
+            else:
+                zorder = 2
+
+            if linewidths is not None:
+                if scatter:
+                    ax.scatter(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i],
+                        marker=marker, zorder=zorder, clip_on=clip_on)
+                else:
+                    ax.plot(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i],
+                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on)
+            else:
+                if scatter:
+                    ax.scatter(x[:,i], y[:,i], z[:,i], col, marker=marker, 
+                        zorder=zorder, clip_on=clip_on)
+                else:
+                    ax.plot(x[:,i], y[:,i], z[:,i], col, marker=marker,
+                        markevery=markevery, zorder=zorder, clip_on=clip_on)
 
         #scale the axes
         if pltaxis is not None:
@@ -2051,6 +2148,8 @@ class Plotter:
             ax.set_xlim(pltaxis[0],pltaxis[1])
             ax.set_ylim(pltaxis[2],pltaxis[3])
             ax.set_zlim(pltaxis[4],pltaxis[5])
+
+        ax.view_init(azim=azim, elev=elev)
 
 
         if xInvert:
@@ -2083,7 +2182,7 @@ class Plotter:
                 xlabel=None, ylabel=None, zlabel=None, zscale=None,  
                titlefsize=12, xylabelfsize = 12,
                thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
-               linewidth=0.1, azim=45, elev=30):
+               linewidth=0.1, azim=45, elev=30, zorders=None, clip_on=True):
       """3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2114,8 +2213,10 @@ class Plotter:
                 | radialstride (int): radial stride in input data  (optional)
                 | meshCmap (cm): color map for the mesh (optional)
                 | linewidth (float): width of the mesh lines
-                | azim (float): camera azimuth angle viewing the graph [degrees]
-                | elev (float): camera evelation angle viewing the graph [degrees]
+                | azim (float): graph view azimuth angle  [degrees] (optional)
+                | elev (float): graph view evelation angle  [degrees] (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -2134,9 +2235,19 @@ class Plotter:
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
       #get axis
       ax = self.subplots[(self.nrow,self.ncol, plotnum)]
+
+      if zorders:
+        if len(zorders) > 1:
+          zorder = zorders[i]
+        else:
+          zorder = zorders[0]
+      else:
+        zorder = 2
+
       #do the plot
       ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
-          linewidth=linewidth, cmap=meshCmap)
+          linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on)
+
       ax.view_init(azim=azim, elev=elev)
 
       #label and clean up
@@ -2167,7 +2278,8 @@ class Plotter:
                   direction='counterclockwise', zerooffset=0, logScale=False,
                   plotCol=[], levels=10, contourFill=True, contourLine=True, 
                   zeroContourLine=False, negativeSolid=False,
-                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5):
+                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5, 
+                  zorders=None, clip_on=True):
       """Polar colour contour and filled contour plot for (theta, r, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional (theta,rho,z)
@@ -2226,6 +2338,8 @@ class Plotter:
                 | contCol (string): contour label colour, e.g., 'k' (optional)
                 | contFonSz (float): contour label fontsize (optional)
                 | contLinWid (float): contour line width in points (optional)
+                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
 
             Returns:
                 | the axis object for the plot
@@ -2262,17 +2376,26 @@ class Plotter:
       else:
           col = self.nextPlotCol()
 
+      if zorders:
+        if len(zorders) > 1:
+          zorder = zorders[i]
+        else:
+          zorder = zorders[0]
+      else:
+        zorder = 2
+
       #do the plot
       if contourLine:
           pmplot = ax.contour(theta, radial, zvals, levels, cmap=None, linewidths=contLinWid,
-               colors=col)
+               colors=col, zorder=zorder, clip_on=clip_on)
 
       if zeroContourLine:
           ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths=contLinWid,
-               colors=col)
+               colors=col, zorder=zorder, clip_on=clip_on)
 
       if contourFill:
-        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap)
+        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap, 
+            zorder=zorder, clip_on=clip_on)
 
       if contLabel:
         plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz)
@@ -2631,6 +2754,48 @@ if __name__ == '__main__':
 
     import datetime as dt
 
+
+    ############################################################################
+    #create the wireframe for the sphere
+    u = np.linspace(0, np.pi, 100)
+    v = np.linspace(0, 2 * np.pi, 100)
+    x = np.outer(np.sin(u), np.sin(v))
+    y = np.outer(np.sin(u), np.cos(v))
+    z = np.outer(np.cos(u), np.ones_like(v))
+
+    #create the random point samples on the sphere
+    samples = 500
+    np.random.RandomState(200)
+    theta = 2 * np.pi * np.random.uniform(0, 1, size=samples)
+    #biased sampling with higher density towards the poles
+    phib = np.pi * (2 * np.random.uniform(0, 1, size=samples) -1 ) / 2 
+    #uniform sampling corrected for polar bias
+    phiu = np.arccos(2 * np.random.uniform(0, 1, size=samples) -1 ) - np.pi/2 
+
+    #create normal vectors using the pairs of random angles in a transformation 
+    xsb = np.cos(phib) * np.cos(theta)
+    ysb = np.cos(phib) * np.sin(theta)
+    zsb = np.sin(phib)
+    xsu = np.cos(phiu) * np.cos(theta)
+    ysu = np.cos(phiu) * np.sin(theta)
+    zsu = np.sin(phiu)
+
+    azim = 45 # view angle
+    elev = 45 # view angle
+    sph = Plotter(1,1,2, figsize=(20,10))
+    sph.mesh3D(1,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
+    sph.mesh3D(1,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+        edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
+    sph.plot3d(1, xsb, ysb, zsb, ptitle='', scatter=True,markers=['o' for i in range(len(xsb))],
+               azim=azim, elev=elev)
+
+    sph.mesh3D(2,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
+    sph.mesh3D(2,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+        edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
+    sph.plot3d(2, xsu, ysu, zsu, ptitle='', scatter=True,markers=['o' for i in range(len(xsu))],
+               azim=azim, elev=elev)
+    sph.saveFig('3dsphere.png')
+
     ############################################################################
     #demonstrate the use of a polar 3d plot
     #create the radial and angular vectors
@@ -2762,7 +2927,8 @@ if __name__ == '__main__':
 
     z = np.vstack((z,z,z))
 
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, legendAlpha=0.5)
+    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, 
+        legendAlpha=0.5, markers=['o','v','^','<'], markevery=4)
     P3D.saveFig('M3D.png')
 
     ############################################################################
@@ -2819,7 +2985,7 @@ if __name__ == '__main__':
       drawGrid=True, cbarshow=True, alpha=0.2)
     p.mesh3D(3, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
       rstride=3, cstride=3, linewidth= 0.2, maxNX=5, maxNY=5, maxNZ=0,
-      drawGrid=True, cmap=cm.jet,  cbarshow=True, elevation=70, azimuth=15)
+      drawGrid=True, cmap=cm.jet,  cbarshow=True, elev=70, azim=15)
     p.mesh3D(4, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
       rstride=3, cstride=3, linewidth= 0, maxNX=5, maxNY=5, maxNZ=0, drawGrid=True,
       cmap=cm.brg, cbarshow=True)
