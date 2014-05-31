@@ -204,7 +204,7 @@ Subplot numbers range from 1 upwards.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.logLog">
-<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logLog</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.logLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -246,6 +246,8 @@ for the x and y axes.</p>
 <div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
 <div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
 <div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
+<div class="line">zorders ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -264,7 +266,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.mesh3D">
-<tt class="descname">mesh3D</tt><big>(</big><em>plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits=[-4, 2, -4, 2, -2, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x052A33B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, elevation=30, azimuth=45, alpha=1</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.mesh3D" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">mesh3D</tt><big>(</big><em>plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits=[-4, 2, -4, 2, -2, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, surface=True, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05C31390&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, alpha=1, alphawire=1, azim=45, elev=30, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.mesh3D" title="Permalink to this definition">¶</a></dt>
 <dd><p>XY colour mesh plot for (xvals, yvals, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -276,7 +278,8 @@ The x and y arrays each define the grid in terms of x and y values, i.e.,
 the x array contains the x values for the data set, while the y array 
 contains the y values.  The z array contains the z values for the 
 corresponding x and y values in the mesh.</p>
-<p>Use wireframe=True to obtain a wireframe plot with no fill colours.</p>
+<p>Use wireframe=True to obtain a wireframe plot.</p>
+<p>Use surface=True to obtain a surface plot with fill colours.</p>
 <p>Z-values can be plotted on a log scale, in which case the colourbar is adjusted
 to show true values, but on the nonlinear scale.</p>
 <p>The xvals and yvals vectors may have non-constant grid-intervals, i.e., 
@@ -310,7 +313,8 @@ to the (x,y) grid.</p>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">xylabelfsize (int): x-axis, y-axis, z-axis label font size, default 12pt (optional)</div>
 <div class="line">xytickfsize (int): x-axis, y-axis, z-axis tick font size, default 10pt (optional)</div>
-<div class="line">wireframe (bool): If True, do a wireframe plot, otherwise fill mesh with colour map (optional)</div>
+<div class="line">wireframe (bool): If True, do a wireframe plot,  (optional)</div>
+<div class="line">surface (bool): If True, do a surface plot,  (optional)</div>
 <div class="line">cmap (cm): color map for the mesh (optional)</div>
 <div class="line">cbarshow (bool): if true, the show a color bar (optional)</div>
 <div class="line">cbarorientation (string): &#8216;vertical&#8217; (right) or &#8216;horizontal&#8217; (below) (optional)</div>
@@ -321,9 +325,12 @@ to the (x,y) grid.</p>
 <div class="line">yInvert (bool): invert the y-axis. Flip the y-axis left-right (optional)</div>
 <div class="line">zInvert (bool): invert the z-axis. Flip the z-axis up-down (optional)</div>
 <div class="line">logScale (bool): do Z values on log scale, recompute colourbar vals (optional)</div>
-<div class="line">elevation (float): view elevation in degrees (optional)</div>
-<div class="line">azimuth (float): view azimuth in degrees (optional)</div>
-<div class="line">alpha (float): surface and mesh transparency (optional)</div>
+<div class="line">alpha (float): surface transparency (optional)</div>
+<div class="line">alphawire (float): mesh transparency (optional)</div>
+<div class="line">azim (float): graph view azimuth angle  [degrees] (optional)</div>
+<div class="line">elev (float): graph view evelation angle  [degrees] (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -342,7 +349,7 @@ to the (x,y) grid.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.meshContour">
-<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, levels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x052A33B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=False, contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">meshContour</tt><big>(</big><em>plotnum, xvals, yvals, zvals, levels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol=[], pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05C31390&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=False, contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.meshContour" title="Permalink to this definition">¶</a></dt>
 <dd><p>XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.</p>
 <p>The data values must be given on a fixed mesh grid of three-dimensional 
 $(x,y,z)$ array input sets. The mesh grid is defined in $(x,y)$, while the height 
@@ -399,6 +406,8 @@ have to be on regular intervals.</p>
 <div class="line">contCol (string): contour label colour, e.g., &#8216;k&#8217; (optional)</div>
 <div class="line">contFonSz (float): contour label fontsize (optional)</div>
 <div class="line">contLinWid (float): contour line width in points (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -417,7 +426,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.myPlot">
-<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">myPlot</tt><big>(</big><em>plotcommand, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=0, maxNY=0, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, drawGrid=True, xScientific=False, yScientific=False, yInvert=False, xInvert=False, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.myPlot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Low level helper function to create a subplot and plot the data as required.</p>
 <p>This function does the actual plotting, labelling etc. It uses the plotting
 function provided by its user functions.</p>
@@ -463,6 +472,8 @@ function provided by its user functions.</p>
 <div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
 <div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
 <div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
+<div class="line">zorders ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -508,7 +519,7 @@ One day I want to do this with a generator....</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot">
-<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cartesian plot on linear scales for abscissa and ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -550,6 +561,8 @@ for the x and y axes.</p>
 <div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
 <div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
 <div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
+<div class="line">zorders ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -568,7 +581,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.plot3d">
-<tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>plotCol=</em>, <span class="optional">[</span><span class="optional">]</span><em>linewidths=None</em>, <em>pltaxis=None</em>, <em>label=None</em>, <em>legendAlpha=0.0</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>xInvert=False</em>, <em>yInvert=False</em>, <em>zInvert=False</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">plot3d</tt><big>(</big><em>plotnum</em>, <em>x</em>, <em>y</em>, <em>z</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>plotCol=</em>, <span class="optional">[</span><span class="optional">]</span><em>linewidths=None</em>, <em>pltaxis=None</em>, <em>label=None</em>, <em>legendAlpha=0.0</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>xInvert=False</em>, <em>yInvert=False</em>, <em>zInvert=False</em>, <em>scatter=False</em>, <em>markers=None</em>, <em>markevery=None</em>, <em>azim=45</em>, <em>elev=30</em>, <em>zorders=None</em>, <em>clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.plot3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D plot on linear scales for x y z input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail.</p>
@@ -598,7 +611,14 @@ legend labels for each of the columns/lines.</p>
 <div class="line">xylabelfsize (int): x, y, z label font size, default 12pt (optional)</div>
 <div class="line">xInvert (bool): invert the x-axis (optional)</div>
 <div class="line">yInvert (bool): invert the y-axis (optional)</div>
-<div class="line">zInvert (bool): invert the z-axis</div>
+<div class="line">zInvert (bool): invert the z-axis (optional)</div>
+<div class="line">scatter (bool): draw only the points, no lines (optional)</div>
+<div class="line">markers ([string]): markers to be used for plotting data points (optional)</div>
+<div class="line">markevery (int | (startind, stride)): subsample when using markers (optional)</div>
+<div class="line">azim (float): graph view azimuth angle  [degrees] (optional)</div>
+<div class="line">elev (float): graph view evelation angle  [degrees] (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -654,7 +674,7 @@ columns (0) or rows (1).</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar">
-<tt class="descname">polar</tt><big>(</big><em>plotnum, theta, r, ptitle=None, plotCol=None, label=[], labelLocation=[-0.1, 0.1], highlightNegative=True, highlightCol='#ffff00', highlightWidth=4, legendAlpha=0.0, rscale=None, rgrid=[0, 5], thetagrid=[30], direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar</tt><big>(</big><em>plotnum, theta, r, ptitle=None, plotCol=None, label=[], labelLocation=[-0.1, 0.1], highlightNegative=True, highlightCol='#ffff00', highlightWidth=4, legendAlpha=0.0, rscale=None, rgrid=[0, 5], thetagrid=[30], direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a subplot and plot the data in polar coordinates (linear radial orginates only).</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the radial values
@@ -695,6 +715,8 @@ If rinc is not zero then rinc is the increment and numinc is ignored (optional)<
 zero-offset rotation is counterclockwise from 3&#8217;o&#8217;clock (optional)</div>
 <div class="line">titlefsize (int): title font size, default 12pt (optional)</div>
 <div class="line">drawGrid (bool): draw a grid on the graph (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -713,7 +735,7 @@ zero-offset rotation is counterclockwise from 3&#8217;o&#8217;clock (optional)</
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polar3d">
-<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x052A33B0&gt;</em>, <em>linewidth=0.1</em>, <em>azim=45</em>, <em>elev=30</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polar3d</tt><big>(</big><em>plotnum</em>, <em>theta</em>, <em>radial</em>, <em>zvals</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>zlabel=None</em>, <em>zscale=None</em>, <em>titlefsize=12</em>, <em>xylabelfsize=12</em>, <em>thetaStride=1</em>, <em>radialstride=1</em>, <em>meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05C31390&gt;</em>, <em>linewidth=0.1</em>, <em>azim=45</em>, <em>elev=30</em>, <em>zorders=None</em>, <em>clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polar3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>3D polar surface/mesh plot for (r, theta, zvals) input sets.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.</p>
 <p>Only one mesh is drawn at a time.  Future meshes in the same subplot
@@ -742,8 +764,10 @@ have to be on regular intervals.</p>
 <div class="line">radialstride (int): radial stride in input data  (optional)</div>
 <div class="line">meshCmap (cm): color map for the mesh (optional)</div>
 <div class="line">linewidth (float): width of the mesh lines</div>
-<div class="line">azim (float): camera azimuth angle viewing the graph [degrees]</div>
-<div class="line">elev (float): camera evelation angle viewing the graph [degrees]</div>
+<div class="line">azim (float): graph view azimuth angle  [degrees] (optional)</div>
+<div class="line">elev (float): graph view evelation angle  [degrees] (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -762,7 +786,7 @@ have to be on regular intervals.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.polarMesh">
-<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x052A33B0&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[0, 5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol=[], levels=10, contourFill=True, contourLine=True, zeroContourLine=False, negativeSolid=False, contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">polarMesh</tt><big>(</big><em>plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05C31390&gt;, cbarshow=False, cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12, rgrid=[0, 5], thetagrid=[30], drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol=[], levels=10, contourFill=True, contourLine=True, zeroContourLine=False, negativeSolid=False, contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.polarMesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Polar colour contour and filled contour plot for (theta, r, zvals) input sets.</p>
 <p>The data values must be given on a fixed mesh grid of three-dimensional (theta,rho,z)
 array input sets (theta is angle,  and rho is radial distance). The mesh grid is 
@@ -818,6 +842,8 @@ saving eps files.</p>
 <div class="line">contCol (string): contour label colour, e.g., &#8216;k&#8217; (optional)</div>
 <div class="line">contFonSz (float): contour label fontsize (optional)</div>
 <div class="line">contLinWid (float): contour line width in points (optional)</div>
+<div class="line">zorder ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -902,7 +928,7 @@ Most backends support png, pdf, ps, eps and svg.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogX">
-<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogX</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on logarithmic scales for abscissa and linear scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -944,6 +970,8 @@ for the x and y axes.</p>
 <div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
 <div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
 <div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
+<div class="line">zorders ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -962,7 +990,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.semilogY">
-<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">semilogY</tt><big>(</big><em>plotnum, x, y, ptitle=None, xlabel=None, ylabel=None, plotCol=[], linewidths=None, label=[], legendAlpha=0.0, pltaxis=None, maxNX=10, maxNY=10, linestyle=None, powerLimits=[-4, 2, -4, 2], titlefsize=12, xylabelfsize=12, xytickfsize=10, labelfsize=10, xScientific=False, yScientific=False, yInvert=False, xInvert=False, drawGrid=True, xIsDate=False, xTicks=None, xtickRotation=0, markers=[], markevery=None, zorders=None, clip_on=True</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.semilogY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot data on linear scales for abscissa and logarithmic scale for ordinates.</p>
 <p>Given an existing figure, this function plots in a specified subplot position.
 The function arguments are described below in some detail. Note that the y-values
@@ -1004,6 +1032,8 @@ for the x and y axes.</p>
 <div class="line">xtickRotation (float) x-axis tick label rotation angle (optional) </div>
 <div class="line">markers ([string]) markers to be used for plotting data points (optional)</div>
 <div class="line">markevery (int | (startind, stride)) subsample when using markers (optional)</div>
+<div class="line">zorders ([int]) list of zorder for drawing sequence, highest is last (optional)</div>
+<div class="line">clip_on (bool) clips objects to drawing axes (optional)</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -1022,7 +1052,7 @@ for the x and y axes.</p>
 
 <dl class="method">
 <dt id="pyradi.ryplot.Plotter.showImage">
-<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x052996F0&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation='vertical'</em>, <em>cbarcustomticks=</em>, <span class="optional">[</span><span class="optional">]</span><em>cbarfontsize=12</em>, <em>labelfsize=10</em>, <em>xylabelfsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">showImage</tt><big>(</big><em>plotnum</em>, <em>img</em>, <em>ptitle=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x05DE76D0&gt;</em>, <em>titlefsize=12</em>, <em>cbarshow=False</em>, <em>cbarorientation='vertical'</em>, <em>cbarcustomticks=</em>, <span class="optional">[</span><span class="optional">]</span><em>cbarfontsize=12</em>, <em>labelfsize=10</em>, <em>xylabelfsize=12</em><big>)</big><a class="headerlink" href="#pyradi.ryplot.Plotter.showImage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a subplot and show the image using the colormap provided.</p>
 <dl class="docutils">
 <dt>Args:</dt>

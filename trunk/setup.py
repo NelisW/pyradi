@@ -52,6 +52,11 @@ Release cycle when updating PyRadi
 3.  Build the Python Sphinx documentation in googlecode directories.
     Do both the HTML and PDF docs.
     See that the documentation is correct (spot checks).
+    cd to /pyradi/pyradi/doc
+    make html
+    make latex
+    cd to /pyradi/pyradi/doc/_build/latex
+    pdflatex pyradi.tex
 
 4.  Commit the pyradi code & docs to google code svn
 
