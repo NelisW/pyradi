@@ -1,4 +1,4 @@
-﻿
+
 ---------
 Overview
 ---------
@@ -30,24 +30,32 @@ Prerequisites
 -------------
 
 This  toolkit requires (current versions in brackets)  
-Python (2.7),
+Python (2.7.6),
 Numpy (1.7 or later),
 SciPy (0.13 or later),
-Matplotlib (1.2 or later).
-Mayavi (4.1) is required only for one file to do three-dimensional rendering.
+Matplotlib (1.3 or later).
+Mayavi (4.1) is required only for one file to do three-dimensional rendering, the rest of the toolkit works fine without Mayavi.
 
 
 Status
 ------
 
-This project is *stable beta*. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. The current version is already quite useful in our labs and lectures.
+This project is *very stable beta*. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. The current version is already quite useful in our labs and university lectures.
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 
 Documentation
 --------------
 
-API documentation in html and pdf format is available along the paths `doc/_build/html/index.html` and `doc/_build/latex/pyradi.pdf`. See also SPIE8543Pyradi_. For a detailed theoretical background and many more examples see the book_ by CJ Willers.
+Local API documentation in html and pdf format is available in the pradi installation directory, along the paths `doc/_build/html/index.html` and `doc/_build/latex/pyradi.pdf`. 
+
+Online API documentation in html format is available
+`here <https://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html>`_.
+
+Tutorial examples on the application of pyradi are available online in these 
+`notebooks <https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi>`_.
+
+For a detailed theoretical background and many more examples see the book_ by CJ Willers. See also SPIE8543Pyradi_. 
 
     
 Example application 
@@ -65,14 +73,16 @@ An example solution is given in this script_ and is further explained with resul
     
 .. _script: https://code.google.com/p/pyradi/source/browse/trunk/examples/exflamesensor.py
 
+.. [notebooks]: https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
+
+.. [online]: https://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html
+   
+.. [book] *Electro-Optical System Analysis and Design: A Radiometry Perspective*,  
+   C.J. Willers, Volume PM236, SPIE Press, 2013. http://spie.org/x648.html?product_id=2021423
+   
 .. [SPIE8543Pyradi] *Pyradi: an open-source toolkit for infrared calculation 
    and data processing*,  SPIE Proceedings Vol 8543, Security+Defence 2011,  
    Technologies for Optical Countermeasures, Edinburgh, 24-27 September, 
    C.J. Willers, M. S. Willers, R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, 
    A de Waal and A.E. Mudau.
-   
-.. [book] *Electro-Optical System Analysis and Design: A Radiometry Perspective*,  
-   C.J. Willers, Volume PM236, SPIE Press, 2013. http://spie.org/x648.html?product_id=2021423
-   
-   
    
