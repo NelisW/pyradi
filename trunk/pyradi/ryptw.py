@@ -844,6 +844,7 @@ class JadeCalibrationData:
     self.pathtoXML = os.path.dirname(filename)
     self.datafileroot = datafileroot
 
+    self.wl = None
     ftree = ET.parse(filename)
     froot = ftree.getroot()
     self.name = froot.find(".").attrib["Name"]
@@ -911,7 +912,7 @@ class JadeCalibrationData:
     for i,key in enumerate(sorted(self.dicCaldata.keys())):
       str += '\n\nInstrument temperature = {} C\n'.format(key)
       str += 'DL floor               = {}\n'.format(self.diclFloor[key])
-      str += '    Deg-C      DL   '
+      str += '      Deg-C           DL    '
       if self.dicCaldata[key].shape[1]>2:
         for item in self.spectrals:
           str += '  L-{0}  E-{0}'.format(item)
@@ -956,7 +957,7 @@ class JadeCalibrationData:
     """Plot all spectral curve data to a single graph.
     """
     #load data if not yet loaded
-    if not 'NoFilter' in self.dicSpectrals:
+    if not ('Emissivity' in self.dicSpectrals):
       self.LoadPrepareData()
 
     p = ryplot.Plotter(1, figsize=(10,5))
@@ -965,8 +966,8 @@ class JadeCalibrationData:
     p.semilogY(1,self.wl,self.calFilter,label=['Filter'])
     p.semilogY(1,self.wl,self.calSensor,label=['Sensor'])
     p.semilogY(1,self.wl,self.calOptics,label=['Optics'])
-    p.semilogY(1,self.wl,self.dicSpectrals['NoFilter'],label=['Eff. no filter'])
-    p.semilogY(1,self.wl,self.dicSpectrals['CalFilter'],label=['Eff. with filter'])
+    p.semilogY(1,self.wl,self.dicSpectrals['NoFilter'],label=['Effective no filter'])
+    p.semilogY(1,self.wl,self.dicSpectrals['CalFilter'],label=['Effective with filter'])
     currentP = p.getSubPlot(1)
     currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
     currentP.set_ylabel('Normalised Response')
@@ -979,30 +980,31 @@ class JadeCalibrationData:
     """Plot all spectral radiance data for the calibration temperatures.
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not ('Emissivity' in self.dicRadiance):
       self.CalculateCalibrationTables()
 
-    p = ryplot.Plotter(1,2,1)
+    p = ryplot.Plotter(1,2,2, figsize=(19,10))
     for i,spectral in enumerate(self.spectrals):
-      for j,key in enumerate(self.dicCaldata):
-        if j == 0:
+      for j,keyTemp in enumerate(self.dicCaldata):
+          # print(spectral,keyTemp,i,j,1+j+i*2)
           #get temperature labels
           labels = []
-          for temp in self.dicCaldata[key][:,0]:
+          for temp in self.dicCaldata[keyTemp][:,0]:
             labels.append('{:.0f} $^\circ$C, {:.0f} K'.format(temp-273.15, temp))
 
-          # print(self.wl.shape, self.dicSpecRadiance[spectral][key].shape)
-          p.plot(i,self.wl,self.dicSpecRadiance[spectral][key],label=labels)
-          currentP = p.getSubPlot(i)
-          currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
-          currentP.set_ylabel('Radiance W/(m$^2$.sr.cm$^{-1}$)')
+          # print(self.wl.shape, self.dicSpecRadiance[spectral][keyTemp].shape)
+          p.plot(1+j+i*2,self.wl,self.dicSpecRadiance[spectral][keyTemp],label=labels)
+          currentP = p.getSubPlot(1+j+i*2)
+          currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)), fontsize=12)
+          currentP.set_ylabel('Radiance W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
           if spectral == 'NoFilter':
             filname = 'no filter'
-            currentP.set_ylabel('Radiance at source W/(m$^2$.sr.cm$^{-1}$)')
+            currentP.set_ylabel('Radiance at source W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
           else:
             filname = self.filterName
-            currentP.set_ylabel('Radiance at sensor W/(m$^2$.sr.cm$^{-1}$)')
-          currentP.set_title('{}-{} at Tinstr={} $^\circ$C'.format(self.name, filname, key))
+            currentP.set_ylabel('Radiance at sensor W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
+          title = '{}-{} at Tinstr={} $^\circ$C'.format(self.name, filname, keyTemp)
+          currentP.set_title(title, fontsize=12)
 
     p.saveFig('{}-radiance.png'.format(self.name,spectral))
 
@@ -1011,7 +1013,7 @@ class JadeCalibrationData:
     """Plot DL level versus radiance for both camera temperatures
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
 
     p = ryplot.Plotter(1,1,1, figsize=(10,5))
@@ -1038,7 +1040,7 @@ class JadeCalibrationData:
     """Plot temperature versus radiance for both camera temperatures
     """
    # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
 
     p = ryplot.Plotter(1,1,1, figsize=(10,5))
@@ -1058,7 +1060,7 @@ class JadeCalibrationData:
     """Plot optics radiance versus instrument temperature
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
     p = ryplot.Plotter(1,1,1, figsize=(10,5))
     ptitle = '{} sensor internal radiance'.format(self.name)
@@ -1072,7 +1074,7 @@ class JadeCalibrationData:
     """Plot digital level versus temperature for both camera temperatures
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
 
     p = ryplot.Plotter(1,1,1, figsize=(10,5))
@@ -1103,7 +1105,7 @@ class JadeCalibrationData:
        and temperature. Set up the various tables for later conversion.
     """
     #load data if not yet loaded
-    if not 'NoFilter' in self.dicSpectrals:
+    if not 'Emissivity' in self.dicSpectrals:
       self.LoadPrepareData()
 
     self.dicTableDLRad = collections.defaultdict(float)
@@ -1116,7 +1118,7 @@ class JadeCalibrationData:
     self.dicinterpDL = collections.defaultdict(float)
 
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not ('Emissivity' in self.dicRadiance):
 
       #set up the DL range
       interpDL = np.linspace(0,2**14, 2**8 + 1)
@@ -1197,7 +1199,7 @@ class JadeCalibrationData:
         Interpolate linearly on Tint radiance not temperature.
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
 
     #get radiance values for lower and upper Tint and the actual Tin
@@ -1231,7 +1233,7 @@ class JadeCalibrationData:
         it has the same value in both cases.
     """
     # calculate radiance values if not yet done
-    if not 'NoFilter' in self.dicRadiance:
+    if not 'Emissivity' in self.dicRadiance:
       self.CalculateCalibrationTables()
 
     L = self.LookupDLRad(DL, Tint)
