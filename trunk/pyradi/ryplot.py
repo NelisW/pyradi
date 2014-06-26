@@ -2128,17 +2128,17 @@ class Plotter:
 
             if linewidths is not None:
                 if scatter:
-                    ax.scatter(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i],
+                    ax.scatter(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
                         marker=marker, zorder=zorder, clip_on=clip_on)
                 else:
-                    ax.plot(x[:,i], y[:,i], z[:,i], col, linewidth=linewidths[i],
+                    ax.plot(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
                         marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on)
             else:
                 if scatter:
-                    ax.scatter(x[:,i], y[:,i], z[:,i], col, marker=marker, 
+                    ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker, 
                         zorder=zorder, clip_on=clip_on)
                 else:
-                    ax.plot(x[:,i], y[:,i], z[:,i], col, marker=marker,
+                    ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         markevery=markevery, zorder=zorder, clip_on=clip_on)
 
         #scale the axes
@@ -2753,7 +2753,6 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
 if __name__ == '__main__':
 
     import datetime as dt
-
 
     ############################################################################
     #create the wireframe for the sphere
