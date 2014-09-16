@@ -202,7 +202,7 @@ def polar2cart(r, theta):
 
 ##############################################################################
 ##
-def upMu(uprightMu=True):
+def upMu(uprightMu=True, textcomp=False):
     """Returns a LaTeX micron symbol, either an upright version or the normal symbol.
 
     The upright symbol requires that the siunitx LaTeX package be installed on the 
@@ -211,6 +211,7 @@ def upMu(uprightMu=True):
 
     Args:
         | uprightMu (bool): signals upright (True) or regular (False) symbol (optional).
+        | textcomp (bool): if True use the textcomp package, else use siunitx package (optional).
 
     Returns:
         | range (string): LaTeX code for the micro symbol.
@@ -221,15 +222,24 @@ def upMu(uprightMu=True):
     if uprightMu:
       from matplotlib import rc, font_manager
       import matplotlib as mpl
-      # set up the use of external latex, fonts and packages
       rc('text', usetex=True)
-      mpl.rcParams['text.latex.preamble'] = [
-         r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-         r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
-         r'\usepackage{helvet}',  # set the normal font here
-         r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-         r'\sansmath']  # <- tricky! -- gotta actually tell tex to use!
-      upmu = '\si{\micro}'
+      # set up the use of external latex, fonts and packages
+      if not textcomp :
+        mpl.rcParams['text.latex.preamble'] = [
+          r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+          r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
+          r'\usepackage{helvet}',  # set the normal font here
+          r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+          r'\sansmath']  # <- tricky! -- gotta actually tell tex to use!
+        upmu = '\si{\micro}'
+      else:
+        mpl.rcParams['text.latex.preamble'] = [
+          r'\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
+          r'\usepackage{helvet}',  # set the normal font here
+          r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+          r'\sansmath'  # <- tricky! -- gotta actually tell tex to use!
+          ] 
+        upmu = r'\textmu{}'
     else:
       upmu = '$\mu$'
     return upmu

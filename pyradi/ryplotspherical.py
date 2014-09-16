@@ -647,7 +647,7 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
     """
 
     targPosition = np.asarray([xTargPos, yTargPos, zTargPos])
-    print(targPosition)
+    print('target position {}'.format(targPosition))
 
     #get the sensor position from the azimuth and elevation angles
     #there must be a better way....
