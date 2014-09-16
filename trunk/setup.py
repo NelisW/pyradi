@@ -64,9 +64,9 @@ Release cycle when updating PyRadi
     Do a complete rebuild of the notebooks: restart kernel and run all cells.
     Check that all cells are rendered.
 
-6.  Create the HTML conversions (for dropbox upload).
+6.  task removed.
 
-7.  Sync the ipynb and html files to the dropbox folder.
+7.  task removed.
 
 8.  If a new notebook name is used, get the nbviewer link to the html rendering.
 
