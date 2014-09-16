@@ -300,7 +300,7 @@ as domain vector above.</div>
 
 <dl class="function">
 <dt id="pyradi.ryutils.convolve">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x0300EBF0&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">convolve</tt><big>(</big><em>inspectral</em>, <em>samplingresolution</em>, <em>inwinwidth</em>, <em>outwinwidth</em>, <em>windowtype=&lt;function bartlett at 0x04DF0630&gt;</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve (non-circular) a spectral variable with a window function,
 given the input resolution and input and output window widths.</p>
 <p>This function is normally used on wavenumber-domain spectral data.  The spectral
@@ -465,7 +465,7 @@ signal to noise ratio, to achieve a required probability of detection.</p>
 
 <dl class="function">
 <dt id="pyradi.ryutils.upMu">
-<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">upMu</tt><big>(</big><em>uprightMu=True</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.upMu" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyradi.ryutils.</tt><tt class="descname">upMu</tt><big>(</big><em>uprightMu=True</em>, <em>textcomp=False</em><big>)</big><a class="headerlink" href="#pyradi.ryutils.upMu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a LaTeX micron symbol, either an upright version or the normal symbol.</p>
 <p>The upright symbol requires that the siunitx LaTeX package be installed on the 
 computer running the code.  This function also changes the Matplotlib rcParams
@@ -474,6 +474,7 @@ file.</p>
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">uprightMu (bool): signals upright (True) or regular (False) symbol (optional).</div>
+<div class="line">textcomp (bool): if True use the textcomp package, else use siunitx package (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>

@@ -201,8 +201,24 @@ def loadtape7(filename, colspec = []):
 
     #some files has only a single text column head, while others have two
     # find out what the case is for this file and concatenate if necessary
-    colHead1st = lines[headline].split()
-    colHead2nd = lines[headline+1].split()
+    line1 = lines[headline]
+    line2 = lines[headline+1]
+
+    #modtran 4 does not use underscores
+    line1 = line1.replace('TOT TRANS','TOT_TRANS')
+    line1 = line1.replace('PTH THRML','PTH_THRML')
+    line1 = line1.replace('THRML SCT','THRML_SCT')
+    line1 = line1.replace('SURF EMIS','SURF_EMIS')
+    line1 = line1.replace('SOL SCAT','SOL_SCAT')
+    line1 = line1.replace('SING SCAT','SING_SCAT')
+    line1 = line1.replace('GRND RFLT','GRND_RFLT')
+    line1 = line1.replace('DRCT RFLT','DRCT_RFLT')
+    line1 = line1.replace('TOTAL RAD','TOTAL_RAD')
+    line1 = line1.replace('REF SOL','REF_SOL')
+
+    colHead1st = line1.split()
+    colHead2nd = line2.split()
+
     if colHead2nd[0].find('CM') >= 0:
         colHead = [h1+'_'+h2 for (h1,h2) in zip(colHead1st,colHead2nd)]
         deltaHead = 1

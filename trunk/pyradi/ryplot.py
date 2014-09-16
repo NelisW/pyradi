@@ -536,8 +536,11 @@ class Plotter:
         # define the default line colour and style
         self.buildPlotCol(plotCol=None, n=None)
 
-        self.bbox_extra_artists=[]
-        self.subplots={}
+        self.bbox_extra_artists = []
+        self.subplots = {}
+        self.gridSpecsOuter = {}
+        self.arrayRows = {}
+        self.gridSpecsInner = {}
 
         if figuretitle:
             self.figtitle=plt.gcf().text(.5,.95,figuretitle,\
@@ -681,6 +684,8 @@ class Plotter:
             else:
                 self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
                             pad_inches=pad_inches)
+
+
 
 
     ############################################################
@@ -1314,7 +1319,7 @@ class Plotter:
                   cbarcustomticks=[], cbarfontsize=12,
                   drawGrid=False, yInvert=False, xInvert=False,
                   contourFill=True, contourLine=True, logScale=False,
-                  negativeSolid=False, zeroContourLine=False,
+                  negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
                   zorders=None, clip_on=True ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
@@ -1371,7 +1376,7 @@ class Plotter:
                 | contourLine (bool): draw a series of contour lines (optional)
                 | logScale (bool): do Z values on log scale, recompute colourbar values (optional)
                 | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise (optional)
-                | zeroContourLine (bool): draw the contour at zero (optional)
+                | zeroContourLine (double): draw a single contour at given value (optional)
                 | contLabel (bool): label the contours with values (optional)
                 | contFmt (string): contour label c-printf format (optional)
                 | contCol (string): contour label colour, e.g., 'k' (optional)
@@ -1453,7 +1458,7 @@ class Plotter:
                colors=col, zorder=zorder, clip_on=clip_on)
 
       if zeroContourLine:
-          pmplot = ax.contour(xvals, yvals, zvals, (0,), cmap=None, linewidths=contLinWid,
+          pmplot = ax.contour(xvals, yvals, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
                colors=col, zorder=zorder, clip_on=clip_on)
 
       if contourFill:
@@ -1754,7 +1759,8 @@ class Plotter:
                     legendAlpha=0.0, \
                     rscale=None, rgrid=[0,5], thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True,
-                    zorders=None, clip_on=True):
+                    zorders=None, clip_on=True, markers=[], markevery=None, 
+):
       """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1797,6 +1803,8 @@ class Plotter:
                 | drawGrid (bool): draw a grid on the graph (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1861,6 +1869,14 @@ class Plotter:
               # print(len(negrrr))
               # print(negrrr)
 
+          mmrk = ''
+          if markers:
+              if i >= len(markers):
+                  mmrk = markers[-1]
+              else:
+                  mmrk = markers[i]
+
+
           #set up the line style, either given or next in sequence
           if plotCol:
               col = plotCol[i]
@@ -1879,23 +1895,25 @@ class Plotter:
 
           if not label:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
                           if negrrr[ii][0] < 0:
                               if MakeAbs:
                                   ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
-                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
+                                    marker=mmrk, markevery=markevery,)
                               else:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
-                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
+                                    marker=mmrk, markevery=markevery)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
               rmax = np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
           else:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -1904,18 +1922,20 @@ class Plotter:
                           if negrrr[ii][0][0] < 0:
                               if MakeAbs:
                                   ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
-                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
+                                    marker=mmrk, markevery=markevery)
                               else:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
-                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder)
-              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder)
+                                    linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
+                                    marker=mmrk, markevery=markevery)
+              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
               rmax=np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
 
           if MakeAbs:
-              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder)
+              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
           else:
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
 
       if label:
           fontP = mpl.font_manager.FontProperties()
@@ -2035,7 +2055,7 @@ class Plotter:
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
                plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
                xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False,scatter=False,
-               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True):
+               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2071,9 +2091,9 @@ class Plotter:
                 | markevery (int | (startind, stride)): subsample when using markers (optional)
                 | azim (float): graph view azimuth angle  [degrees] (optional)
                 | elev (float): graph view evelation angle  [degrees] (optional)
-                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
-                | clip_on (bool) clips objects to drawing axes (optional)
-
+                | zorder ([int]): list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool): clips objects to drawing axes (optional)
+                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional). 
             Returns:
                 | the axis object for the plot
 
@@ -2141,6 +2161,12 @@ class Plotter:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         markevery=markevery, zorder=zorder, clip_on=clip_on)
 
+        if edgeCol:
+          edcol = edgeCol[0]
+        else:
+          edcol = self.nextPlotCol()[0]
+
+
         #scale the axes
         if pltaxis is not None:
             # ax.axis(pltaxis)
@@ -2182,7 +2208,8 @@ class Plotter:
                 xlabel=None, ylabel=None, zlabel=None, zscale=None,  
                titlefsize=12, xylabelfsize = 12,
                thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
-               linewidth=0.1, azim=45, elev=30, zorders=None, clip_on=True):
+               linewidth=0.1, azim=45, elev=30, zorders=None, clip_on=True,
+               facecolors=None, alpha=1, edgeCol=None):
       """3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2217,6 +2244,10 @@ class Plotter:
                 | elev (float): graph view evelation angle  [degrees] (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | facecolors ((np.array[N,M]): array of z value facecolours, corresponding to (theta,rho) grid.
+                | alpha (float): facecolour surface transparency (optional)
+                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional).            
+
 
             Returns:
                 | the axis object for the plot
@@ -2244,11 +2275,23 @@ class Plotter:
       else:
         zorder = 2
 
+      if edgeCol:
+        edcol = edgeCol[0]
+      else:
+        edcol = self.nextPlotCol()[0]
+
       #do the plot
-      ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
-          linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on)
+      if facecolors is not None:
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+          linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on,
+          facecolors=facecolors, edgecolors=edcol, alpha=alpha)
+      else:
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+          linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on,
+          alpha=alpha, edgecolors=edcol)
 
       ax.view_init(azim=azim, elev=elev)
+
 
       #label and clean up
       if zscale==None:
@@ -2277,7 +2320,7 @@ class Plotter:
                   thetagridfontsize=12, radialgridfontsize=12,
                   direction='counterclockwise', zerooffset=0, logScale=False,
                   plotCol=[], levels=10, contourFill=True, contourLine=True, 
-                  zeroContourLine=False, negativeSolid=False,
+                  zeroContourLine=None, negativeSolid=False,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5, 
                   zorders=None, clip_on=True):
       """Polar colour contour and filled contour plot for (theta, r, zvals) input sets.
@@ -2331,7 +2374,7 @@ class Plotter:
                 | levels (int or [float]): number of contour levels or a list of levels (optional)
                 | contourFill (bool): fill contours with colour (optional)
                 | contourLine (bool): draw a series of contour lines
-                | zeroContourLine (bool): draw the contour at zero
+                | zeroContourLine (double): draw a contour at the stated value (optional)
                 | negativeSolid (bool): draw negative contours in solid lines, dashed otherwise (optional)
                 | contLabel (bool): label the contours with values (optional)
                 | contFmt (string): contour label c-printf format (optional)
@@ -2390,7 +2433,7 @@ class Plotter:
                colors=col, zorder=zorder, clip_on=clip_on)
 
       if zeroContourLine:
-          ax.contour(theta, radial, zvals, (0,), cmap=None, linewidths=contLinWid,
+          pmplot = ax.contour(theta, radial, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
                colors=col, zorder=zorder, clip_on=clip_on)
 
       if contourFill:
@@ -2475,9 +2518,10 @@ class Plotter:
     
     ############################################################
     ##
-    def plotArray(self, plotnum, inarray, slicedim = 0, subtitles = None, xlabel=None, 
+    def plotArray(self, plotnum, inarray, slicedim = 0, labels = None,  
                         maxNX=0, maxNY=0, titlefsize = 8, xylabelfsize = 8,
-                        xytickfsize = 8  ):
+                        xytickfsize = 8, selectCols=None, sepSpace=0.2,
+                        allPlotCol='r'  ):
         """Creates a plot from an input array.
 
         Given an input array with m x n dimensions, this function creates a subplot for vectors
@@ -2486,16 +2530,22 @@ class Plotter:
 
 
             Args:
-                | plotnum (int): subplot number, 1-based index
-                | inarray (array): np.array
-                | slicedim (int): slice along columns (0) or rows (1)
-                | subtitles (list): a list of strings as subtitles for each subplot
-                | xlabel (string): x-axis label (optional)
-                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
-                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
-                | titlefsize (int): title font size, default 12pt (optional)
-                | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
-                | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
+                | plotnum (int):  The subplot number, 1-based index, according to Matplotlib conventions.  
+                  This value must always be given, even if only a single 1,1 subplot is used.  
+                | inarray (np.array): data series to be plotted.  Data direction can be cols or rows. 
+                  The abscissa (x axis) values must be the first col/row, with ordinates in following cols/rows. 
+                | slicedim (int): slice along columns (0) or rows (1) (optional).
+                | labels (list):  a list of strings as labels for each subplot.  
+                  x=labels[0], y=labels[1:] (optional).
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional).
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional).
+                | titlefsize (int): title font size, default 12pt (optional).
+                | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional).
+                | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional).
+                | selectCols ([int]): select columns for plot. Col 0 corresponds to col 1 in input data 
+                  (because col 0 is abscissa),plot  all if not given (optional).  
+                | sepSpace (float): vertical spacing between sub-plots in inches (optional).  
+                | allPlotCol (str): make all plot lines this colour (optional).
 
             Returns:
                 | Nothing
@@ -2504,69 +2554,79 @@ class Plotter:
                 | No exception is raised.
         """
 
-        fig = self.fig
-        #use current subplot number as outer grid reference
-        outer_grid = gridspec.GridSpec(self.nrow,self.ncol, wspace=0, hspace=0)
-
+        #prepare the data
         #if slicedim = 0, slice across columns
         if slicedim == 0:
-            #x-axis is first vector
-            x = inarray[:,0]
-            #xlabel is time
-            xlabel = subtitles[0]
-
-            yAll = inarray[:,1:].transpose()
-
-            nestnrow = inarray.shape[1]-1
-            nestncol = 1
-            plottitles = subtitles[1:]
-
-        #if slicedim = 1, slice across rows
+            pass
         elif slicedim == 1:
-            x = range(0,inarray.shape[1]-1)
-            #for slicedim = 1, the tick labels are in the x title
-            xlabel = subtitles[1:inarray.shape[1]]
+            inarray = inarray.T
 
-            yAll = inarray[:,1:]
-            nestnrow = inarray.shape[0]
-            nestncol = 1
-            plottitles = inarray[:,0]
+        x = inarray[:,0]
+        yAll = inarray[:,1:].transpose()
+        nestnrow = inarray.shape[1]-1
+        nestncol = 1
 
+        xlabel = labels[0]
+        ylabels = labels[1:]
 
+        ## keep track of whether the outer grid wwas already defined.
+        #use current subplot number as outer grid reference
+        ogkey = (self.nrow, self.ncol)
+        if ogkey not in self.gridSpecsOuter.keys():
+            self.gridSpecsOuter[ogkey] = \
+                         gridspec.GridSpec(self.nrow,self.ncol, wspace=0, hspace=0)
+        outer_grid = self.gridSpecsOuter[ogkey]
+
+        ## keep track of whether the inner grid wwas already defined.
         #inner_grid (nested):
-        inner_grid = gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, 
-                        subplot_spec=outer_grid[0],wspace=0, hspace=0.2)
+        igkey = (self.nrow, self.ncol, plotnum)
+        if igkey not in self.gridSpecsInner.keys():
+            self.gridSpecsInner[igkey] = \
+                         gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, 
+                      subplot_spec=outer_grid[plotnum-1],wspace=0, hspace=sepSpace)
+        inner_grid = self.gridSpecsInner[igkey]
 
-        #create subplot for each y-axis vector
+        #set up list of all cols if required
+        if not selectCols:
+            selectCols = range(yAll.shape[0])
+
         nestplotnum = 0
+        #create subplot for each y-axis vector
+        for index,y in enumerate(yAll):
+            if index in selectCols:
 
-        for y in yAll:
+                ## if this row of array plot in key, else create
+                rkey = (self.nrow, self.ncol, plotnum, nestplotnum)
+                if rkey not in self.arrayRows.keys():
+                    self.arrayRows[rkey] = \
+                                 plt.Subplot(self.fig, inner_grid[nestplotnum])
+                    self.fig.add_subplot(self.arrayRows[rkey])
 
-            ax = plt.Subplot(fig, inner_grid[nestplotnum])
-            ax.plot(x,y)
-            if subtitles is not None:
-                ax.set_ylabel(plottitles[nestplotnum], fontsize=xylabelfsize)
-                #align ylabels
-                ax.yaxis.set_label_coords(-0.05, 0.5)
+                nestplotnum = nestplotnum + 1
+                ax = self.arrayRows[rkey]
 
-            #tick label fonts
-            for tick in ax.yaxis.get_major_ticks():
-                tick.label.set_fontsize(xytickfsize)
-                for tick in ax.xaxis.get_major_ticks():
+                # plot the data
+                ax.plot(x,y,allPlotCol)
+                if ylabels is not None:
+                    ax.set_ylabel(ylabels[index], fontsize=xylabelfsize)
+                    #align ylabels
+                    ax.yaxis.set_label_coords(-0.05, 0.5)
+
+                #tick label fonts
+                for tick in ax.yaxis.get_major_ticks():
                     tick.label.set_fontsize(xytickfsize)
+                    for tick in ax.xaxis.get_major_ticks():
+                        tick.label.set_fontsize(xytickfsize)
 
-            if maxNX > 0:
-                ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
-            if maxNY > 0:
-                ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-            
-            nestplotnum = nestplotnum + 1
-            fig.add_subplot(ax)
-
-            #share x ticklabels and label to avoid clutter and overlapping
-            plt.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
-            if xlabel is not None:
-                fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
+                if maxNX > 0:
+                    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+                if maxNY > 0:
+                    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
+                
+                #share x ticklabels and label to avoid clutter and overlapping
+                plt.setp([a.get_xticklabels() for a in self.fig.axes[:-1]], visible=False)
+                if xlabel is not None:
+                    self.fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
 
             # minor ticks are two points smaller than major
             # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
@@ -2999,17 +3059,41 @@ if __name__ == '__main__':
     filename = "data/arrayplotdemo.txt"
     f = open(filename)
     lines = f.readlines()
-    #the titles are in the first line (row). Skip the '%' symbol
-    titles = lines[0].split()[1:]
+    #the labels are in the first line (row). Skip the '%' symbol
+    labels = lines[0].split()[1:]
     #the array is the rest of the file
     arrDummyDemo = np.genfromtxt(filename,skip_header=1)
     #the figure title is the filename
     maintitle = filename.split('/')[-1]
 
     Ar = Plotter(9, 1, 1,maintitle)
-    Ar.plotArray(1,arrDummyDemo, 0, titles, titlefsize = 12, maxNX = 5, maxNY=3)
-    # Ar.saveFig('ArrayPlot.eps')
-    Ar.saveFig('ArrayPlot.png')
+    Ar.plotArray(1,arrDummyDemo, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+        sepSpace=0.05)
+    Ar.saveFig('ArrayPlot01.png')
+
+    t = np.linspace(0, 4 * np.pi, 100).reshape(-1,1)
+    arr = np.hstack((t,   np.sin(t * 2 * np.pi / 4.0)))
+    arr = np.hstack((arr, np.cos(t * 2 * np.pi / 4.0)))
+    labels = ['time','a','b']
+    for i in range(7):
+        arr = np.hstack((arr, np.sin(t * 2 * np.pi / (i+1))))
+        arr = np.hstack((arr, np.cos(t * 2 * np.pi / (i+1))))
+        labels.append(' s{} '.format(i))
+        labels.append(' c{} '.format(i))
+
+    Ar2 = Plotter(10, 1, 1,maintitle)
+    Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+        sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
+    Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+        sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
+    Ar2.saveFig('ArrayPlot02.png')
+
+    Ar3 = Plotter(11, 1, 1,maintitle)
+    Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+        sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
+    Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+        sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
+    Ar3.saveFig('ArrayPlot03.png')
 
 
     ############################################################################
