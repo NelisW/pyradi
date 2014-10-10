@@ -1,5 +1,5 @@
 """
-Setup script for pyradi. This procedure must be followed for each Python version.
+Setup script for pyradi. This procedure must be followed only once so set up.
 
 1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
     letters and numbers, not other symbols.
