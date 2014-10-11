@@ -66,6 +66,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 ####################################################################
@@ -1469,8 +1470,16 @@ class Plotter:
         plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder, clip_on=clip_on)
 
       if cbarshow is True:
+          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          divider = make_axes_locatable(ax)
+          if cbarorientation == 'vertical':
+            cax = divider.append_axes("right", size="5%", pad=0.05)          
+          else:
+            cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+
           if not cbarcustomticks:
-              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              cbar = self.fig.colorbar(pmplot,cax=cax)
               if logScale:
                   cbartickvals = cbar.ax.yaxis.get_ticklabels()
                   tickVals = []
@@ -1486,7 +1495,8 @@ class Plotter:
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
           else:
               ticks,  ticklabels = zip(*cbarcustomticks)
-              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
                   cbar.ax.set_yticklabels(ticklabels)
               else:
@@ -1694,8 +1704,16 @@ class Plotter:
       ax.view_init(azim=azim, elev=elev)
  
       if cbarshow is True and cmap is not None:
+        #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+        # divider = make_axes_locatable(ax)
+        # if cbarorientation == 'vertical':
+        #   cax = divider.append_axes("right", size="5%", pad=0.05)          
+        # else:
+        #   cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+
         if not cbarcustomticks:
               cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,cax=cax)
               if logScale:
                   cbartickvals = cbar.ax.yaxis.get_ticklabels()
                   tickVals = []
@@ -1712,6 +1730,7 @@ class Plotter:
         else:
               ticks,  ticklabels = zip(*cbarcustomticks)
               cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
                   cbar.ax.set_yticklabels(ticklabels)
               else:
@@ -2027,22 +2046,39 @@ class Plotter:
 
       ax.axis('off')
       if cbarshow is True:
+          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          divider = make_axes_locatable(ax)
+          if cbarorientation == 'vertical':
+            cax = divider.append_axes("right", size="5%", pad=0.05)          
+          # else:
+          #   cay = divider.append_axes("bottom", size="5%", pad=0.1)          
+
           if not cbarcustomticks:
+            if cbarorientation == 'vertical':
+              cbar = self.fig.colorbar(cimage,cax=cax)
+            else:
               cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
+
           else:
               ticks,  ticklabels = zip(*cbarcustomticks)
-              cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
+
+              if cbarorientation == 'vertical':
+                cbar = self.fig.colorbar(cimage,ticks=ticks, cax=cax)
+              else:
+                cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
+
               if cbarorientation == 'vertical':
                   cbar.ax.set_yticklabels(ticklabels)
               else:
                   cbar.ax.set_xticklabels(ticklabels)
 
+
           if cbarorientation == 'vertical':
               for t in cbar.ax.get_yticklabels():
                    t.set_fontsize(cbarfontsize)
           else:
-              for t in cbar.ax.get_xticklabels():
-                   t.set_fontsize(cbarfontsize)
+            for t in cbar.ax.get_xticklabels():
+                t.set_fontsize(cbarfontsize)
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize)
@@ -2445,36 +2481,6 @@ class Plotter:
 
       ax.grid(drawGrid)
 
-      if cbarshow is True:
-          if not cbarcustomticks:
-              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
-              if logScale:
-                  cbartickvals = cbar.ax.yaxis.get_ticklabels()
-                  tickVals = []
-                  # need this roundabout trick to handle minus sign in unicode
-                  for item in cbartickvals:
-                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
-                      val = 10**float(valstr)
-                      if abs(val) < 1000:
-                          str = '{0:f}'.format(val)
-                      else:
-                          str = '{0:e}'.format(val)
-                      tickVals.append(str)
-                  cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
-          else:
-              ticks,  ticklabels = zip(*cbarcustomticks)
-              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
-              if cbarorientation == 'vertical':
-                  cbar.ax.set_yticklabels(ticklabels)
-              else:
-                  cbar.ax.set_xticklabels(ticklabels)
-
-          if cbarorientation == 'vertical':
-              for t in cbar.ax.get_yticklabels():
-                   t.set_fontsize(cbarfontsize)
-          else:
-              for t in cbar.ax.get_xticklabels():
-                   t.set_fontsize(cbarfontsize)
 
       if(ptitle is not None):
           plt.title(ptitle, fontsize=titlefsize)
@@ -2512,6 +2518,48 @@ class Plotter:
 
       ax.set_theta_direction(direction)
       ax.set_theta_offset(zerooffset)
+
+
+      if cbarshow is True:
+          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          # divider = make_axes_locatable(ax)
+          # if cbarorientation == 'vertical':
+          #   cax = divider.append_axes("right", size="5%", pad=0.05)          
+          # else:
+          #   cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+
+          if not cbarcustomticks:
+              cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,cax=cax)
+              if logScale:
+                  cbartickvals = cbar.ax.yaxis.get_ticklabels()
+                  tickVals = []
+                  # need this roundabout trick to handle minus sign in unicode
+                  for item in cbartickvals:
+                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      val = 10**float(valstr)
+                      if abs(val) < 1000:
+                          str = '{0:f}'.format(val)
+                      else:
+                          str = '{0:e}'.format(val)
+                      tickVals.append(str)
+                  cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+          else:
+              ticks,  ticklabels = zip(*cbarcustomticks)
+              cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
+              # cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
+              if cbarorientation == 'vertical':
+                  cbar.ax.set_yticklabels(ticklabels)
+              else:
+                  cbar.ax.set_xticklabels(ticklabels)
+
+          if cbarorientation == 'vertical':
+              for t in cbar.ax.get_yticklabels():
+                   t.set_fontsize(cbarfontsize)
+          else:
+              for t in cbar.ax.get_xticklabels():
+                   t.set_fontsize(cbarfontsize)
+
 
       return ax
 
@@ -2814,109 +2862,142 @@ if __name__ == '__main__':
 
     import datetime as dt
 
-    ############################################################################
-    #create the wireframe for the sphere
-    u = np.linspace(0, np.pi, 100)
-    v = np.linspace(0, 2 * np.pi, 100)
-    x = np.outer(np.sin(u), np.sin(v))
-    y = np.outer(np.sin(u), np.cos(v))
-    z = np.outer(np.cos(u), np.ones_like(v))
 
-    #create the random point samples on the sphere
-    samples = 500
-    np.random.RandomState(200)
-    theta = 2 * np.pi * np.random.uniform(0, 1, size=samples)
-    #biased sampling with higher density towards the poles
-    phib = np.pi * (2 * np.random.uniform(0, 1, size=samples) -1 ) / 2 
-    #uniform sampling corrected for polar bias
-    phiu = np.arccos(2 * np.random.uniform(0, 1, size=samples) -1 ) - np.pi/2 
 
-    #create normal vectors using the pairs of random angles in a transformation 
-    xsb = np.cos(phib) * np.cos(theta)
-    ysb = np.cos(phib) * np.sin(theta)
-    zsb = np.sin(phib)
-    xsu = np.cos(phiu) * np.cos(theta)
-    ysu = np.cos(phiu) * np.sin(theta)
-    zsu = np.sin(phiu)
+    #next line include both 0 and 360 degrees, i.e., overlap on edge
+    angled = np.linspace(0.,360.,25) 
+    angler = np.pi * angled / 180.
+    grange = np.linspace(500.,4000.,8)
+    #create a 2-D meshgrid.
+    grangeg, anglerg= np.meshgrid(grange,angler + np.pi * 7.5 / 180)
 
-    azim = 45 # view angle
-    elev = 45 # view angle
-    sph = Plotter(1,1,2, figsize=(20,10))
-    sph.mesh3D(1,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
-    sph.mesh3D(1,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
-        edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
-    sph.plot3d(1, xsb, ysb, zsb, ptitle='', scatter=True,markers=['o' for i in range(len(xsb))],
-               azim=azim, elev=elev)
+    height  = 2000.
+    launch = (1 + np.cos(anglerg) ) ** .1 * (1 - np.exp(-( 500 + grangeg) / 2000.) ) 
+    launch *=  np.exp(-( 500 + grangeg) / (6000. -  height))
+    launch = np.where(launch<0.2, 0.2, launch)
+    #normalise
+    launch -= np.min(launch)
+    launch /= np.max(launch)
 
-    sph.mesh3D(2,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
-    sph.mesh3D(2,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
-        edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
-    sph.plot3d(2, xsu, ysu, zsu, ptitle='', scatter=True,markers=['o' for i in range(len(xsu))],
-               azim=azim, elev=elev)
-    sph.saveFig('3dsphere.png')
+    pm = Plotter(1,1,2,figsize=(16,8))
+    pm.polarMesh(1,angler+np.pi, grange, launch.T,
+        ptitle='Probability of launch for height {:.0f} [m]'.format(height),
+        radscale=[0, 4000], cbarshow=True,
+        cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
+        rgrid=[500], thetagrid=[45], drawGrid=True,
+        direction='clockwise', zerooffset=np.pi/2, )
+    pm.polar3d(2, angler, grange, launch, zlabel='zlabel',
+        linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
+    pm.saveFig('3Dlaunch.png')
 
-    ############################################################################
-    #demonstrate the use of a polar 3d plot
-    #create the radial and angular vectors
-    r = np.linspace(0,1.25,25)
-    p = np.linspace(0,2*np.pi,50)
-    #the r and p vectors may have non-constant grid-intervals
-    # r = np.logspace(np.log10(0.001),np.log10(1.25),50)
-    # p = np.logspace(np.log10(0.001),np.log10(2*np.pi),100)
-    #build a meshgrid (2-D array of values)
-    R,P = np.meshgrid(r,p)
-    #calculate the z values on the cartesian grid
-    # value = (np.tan(P**3)*np.cos(P**2)*(R**2 - 1)**2)
-    value = ((R**2 - 1)**2)
-    p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
-    p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
-        xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
-    p3D.saveFig('p3D.png')
-    #p3D.saveFig('p3D.eps')
 
-    with open('./data/Intensity-max.dat', 'rt') as fin:
-        aArray = np.loadtxt( fin, skiprows=1 , dtype=float )
-        azim = aArray[1:,0] + np.pi   # to positive angles
-        elev = aArray[0,1:] + np.pi/2 # get out of negative data on polar
-        intensity = aArray[1:,1:]
+    exit(0)
 
-        p3D = Plotter(1, 2, 2,'Polar plot in 3-D',figsize=(12,8))
-        elev1 = elev
-        p3D.polar3d(1, azim, elev1, intensity, zlabel='zlabel',zscale=[0, 600], azim=45, elev=30)
-        p3D.polar3d(2, azim, elev, intensity, zlabel='zlabel',zscale=[0, 2000], azim=-45, elev=30)
-        elev3 = elev + np.pi/2 # get hole in centre
-        p3D.polar3d(3, azim, elev3, intensity, zlabel='zlabel',zscale=[0, 2000], azim=60, elev=60)
-        p3D.polar3d(4, azim, elev, intensity, zlabel='zlabel',zscale=[0, 1000], azim=110, elev=-30)
 
-        p3D.saveFig('p3D2.png')
-        #p3D.saveFig('p3D2.eps')
+    if True:
+        ############################################################################
+        #create the wireframe for the sphere
+        u = np.linspace(0, np.pi, 100)
+        v = np.linspace(0, 2 * np.pi, 100)
+        x = np.outer(np.sin(u), np.sin(v))
+        y = np.outer(np.sin(u), np.cos(v))
+        z = np.outer(np.cos(u), np.ones_like(v))
 
-    ############################################################################
-    xv,yv = np.mgrid[-2:2:21j, -2:2:21j]
-    z = np.exp(np.exp(-(xv**2 + yv**2)))
-    I = Plotter(4, 1, 2,'High dynamic range image', figsize=(8, 4))
-    I.showImage(1, z, ptitle='xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarfontsize = 7)
-    ip = ProcessImage()
-    zz, customticksz = ip.compressEqualizeImage(z, 2, 10)
-    I.showImage(2, zz, ptitle='Equalized xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarcustomticks=customticksz, cbarfontsize = 7)
-    I.saveFig('HistoEq.png')
-#    I.saveFig('HistoEq.eps')
+        #create the random point samples on the sphere
+        samples = 500
+        np.random.RandomState(200)
+        theta = 2 * np.pi * np.random.uniform(0, 1, size=samples)
+        #biased sampling with higher density towards the poles
+        phib = np.pi * (2 * np.random.uniform(0, 1, size=samples) -1 ) / 2 
+        #uniform sampling corrected for polar bias
+        phiu = np.arccos(2 * np.random.uniform(0, 1, size=samples) -1 ) - np.pi/2 
 
-    ############################################################################
-    # demonstrate dates on the x-axis
-    dates = ['01/02/1991','01/03/1991','01/04/1991']
-    x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
-    y = np.asarray(range(len(x)))
-    pd = Plotter(1)
-    pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
-    pd.saveFig('plotdateX.png')
+        #create normal vectors using the pairs of random angles in a transformation 
+        xsb = np.cos(phib) * np.cos(theta)
+        ysb = np.cos(phib) * np.sin(theta)
+        zsb = np.sin(phib)
+        xsu = np.cos(phiu) * np.cos(theta)
+        ysu = np.cos(phiu) * np.sin(theta)
+        zsu = np.sin(phiu)
 
-    #demonstrate the use of arbitrary x-axis tick marks
-    x = np.asarray([1, 2, 3, 4])
-    y = np.asarray([1, 2, 3, 4])
-    px = Plotter(2)
-    px.plot(1,x,y,xTicks={1:'One', 2:'Two', 3:'Three', 4:'Four'}, xtickRotation=90)
-    px.saveFig('plotxTick.png')
+        azim = 45 # view angle
+        elev = 45 # view angle
+        sph = Plotter(1,1,2, figsize=(20,10))
+        sph.mesh3D(1,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
+        sph.mesh3D(1,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+            edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
+        sph.plot3d(1, xsb, ysb, zsb, ptitle='', scatter=True,markers=['o' for i in range(len(xsb))],
+                   azim=azim, elev=elev)
+
+        sph.mesh3D(2,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
+        sph.mesh3D(2,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+            edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
+        sph.plot3d(2, xsu, ysu, zsu, ptitle='', scatter=True,markers=['o' for i in range(len(xsu))],
+                   azim=azim, elev=elev)
+        sph.saveFig('3dsphere.png')
+
+        ############################################################################
+        #demonstrate the use of a polar 3d plot
+        #create the radial and angular vectors
+        r = np.linspace(0,1.25,25)
+        p = np.linspace(0,2*np.pi,50)
+        #the r and p vectors may have non-constant grid-intervals
+        # r = np.logspace(np.log10(0.001),np.log10(1.25),50)
+        # p = np.logspace(np.log10(0.001),np.log10(2*np.pi),100)
+        #build a meshgrid (2-D array of values)
+        R,P = np.meshgrid(r,p)
+        #calculate the z values on the cartesian grid
+        # value = (np.tan(P**3)*np.cos(P**2)*(R**2 - 1)**2)
+        value = ((R**2 - 1)**2)
+        p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
+        p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
+            xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
+        p3D.saveFig('p3D.png')
+        #p3D.saveFig('p3D.eps')
+
+        with open('./data/Intensity-max.dat', 'rt') as fin:
+            aArray = np.loadtxt( fin, skiprows=1 , dtype=float )
+            azim = aArray[1:,0] + np.pi   # to positive angles
+            elev = aArray[0,1:] + np.pi/2 # get out of negative data on polar
+            intensity = aArray[1:,1:]
+
+            p3D = Plotter(1, 2, 2,'Polar plot in 3-D',figsize=(12,8))
+            elev1 = elev
+            p3D.polar3d(1, azim, elev1, intensity, zlabel='zlabel',zscale=[0, 600], azim=45, elev=30)
+            p3D.polar3d(2, azim, elev, intensity, zlabel='zlabel',zscale=[0, 2000], azim=-45, elev=30)
+            elev3 = elev + np.pi/2 # get hole in centre
+            p3D.polar3d(3, azim, elev3, intensity, zlabel='zlabel',zscale=[0, 2000], azim=60, elev=60)
+            p3D.polar3d(4, azim, elev, intensity, zlabel='zlabel',zscale=[0, 1000], azim=110, elev=-30)
+
+            p3D.saveFig('p3D2.png')
+            #p3D.saveFig('p3D2.eps')
+
+        ############################################################################
+        xv,yv = np.mgrid[-2:2:21j, -2:2:21j]
+        z = np.exp(np.exp(-(xv**2 + yv**2)))
+        I = Plotter(4, 1, 2,'High dynamic range image', figsize=(8, 4))
+        I.showImage(1, z, ptitle='xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarfontsize = 7)
+        ip = ProcessImage()
+        zz, customticksz = ip.compressEqualizeImage(z, 2, 10)
+        I.showImage(2, zz, ptitle='Equalized xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarcustomticks=customticksz, cbarfontsize = 7)
+        I.saveFig('HistoEq.png')
+        #    I.saveFig('HistoEq.eps')
+
+        ############################################################################
+        # demonstrate dates on the x-axis
+        dates = ['01/02/1991','01/03/1991','01/04/1991']
+        x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
+        y = np.asarray(range(len(x)))
+        pd = Plotter(1)
+        pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
+        pd.saveFig('plotdateX.png')
+
+        #demonstrate the use of arbitrary x-axis tick marks
+        x = np.asarray([1, 2, 3, 4])
+        y = np.asarray([1, 2, 3, 4])
+        px = Plotter(2)
+        px.plot(1,x,y,xTicks={1:'One', 2:'Two', 3:'Three', 4:'Four'}, xtickRotation=90)
+        px.saveFig('plotxTick.png')
 
     ############################################################################
     #demonstrate the use of a polar mesh plot radial scales
