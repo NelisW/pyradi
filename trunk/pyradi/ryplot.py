@@ -28,6 +28,8 @@ Provision is made for combinations of linear and log scales, as well
 as polar plots for two-dimensional graphs.
 The Plotter class can save files to disk in a number of formats.
 
+For more examples of use see:
+https://github.com/NelisW/ComputationalRadiometry
 
 See the __main__ function for examples of use.
 
@@ -1354,7 +1356,7 @@ class Plotter:
                 | ptitle (string): plot title (optional)
                 | xlabel (string): x axis label (optional)
                 | ylabel (string): y axis label (optional)
-                | shading (string):  type of shading, 'flat' | 'gouraud'  (optional)
+                | shading (string):  not used currently (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
@@ -1401,6 +1403,7 @@ class Plotter:
       if logScale is True:
           zvals = np.log10(zvals) 
 
+      contour_negative_linestyle = plt.rcParams['contour.negative_linestyle']
       if contourLine:
           if negativeSolid:
               plt.rcParams['contour.negative_linestyle'] = 'solid'
@@ -1453,7 +1456,12 @@ class Plotter:
       else:
         zorder = 2
 
+
       #do the plot
+      if contourFill:
+          pmplotcf = ax.contourf(xvals, yvals, zvals, levels, 
+              cmap=meshCmap, zorder=zorder, clip_on=clip_on)
+
       if contourLine:
           pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
                colors=col, zorder=zorder, clip_on=clip_on)
@@ -1462,14 +1470,11 @@ class Plotter:
           pmplot = ax.contour(xvals, yvals, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
                colors=col, zorder=zorder, clip_on=clip_on)
 
-      if contourFill:
-          pmplot = ax.contourf(xvals, yvals, zvals, levels, shading=shading,
-              cmap=meshCmap, zorder=zorder, clip_on=clip_on)
 
-      if contLabel:
+      if contLabel: # and not contourFill:
         plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder, clip_on=clip_on)
 
-      if cbarshow is True:
+      if cbarshow and (contourFill):
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
           divider = make_axes_locatable(ax)
           if cbarorientation == 'vertical':
@@ -1478,8 +1483,8 @@ class Plotter:
             cax = divider.append_axes("bottom", size="5%", pad=0.1)          
 
           if not cbarcustomticks:
-              # cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
-              cbar = self.fig.colorbar(pmplot,cax=cax)
+              # cbar = self.fig.colorbar(pmplotcf,orientation=cbarorientation)
+              cbar = self.fig.colorbar(pmplotcf,cax=cax)
               if logScale:
                   cbartickvals = cbar.ax.yaxis.get_ticklabels()
                   tickVals = []
@@ -1495,8 +1500,8 @@ class Plotter:
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
           else:
               ticks,  ticklabels = zip(*cbarcustomticks)
-              # cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
-              cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
+              # cbar = self.fig.colorbar(pmplotcf,ticks=ticks, orientation=cbarorientation)
+              cbar = self.fig.colorbar(pmplotcf,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
                   cbar.ax.set_yticklabels(ticklabels)
               else:
@@ -1508,9 +1513,6 @@ class Plotter:
           else:
               for t in cbar.ax.get_xticklabels():
                    t.set_fontsize(cbarfontsize)
-
-      if(ptitle is not None):
-          plt.title(ptitle, fontsize=titlefsize)
 
       #scale the axes
       if pltaxis is not None:
@@ -1527,6 +1529,8 @@ class Plotter:
           ax.set_ylim(ax.get_ylim()[::-1])
       if xInvert:
           ax.set_xlim(ax.get_xlim()[::-1])
+
+      plt.rcParams['contour.negative_linestyle'] = contour_negative_linestyle
 
       return ax
 
@@ -2436,6 +2440,7 @@ class Plotter:
       if logScale is True:
           zvals = np.log10(zvals) 
 
+      contour_negative_linestyle = plt.rcParams['contour.negative_linestyle']
       if contourLine:
           if negativeSolid:
               plt.rcParams['contour.negative_linestyle'] = 'solid'
@@ -2522,6 +2527,7 @@ class Plotter:
 
       if cbarshow is True:
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          # this does not work with the polar projection, use gridspec to do this.
           # divider = make_axes_locatable(ax)
           # if cbarorientation == 'vertical':
           #   cax = divider.append_axes("right", size="5%", pad=0.05)          
@@ -2560,6 +2566,7 @@ class Plotter:
               for t in cbar.ax.get_xticklabels():
                    t.set_fontsize(cbarfontsize)
 
+      plt.rcParams['contour.negative_linestyle'] = contour_negative_linestyle
 
       return ax
 
@@ -2617,7 +2624,7 @@ class Plotter:
         xlabel = labels[0]
         ylabels = labels[1:]
 
-        ## keep track of whether the outer grid wwas already defined.
+        ## keep track of whether the outer grid was already defined.
         #use current subplot number as outer grid reference
         ogkey = (self.nrow, self.ncol)
         if ogkey not in self.gridSpecsOuter.keys():
@@ -2625,7 +2632,7 @@ class Plotter:
                          gridspec.GridSpec(self.nrow,self.ncol, wspace=0, hspace=0)
         outer_grid = self.gridSpecsOuter[ogkey]
 
-        ## keep track of whether the inner grid wwas already defined.
+        ## keep track of whether the inner grid was already defined.
         #inner_grid (nested):
         igkey = (self.nrow, self.ncol, plotnum)
         if igkey not in self.gridSpecsInner.keys():
@@ -2889,10 +2896,6 @@ if __name__ == '__main__':
     pm.polar3d(2, angler, grange, launch, zlabel='zlabel',
         linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
     pm.saveFig('3Dlaunch.png')
-
-
-    exit(0)
-
 
     if True:
         ############################################################################

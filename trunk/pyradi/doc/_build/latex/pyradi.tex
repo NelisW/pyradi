@@ -14,7 +14,7 @@
 
 
 \title{pyradi Documentation}
-\date{October 10, 2014}
+\date{October 12, 2014}
 \release{}
 \author{pyradi team}
 \newcommand{\sphinxlogo}{}
@@ -1423,6 +1423,9 @@ Provision is made for combinations of linear and log scales, as well
 as polar plots for two-dimensional graphs.
 The Plotter class can save files to disk in a number of formats.
 
+For more examples of use see:
+\href{https://github.com/NelisW/ComputationalRadiometry}{https://github.com/NelisW/ComputationalRadiometry}
+
 See the \_\_main\_\_ function for examples of use.
 
 This package was partly developed to provide additional material in support of students 
@@ -1645,7 +1648,7 @@ for the x and y axes.
 \index{mesh3D() (pyradi.ryplot.Plotter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{ryplot:pyradi.ryplot.Plotter.mesh3D}\pysiglinewithargsret{\bfcode{mesh3D}}{\emph{plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits={[}-4, 2, -4, 2, -2, 2{]}, titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, surface=True, cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x0590E6D0\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, alpha=1, alphawire=1, azim=45, elev=30, zorders=None, clip\_on=True}}{}
+\phantomsection\label{ryplot:pyradi.ryplot.Plotter.mesh3D}\pysiglinewithargsret{\bfcode{mesh3D}}{\emph{plotnum, xvals, yvals, zvals, ptitle=None, xlabel=None, ylabel=None, zlabel=None, rstride=1, cstride=1, linewidth=0, plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0, xScientific=False, yScientific=False, zScientific=False, powerLimits={[}-4, 2, -4, 2, -2, 2{]}, titlefsize=12, xylabelfsize=12, xytickfsize=10, wireframe=False, surface=True, cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x057EEA30\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, drawGrid=True, xInvert=False, yInvert=False, zInvert=False, logScale=False, alpha=1, alphawire=1, azim=45, elev=30, zorders=None, clip\_on=True}}{}
 XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
 Given an existing figure, this function plots in a specified subplot position.
@@ -1737,7 +1740,7 @@ to the (x,y) grid.
 \index{meshContour() (pyradi.ryplot.Plotter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{ryplot:pyradi.ryplot.Plotter.meshContour}\pysiglinewithargsret{\bfcode{meshContour}}{\emph{plotnum, xvals, yvals, zvals, levels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol={[}{]}, pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits={[}-4, 2, -4, 2{]}, titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x0590E6D0\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=None, contLabel=False, contFmt='\%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip\_on=True}}{}
+\phantomsection\label{ryplot:pyradi.ryplot.Plotter.meshContour}\pysiglinewithargsret{\bfcode{meshContour}}{\emph{plotnum, xvals, yvals, zvals, levels=10, ptitle=None, xlabel=None, ylabel=None, shading='flat', plotCol={[}{]}, pltaxis=None, maxNX=0, maxNY=0, xScientific=False, yScientific=False, powerLimits={[}-4, 2, -4, 2{]}, titlefsize=12, xylabelfsize=12, xytickfsize=10, meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x057EEA30\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, drawGrid=False, yInvert=False, xInvert=False, contourFill=True, contourLine=True, logScale=False, negativeSolid=False, zeroContourLine=None, contLabel=False, contFmt='\%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip\_on=True}}{}
 XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
 The data values must be given on a fixed mesh grid of three-dimensional 
@@ -1771,7 +1774,7 @@ have to be on regular intervals.
 \item[] ptitle (string): plot title (optional)
 \item[] xlabel (string): x axis label (optional)
 \item[] ylabel (string): y axis label (optional)
-\item[] shading (string):  type of shading, `flat' \textbar{} `gouraud'  (optional)
+\item[] shading (string):  not used currently (optional)
 \item[] plotCol ({[}strings{]}): plot colour and line style, list with M entries, use default if {[}{]} (optional)
 \item[] pltaxis ({[}xmin, xmax, ymin,ymax{]}): scale for x,y axes. Let Matplotlib decide if None. (optional)
 \item[] maxNX (int): draw maxNX+1 tick labels on x axis (optional)
@@ -2160,7 +2163,7 @@ zero-offset rotation is counterclockwise from 3'o'clock (optional)
 \index{polar3d() (pyradi.ryplot.Plotter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{ryplot:pyradi.ryplot.Plotter.polar3d}\pysiglinewithargsret{\bfcode{polar3d}}{\emph{plotnum}, \emph{theta}, \emph{radial}, \emph{zvals}, \emph{ptitle=None}, \emph{xlabel=None}, \emph{ylabel=None}, \emph{zlabel=None}, \emph{zscale=None}, \emph{titlefsize=12}, \emph{xylabelfsize=12}, \emph{thetaStride=1}, \emph{radialstride=1}, \emph{meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x0590E6D0\textgreater{}}, \emph{linewidth=0.1}, \emph{azim=45}, \emph{elev=30}, \emph{zorders=None}, \emph{clip\_on=True}, \emph{facecolors=None}, \emph{alpha=1}, \emph{edgeCol=None}}{}
+\phantomsection\label{ryplot:pyradi.ryplot.Plotter.polar3d}\pysiglinewithargsret{\bfcode{polar3d}}{\emph{plotnum}, \emph{theta}, \emph{radial}, \emph{zvals}, \emph{ptitle=None}, \emph{xlabel=None}, \emph{ylabel=None}, \emph{zlabel=None}, \emph{zscale=None}, \emph{titlefsize=12}, \emph{xylabelfsize=12}, \emph{thetaStride=1}, \emph{radialstride=1}, \emph{meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x057EEA30\textgreater{}}, \emph{linewidth=0.1}, \emph{azim=45}, \emph{elev=30}, \emph{zorders=None}, \emph{clip\_on=True}, \emph{facecolors=None}, \emph{alpha=1}, \emph{edgeCol=None}}{}
 3D polar surface/mesh plot for (r, theta, zvals) input sets.
 
 Given an existing figure, this function plots in a specified subplot position.
@@ -2220,7 +2223,7 @@ have to be on regular intervals.
 \index{polarMesh() (pyradi.ryplot.Plotter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{ryplot:pyradi.ryplot.Plotter.polarMesh}\pysiglinewithargsret{\bfcode{polarMesh}}{\emph{plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x0590E6D0\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, rgrid={[}0, 5{]}, thetagrid={[}30{]}, drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol={[}{]}, levels=10, contourFill=True, contourLine=True, zeroContourLine=None, negativeSolid=False, contLabel=False, contFmt='\%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip\_on=True}}{}
+\phantomsection\label{ryplot:pyradi.ryplot.Plotter.polarMesh}\pysiglinewithargsret{\bfcode{polarMesh}}{\emph{plotnum, theta, radial, zvals, ptitle=None, shading='flat', radscale=None, titlefsize=12, meshCmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x057EEA30\textgreater{}, cbarshow=False, cbarorientation='vertical', cbarcustomticks={[}{]}, cbarfontsize=12, rgrid={[}0, 5{]}, thetagrid={[}30{]}, drawGrid=False, thetagridfontsize=12, radialgridfontsize=12, direction='counterclockwise', zerooffset=0, logScale=False, plotCol={[}{]}, levels=10, contourFill=True, contourLine=True, zeroContourLine=None, negativeSolid=False, contLabel=False, contFmt='\%.2f', contCol='k', contFonSz=8, contLinWid=0.5, zorders=None, clip\_on=True}}{}
 Polar colour contour and filled contour plot for (theta, r, zvals) input sets.
 
 The data values must be given on a fixed mesh grid of three-dimensional (theta,rho,z)
@@ -2505,7 +2508,7 @@ for the x and y axes.
 \index{showImage() (pyradi.ryplot.Plotter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{ryplot:pyradi.ryplot.Plotter.showImage}\pysiglinewithargsret{\bfcode{showImage}}{\emph{plotnum}, \emph{img}, \emph{ptitle=None}, \emph{xlabel=None}, \emph{ylabel=None}, \emph{cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x058BB9F0\textgreater{}}, \emph{titlefsize=12}, \emph{cbarshow=False}, \emph{cbarorientation='vertical'}, \emph{cbarcustomticks=}\optional{}, \emph{cbarfontsize=12}, \emph{labelfsize=10}, \emph{xylabelfsize=12}}{}
+\phantomsection\label{ryplot:pyradi.ryplot.Plotter.showImage}\pysiglinewithargsret{\bfcode{showImage}}{\emph{plotnum}, \emph{img}, \emph{ptitle=None}, \emph{xlabel=None}, \emph{ylabel=None}, \emph{cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x057A6D50\textgreater{}}, \emph{titlefsize=12}, \emph{cbarshow=False}, \emph{cbarorientation='vertical'}, \emph{cbarcustomticks=}\optional{}, \emph{cbarfontsize=12}, \emph{labelfsize=10}, \emph{xylabelfsize=12}}{}
 Creates a subplot and show the image using the colormap provided.
 \begin{description}
 \item[{Args:}] \leavevmode
@@ -4536,33 +4539,6 @@ Plot all spectral curve data to a single graph.
 \item[{Args:}] \leavevmode
 \begin{DUlineblock}{0em}
 \item[] savePath (string): Path (ending with a /)  to where the plots must be saved (optional)
-\item[] saveExt (string) : Extension to save the plot as, default of `png'.
-\end{DUlineblock}
-
-\item[{Returns:}] \leavevmode
-\begin{DUlineblock}{0em}
-\item[] None, the images are saved to a specified location or in the location
-\item[] from which the script is running.
-\end{DUlineblock}
-
-\item[{Raises:}] \leavevmode
-\begin{DUlineblock}{0em}
-\item[] No exception is raised.
-\end{DUlineblock}
-
-\end{description}
-
-\end{fulllineitems}
-
-\index{PlotTempRadiance() (pyradi.ryptw.JadeCalibrationData method)}
-
-\begin{fulllineitems}
-\phantomsection\label{ryptw:pyradi.ryptw.JadeCalibrationData.PlotTempRadiance}\pysiglinewithargsret{\bfcode{PlotTempRadiance}}{\emph{savePath=None}, \emph{saveExt='png'}}{}
-Plot temperature versus radiance for both camera temperatures
-\begin{description}
-\item[{Args:}] \leavevmode
-\begin{DUlineblock}{0em}
-\item[] savePath (string): Path (ending with a /) to where the plots must be saved (optional)
 \item[] saveExt (string) : Extension to save the plot as, default of `png'.
 \end{DUlineblock}
 
