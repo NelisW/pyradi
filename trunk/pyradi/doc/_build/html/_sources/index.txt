@@ -28,7 +28,9 @@ Welcome to pyradi's documentation!
    ryplotspherical
 
    ryutils
-  
+   
+   rylookup
+
    ryptw
    
    rymodtran

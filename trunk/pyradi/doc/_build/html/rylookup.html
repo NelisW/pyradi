@@ -1,0 +1,608 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Radiometric Lookup Functions &mdash; pyradi  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyradi  documentation" href="index.html" />
+    <link rel="next" title="Ptw File Functions" href="ryptw.html" />
+    <link rel="prev" title="Utility Functions" href="ryutils.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryptw.html" title="Ptw File Functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ryutils.html" title="Utility Functions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="radiometric-lookup-functions">
+<h1>Radiometric Lookup Functions<a class="headerlink" href="#radiometric-lookup-functions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyradi.rylookup">
+<span id="overview"></span><h2>Overview<a class="headerlink" href="#module-pyradi.rylookup" title="Permalink to this headline">¶</a></h2>
+<p>This class provides lookup functionality between source temperature, 
+source radiance and sensor signal.  In this class the sensor signal is called 
+digital level, but it represents any atribrary sensor signal unit.</p>
+<p>See the __main__ function for examples of use.</p>
+<p>This package was partly developed to provide additional material in support of students 
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
+PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646">http://spie.org/x648.html?product_id=2021423&amp;origin_id=x646</a></p>
+</div>
+<div class="section" id="module-classes">
+<h2>Module classes<a class="headerlink" href="#module-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyradi.rylookup.RadLookup">
+<em class="property">class </em><tt class="descclassname">pyradi.rylookup.</tt><tt class="descname">RadLookup</tt><big>(</big><em>specName</em>, <em>nu</em>, <em>tmprLow</em>, <em>tmprHi</em>, <em>tmprInc</em>, <em>sensorResp=None</em>, <em>opticsTau=None</em>, <em>filterTau=None</em>, <em>atmoTau=None</em>, <em>sourceEmis=None</em>, <em>sigMin=None</em>, <em>sigMax=None</em>, <em>sigInc=None</em>, <em>dicCaldata=None</em>, <em>dicPower=None</em>, <em>dicFloor=None</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Performs radiometric lookup capability between temperature and radiance, given </dt>
+<dd>camera spectral and calibration data.</dd>
+</dl>
+<p>Given spectral and temperature data this class calculates loopup tables and 
+provide lookup functions operating on the tables.</p>
+<p>The class provides two parallel functional capabilities:</p>
+<ul class="simple">
+<li>given spectral data and no calibration data it calculates a simple radiance-based
+lookup between temperture and radiance, assuming Planck-law relationships.</li>
+<li>given camera calibration data it relates between signal value, temperature and
+radiance.  It accounts for the effect of hot optics that cause a lower asymptotic
+radiance level.  The calibration mode supports linear interpolation between two
+calibration curves, to account for the instrument internal temperature. This 
+mode requires the sigMin, sigMax, sigInc, and dicCaldat parameters.</li>
+</ul>
+<p>By not passing the calibration parameters simply means that that part of the code is 
+not executed and only the simple radiance-based lookup is available.</p>
+<p>Spectral data parameter may be either a filename (data read from file) or a 
+numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
+must have two colums: first column is wavelength, and second
+column is the spectral value at this wavelength.  Data read in from the file
+will be interpolated to (nuMin, nuMax,nuInc) scale. If the parameter is None, 
+then unity spectral values will be used.</p>
+<p>The camera calibration data set requires the following data:</p>
+<ul class="simple">
+<li>sigMin, sigMax, sigInc: the parameters to define the signal magnitude vector.</li>
+<li>dicCaldata:  the dictionary containing the camera calibration data.  The dictionary
+key is the instrument internal temperature [deg-C] (one or two values required).  
+For each key, provide a numpy array where the <em>first column</em> is the calibration 
+source temperature [deg-C], and the <em>second column</em> is the signal measured on 
+the instrument and the <em>third column</em> is the radiance for this temperature 
+(only after the tables have been calculated).</li>
+<li>dicPower: the dictionary containing the camera calibration curve lower knee
+sharpness.  The dictionary key is the instrument internal temperature 
+(one or two values required).</li>
+<li>dicFloor: the dictionary containing the camera calibration curve lower asymptotic
+signal value.  The dictionary key is the instrument internal temperature 
+(one or two values required).</li>
+</ul>
+<p>Error handling is simply to test for certain conditions and then execute the 
+task if conditions are met, otherwise do nothing.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">specName (string): Name for this lookup data set, used in graphs.</div>
+<div class="line">nu (np.array(N,1)): wavenumber vector to be used in spectral calcs.</div>
+<div class="line">tmprLow (float): Lower temperature bound [K] for lookup tables.</div>
+<div class="line">tmprHi (float):  Upper temperature bound [K] for lookup tables.</div>
+<div class="line">tmprInc (float):  Increment temperature [K] for lookup tables.</div>
+<div class="line">sensorResp (string/np.array(N,1)): sensor/detector spectral filename or array data (optional).</div>
+<div class="line">opticsTau (string/np.array(N,1)): opticsTransmittance spectral filename or array data (optional).</div>
+<div class="line">filterTau ((string/np.array(N,1)): filter spectral filename or array data (optional). </div>
+<div class="line">atmoTau (string/np.array(N,1)): atmoTau spectral filename or array data (optional).</div>
+<div class="line">sourceEmis (string/np.array(N,1)): sourceEmis spectral filename or array data (optional).</div>
+<div class="line">sigMin (float): minimum signal value, typically 2**0 (optional). </div>
+<div class="line">sigMax (float): maximum signal value, typically 2**14 (optional). </div>
+<div class="line">sigInc(float): signal increment, typically 2**8 (optional).</div>
+<div class="line">dicCaldata (dict): calibration data for sensor.</div>
+<div class="line">dicPower (dict): cal curve lower asymptote knee sharpness parameter (optional).</div>
+<div class="line">dicFloor (dict): cal curve lower asymptote  parameter (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">Nothing, but init() loads data and  calculates the tables on instantiation.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.CalculateDataTables">
+<tt class="descname">CalculateDataTables</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.CalculateDataTables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the mapping functions between sensor signal, radiance and temperature.</p>
+<blockquote>
+<div>Using the spectral curves and DL vs. temperature calibration inputs
+calculate the various mapping functions between digital level, radiance
+and temperature. Set up the various tables for later conversion.</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">None.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None. Side effect of all tables calculated.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.Info">
+<tt class="descname">Info</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.Info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the calibration data file data to a string and return string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">None.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(string) containing the key information for this class.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LoadSpectrals">
+<tt class="descname">LoadSpectrals</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LoadSpectrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the five required spectral parameters.</p>
+<p>If the spectral parameters are strings, the strings are used as filenames 
+and the data loaded from file.  If None, unity values are assumed. If not 
+a string or None, the parameters are used as is, and must be numpy arrays
+with shape (N,1) where the N vector exactly matches to spectral samples</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">None.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None. Side-effect of loaded spectrals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LookupDLRad">
+<tt class="descname">LookupDLRad</tt><big>(</big><em>DL</em>, <em>Tint</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupDLRad" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Calculate the radiance associated with a DL and Tint pair.</dt>
+<dd>Interpolate linearly on Tint radiance not temperature.</dd>
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">DL (float, np.array[N,]): scalar, list or array of sensor signal values.</div>
+<div class="line">Tint (float): scalar, internal temperature of the sensor.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(np.array[N,]) radiance W/(sr.m2) values associated with sensor signals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LookupDLRadHelper">
+<tt class="descname">LookupDLRadHelper</tt><big>(</big><em>DL</em>, <em>paraK</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupDLRadHelper" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Calculate the radiance associated with a DL and parametric pair. The</dt>
+<dd>parametric variable was calculated once and used for all DL values.</dd>
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">DL (float, np.array[N,]): scalar, list or array of sensor signal values.</div>
+<div class="line">paraK (float): scalar, internal temperature parametric values.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(np.array[N,]) radiance W/(sr.m2) values associated with sensor signals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LookupDLTemp">
+<tt class="descname">LookupDLTemp</tt><big>(</big><em>DL</em>, <em>Tint</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupDLTemp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Calculate the temperature associated with a DL and Tint pair.</dt>
+<dd>Interpolate linearly on Tint temperature - actually we must
+interpolate linearly on radiance - to be done later.</dd>
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">DL (float, np.array[N,]): scalar, list or array of sensor signal values.</div>
+<div class="line">Tint (float): scalar, internal temperature of the sensor.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(np.array[N,]) temperature K values associated with sensor signals.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LookupRadTemp">
+<tt class="descname">LookupRadTemp</tt><big>(</big><em>radiance</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupRadTemp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the temperature associated with a radiance value for the 
+given spectral shapes (no calibration involved).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">radiance (float, np.array[N,]): scalar, list or array of radiance W/(sr.m2) values.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">(np.array[N,]) temperature K values associated with radiance values.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.LookupTempRad">
+<tt class="descname">LookupTempRad</tt><big>(</big><em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupTempRad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the radiance associated with a temperature for the 
+given spectral shapes (no calibration involved).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">temperature(np.array[N,])  scalar, list or array of temperature K values.</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">radiance (float, np.array[N,]): radiance W/(sr.m2) associated with temperature values..</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotCalDLRadiance">
+<tt class="descname">PlotCalDLRadiance</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotCalDLRadiance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot DL level versus radiance for both camera temperatures</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;CaldlRadiance&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotCalDLTemp">
+<tt class="descname">PlotCalDLTemp</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotCalDLTemp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot digital level versus temperature for both camera temperatures</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;CalDLTemp&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotCalSpecRadiance">
+<tt class="descname">PlotCalSpecRadiance</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotCalSpecRadiance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot spectral radiance data for the calibration temperatures.</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;CalRadiance&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotCalTempRadiance">
+<tt class="descname">PlotCalTempRadiance</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotCalTempRadiance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot temperature versus radiance for both camera temperatures</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;CalTempRadiance&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotCalTintRad">
+<tt class="descname">PlotCalTintRad</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotCalTintRad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot optics radiance versus instrument temperature</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;CalInternal&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotSpectrals">
+<tt class="descname">PlotSpectrals</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotSpectrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot all spectral curve data to a single graph.</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;spectrals&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyradi.rylookup.RadLookup.PlotTempRadiance">
+<tt class="descname">PlotTempRadiance</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotTempRadiance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot temperature versus radiance for both camera temperatures</p>
+<p>The filename is constructed from the given object name, save path, and
+the word &#8216;TempRadiance&#8217;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><div class="first last line-block">
+<div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
+<div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
+</div>
+</dd>
+<dt>Returns:</dt>
+<dd><div class="first last line-block">
+<div class="line">None, the images are saved to a specified location or in the location</div>
+<div class="line">from which the script is running.</div>
+</div>
+</dd>
+<dt>Raises:</dt>
+<dd><div class="first last line-block">
+<div class="line">No exception is raised.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Radiometric Lookup Functions</a><ul>
+<li><a class="reference internal" href="#module-pyradi.rylookup">Overview</a></li>
+<li><a class="reference internal" href="#module-classes">Module classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ryutils.html"
+                        title="previous chapter">Utility Functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ryptw.html"
+                        title="next chapter">Ptw  File Functions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rylookup.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ryptw.html" title="Ptw File Functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ryutils.html" title="Utility Functions"
+             >previous</a> |</li>
+        <li><a href="index.html">pyradi  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, CJ Willers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
