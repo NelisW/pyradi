@@ -74,7 +74,7 @@ PM236, SPIE Press, 2013.  <a class="reference external" href="http://spie.org/x6
 <dt>Performs radiometric lookup capability between temperature and radiance, given </dt>
 <dd>camera spectral and calibration data.</dd>
 </dl>
-<p>Given spectral and temperature data this class calculates loopup tables and 
+<p>Given spectral data and temperature this class calculates loopup tables and 
 provide lookup functions operating on the tables.</p>
 <p>The class provides two parallel functional capabilities:</p>
 <ul class="simple">
@@ -88,6 +88,19 @@ mode requires the sigMin, sigMax, sigInc, and dicCaldat parameters.</li>
 </ul>
 <p>By not passing the calibration parameters simply means that that part of the code is 
 not executed and only the simple radiance-based lookup is available.</p>
+<p>Five spectral vectors can be supplied: 
+(1) emissivity, 
+(2) atmospheric transmittance,
+(3) filter transmittance,
+(4) optics tranmittance, and
+(5) sensor response.
+Two sets of calculations are performed, the first with all five spectral vectors,
+and the second without the filter, but all four remaining vectors.  This option
+may be useful when compensating for neutral density filters, i.e., radiance before
+or after the filter (with/without).  This option is relevant only in the 
+functions <tt class="docutils literal"><span class="pre">LookupRadTemp</span></tt>, <tt class="docutils literal"><span class="pre">LookupTempRad</span></tt>, and <tt class="docutils literal"><span class="pre">PlotTempRadiance</span></tt>. In these three
+functions, the appropriate option can be selected by setting the <tt class="docutils literal"><span class="pre">withFilter=True</span></tt>
+function parameter.</p>
 <p>Spectral data parameter may be either a filename (data read from file) or a 
 numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
 must have two colums: first column is wavelength, and second
@@ -100,7 +113,7 @@ then unity spectral values will be used.</p>
 <li>dicCaldata:  the dictionary containing the camera calibration data.  The dictionary
 key is the instrument internal temperature [deg-C] (one or two values required).  
 For each key, provide a numpy array where the <em>first column</em> is the calibration 
-source temperature [deg-C], and the <em>second column</em> is the signal measured on 
+source temperature K, and the <em>second column</em> is the signal measured on 
 the instrument and the <em>third column</em> is the radiance for this temperature 
 (only after the tables have been calculated).</li>
 <li>dicPower: the dictionary containing the camera calibration curve lower knee
@@ -149,9 +162,12 @@ task if conditions are met, otherwise do nothing.</p>
 <tt class="descname">CalculateDataTables</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.CalculateDataTables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the mapping functions between sensor signal, radiance and temperature.</p>
 <blockquote>
-<div>Using the spectral curves and DL vs. temperature calibration inputs
+<div><p>Using the spectral curves and DL vs. temperature calibration inputs
 calculate the various mapping functions between digital level, radiance
-and temperature. Set up the various tables for later conversion.</div></blockquote>
+and temperature. Set up the various tables for later conversion.</p>
+<p>The TableTempRad table has three columns: (1) temperature, (2) radiance
+with filter present and (3) radiance without filter.</p>
+</div></blockquote>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
@@ -197,7 +213,8 @@ and temperature. Set up the various tables for later conversion.</div></blockquo
 <dl class="method">
 <dt id="pyradi.rylookup.RadLookup.LoadSpectrals">
 <tt class="descname">LoadSpectrals</tt><big>(</big><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LoadSpectrals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the five required spectral parameters.</p>
+<dd><p>Load the five required spectral parameters, interpolate on the 
+fly to local spectrals.</p>
 <p>If the spectral parameters are strings, the strings are used as filenames 
 and the data loaded from file.  If None, unity values are assumed. If not 
 a string or None, the parameters are used as is, and must be numpy arrays
@@ -299,13 +316,16 @@ interpolate linearly on radiance - to be done later.</dd>
 
 <dl class="method">
 <dt id="pyradi.rylookup.RadLookup.LookupRadTemp">
-<tt class="descname">LookupRadTemp</tt><big>(</big><em>radiance</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupRadTemp" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">LookupRadTemp</tt><big>(</big><em>radiance</em>, <em>withFilter=True</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupRadTemp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the temperature associated with a radiance value for the 
 given spectral shapes (no calibration involved).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
-<div class="line">radiance (float, np.array[N,]): scalar, list or array of radiance W/(sr.m2) values.</div>
+<div class="line">radiance (float, np.array[N,]): scalar, list or array of radiance 
+W/(sr.m2) values.</div>
+<div class="line">withFilter (boolean): use table with filter to do lookup, no filter 
+if false (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -323,13 +343,15 @@ given spectral shapes (no calibration involved).</p>
 
 <dl class="method">
 <dt id="pyradi.rylookup.RadLookup.LookupTempRad">
-<tt class="descname">LookupTempRad</tt><big>(</big><em>temperature</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupTempRad" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">LookupTempRad</tt><big>(</big><em>temperature</em>, <em>withFilter=True</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.LookupTempRad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the radiance associated with a temperature for the 
 given spectral shapes (no calibration involved).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
 <div class="line">temperature(np.array[N,])  scalar, list or array of temperature K values.</div>
+<div class="line">withFilter (boolean): use table with filter to do lookup, no filter 
+if false (optional).</div>
 </div>
 </dd>
 <dt>Returns:</dt>
@@ -509,13 +531,15 @@ the word &#8216;spectrals&#8217;.</p>
 
 <dl class="method">
 <dt id="pyradi.rylookup.RadLookup.PlotTempRadiance">
-<tt class="descname">PlotTempRadiance</tt><big>(</big><em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotTempRadiance" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">PlotTempRadiance</tt><big>(</big><em>withFilter=True</em>, <em>savePath=None</em>, <em>saveExt=u'png'</em><big>)</big><a class="headerlink" href="#pyradi.rylookup.RadLookup.PlotTempRadiance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot temperature versus radiance for both camera temperatures</p>
 <p>The filename is constructed from the given object name, save path, and
 the word &#8216;TempRadiance&#8217;.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><div class="first last line-block">
+<div class="line">withFilter (boolean): use table with filter to do lookup, no filter 
+if false (optional).</div>
 <div class="line">savePath (string): Path to where the plots must be saved (optional).</div>
 <div class="line">saveExt (string) : Extension to save the plot as, default of &#8216;png&#8217; (optional).</div>
 </div>
