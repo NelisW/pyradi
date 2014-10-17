@@ -92,6 +92,7 @@ import pyradi.ryutils as ryutils
 import pyradi.ryplanck as ryplanck
 import pyradi.ryfiles as ryfiles
 import pyradi.ryplot as ryplot
+import pyradi.rylookup as rylookup
 
 import copy
 
@@ -846,694 +847,103 @@ def showHeader(Header):
     #print Header.h_Framatone
 
 
-################################################################
-def LoadPrepareDataSpectrals(data, calData=None):
-    """Load the camera calibration data from files and preprocess spectrals data.
 
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    if(calData==None): # data is assumed to be the ptw file calibration data
-        try:
-            nuMin = data.nuMin
-            nuMax = data.nuMax
-            nuInc = data.nuInc
-            fillFactor = data.fillFactor
-            detectorPitch = data.detectorPitch
-            focallength = data.focallength
-            sourceEmisFilename = data.sourceEmisFilename
-            atmoTauFilename = data.atmoTauFilename
-            filterFilename = data.filterFilename
-            sensorResponseFilename = data.sensorResponseFilename
-            opticsTransmittanceFilename = data.opticsTransmittanceFilename
-        except:
-            sys.exit('Incompatible data provided in class. Required data includes:\n'+\
-                     'nuMin, nuMax, nuInc, fillFactor, detectorPitch, focallength, sourceEmisFilename,'+\
-                     'atmoTauFilename, filterFilename, sensorResponseFilename, opticsTransmittanceFilename.')
-    else: # New data and the ptw calibration data is provided
-        try:
-            nuMin = calData.nuMin
-            nuMax = calData.nuMax
-            nuInc = calData.nuInc
-            fillFactor = calData.fillFactor
-            detectorPitch = calData.detectorPitch
-            focallength = calData.focallength
-
-            # Check if new atmospheric transmittance and emissivity spectal data
-            # must be used or if the calibration data must be used.
-            try:
-                sourceEmisFilename = data.emisFilename
-                atmoTauFilename = data.atmoTauFilename
-            except:
-                sourceEmisFilename = calData.sourceEmisFilename
-                atmoTauFilename = calData.atmoTauFilename
-
-            filterFilename = calData.filterFilename
-            sensorResponseFilename = calData.sensorResponseFilename
-            opticsTransmittanceFilename = calData.opticsTransmittanceFilename
-        except:
-            sys.exit('Incompatible data provided in class. Required data includes:\n'+\
-                     'nuMin, nuMax, nuInc, fillFactor, detectorPitch, focallength, sourceEmisFilename,'+\
-                     'atmoTauFilename, filterFilename, sensorResponseFilename, opticsTransmittanceFilename.')
-
-    data.spectrals = ['CalFilter','NoFilter']
-    #set up the spectral domain in both wavenumber and wavelength
-    data.nu = np.linspace(nuMin, nuMax, 1 + (nuMax - nuMin )/nuInc )
-    data.wl = ryutils.convertSpectralDomain(data.nu,  type='nl')
-
-    #load the various input files, interpolate on the fly to local spectrals.
-    data.calEmisRaw = ryfiles.loadColumnTextFile(sourceEmisFilename, loadCol=[1],
-                    normalize=0, abscissaOut=data.wl)
-    data.calAtmo = ryfiles.loadColumnTextFile(atmoTauFilename, loadCol=[1],
-                    normalize=0, abscissaOut=data.wl)
-    data.calFilter = ryfiles.loadColumnTextFile(filterFilename, loadCol=[1],
-                    normalize=0, abscissaOut=data.wl)
-    data.calSensor = ryfiles.loadColumnTextFile(sensorResponseFilename, loadCol=[1],
-                    normalize=0, abscissaOut=data.wl)
-    data.calOptics = ryfiles.loadColumnTextFile(opticsTransmittanceFilename, loadCol=[1],
-                    normalize=0, abscissaOut=data.wl)
-    #get the conversion factor from radiance to irradiance
-    data.radiancetoIrradiance = fillFactor * (detectorPitch / focallength ) ** 2
-
-    #build a number of spectral cases, with filter variations.
-    data.dicSpectrals['NoFilterRaw'] = data.calEmisRaw * data.calAtmo * data.calSensor * data.calOptics
-    data.dicSpectrals['CalFilterRaw'] = data.dicSpectrals['NoFilterRaw'] * data.calFilter
-
-    #normalise the spectral response
-    # for spectral in data.dicSpectrals:
-    #   data.dicSpectrals[spectral]  /= np.max(data.dicSpectrals[spectral])
-
-################################################################
-def scaleForEmisivity(data, scaleEmis):
-    """Scale the emissivity and spectrla curves 'NoFilter' and 'CalFilter'.
-
-    Args:
-        | data (class): Data containing data.calEmisRaw, data.dicSpectrals['NoFilter'] and data.dicSpectrals['CalFilter']
-        | scaleEmis (float) : value by which to scale the emissivity
-    """
-    data.calEmis = data.calEmisRaw*scaleEmis
-    data.dicSpectrals['NoFilter'] = data.dicSpectrals['NoFilterRaw']*scaleEmis
-    data.dicSpectrals['CalFilter'] = data.dicSpectrals['CalFilterRaw']*scaleEmis
-
-################################################################
-def calculateDataTables(data, calData=None):
-    """Calculate the mapping functions between digital level, radiance and temperature
-
-       Using the spectral curves and DL vs. temperature calibration inputs
-       calculate the various mapping functions between digital level, radiance
-       and temperature. Set up the various tables for later conversion.
-
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    #load data if not yet loaded
-    if not 'Emissivity' in data.dicSpectrals:
-        LoadPrepareDataSpectrals(data, calData)
-
-    #Scale the emissivity
-    if(calData == None):
-        scaleForEmisivity(data, 1.0)
-    else:
-        scaleForEmisivity(data, data.scaleEmisForDL)
-
-    #Copy the calibration data points and settings to the new data so that the
-    #look up table is saved in the new data and not calibration data with the
-    #correct settings.
-    if (calData!=None): #Calibration data is given
-        data.dicCaldata = collections.defaultdict(float)
-        data.dicCaldata = copy.deepcopy(calData.dicCaldata)
-
-        data.diclFloor = collections.defaultdict(str)
-        data.diclFloor = copy.deepcopy(calData.diclFloor)
-
-        data.dicPower = collections.defaultdict(str)
-        data.dicPower = copy.deepcopy(calData.dicPower)
-
-        data.lokey = min(data.dicCaldata.keys())
-        data.hikey = max(data.dicCaldata.keys())
-
-    data.dicTableDLRad = collections.defaultdict(float)
-    data.dicLookupDLRad = collections.defaultdict(float)
-    data.dicLookupRadDL = collections.defaultdict(float)
-    data.dicTableTempRad = collections.defaultdict(float)
-    data.dicLookupTempRad = collections.defaultdict(float)
-    data.dicLookupRadTemp = collections.defaultdict(float)
-    data.DlRadCoeff = collections.defaultdict(float)
-    data.dicinterpDL = collections.defaultdict(float)
-
-    # calculate radiance values if not yet done
-    if not ('Emissivity' in data.dicRadiance):
-
-      #set up the DL range
-      interpDL = np.linspace(0,2**14, 2**8 + 1)
-      # print(interpDL)
-
-      # do for all instrument temperatures and spectral variations
-      for i,spectral in enumerate(data.spectrals):
-        data.dicSpecRadiance[spectral] = collections.defaultdict(float)
-
-        data.dicRadiance[spectral] = collections.defaultdict(float)
-        data.dicIrradiance[spectral] = collections.defaultdict(float)
-
-        for key in data.dicCaldata:
-          #temperature is in 0'th column of dicCaldata[key]
-          #planck array has shape (nu,temp), now get spectrals to same shape, then
-          #integrate along nu axis=0
-          xx = np.ones(data.dicCaldata[key][:,0].shape)
-          _, spectrl = np.meshgrid(xx,data.dicSpectrals[spectral])
-          #now spectrl has the same shape as the planck function return
-
-          data.dicSpecRadiance[spectral][key] = \
-          spectrl * ryplanck.planck(data.nu, data.dicCaldata[key][:,0], type='en')
-          data.dicRadiance[spectral][key] = \
-          np.trapz(data.dicSpecRadiance[spectral][key], x=data.nu,  axis=0) / np.pi
-          data.dicIrradiance[spectral][key] = \
-          data.dicRadiance[spectral][key] * data.radiancetoIrradiance
-
-          #if first time, stack horizontally to the calibration array, otherwise overwrite
-          if data.dicCaldata[key].shape[1] < 6:
-            data.dicCaldata[key] = np.hstack((data.dicCaldata[key],
-                                              data.dicRadiance[spectral][key].reshape(-1,1)))
-            data.dicCaldata[key] = np.hstack((data.dicCaldata[key],
-                                              data.dicIrradiance[spectral][key].reshape(-1,1)))
-          else:
-            data.dicCaldata[key][:,2*i+2] = data.dicRadiance[spectral][key].reshape(-1,)
-            data.dicCaldata[key][:,2*i+3] = data.dicIrradiance[spectral][key].reshape(-1,)
-
-          if spectral == 'NoFilter':
-            # now determine the best fit between radiance and DL
-            # the relationship should be linear y = mx + c
-            # x=digital level, y=radiance
-            coeff = np.polyfit(data.dicCaldata[key][:,1],
-                              data.dicRadiance[spectral][key].reshape(-1,), deg=1)
-            # print('straight line fit DL = {} L + {}'.format(coeff[0],coeff[1]))
-            data.DlRadCoeff[key] = coeff
-            interpL = np.polyval(coeff, interpDL)
-            # add the DL floor due to instrument & optics temperature
-            pow = data.dicPower[key]
-            data.dicinterpDL[key] = (interpDL ** pow + data.diclFloor[key] ** pow) ** (1./pow)
-            #now save a lookup table for key value
-            data.dicTableDLRad[key] = \
-            np.hstack(([data.dicinterpDL[key].reshape(-1,1), interpL.reshape(-1,1)]))
-
-            #now calculate a high resolution lookup table between temperature and radiance
-            tempHiRes = np.linspace(np.min(data.dicCaldata[key][:,0])-100,
-                                    np.max(data.dicCaldata[key][:,0])+100, 101)
-            xx = np.ones(tempHiRes.shape)
-            _, spectrlHR = np.meshgrid(xx,data.dicSpectrals[spectral])
-            specLHiRes = spectrlHR * ryplanck.planck(data.nu, tempHiRes, type='en')
-            LHiRes = np.trapz(specLHiRes, x=data.nu, axis=0) / np.pi
-            data.dicTableTempRad[key] = \
-                                np.hstack((tempHiRes.reshape(-1,1),LHiRes.reshape(-1,1) ))
-
-        if spectral == 'NoFilter':
-          #calculate the radiance in the optics and sensor for later interpolation of Tinternal
-          tempTint = 273.15 + np.linspace(np.min(data.dicCaldata.keys())-20,
-                                          np.max(data.dicCaldata.keys())+20, 101)
-          xx = np.ones(tempTint.shape)
-          _, spectrlHR = np.meshgrid(xx,data.dicSpectrals[spectral])
-          specLTint = spectrlHR * ryplanck.planck(data.nu, tempTint, type='en')
-          LTint = np.trapz(specLTint, x=data.nu, axis=0) / np.pi
-          data.TableTintRad = np.hstack((tempTint.reshape(-1,1),LTint.reshape(-1,1) ))
-
-################################################################
-def LookupTableDLRad(data, DL, Tint, calData=None):
-    """Calculate the radiance associated with a DL and Tint pair.
-       Interpolate linearly on Tint radiance not temperature.
-
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    # calculate radiance values if not yet done
-    if not 'Emissivity' in data.dicRadiance:
-      calculateDataTables(data, calData)
-
-    #get radiance values for lower and upper Tint and the actual Tin
-    Llo = np.interp(data.lokey+273.15, data.TableTintRad[:,0], data.TableTintRad[:,1])
-
-    #find the parametric value for Tint radiance, do this once
-    #If only one calibration temperature is available then skip prametric
-    if((data.hikey - data.lokey)==0):
-        paraK = 0
-    else:
-        Lhi = np.interp(data.hikey+273.15, data.TableTintRad[:,0], data.TableTintRad[:,1])
-        Lti = np.interp(Tint+273.15, data.TableTintRad[:,0], data.TableTintRad[:,1])
-        paraK = (Lti - Llo) / (Lhi - Llo)
-    return LookupTableDLRadHelper(data, DL, paraK)
-
-
-################################################################
-def LookupTableDLRadHelper(data, DL, paraK):
-    """Calculate the radiance associated with a DL and parametric pair. The
-       parametric variable was calculated once and used for all DL values.
-    """
-
-    # numpy's interp supports arrays as input, but only does linear interpolation
-    lo = np.interp(DL, data.dicTableDLRad[data.lokey][:,0], data.dicTableDLRad[data.lokey][:,1])
-
-    if (paraK != 0):
-        hi = np.interp(DL, data.dicTableDLRad[data.hikey][:,0], data.dicTableDLRad[data.hikey][:,1])
-        return  lo + (hi - lo) * paraK
-    else:
-        return lo
-
-################################################################
-def LookupTableDLTemp(data, DL, Tint, calData=None):
-    """Calculate the temperature associated with a DL and Tint pair.
-       Here we interpolate linearly on Tint temperature - actually we must
-       interpolate linearly on radiance - to be done later.
-       Note that dicLookupRadTemp is available for both Tint values, but
-       it has the same value in both cases.
-
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    # calculate radiance values if not yet done
-    if not 'Emissivity' in data.dicRadiance:
-      calculateDataTables(data, calData)
-
-    L = LookupTableDLRad(data, DL, Tint, calData)
-    t = np.interp(L, data.dicTableTempRad[data.hikey][:,1], data.dicTableTempRad[data.hikey][:,0])
-
-    return t
-
-###############################################################################
-def LookupTableRadToTemp(data, radiance, calData=None):
-    """Calculate the temperature associated with a radiance.
-
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    if not 'Emissivity' in data.dicRadiance:
-        calculateDataTables(data, calData)
-
-    t = np.interp(radiance, data.dicTableTempRad[data.hikey][:,1], data.dicTableTempRad[data.hikey][:,0])
-    return t
-
-###############################################################################
-def LookupTableTempToRad(data, temperature, calData=None):
-    """Calculate the radiance associated with a temperature.
-
-       If two sets of data are provided then the first set (data) is assumed to be
-       new data and calData is assumed to be the camera calibration data.
-
-       This allows the look up table to be calculated with an atmospheric transmittance
-       and emissivity (set by the data passes in data as data.emisFilename and
-       data.atmoTauFilename) different to those specified in the calibration data
-       (calData as calData.sourceEmisFilename and calData.atmoTauFilename). The
-       calibration data is still required to calculate the tables.
-    """
-    if not 'Emissivity' in data.dicRadiance:
-        calculateDataTables(data, calData)
-
-    rad = np.interp(temperature, data.dicTableTempRad[data.hikey][:,0], data.dicTableTempRad[data.hikey][:,1])
-    return rad
 
 ################################################################################
+################################################################################
+################################################################################
 class JadeCalibrationData:
-  """Container to describe the calibration data of a Jade camera.
-  """
-  dicCaldata = collections.defaultdict(float)
-  dicSpectrals = collections.defaultdict(str)
-  dicRadiance = collections.defaultdict(str)
-  dicIrradiance = collections.defaultdict(str)
-  dicSpecRadiance = collections.defaultdict(str)
-  diclFloor = collections.defaultdict(str)
-  dicPower = collections.defaultdict(str)
-
-  def __init__(self,filename, datafileroot):
-    self.resetDict() #Define and clear all dictionaries
-
-    self.pathtoXML = os.path.dirname(filename)
-    self.datafileroot = datafileroot
-
-    self.wl = None
-    ftree = ET.parse(filename)
-    froot = ftree.getroot()
-    self.name = froot.find(".").attrib["Name"]
-    self.id = froot.find(".").attrib["ID"]
-    self.version = froot.find(".").attrib["Version"]
-    self.summary = froot.find(".").attrib["Summary"]
-    self.sensorResponseFilename = '/'.join([self.datafileroot,froot.find(".//SensorResponse").attrib["Filename"]])
-    self.opticsTransmittanceFilename = '/'.join([self.datafileroot,froot.find(".//OpticsTransmittance").attrib["Filename"]])
-    self.filterFilename = '/'.join([self.datafileroot,froot.find(".//Filter").attrib["Filename"]])
-    self.filterName = os.path.basename(self.filterFilename)[:-4]
-    self.sourceEmisFilename = '/'.join([self.datafileroot,froot.find(".//SourceEmis").attrib["Filename"]])
-    self.atmoTauFilename = '/'.join([self.datafileroot,froot.find(".//AtmoTau").attrib["Filename"]])
-
-    self.detectorPitch = float(froot.find(".//DetectorPitch").attrib["Value"])
-    self.fillFactor = float(froot.find(".//FillFactor").attrib["Value"])
-    self.focallength = float(froot.find(".//Focallength").attrib["Value"])
-    self.integrationTime = float(froot.find(".//IntegrationTime").attrib["Value"])
-    self.fnumber = float(froot.find(".//Fnumber").attrib["Value"])
-    self.nuMin = float(froot.find(".//Nu").attrib["Min"])
-    self.nuMax = float(froot.find(".//Nu").attrib["Max"])
-    self.nuInc = float(froot.find(".//Nu").attrib["Inc"])
-    #read the nested
-    for child in froot.findall(".//Caldatas"):
-      for childA in child.findall(".//Caldata"):
-        InstrTemp = float(childA.attrib["InstrTemperature"])
-        self.diclFloor[InstrTemp] = float(childA.attrib["DlFloor"])
-        self.dicPower[InstrTemp] = float(childA.attrib["Power"])
-        self.dicCaldata[InstrTemp] = []
-        for i,childC in enumerate(childA.findall("CalPoint")):
-          #build a numpy array row-wise as the data is read in
-          if i==0:
-            data = np.asarray([273.15 + float(childC.attrib["Temp"]),int(childC.attrib["DL"])])
-          else:
-            data = np.vstack((data, np.asarray([273.15 + float(childC.attrib["Temp"]),int(childC.attrib["DL"])] )))
-        self.dicCaldata[InstrTemp] = data
-    self.lokey = min(self.dicCaldata.keys())
-    self.hikey = max(self.dicCaldata.keys())
-    # print(self.info())
-
-
-  ################################################################
-  def resetDict(self):
-    """Clear the dictionaries
+    """Container to describe the calibration data of a Jade camera.
     """
-    self.dicCaldata = collections.defaultdict(float)
-    self.dicSpectrals = collections.defaultdict(str)
-    self.dicRadiance = collections.defaultdict(str)
-    self.dicIrradiance = collections.defaultdict(str)
-    self.dicSpecRadiance = collections.defaultdict(str)
-    self.diclFloor = collections.defaultdict(str)
-    self.dicPower = collections.defaultdict(str)
+    dicCaldata = collections.defaultdict(float)
+    # dicSpectrals = collections.defaultdict(str)
+    # dicRadiance = collections.defaultdict(str)
+    # dicIrradiance = collections.defaultdict(str)
+    # dicSpecRadiance = collections.defaultdict(str)
+    dicFloor = collections.defaultdict(str)
+    dicPower = collections.defaultdict(str)
 
-  def info(self):
-    """Write the calibration data file data to a string and return string.
-    """
-    str = ""
-    str += 'Path to XML                  = {}\n'.format(self.pathtoXML)
-    str += 'Path to datafiles            = {}\n'.format(self.datafileroot)
-    str += 'Calibration Name             = {}\n'.format(self.name)
-    str += 'ID                           = {}\n'.format(self.id)
-    str += 'Version                      = {}\n'.format(self.version)
-    str += 'Summary                      = {}\n'.format(self.summary)
-    str += 'Sensor Response Filename     = {}\n'.format(self.sensorResponseFilename)
-    str += 'Optics Transmittance Filename= {}\n'.format(self.opticsTransmittanceFilename)
-    str += 'Filter Filename              = {}\n'.format(self.filterFilename)
-    str += 'Source Emissivity Filename   = {}\n'.format(self.sourceEmisFilename)
-    str += 'Atmospheric Transm Filename  = {}\n'.format(self.atmoTauFilename)
-    str += 'DetectorPitch                = {}\n'.format(self.detectorPitch)
-    str += 'FillFactor                   = {}\n'.format(self.fillFactor)
-    str += 'Focallength                  = {}\n'.format(self.focallength)
-    str += 'integrationTime              = {}\n'.format(self.integrationTime)
-    str += 'Fnumber                      = {}\n'.format(self.fnumber)
-    str += 'Nu (Min, Max, Inc)           = ({}, {}, {})\n'.format(self.nuMin,self.nuMax,self.nuInc)
-
-    str += 'Calibration data set'
-    for i,key in enumerate(sorted(self.dicCaldata.keys())):
-      str += '\n\nInstrument temperature = {} C\n'.format(key)
-      str += 'DL floor               = {}\n'.format(self.diclFloor[key])
-      str += '      Deg-C           DL    '
-      if self.dicCaldata[key].shape[1]>2:
-        for item in self.spectrals:
-          str += '  L-{0}  E-{0}'.format(item)
-      str += '\n'
-      str += np.array_str(self.dicCaldata[key], max_line_width=120, precision=4, )
-      str += '\nstraight line fit L = {} DL + {}'.format(self.DlRadCoeff[key][0],self.DlRadCoeff[key][1])
-    return str
-
-  ################################################################
-  def LoadPrepareData(self):
-    """Load the camera calibration data from files and preprocess spectrals data
-    """
-    LoadPrepareDataSpectrals(self)
-
-  ################################################################
-  def PlotSpectrals(self, savePath=None, saveExt='png'):
-    """Plot all spectral curve data to a single graph.
-
-    Args:
-        | savePath (string): Path (ending with a /)  to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-    #load data if not yet loaded
-    if not ('Emissivity' in self.dicSpectrals):
-      self.LoadPrepareData()
-
-    scaleForEmisivity(self, 1.0)
-
-    p = ryplot.Plotter(1, figsize=(10,5))
-    p.semilogY(1,self.wl,self.calEmis,label=['Emissivity'])
-    p.semilogY(1,self.wl,self.calAtmo,label=['Atmosphere'])
-    p.semilogY(1,self.wl,self.calFilter,label=['Filter'])
-    p.semilogY(1,self.wl,self.calSensor,label=['Sensor'])
-    p.semilogY(1,self.wl,self.calOptics,label=['Optics'])
-    p.semilogY(1,self.wl,self.dicSpectrals['NoFilter'],label=['Effective no filter'])
-    p.semilogY(1,self.wl,self.dicSpectrals['CalFilter'],label=['Effective with filter'])
-    currentP = p.getSubPlot(1)
-    currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
-    currentP.set_ylabel('Normalised Response')
-    currentP.set_title('Spectral Response for {}'.format(self.name))
-
-    savePath ='' if (savePath==None) else savePath
-    p.saveFig('{}{}-spectrals.{}'.format(savePath,self.name, saveExt))
-
-
-  ################################################################
-  def PlotRadiance(self, savePath=None, saveExt='png'):
-    """Plot all spectral radiance data for the calibration temperatures.
-
-    Args:
-        | savePath (string): Path (ending with a /)  to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-    # calculate radiance values if not yet done
-    if not ('Emissivity' in self.dicRadiance):
-      self.CalculateCalibrationTables()
-
-    p = ryplot.Plotter(1,2,2, figsize=(19,10))
-    for i,spectral in enumerate(self.spectrals):
-      for j,keyTemp in enumerate(self.dicCaldata):
-          #print(spectral,keyTemp,i,j,1+j+i*2)
-          #get temperature labels
-          labels = []
-          for temp in self.dicCaldata[keyTemp][:,0]:
-            labels.append('{:.0f} $^\circ$C, {:.0f} K'.format(temp-273.15, temp))
-
-          # print(self.wl.shape, self.dicSpecRadiance[spectral][keyTemp].shape)
-          p.plot(1+j+i*2,self.wl,self.dicSpecRadiance[spectral][keyTemp],label=labels)
-          currentP = p.getSubPlot(1+j+i*2)
-          currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)), fontsize=12)
-          currentP.set_ylabel('Radiance W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
-          if spectral == 'NoFilter':
-            filname = 'no filter'
-            currentP.set_ylabel('Radiance at source W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
-          else:
-            filname = self.filterName
-            currentP.set_ylabel('Radiance at sensor W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
-          title = '{}-{} at Tinstr={} $^\circ$C'.format(self.name, filname, keyTemp)
-          currentP.set_title(title, fontsize=12)
-
-    savePath ='' if (savePath==None) else savePath
-    p.saveFig('{}{}{}-radiance.{}'.format(savePath,self.name,spectral,saveExt))
-
-  ################################################################
-  def PlotDLRadiance(self, savePath=None, saveExt='png'):
-    """Plot DL level versus radiance for both camera temperatures
-
-    Args:
-        | savePath (string): Path (ending with a /) to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-    # calculate radiance values if not yet done
-    if not 'Emissivity' in self.dicRadiance:
-      self.CalculateCalibrationTables()
-
-    p = ryplot.Plotter(1,1,1, figsize=(10,5))
-    for j,key in enumerate(self.dicCaldata):
-      if j == 0:
-        plotColB = ['r']
-        plotColM = ['b--']
-      else:
-        plotColB = ['c']
-        plotColM = ['g--']
-      p.plot(1,self.dicTableDLRad[key][:,0],self.dicTableDLRad[key][:,1],
-        label=['Best fit line {}$^\circ$C'.format(key)],plotCol=plotColB)
-      p.plot(1,self.dicCaldata[key][:,1],self.dicRadiance['NoFilter'][key],
-        label=['Measured {}$^\circ$C'.format(key)],markers=['x'],plotCol=plotColM)
-    currentP = p.getSubPlot(1)
-    currentP.set_xlabel('Digital level')
-    currentP.set_ylabel(' Radiance at source W/(m$^2$.sr)')
-    currentP.set_title('{}-{}'.format(self.name, self.filterName))
-
-    savePath ='' if (savePath==None) else savePath
-    p.saveFig('{}{}{}-dlRadiance.{}'.format(savePath,self.name,'CalFilter', saveExt))
-
-
-  ################################################################
-  def PlotTempRadiance(self, savePath=None, saveExt='png'):
-    """Plot temperature versus radiance for both camera temperatures
-
-    Args:
-        | savePath (string): Path (ending with a /) to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-   # calculate radiance values if not yet done
-    if not 'Emissivity' in self.dicRadiance:
-      self.CalculateCalibrationTables()
-
-    p = ryplot.Plotter(1,1,1, figsize=(10,5))
-    for j,key in enumerate(self.dicCaldata):
-      p.plot(1,self.dicTableTempRad[key][:,0],self.dicTableTempRad[key][:,1])
-      # p.plot(1,self.dicCaldata[key][:,0],self.dicCaldata[key][:,1],label=['Measured'],markers=['x'])
-      currentP = p.getSubPlot(1)
-      currentP.set_xlabel('Temperature K')
-      currentP.set_ylabel('Radiance at source W/(m$^2$.sr)')
-      currentP.set_title('{}-{}'.format(self.name, self.filterName))
-      currentP.set_ylim([0,np.max(self.dicTableTempRad[key][:,1])])
-
-    savePath ='' if (savePath==None) else savePath
-    p.saveFig('{}{}{}-TempRadiance.{}'.format(savePath,self.name,'CalFilter', saveExt))
-
-
-  ################################################################
-  def PlotTintRad(self, savePath=None, saveExt='png'):
-    """Plot optics radiance versus instrument temperature
+    def __init__(self,filename, datafileroot):
     
-    Args:
-        | savePath (string): Path (ending with a /) to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-    # calculate radiance values if not yet done
-    if not 'Emissivity' in self.dicRadiance:
-      self.CalculateCalibrationTables()
-    p = ryplot.Plotter(1,1,1, figsize=(10,5))
-    ptitle = '{} sensor internal radiance'.format(self.name)
-    p.plot(1,self.TableTintRad[:,0]-273.15,self.TableTintRad[:,1], ptitle=ptitle,
-      xlabel='Internal temperature $^\circ$C', ylabel='Radiance W/(m$^2$.sr)')
+        self.pathtoXML = os.path.dirname(filename)
+        self.datafileroot = datafileroot
+    
+        self.wl = None
+        ftree = ET.parse(filename)
+        froot = ftree.getroot()
+        self.name = froot.find(".").attrib["Name"]
+        self.id = froot.find(".").attrib["ID"]
+        self.version = froot.find(".").attrib["Version"]
+        self.summary = froot.find(".").attrib["Summary"]
+        self.sensorResponseFilename = '/'.join([self.datafileroot,froot.find(".//SensorResponse").attrib["Filename"]])
+        self.opticsTransmittanceFilename = '/'.join([self.datafileroot,froot.find(".//OpticsTransmittance").attrib["Filename"]])
+        self.filterFilename = '/'.join([self.datafileroot,froot.find(".//Filter").attrib["Filename"]])
+        self.filterName = os.path.basename(self.filterFilename)[:-4]
+        self.sourceEmisFilename = '/'.join([self.datafileroot,froot.find(".//SourceEmis").attrib["Filename"]])
+        self.atmoTauFilename = '/'.join([self.datafileroot,froot.find(".//AtmoTau").attrib["Filename"]])
+    
+        self.detectorPitch = float(froot.find(".//DetectorPitch").attrib["Value"])
+        self.fillFactor = float(froot.find(".//FillFactor").attrib["Value"])
+        self.focallength = float(froot.find(".//Focallength").attrib["Value"])
+        self.integrationTime = float(froot.find(".//IntegrationTime").attrib["Value"])
+        self.fnumber = float(froot.find(".//Fnumber").attrib["Value"])
+        self.nuMin = float(froot.find(".//Nu").attrib["Min"])
+        self.nuMax = float(froot.find(".//Nu").attrib["Max"])
+        self.nuInc = float(froot.find(".//Nu").attrib["Inc"])
+        #read the nested
+        for child in froot.findall(".//Caldatas"):
+            for childA in child.findall(".//Caldata"):
+                InstrTemp = float(childA.attrib["InstrTemperature"])
+                self.dicFloor[InstrTemp] = float(childA.attrib["DlFloor"])
+                self.dicPower[InstrTemp] = float(childA.attrib["Power"])
+                self.dicCaldata[InstrTemp] = []
+                for i,childC in enumerate(childA.findall("CalPoint")):
+                    #build a numpy array row-wise as the data is read in
+                    if i==0:
+                        data = np.asarray([273.15 + float(childC.attrib["Temp"]),int(childC.attrib["DL"])])
+                    else:
+                        data = np.vstack((data, np.asarray([273.15 + float(childC.attrib["Temp"]),int(childC.attrib["DL"])] )))
+                self.dicCaldata[InstrTemp] = data
+        self.lokey = min(self.dicCaldata.keys())
+        self.hikey = max(self.dicCaldata.keys())
+        # print(self.info())
 
-    savePath ='' if (savePath==None) else savePath
-    p.saveFig('{}{}-Internal.{}'.format(savePath,self.name, saveExt))
+        for i,tmprInstr in enumerate(self.dicCaldata):
+            if i==0:
+                tmprLow = np.min(self.dicCaldata[tmprInstr][:,0])-100
+                tmprHi  = np.max(self.dicCaldata[tmprInstr][:,0])+100
+            else:
+                tmprLow = min(tmprLow, np.min(self.dicCaldata[tmprInstr][:,0])-100)
+                tmprHi  = max(tmprHi, np.max(self.dicCaldata[tmprInstr][:,0])+100)
 
+        tmprInc = (tmprHi - tmprLow) / 100.
+        nu = np.linspace(self.nuMin, self.nuMax, 1 + (self.nuMax - self.nuMin )/self.nuInc )
 
-  ################################################################
-  def PlotDLTemp(self, savePath=None, saveExt='png'):
-    """Plot digital level versus temperature for both camera temperatures
+        self.LU = rylookup.RadLookup(self.name, nu, tmprLow=tmprLow, tmprHi=tmprHi, tmprInc=tmprInc,
+                sensorResp=self.sensorResponseFilename, opticsTau=self.opticsTransmittanceFilename,
+                filterTau=self.filterFilename, atmoTau=self.atmoTauFilename, 
+                sourceEmis=self.sourceEmisFilename, 
+                sigMin=0., sigMax=2.0**14, sigInc=2.0**6, dicCaldata=self.dicCaldata, 
+                dicPower=self.dicPower, dicFloor=self.dicFloor)
 
-    Args:
-        | savePath (string): Path (ending with a /) to where the plots must be saved (optional)
-        | saveExt (string) : Extension to save the plot as, default of 'png'.
-    Returns:
-        | None, the images are saved to a specified location or in the location
-        | from which the script is running.
-    Raises:
-        | No exception is raised.
-    """
-    # calculate radiance values if not yet done
-    if not 'Emissivity' in self.dicRadiance:
-      self.CalculateCalibrationTables()
-
-    p = ryplot.Plotter(1,1,1, figsize=(10,5))
-    for j,key in enumerate(self.dicCaldata):
-      DL = self.dicTableDLRad[key][:,0]
-      temp = self.LookupDLTemp(DL, key)
-      if j == 0:
-        plotColB = ['r']
-        plotColM = ['b--']
-      else:
-        plotColB = ['c']
-        plotColM = ['g--']
-      p.plot(1,DL,temp,label=['Best fit line {}$^\circ$C'.format(key)],plotCol=plotColB)
-      p.plot(1,self.dicCaldata[key][:,1],self.dicCaldata[key][:,0],label=['Measured {}$^\circ$C'.format(key)],markers=['x'],plotCol=plotColM)
-      currentP = p.getSubPlot(1)
-      currentP.set_xlabel('Digital level')
-      currentP.set_ylabel('Temperature K')
-      currentP.set_title('{}-{} at Tinstr={} $^\circ$C'.format(self.name, self.filterName, key))
-
-    savePath ='' if (savePath==None) else savePath
-
-    p.saveFig('{}{}{}-DLTemp.{}'.format(savePath,self.name,'CalFilter', saveExt))
-
-
-  ################################################################
-  def CalculateCalibrationTables(self):
-    """Calculate the mapping functions between digital level, radiance and temperature
-
-       Using the spectral curves and DL vs. temperature calibration inputs
-       calculate the various mapping functions between digital level, radiance
-       and temperature. Set up the various tables for later conversion.
-    """
-    calculateDataTables(self)
-
-  ################################################################
-  def LookupDLRad(self, DL, Tint):
-    """ Calculate the radiance associated with a DL and Tint pair.
-        Interpolate linearly on Tint radiance not temperature.
-    """
-    rad = LookupTableDLRad(self, DL, Tint)
-    return rad
-
-
-  ################################################################
-  def LookupDLTemp(self, DL, Tint):
-    """ Calculate the temperature associated with a DL and Tint pair.
-        Here we interpolate linearly on Tint temperature - actually we must
-        interpolate linearly on radiance - to be done later.
-        Note that dicLookupRadTemp is available for both Tint values, but
-        it has the same value in both cases.
-    """
-    temp = LookupTableDLTemp(self, DL, Tint)
-
-    return temp
-
+    def Info(self):
+        """Write the calibration data file data to a string and return string.
+        """
+        str = ""
+        str += 'Path to XML                  = {}\n'.format(self.pathtoXML)
+        str += 'Path to datafiles            = {}\n'.format(self.datafileroot)
+        str += 'Calibration Name             = {}\n'.format(self.name)
+        str += 'ID                           = {}\n'.format(self.id)
+        str += 'Version                      = {}\n'.format(self.version)
+        str += 'Summary                      = {}\n'.format(self.summary)
+        str += 'DetectorPitch                = {}\n'.format(self.detectorPitch)
+        str += 'FillFactor                   = {}\n'.format(self.fillFactor)
+        str += 'Focallength                  = {}\n'.format(self.focallength)
+        str += 'integrationTime              = {}\n'.format(self.integrationTime)
+        str += 'Fnumber                      = {}\n'.format(self.fnumber)
+        str += self.LU.Info()
+   
+        return str
 
 ################################################################
 ################################################################
@@ -1575,36 +985,46 @@ if __name__ == '__main__':
     img = data.reshape(frames, rows ,cols)
     print(img.shape)
 
-
     #--------------------------------------------------------------
     # first read the calibration file file
+
     calData = JadeCalibrationData('./data/lwir100mm150us10ND20090910.xml', './data')
 
     #presumably calibration was done at short range, with blackbody.
-    calData.CalculateCalibrationTables()
-    calData.PlotSpectrals()
-    calData.PlotRadiance()
-    calData.PlotDLRadiance()
-    calData.PlotTempRadiance()
-    calData.PlotDLTemp()
-    calData.PlotTintRad()
-    print(calData.info())
 
-    for Tint in [17.1]:
-      # for DL in [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921 ]:
-      for DL in [4571, 5132, 5906, 6887, 8034, 9338, 10834, 12386, 14042 ]:
-        print('Tint={} DL={} T={:.1f} L={:.0f}'.format(Tint, DL, calData.LookupDLTemp(DL, Tint)-273.15, calData.LookupDLRad(DL, Tint)))
-        # print('Tint={} DL={}  L={:.1f}'.format(Tint, DL,  calData.LookupDLRad(DL, Tint)))
+    calData.LU.PlotSpectrals()
+    calData.LU.PlotCalSpecRadiance()
+    calData.LU.PlotCalDLRadiance()
+    calData.LU.PlotTempRadiance()
+    calData.LU.PlotCalDLTemp()
+    calData.LU.PlotCalTintRad()
+    print('\ncalData.Info:')
+    print(calData.Info())
+
     print(' ')
+    for Tint in [17.1]:
+        for DL in [4571, 5132, 5906, 6887, 8034, 9338, 10834, 12386, 14042 ]:
+            print('Tint={}  DL={} T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(Tint, DL, 
+                calData.LU.LookupDLTemp(DL, Tint)-273.15, 
+                calData.LU.LookupDLRad(DL, Tint),
+                calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
+    print(' ')
+
     for Tint in [34.4]:
       for DL in [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921 ]:
-        print('Tint={} DL={} T={:.1f} L={:.0f}'.format(Tint, DL, calData.LookupDLTemp(DL, Tint)-273.15, calData.LookupDLRad(DL, Tint)))
-        # print('Tint={} DL={}  L={:.1f}'.format(Tint, DL,  calData.LookupDLRad(DL, Tint)))
+        print('Tint={}  DL={} T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(Tint, DL, 
+            calData.LU.LookupDLTemp(DL, Tint)-273.15, 
+            calData.LU.LookupDLRad(DL, Tint),
+            calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
     print(' ')
+
     for Tint in [25]:
       for DL in [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921 ]:
-        print('Tint={} DL={} T={:.1f} L={:.0f}'.format(Tint, DL, calData.LookupDLTemp(DL, Tint)-273.15, calData.LookupDLRad(DL, Tint)))
-        # print('Tint={} DL={}  L={:.1f}'.format(Tint, DL,  calData.LookupDLRad(DL, Tint)))
+        print('Tint={} DL={}  T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(Tint, DL, 
+            calData.LU.LookupDLTemp(DL, Tint)-273.15, 
+            calData.LU.LookupDLRad(DL, Tint),
+            calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
+    print(' ')
 
     """The following measurement observed a large-area blackbody in the lab.
        The blackbody set point was 150C. The Cedip Altair s/w calculated 157C.
@@ -1615,14 +1035,17 @@ if __name__ == '__main__':
     # showHeader(header)
     #loading sequence of frames
     framesToLoad = [1]
+
     for frame in framesToLoad:
         data = getPTWFrame (header, frame)
         #get the internal temperature from the header and use here
-        tempIm = calData.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
+        tempIm = calData.LU.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
+        # print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
+        # print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
         print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
         print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
         I = ryplot.Plotter(4, 1, 1,'', figsize=(8, 8))
         I.showImage(1, tempIm, ptitle='{}, frame {}, temperature in K'.format(ptwfile[:-4],frame), titlefsize=7, cbarshow=True, cbarfontsize=7)
         I.saveFig('{}-{}.png'.format(os.path.basename(ptwfile)[:-4],frame))
 
-    print('ryptw Done!')
+    print('\nryptw Done!')

@@ -61,7 +61,7 @@ class RadLookup:
     """Performs radiometric lookup capability between temperature and radiance, given 
        camera spectral and calibration data.
 
-    Given spectral and temperature data this class calculates loopup tables and 
+    Given spectral data and temperature this class calculates loopup tables and 
     provide lookup functions operating on the tables.
 
     The class provides two parallel functional capabilities:
@@ -78,6 +78,20 @@ class RadLookup:
     By not passing the calibration parameters simply means that that part of the code is 
     not executed and only the simple radiance-based lookup is available. 
 
+    Five spectral vectors can be supplied: 
+    (1) emissivity, 
+    (2) atmospheric transmittance,
+    (3) filter transmittance,
+    (4) optics tranmittance, and
+    (5) sensor response.
+    Two sets of calculations are performed, the first with all five spectral vectors,
+    and the second without the filter, but all four remaining vectors.  This option
+    may be useful when compensating for neutral density filters, i.e., radiance before
+    or after the filter (with/without).  This option is relevant only in the 
+    functions ``LookupRadTemp``, ``LookupTempRad``, and ``PlotTempRadiance``. In these three
+    functions, the appropriate option can be selected by setting the ``withFilter=True``
+    function parameter.
+
     Spectral data parameter may be either a filename (data read from file) or a 
     numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
     must have two colums: first column is wavelength, and second
@@ -92,7 +106,7 @@ class RadLookup:
     *  dicCaldata:  the dictionary containing the camera calibration data.  The dictionary
        key is the instrument internal temperature [deg-C] (one or two values required).  
        For each key, provide a numpy array where the *first column* is the calibration 
-       source temperature [deg-C], and the *second column* is the signal measured on 
+       source temperature K, and the *second column* is the signal measured on 
        the instrument and the *third column* is the radiance for this temperature 
        (only after the tables have been calculated).
 
@@ -175,19 +189,21 @@ class RadLookup:
         #set up the spectral domain in wavelength
         self.wl = ryutils.convertSpectralDomain(self.nu,  type='nl')
 
-        #load the spectral files
+         #load the spectral files
         self.LoadSpectrals()
 
         # multiply to calculate the total spectral shape.
-        self.specEff = self.specEmis * self.specAtmo * \
+        self.specEffWiFil = self.specEmis * self.specAtmo * \
                          self.specFilter * self.specSensor * self.specOptics
+        self.specEffNoFil = self.specEmis * self.specAtmo * \
+                         self.specSensor * self.specOptics
 
         # convert calibration temperatures to K
         if self.dicCaldata:
             self.calLokey = min(self.dicCaldata.keys())
             self.calHikey = max(self.dicCaldata.keys())
-            for tmprInstr in self.dicCaldata:
-                self.dicCaldata[tmprInstr][:,0] += 273.16
+            # for tmprInstr in self.dicCaldata:
+            #     self.dicCaldata[tmprInstr][:,0] += 273.16
 
         #calculate the lookup tables
         self.CalculateDataTables()
@@ -209,15 +225,15 @@ class RadLookup:
         str = ""
         str += 'Lookup Name          = {}\n'.format(self.specName)
 
-        if type(self.sensorResp) == type('str'):
+        if type(self.sensorResp)  is not type(np.asarray(['0'])):
             str += 'Sensor Response      = {}\n'.format(self.sensorResp)
-        if type(self.opticsTau) == type('str'):
+        if type(self.opticsTau)  is not type(np.asarray(['0'])):
             str += 'Optics Transmittance = {}\n'.format(self.opticsTau)
-        if type(self.filterTau) == type('str'):
+        if type(self.filterTau)  is not type(np.asarray(['0'])):
             str += 'Filter               = {}\n'.format(self.filterTau)
-        if type(self.sourceEmis) == type('str'):
+        if type(self.sourceEmis)  is not type(np.asarray(['0'])):
             str += 'Source Emissivity    = {}\n'.format(self.sourceEmis)
-        if type(self.atmoTau) == type('str'):
+        if type(self.atmoTau)  is not type(np.asarray(['0'])):
             str += 'Atmospheric Transm   = {}\n'.format(self.atmoTau)
 
         str += 'Nu (Min, Max, Inc)   = ({}, {}, {})\n'.format(
@@ -229,7 +245,7 @@ class RadLookup:
                 str += '\n\nInstrument temperature = {} C\n'.format(tmprInstr)
                 str += 'DL floor               = {}\n'.format(self.dicFloor[tmprInstr])
                 str += 'DL power               = {}\n'.format(self.dicPower[tmprInstr])
-                str += '      T Deg-C         DL         L'
+                str += '     Temp K           DL       L W/(sr.m2) [with filter]'
                 str += '\n'
                 str += np.array_str(self.dicCaldata[tmprInstr], max_line_width=120, precision=4, )
                 str += '\nstraight line fit L = {} DL + {}'.format(self.DlRadCoeff[tmprInstr][0],
@@ -240,7 +256,8 @@ class RadLookup:
 
     ################################################################
     def LoadSpectrals(self):
-        """Load the five required spectral parameters.
+        """Load the five required spectral parameters, interpolate on the 
+        fly to local spectrals.
 
         If the spectral parameters are strings, the strings are used as filenames 
         and the data loaded from file.  If None, unity values are assumed. If not 
@@ -257,37 +274,38 @@ class RadLookup:
         Raises:
             | No exception is raised.
         """
-        #load the various input files, interpolate on the fly to local spectrals.
+        #
+
         if self.sourceEmis is not None:
-            if type(self.sourceEmis) == type('str'):
-                self.specEmis= ryfiles.loadColumnTextFile(self.sourceEmis, 
+            if type(self.sourceEmis) is not type(np.asarray(['0'])):
+                self.specEmis = ryfiles.loadColumnTextFile(self.sourceEmis, 
                     loadCol=[1], normalize=0, abscissaOut=self.wl)
         else:
-            self.specEmis= np.ones(self.nu.shape)
+            self.specEmis = np.ones(self.nu.shape)
 
         if self.atmoTau is not None:
-            if type(self.sourceEmis) == type('str'):
+            if type(self.atmoTau) is not type(np.asarray(['0'])):
                 self.specAtmo = ryfiles.loadColumnTextFile(self.atmoTau, 
                     loadCol=[1], normalize=0, abscissaOut=self.wl)
         else:
             self.specAtmo= np.ones(self.nu.shape)
 
         if self.filterTau is not None:
-            if type(self.sourceEmis) == type('str'):
+            if type(self.filterTau) is not type(np.asarray(['0'])):
                 self.specFilter = ryfiles.loadColumnTextFile(self.filterTau, 
                     loadCol=[1], normalize=0, abscissaOut=self.wl)
         else:
             self.specFilter= np.ones(self.nu.shape)
 
         if self.sensorResp is not None:
-            if type(self.sourceEmis) == type('str'):
+            if type(self.sensorResp) is not type(np.asarray(['0'])):
                 self.specSensor = ryfiles.loadColumnTextFile(self.sensorResp, 
                     loadCol=[1], normalize=0, abscissaOut=self.wl)
         else:
             self.specSensor= np.ones(self.nu.shape)
 
         if self.opticsTau is not None:
-            if type(self.sourceEmis) == type('str'):
+            if type(self.opticsTau) is not type(np.asarray(['0'])):
                 self.specOptics = ryfiles.loadColumnTextFile(self.opticsTau, 
                     loadCol=[1], normalize=0, abscissaOut=self.wl)
         else:
@@ -303,6 +321,9 @@ class RadLookup:
            Using the spectral curves and DL vs. temperature calibration inputs
            calculate the various mapping functions between digital level, radiance
            and temperature. Set up the various tables for later conversion.
+
+           The TableTempRad table has three columns: (1) temperature, (2) radiance
+           with filter present and (3) radiance without filter.
 
         Args:
             |  None.
@@ -322,10 +343,18 @@ class RadLookup:
             tempHiRes = np.linspace(self.tmprLow, self.tmprHi,  1 + \
                                       (self.tmprHi - self.tmprLow )/self.tmprInc)
             xx = np.ones(tempHiRes.shape)
-            _, spectrlHR = np.meshgrid(xx,self.specEff)
+            #first calculate for case with filter present
+            _, spectrlHR = np.meshgrid(xx,self.specEffWiFil)
             specLHiRes = spectrlHR * ryplanck.planck(self.nu, tempHiRes, type='en')
             LHiRes = np.trapz(specLHiRes, x=self.nu, axis=0) / np.pi
             self.TableTempRad = np.hstack((tempHiRes.reshape(-1,1),LHiRes.reshape(-1,1) ))
+
+            #first calculate for case with filter not present
+            _, spectrlHR = np.meshgrid(xx,self.specEffNoFil)
+            specLHiRes = spectrlHR * ryplanck.planck(self.nu, tempHiRes, type='en')
+            LHiRes = np.trapz(specLHiRes, x=self.nu, axis=0) / np.pi
+            self.TableTempRad = np.hstack((self.TableTempRad, LHiRes.reshape(-1,1) ))
+
             self.hiresTablesCalculated = True
 
             # this part is only done if there is calibration data
@@ -338,7 +367,7 @@ class RadLookup:
 
                 #create containers to store
                 self.dicSpecRadiance = collections.defaultdict(float)
-                self.dicRadiance = collections.defaultdict(float)
+                self.dicCalRadiance = collections.defaultdict(float)
                 self.DlRadCoeff = collections.defaultdict(float)
                 self.dicinterpDL = collections.defaultdict(float)
                 self.dicTableDLRad = collections.defaultdict(float)
@@ -354,27 +383,27 @@ class RadLookup:
                     self.dicCaldata[tmprInstr] = self.dicCaldata[tmprInstr].astype(np.float64)
 
                     xx = np.ones(self.dicCaldata[tmprInstr][:,0].shape)
-                    _, spectrl = np.meshgrid(xx,self.specEff)
+                    _, spectrl = np.meshgrid(xx,self.specEffWiFil)
                     #now spectrl has the same shape as the planck function return
 
                     self.dicSpecRadiance[tmprInstr] = \
                       spectrl * ryplanck.planck(self.nu, self.dicCaldata[tmprInstr][:,0], type='en')
 
-                    self.dicRadiance[tmprInstr] = \
+                    self.dicCalRadiance[tmprInstr] = \
                       np.trapz(self.dicSpecRadiance[tmprInstr], x=self.nu,  axis=0) / np.pi
 
                     #if first time, stack horizontally to the array, otherwise overwrite
                     if self.dicCaldata[tmprInstr].shape[1] < 3:
                         self.dicCaldata[tmprInstr] = np.hstack((self.dicCaldata[tmprInstr],
-                                self.dicRadiance[tmprInstr].reshape(-1,1)))
+                                self.dicCalRadiance[tmprInstr].reshape(-1,1)))
                     else:
-                        self.dicCaldata[tmprInstr][:,2] = self.dicRadiance[tmprInstr].reshape(-1,)
+                        self.dicCaldata[tmprInstr][:,2] = self.dicCalRadiance[tmprInstr].reshape(-1,)
 
                     # now determine the best fit between radiance and DL
                     # the relationship should be linear y = mx + c
                     # x=digital level, y=radiance
                     coeff = np.polyfit(self.dicCaldata[tmprInstr][:,1],
-                                      self.dicRadiance[tmprInstr].reshape(-1,), deg=1)
+                                      self.dicCalRadiance[tmprInstr].reshape(-1,), deg=1)
                     # print('straight line fit DL = {} L + {}'.format(coeff[0],coeff[1]))
                     self.DlRadCoeff[tmprInstr] = coeff
                     self.interpL = np.polyval(coeff, self.interpDL)  #.astype(np.float64)
@@ -394,7 +423,7 @@ class RadLookup:
                 tempTint = 273.15 + np.linspace(np.min(self.dicCaldata.keys())-20,
                                               np.max(self.dicCaldata.keys())+20, 101)
                 xx = np.ones(tempTint.shape)
-                _, spectrlHR = np.meshgrid(xx,self.specEff)
+                _, spectrlHR = np.meshgrid(xx,self.specEffWiFil)
                 specLTint = spectrlHR * ryplanck.planck(self.nu, tempTint, type='en')
                 LTint = np.trapz(specLTint, x=self.nu, axis=0) / np.pi
                 self.TableTintRad = np.hstack((tempTint.reshape(-1,1),LTint.reshape(-1,1) ))
@@ -409,7 +438,7 @@ class RadLookup:
             self.DlRadCoeff = None
             self.dicinterpDL = None
             self.dicSpecRadiance = None
-            self.dicRadiance = None
+            self.dicCalRadiance = None
             self.TableTintRad = None
             
             self.calTablesCalculated = False
@@ -500,8 +529,9 @@ class RadLookup:
         """
 
         if self.calTablesCalculated:
-
+            # first get the radiance
             L = self.LookupDLRad(DL, Tint)
+            # then lookup the temperature using the with filter table.
             t = np.interp(L, self.TableTempRad[:,1], self.TableTempRad[:,0])
         else:
             t = None
@@ -509,12 +539,15 @@ class RadLookup:
         return t
 
     ###############################################################################
-    def LookupRadTemp(self, radiance):
+    def LookupRadTemp(self, radiance, withFilter=True):
         """Calculate the temperature associated with a radiance value for the 
         given spectral shapes (no calibration involved).
 
         Args:
-            |  radiance (float, np.array[N,]): scalar, list or array of radiance W/(sr.m2) values.
+            |  radiance (float, np.array[N,]): scalar, list or array of radiance 
+               W/(sr.m2) values.
+            |  withFilter (boolean): use table with filter to do lookup, no filter 
+               if false (optional).
 
         Returns:
             |  (np.array[N,]) temperature K values associated with radiance values.
@@ -524,19 +557,24 @@ class RadLookup:
         """
 
         if self.hiresTablesCalculated:
-            t = np.interp(radiance, self.TableTempRad[:,1], self.TableTempRad[:,0])
+            if withFilter:
+                t = np.interp(radiance, self.TableTempRad[:,1], self.TableTempRad[:,0])
+            else:
+                t = np.interp(radiance, self.TableTempRad[:,2], self.TableTempRad[:,0])
         else:
             t = None
 
         return t
 
     ###############################################################################
-    def LookupTempRad(self, temperature):
+    def LookupTempRad(self, temperature, withFilter=True):
         """Calculate the radiance associated with a temperature for the 
         given spectral shapes (no calibration involved).
 
         Args:
             |  temperature(np.array[N,])  scalar, list or array of temperature K values.
+            |  withFilter (boolean): use table with filter to do lookup, no filter 
+               if false (optional).
 
         Returns:
             |  radiance (float, np.array[N,]): radiance W/(sr.m2) associated with temperature values..
@@ -547,7 +585,11 @@ class RadLookup:
 
         if self.hiresTablesCalculated:
 
-            rad = np.interp(temperature, self.TableTempRad[:,0], self.TableTempRad[:,1])
+
+            if withFilter:
+                rad = np.interp(temperature, self.TableTempRad[:,0], self.TableTempRad[:,1])
+            else:
+                rad = np.interp(temperature, self.TableTempRad[:,0], self.TableTempRad[:,2])
         else:
             rad = None
 
@@ -564,9 +606,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -579,11 +623,11 @@ class RadLookup:
             p.semilogY(1,self.wl,self.specFilter,label=['Filter'])
             p.semilogY(1,self.wl,self.specSensor,label=['Sensor'])
             p.semilogY(1,self.wl,self.specOptics,label=['Optics'])
-            p.semilogY(1,self.wl,self.specEff,label=['Effective'])
+            p.semilogY(1,self.wl,self.specEffWiFil,label=['Effective'])
             currentP = p.getSubPlot(1)
             currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
             currentP.set_ylabel('Response')
-            currentP.set_title('Spectral Response for {}'.format(self.specName))
+            currentP.set_title('{} Spectral Response'.format(self.specName))
 
             if savePath==None:
                 savePath=self.specName 
@@ -602,9 +646,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -645,9 +691,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -664,12 +712,12 @@ class RadLookup:
                 plotColM = ['g--']
               p.plot(1,self.dicTableDLRad[tmprInstr][:,0],self.dicTableDLRad[tmprInstr][:,1],
                 label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
-              p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicRadiance[tmprInstr],
+              p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicCalRadiance[tmprInstr],
                 label=['Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
             currentP = p.getSubPlot(1)
             currentP.set_xlabel('Digital level')
-            currentP.set_ylabel(' Radiance at sensor W/(m$^2$.sr)')
-            currentP.set_title('{}'.format(self.specName))
+            currentP.set_ylabel(' Radiance W/(m$^2$.sr)')
+            currentP.set_title('{} Radiance With Filter'.format(self.specName))
 
             if savePath==None:
                 savePath=self.specName 
@@ -680,18 +728,22 @@ class RadLookup:
 
 
     ################################################################
-    def PlotTempRadiance(self, savePath=None, saveExt='png'):
+    def PlotTempRadiance(self, withFilter=True, savePath=None, saveExt='png'):
         """Plot temperature versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
         the word 'TempRadiance'.
 
         Args:
+            | withFilter (boolean): use table with filter to do lookup, no filter 
+               if false (optional).
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -699,19 +751,29 @@ class RadLookup:
         if self.hiresTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            p.plot(1,self.TableTempRad[:,0],self.TableTempRad[:,1])
-            currentP = p.getSubPlot(1)
+            if withFilter:
+                p.plot(1,self.TableTempRad[:,0],self.TableTempRad[:,1])
+                currentP = p.getSubPlot(1)
+                currentP.set_ylim([0,np.max(self.TableTempRad[:,1])])
+                currentP.set_title('{} Radiance With Filter'.format(self.specName))
+            else:
+                p.plot(1,self.TableTempRad[:,0],self.TableTempRad[:,2])
+                currentP = p.getSubPlot(1)
+                currentP.set_ylim([0,np.max(self.TableTempRad[:,2])])
+                currentP.set_title('{} Radiance Without Filter'.format(self.specName))
+
             currentP.set_xlabel('Temperature K')
-            currentP.set_ylabel('Radiance at sensor W/(m$^2$.sr)')
-            currentP.set_title('{}'.format(self.specName))
-            currentP.set_ylim([0,np.max(self.TableTempRad[:,1])])
+            currentP.set_ylabel('Radiance W/(m$^2$.sr)')
 
             if savePath==None:
                 savePath=self.specName 
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-TempRadiance.{}'.format(savePath, saveExt))
+            if withFilter:
+                p.saveFig('{}-TempRadiance-NoF.{}'.format(savePath, saveExt))
+            else:
+                p.saveFig('{}-TempRadiance-WiF.{}'.format(savePath, saveExt))
 
 
     ################################################################
@@ -724,9 +786,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -739,8 +803,8 @@ class RadLookup:
                     label=['Tint {} $^\circ$C'.format(tmprInstr)])
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel('Temperature K')
-                currentP.set_ylabel('Radiance at sensor W/(m$^2$.sr)')
-                currentP.set_title('{}'.format(self.specName))
+                currentP.set_ylabel('Radiance W/(m$^2$.sr)')
+                currentP.set_title('{} Radiance With Filter'.format(self.specName))
                 currentP.set_ylim([0,np.max(self.dicCaldata[tmprInstr][:,2])])
 
             if savePath==None:
@@ -761,9 +825,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -771,7 +837,7 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            ptitle = '{} sensor internal radiance'.format(self.specName)
+            ptitle = '{} Sensor Internal Radiance'.format(self.specName)
             p.plot(1,self.TableTintRad[:,0]-273.15,self.TableTintRad[:,1], ptitle=ptitle,
               xlabel='Internal temperature $^\circ$C', ylabel='Radiance W/(m$^2$.sr)')
 
@@ -793,9 +859,11 @@ class RadLookup:
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
         Returns:
             | None, the images are saved to a specified location or in the location
             | from which the script is running.
+
         Raises:
             | No exception is raised.
         """
@@ -818,7 +886,7 @@ class RadLookup:
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel('Digital level')
                 currentP.set_ylabel('Temperature K')
-                currentP.set_title('{} at Tinstr={} $^\circ$C'.format(self.specName, tmprInstr))
+                currentP.set_title('{} Temperature vs Sensor Signal'.format(self.specName))
 
             if savePath==None:
                 savePath=self.specName 
@@ -848,50 +916,64 @@ if __name__ == '__main__':
     tmprMax = 800.
     tmprInc = 10.
 
-    # print('-------------------------------------------------------')
-    # # first test is simple test with unity spectrals, no camera cal data
-    # lut1 = RadLookup('lut1', nu, tmprMin,tmprMax,tmprInc)
-    # print(lut1.Info())
-    # if doPlots:
-    #     lut1.PlotSpectrals()
-    #     lut1.PlotTempRadiance()
-    #     lut1.PlotCalSpecRadiance()
-    #     lut1.PlotCalDLTemp()
-    #     lut1.PlotCalDLRadiance()
-    #     lut1.PlotCalTempRadiance()
-    #     lut1.PlotCalTintRad()
-    # tempr1 = [300., 307.5, 505., 792.5, 800.]
-    # rad1 = lut1.LookupTempRad(tempr1)
-    # tempr1i =  lut1.LookupRadTemp(rad1)
-    # print('Input temperature values = {}'.format(tempr1))
-    # print('Lut radiance values = {}'.format(rad1))
-    # print('Lut temperature values = {}'.format(tempr1i))
-    # # now calculate from first principles
-    # L1stP1 = np.trapz(ryplanck.planck(nu, tempr1, type='en'), x=nu, axis=0) / np.pi
-    # print('First principles radiance values = {}'.format(L1stP1))
-
-    # print('\n-------------------------------------------------------')
-    # # second test has non-unity spectrals, no camera cal data
-    # lut2 = RadLookup('lut2', nu, tmprMin,tmprMax,tmprInc,
-    #      'data/LWIRsensor.txt', 'data/LW100mmLens.txt', 'data/LWND10.txt', 
-    #          'data/Unity.txt', 'data/Unity.txt')
-    # print(lut2.Info())
-    # if doPlots:
-    #     lut2.PlotSpectrals()
-    #     lut2.PlotTempRadiance()
-    #     lut2.PlotCalSpecRadiance()
-    #     lut2.PlotCalDLTemp()
-    #     lut2.PlotCalDLRadiance()
-    #     lut2.PlotCalTempRadiance()
-    #     lut2.PlotCalTintRad()
-    # tempr2 = [300., 307.5, 505., 792.5, 800.]
-    # rad2 = lut2.LookupTempRad(tempr2)
-    # tempr2i =  lut2.LookupRadTemp(rad2)
-    # print('Input temperature values = {}'.format(tempr2))
-    # print('Lut radiance values = {}'.format(rad2))
-    # print('Lut temperature values = {}'.format(tempr2i))
+    print('-------------------------------------------------------')
+    # first test is simple test with unity spectrals, no camera cal data
+    lut1 = RadLookup('lut1', nu, tmprMin,tmprMax,tmprInc)
+    print(lut1.Info())
+    if doPlots:
+        lut1.PlotSpectrals()
+        lut1.PlotTempRadiance(withFilter=True)
+        lut1.PlotTempRadiance(withFilter=False)
+        lut1.PlotCalSpecRadiance()
+        lut1.PlotCalDLTemp()
+        lut1.PlotCalDLRadiance()
+        lut1.PlotCalTempRadiance()
+        lut1.PlotCalTintRad()
+    # print('This table shows radiance with and without filter for given temperature')
+    # print(lut1.TableTempRad)
+    tempr1 = [300., 307.5, 505., 792.5, 800.]
+    rad1 = lut1.LookupTempRad(tempr1)
+    tempr1i =  lut1.LookupRadTemp(rad1)
+    print('Input temperature values = {}'.format(tempr1))
+    print('Lut radiance values = {}'.format(rad1))
+    print('Lut temperature values = {}'.format(tempr1i))
+    # now calculate from first principles
+    L1stP1 = np.trapz(ryplanck.planck(nu, tempr1, type='en'), x=nu, axis=0) / np.pi
+    print('First principles radiance values = {}'.format(L1stP1))
 
     print('\n-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    # second test has non-unity spectrals, no camera cal data
+    lut2 = RadLookup('lut2', nu, tmprMin,tmprMax,tmprInc,
+         'data/LWIRsensor.txt', 'data/LW100mmLens.txt', 'data/LWND10.txt', 
+             'data/Unity.txt', 'data/Unity.txt')
+    print(lut2.Info())
+    if doPlots:
+        lut2.PlotSpectrals()
+        lut2.PlotTempRadiance(withFilter=True)
+        lut2.PlotTempRadiance(withFilter=False)
+        lut2.PlotCalSpecRadiance()
+        lut2.PlotCalDLTemp()
+        lut2.PlotCalDLRadiance()
+        lut2.PlotCalTempRadiance()
+        lut2.PlotCalTintRad()
+    # print('This table shows radiance with and without filter for given temperature')
+    # print(lut2.TableTempRad)
+    tempr2 = [300., 307.5, 505., 792.5, 800.]
+    rad2 = lut2.LookupTempRad(tempr2)
+    tempr2i =  lut2.LookupRadTemp(rad2)
+    print('Input temperature values = {}'.format(tempr2))
+    print('Lut radiance values = {}'.format(rad2))
+    print('Lut temperature values = {}'.format(tempr2i))
+
+    print('\n-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
+    print('-------------------------------------------------------')
     # third test has non-unity spectrals, and camera cal data
 
     arrLo = np.asarray([
@@ -902,6 +984,9 @@ if __name__ == '__main__':
         [50., 100., 150., 200., 250., 300., 350., 400., 450. ],
         [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921]
         ]).T
+    # temperature must be in kelvin
+    arrLo[:,0] += 273.16
+    arrHi[:,0] += 273.16
 
     Tlo = 17.1
     Thi = 34.4
@@ -921,7 +1006,8 @@ if __name__ == '__main__':
     print(lut3.Info())
     if doPlots:
         lut3.PlotSpectrals()
-        lut3.PlotTempRadiance()
+        lut3.PlotTempRadiance(withFilter=True)
+        lut3.PlotTempRadiance(withFilter=False)
         lut3.PlotCalSpecRadiance()
         lut3.PlotCalDLTemp()
         lut3.PlotCalDLRadiance()
