@@ -855,16 +855,17 @@ def showHeader(Header):
 class JadeCalibrationData:
     """Container to describe the calibration data of a Jade camera.
     """
-    dicCaldata = collections.defaultdict(float)
-    # dicSpectrals = collections.defaultdict(str)
-    # dicRadiance = collections.defaultdict(str)
-    # dicIrradiance = collections.defaultdict(str)
-    # dicSpecRadiance = collections.defaultdict(str)
-    dicFloor = collections.defaultdict(str)
-    dicPower = collections.defaultdict(str)
 
     def __init__(self,filename, datafileroot):
     
+        self.dicCaldata = collections.defaultdict(float)
+        # dicSpectrals = collections.defaultdict(str)
+        # dicRadiance = collections.defaultdict(str)
+        # dicIrradiance = collections.defaultdict(str)
+        # dicSpecRadiance = collections.defaultdict(str)
+        self.dicFloor = collections.defaultdict(str)
+        self.dicPower = collections.defaultdict(str)
+
         self.pathtoXML = os.path.dirname(filename)
         self.datafileroot = datafileroot
     
