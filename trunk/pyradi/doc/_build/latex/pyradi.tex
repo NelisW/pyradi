@@ -14,7 +14,7 @@
 
 
 \title{pyradi Documentation}
-\date{October 17, 2014}
+\date{November 28, 2014}
 \release{}
 \author{pyradi team}
 \newcommand{\sphinxlogo}{}
@@ -4366,14 +4366,14 @@ uses np.transpose(imageSequence, (1,2,0))
 
 \section{Overview}
 \label{rylookup:overview}\label{rylookup:module-pyradi.rylookup}\index{pyradi.rylookup (module)}
-This class provides lookup functionality between source temperature, 
-source radiance and sensor signal.  In this class the sensor signal is called 
+This class provides lookup functionality between source temperature,
+source radiance and sensor signal.  In this class the sensor signal is called
 digital level, but it represents any atribrary sensor signal unit.
 
 See the \_\_main\_\_ function for examples of use.
 
-This package was partly developed to provide additional material in support of students 
-and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+This package was partly developed to provide additional material in support of students
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry
 Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  \href{http://spie.org/x648.html?product\_id=2021423\&origin\_id=x646}{http://spie.org/x648.html?product\_id=2021423\&origin\_id=x646}
 
@@ -4383,12 +4383,12 @@ PM236, SPIE Press, 2013.  \href{http://spie.org/x648.html?product\_id=2021423\&o
 
 \begin{fulllineitems}
 \phantomsection\label{rylookup:pyradi.rylookup.RadLookup}\pysiglinewithargsret{\strong{class }\code{pyradi.rylookup.}\bfcode{RadLookup}}{\emph{specName}, \emph{nu}, \emph{tmprLow}, \emph{tmprHi}, \emph{tmprInc}, \emph{sensorResp=None}, \emph{opticsTau=None}, \emph{filterTau=None}, \emph{atmoTau=None}, \emph{sourceEmis=None}, \emph{sigMin=None}, \emph{sigMax=None}, \emph{sigInc=None}, \emph{dicCaldata=None}, \emph{dicPower=None}, \emph{dicFloor=None}}{}~\begin{description}
-\item[{Performs radiometric lookup capability between temperature and radiance, given }] \leavevmode
+\item[{Performs radiometric lookup capability between temperature and radiance, given}] \leavevmode
 camera spectral and calibration data.
 
 \end{description}
 
-Given spectral data and temperature this class calculates loopup tables and 
+Given spectral data and temperature this class calculates loopup tables and
 provide lookup functions operating on the tables.
 
 The class provides two parallel functional capabilities:
@@ -4401,16 +4401,16 @@ lookup between temperture and radiance, assuming Planck-law relationships.
 given camera calibration data it relates between signal value, temperature and
 radiance.  It accounts for the effect of hot optics that cause a lower asymptotic
 radiance level.  The calibration mode supports linear interpolation between two
-calibration curves, to account for the instrument internal temperature. This 
+calibration curves, to account for the instrument internal temperature. This
 mode requires the sigMin, sigMax, sigInc, and dicCaldat parameters.
 
 \end{itemize}
 
-By not passing the calibration parameters simply means that that part of the code is 
+By not passing the calibration parameters simply means that that part of the code is
 not executed and only the simple radiance-based lookup is available.
 
-Five spectral vectors can be supplied: 
-(1) emissivity, 
+Five spectral vectors can be supplied:
+(1) emissivity,
 (2) atmospheric transmittance,
 (3) filter transmittance,
 (4) optics tranmittance, and
@@ -4418,16 +4418,16 @@ Five spectral vectors can be supplied:
 Two sets of calculations are performed, the first with all five spectral vectors,
 and the second without the filter, but all four remaining vectors.  This option
 may be useful when compensating for neutral density filters, i.e., radiance before
-or after the filter (with/without).  This option is relevant only in the 
+or after the filter (with/without).  This option is relevant only in the
 functions \code{LookupRadTemp}, \code{LookupTempRad}, and \code{PlotTempRadiance}. In these three
 functions, the appropriate option can be selected by setting the \code{withFilter=True}
 function parameter.
 
-Spectral data parameter may be either a filename (data read from file) or a 
+Spectral data parameter may be either a filename (data read from file) or a
 numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
 must have two colums: first column is wavelength, and second
 column is the spectral value at this wavelength.  Data read in from the file
-will be interpolated to (nuMin, nuMax,nuInc) scale. If the parameter is None, 
+will be interpolated to (nuMin, nuMax,nuInc) scale. If the parameter is None,
 then unity spectral values will be used.
 
 The camera calibration data set requires the following data:
@@ -4437,25 +4437,25 @@ sigMin, sigMax, sigInc: the parameters to define the signal magnitude vector.
 
 \item {} 
 dicCaldata:  the dictionary containing the camera calibration data.  The dictionary
-key is the instrument internal temperature {[}deg-C{]} (one or two values required).  
-For each key, provide a numpy array where the \emph{first column} is the calibration 
-source temperature K, and the \emph{second column} is the signal measured on 
-the instrument and the \emph{third column} is the radiance for this temperature 
+key is the instrument internal temperature {[}deg-C{]} (one or two values required).
+For each key, provide a numpy array where the \emph{first column} is the calibration
+source temperature K, and the \emph{second column} is the signal measured on
+the instrument and the \emph{third column} is the radiance for this temperature
 (only after the tables have been calculated).
 
 \item {} 
 dicPower: the dictionary containing the camera calibration curve lower knee
-sharpness.  The dictionary key is the instrument internal temperature 
+sharpness.  The dictionary key is the instrument internal temperature
 (one or two values required).
 
 \item {} 
 dicFloor: the dictionary containing the camera calibration curve lower asymptotic
-signal value.  The dictionary key is the instrument internal temperature 
+signal value.  The dictionary key is the instrument internal temperature
 (one or two values required).
 
 \end{itemize}
 
-Error handling is simply to test for certain conditions and then execute the 
+Error handling is simply to test for certain conditions and then execute the
 task if conditions are met, otherwise do nothing.
 \begin{description}
 \item[{Args:}] \leavevmode
@@ -4467,11 +4467,11 @@ task if conditions are met, otherwise do nothing.
 \item[] tmprInc (float):  Increment temperature {[}K{]} for lookup tables.
 \item[] sensorResp (string/np.array(N,1)): sensor/detector spectral filename or array data (optional).
 \item[] opticsTau (string/np.array(N,1)): opticsTransmittance spectral filename or array data (optional).
-\item[] filterTau ((string/np.array(N,1)): filter spectral filename or array data (optional). 
+\item[] filterTau ((string/np.array(N,1)): filter spectral filename or array data (optional).
 \item[] atmoTau (string/np.array(N,1)): atmoTau spectral filename or array data (optional).
 \item[] sourceEmis (string/np.array(N,1)): sourceEmis spectral filename or array data (optional).
-\item[] sigMin (float): minimum signal value, typically 2**0 (optional). 
-\item[] sigMax (float): maximum signal value, typically 2**14 (optional). 
+\item[] sigMin (float): minimum signal value, typically 2**0 (optional).
+\item[] sigMax (float): maximum signal value, typically 2**14 (optional).
 \item[] sigInc(float): signal increment, typically 2**8 (optional).
 \item[] dicCaldata (dict): calibration data for sensor.
 \item[] dicPower (dict): cal curve lower asymptote knee sharpness parameter (optional).
@@ -4552,11 +4552,11 @@ Write the calibration data file data to a string and return string.
 
 \begin{fulllineitems}
 \phantomsection\label{rylookup:pyradi.rylookup.RadLookup.LoadSpectrals}\pysiglinewithargsret{\bfcode{LoadSpectrals}}{}{}
-Load the five required spectral parameters, interpolate on the 
+Load the five required spectral parameters, interpolate on the
 fly to local spectrals.
 
-If the spectral parameters are strings, the strings are used as filenames 
-and the data loaded from file.  If None, unity values are assumed. If not 
+If the spectral parameters are strings, the strings are used as filenames
+and the data loaded from file.  If None, unity values are assumed. If not
 a string or None, the parameters are used as is, and must be numpy arrays
 with shape (N,1) where the N vector exactly matches to spectral samples
 \begin{description}
@@ -4665,14 +4665,14 @@ interpolate linearly on radiance - to be done later.
 
 \begin{fulllineitems}
 \phantomsection\label{rylookup:pyradi.rylookup.RadLookup.LookupRadTemp}\pysiglinewithargsret{\bfcode{LookupRadTemp}}{\emph{radiance}, \emph{withFilter=True}}{}
-Calculate the temperature associated with a radiance value for the 
+Calculate the temperature associated with a radiance value for the
 given spectral shapes (no calibration involved).
 \begin{description}
 \item[{Args:}] \leavevmode
 \begin{DUlineblock}{0em}
-\item[] radiance (float, np.array{[}N,{]}): scalar, list or array of radiance 
+\item[] radiance (float, np.array{[}N,{]}): scalar, list or array of radiance
 W/(sr.m2) values.
-\item[] withFilter (boolean): use table with filter to do lookup, no filter 
+\item[] withFilter (boolean): use table with filter to do lookup, no filter
 if false (optional).
 \end{DUlineblock}
 
@@ -4694,13 +4694,13 @@ if false (optional).
 
 \begin{fulllineitems}
 \phantomsection\label{rylookup:pyradi.rylookup.RadLookup.LookupTempRad}\pysiglinewithargsret{\bfcode{LookupTempRad}}{\emph{temperature}, \emph{withFilter=True}}{}
-Calculate the radiance associated with a temperature for the 
+Calculate the radiance associated with a temperature for the
 given spectral shapes (no calibration involved).
 \begin{description}
 \item[{Args:}] \leavevmode
 \begin{DUlineblock}{0em}
 \item[] temperature(np.array{[}N,{]})  scalar, list or array of temperature K values.
-\item[] withFilter (boolean): use table with filter to do lookup, no filter 
+\item[] withFilter (boolean): use table with filter to do lookup, no filter
 if false (optional).
 \end{DUlineblock}
 
@@ -4909,7 +4909,7 @@ the word `TempRadiance'.
 \begin{description}
 \item[{Args:}] \leavevmode
 \begin{DUlineblock}{0em}
-\item[] withFilter (boolean): use table with filter to do lookup, no filter 
+\item[] withFilter (boolean): use table with filter to do lookup, no filter
 if false (optional).
 \item[] savePath (string): Path to where the plots must be saved (optional).
 \item[] saveExt (string) : Extension to save the plot as, default of `png' (optional).
