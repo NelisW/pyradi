@@ -99,10 +99,16 @@ import copy
 
 ################################################################
 # Miscelaneous functions to read bytes, int, long, float values.
+# 
+# https://docs.python.org/3/library/struct.html
 
 def myint(x):
     # two bytes length
-    ans = ord(x[0])+(ord(x[1])<<8)
+    # print(type(x), type(x[0]), type(ord(x[0])))
+
+    # ans = ord(x[0])+(ord(x[1])<<8)
+
+    ans = struct.unpack('h',x)[0]
     return ans
 
 def mylong(x):
@@ -111,13 +117,13 @@ def mylong(x):
     return ans
 
 def myfloat(x):
-    ans = struct.unpack('f',x)
-    ans = ans[0]
+    ans = struct.unpack('f',x)[0]
+    # ans = ans[0]
     return ans
 
 def mydouble(x):
-    ans = struct.unpack('d',x)
-    ans = ans[0]
+    ans = struct.unpack('d',x)[0]
+    # ans = ans[0]
     return ans
 
 def mybyte(x):
@@ -355,7 +361,8 @@ def readPTWHeader(ptwfilename):
     Header.h_SizeOfOneFrameAndHeader = mylong(headerinfo[19:23])
     Header.h_SizeOfOneFrame = mylong(headerinfo[23:27])
     Header.h_NumberOfFieldInFile = mylong(headerinfo[27:31])
-    Header.h_CurrentFieldNumber = myint(headerinfo[31:35])
+    # Header.h_CurrentFieldNumber = myint(headerinfo[31:35])
+    Header.h_CurrentFieldNumber = mylong(headerinfo[31:35])
 
     #Header.h_FileSaveDate = '' #[35:39] decoded below
     Header.h_FileSaveYear = myint(headerinfo[35:37])
@@ -498,7 +505,8 @@ def readPTWHeader(ptwfilename):
     Header.h_HistoEqualizationPercent = myint(headerinfo[2145:2147])
     Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[2147:2403])
     Header.h_PTRTopFrameValid = ord(headerinfo[2403:2404])
-    Header.h_SubSampling = myint(headerinfo[2404:2408])
+    # Header.h_SubSampling = myint(headerinfo[2404:2408])
+    Header.h_SubSampling = mylong(headerinfo[2404:2408])
     Header.h_CameraHFlip = ord(headerinfo[2408:2409])
     Header.h_CameraHVFlip = ord(headerinfo[2409:2410])
     Header.h_BBTemp = myfloat(headerinfo[2410:2414])
