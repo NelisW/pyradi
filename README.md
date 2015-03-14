@@ -1,6 +1,8 @@
 The purpose of computing is insight, not numbers.<BR>
 _- Richard Hamming_
 
+This readme is under construction after being migrated from Google Code. Thanks to the kind folks at GitHub for hosting;  they look after their customers a lot better than those at Google.
+
 ##Objective
 
 The PyRadi toolkit is a Python toolkit to perform optical and infrared computational radiometry (flux flow) calculations.
