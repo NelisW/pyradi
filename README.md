@@ -61,13 +61,13 @@ This project is *stable beta*. Current content is tested, stable and usable. Wit
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 
-##ocumentation
- # Module documentation is given in  [http://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html html docs] and   [http://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/latex/pyradi.pdf pdf doc.]
- # A number of IPython notebooks demonstrate pyradi use. Head on over to [https://github.com/NelisW/ComputationalRadiometry Computational Radiometry] to download the notebooks. If you are not using the IPython notebook, the are also [https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi HTML renderings]. 
- # At the end of each of the pyradi files, in the __main__ section, you will find test and example code demonstrating the use of that specific file. Some day, these will find their way into a tutorial, but for now, please study the example code.
- # [http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/SPIE-8543-Pyradi-an-open-source-toolkit-for-infrared-85430J.pdf  "Pyradi: an open-source toolkit for infrared calculation and data processing"], SPIE   Proceedings Vol 8543, Security+Defence 2012,  Technologies for Optical Countermeasures, Edinburgh, 24-27 September, C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau. 
- # [http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/pyradi-SPIE-Newsroom.pdf  "Pyradi radiometry toolkit"],   C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau,  SPIE Newsroom, DOI:10.1117/2.1201211.004568, 2012. 
- # [http://spie.org/x648.html?product_id=2021423&origin_id=x646 Electro-Optical System Analysis and Design: A Radiometry Perspective]  provides detailed examples of pyradi use.  The 528-page book provides detailed coverage of radiometry and infrared system analysis and design.  It uses pyradi in the extensively documented computational examples. _Electro-Optical System Analysis and Design: A Radiometry Perspective_, Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume PM236, SPIE Press, 2013. The book is available from [http://spie.org/x648.html?product_id=2021423&origin_id=x646 SPIE] and [http://www.amazon.com/Electro-optical-System-Analysis-Design-Perspective/dp/0819495697/ref=sr_1_13?ie=UTF8&qid=1371620238&sr=8-13&keywords=willers Amazon]. 
+##Documentation
+- Module documentation is given in  [http://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html html docs] and   [http://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/latex/pyradi.pdf pdf doc.]
+- A number of IPython notebooks demonstrate pyradi use. Head on over to [https://github.com/NelisW/ComputationalRadiometry Computational Radiometry] to download the notebooks. If you are not using the IPython notebook, the are also [https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi HTML renderings]. 
+- At the end of each of the pyradi files, in the __main__ section, you will find test and example code demonstrating the use of that specific file. Some day, these will find their way into a tutorial, but for now, please study the example code.
+- [http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/SPIE-8543-Pyradi-an-open-source-toolkit-for-infrared-85430J.pdf  "Pyradi: an open-source toolkit for infrared calculation and data processing"], SPIE   Proceedings Vol 8543, Security+Defence 2012,  Technologies for Optical Countermeasures, Edinburgh, 24-27 September, C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau. 
+- [http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/pyradi-SPIE-Newsroom.pdf  "Pyradi radiometry toolkit"],   C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau,  SPIE Newsroom, DOI:10.1117/2.1201211.004568, 2012. 
+- [http://spie.org/x648.html?product_id=2021423&origin_id=x646 Electro-Optical System Analysis and Design: A Radiometry Perspective]  provides detailed examples of pyradi use.  The 528-page book provides detailed coverage of radiometry and infrared system analysis and design.  It uses pyradi in the extensively documented computational examples. _Electro-Optical System Analysis and Design: A Radiometry Perspective_, Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume PM236, SPIE Press, 2013. The book is available from [http://spie.org/x648.html?product_id=2021423&origin_id=x646 SPIE] and [http://www.amazon.com/Electro-optical-System-Analysis-Design-Perspective/dp/0819495697/ref=sr_1_13?ie=UTF8&qid=1371620238&sr=8-13&keywords=willers Amazon]. 
 
 
 [http://spie.org/x648.html?product_id=2021423&origin_id=x646 http://pyradi.googlecode.com/svn/trunk/pyradi/doc/_images/PM236.jpg]
@@ -76,7 +76,7 @@ The development is ongoing as and when new needs arise.  We are open for feature
 ##Get the code via Python pip or easy_install
 You can download the pyradi package using pip, from the command line by typing
 
- pip install --upgrade pyradi
+    pip install --upgrade pyradi
 
 This command will install or upgrade pyradi to the latest version in https://pypi.python.org/pypi/pyradi/. If the install is successful, pyradi is available for use immediately, no further action is required.  The pip install may initiate the download of numpy, scipy, matplotlib or scikit-image if these are not presently in your Python distribution.
 
@@ -84,50 +84,13 @@ The pyradi version in pip is built at regular intervals from the subversion repo
 
 Instructions on how to use pip is available at http://www.pythonforbeginners.com/basics/python-pip-usage and  http://www.pip-installer.org/en/latest/installing.html.
 
-##Get the code via Subversion
-You can download the very latest version of pyradi from the subversion repository.
+##Get the code from GitHub
+You can download the very latest version of pyradi from the pyradi repository on GitHub.
 
-Download files individually from the trunk from this web site, or checkout by using subversion. To check out individual files, click on the 'Source' tab and then on 'Checkout' or 'Browse'. If you browse, remember to drill down to the trunk directory to get to the code.
-
-If you check out the code to your local Python site-packages or dist-packages directory, it is immediately available for use in your scripts. You can then get the latest update simply by subversion update.  If the svn download to your site-packages directory is successful, pyradi is available for use immediately, no further action is required.  Note that the subversion download only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
+Note that the subversion download only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
 
  pip install --upgrade matplotlib
 
-
-*SVN download on Windows*
-
-If you are new to subversion, consider using the [http://tortoisesvn.net/about.html tortoise] subversion client, [http://tortoisesvn.net/downloads.html downloadable  here]. Detailed instructions on how to use tortoise are shown [http://tortoisesvn.net/docs/nightly/TortoiseSVN_en/ here] and  [http://www.shokhirev.com/nikolai/programs/SVN/svn.html here].
-
-Using a commandline subversion client, just open a command window and enter the following (adapt the local path name to where your Python is installed.):
-
-
-{{{
-svn checkout https://pyradi.googlecode.com/svn/trunk/pyradi/ C:\Python27\Lib\site-packages\pyradi --username yourname@gmail.com
-}}}
-
-
-*SVN download on Ubuntu*
-
-Determine where your Python site packages are located;
-{{{
-from distutils.sysconfig import get_python_lib 
-print(get_python_lib())
-}}}
-On my PC is it at /usr/lib/python2.7/dist-packages,
-then check out pyradi with
-
-{{{
-sudo svn checkout https://pyradi.googlecode.com/svn/trunk/pyradi/ yoursitepackagedir/pyradi --username yourname@gmail.com
-}}}
-You would have to {{{sudo svn update}}} to get the latest files.
-
-*SVN download in Anaconda*
-
-[http://docs.continuum.io/anaconda/install.html Anaconda ] installs Python in a different location (normally in the user's home directory), and users on Ubuntu have to install pyradi with something like this
-{{{
-sudo svn checkout https://pyradi.googlecode.com/svn/trunk/pyradi/ /home/yourusername/anaconda/lib/python2.7/site-packages/pyradi --username yourname@gmail.com
-}}}
-Anaconda is installed in the user directory and hence sudo *should not* be required or used here.
 
 ==Checking out pyradi for building PyPI packages==
 
