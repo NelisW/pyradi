@@ -1,8 +1,3 @@
-# pyradi
-
-Python toolkit to do optical radiometry calculations
-
-
 The purpose of computing is insight, not numbers.<BR>
 _- Richard Hamming_
 
