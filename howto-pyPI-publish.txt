@@ -1,0 +1,150 @@
+PyPI Install
+
+http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
+http://docs.python-guide.org/en/latest/writing/structure/
+https://github.com/audreyr/cookiecutter-pypackage
+https://coderwall.com/p/lt2kew
+
+http://www.scotttorborg.com/python-packaging/
+http://pythonhosted.org/setuptools/setuptools.html#development-mode
+http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
+http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
+
+old - https://groups.google.com/forum/#!msg/django-developers/vcrSarBEy5Y/WXIVALTNB1QJ
+
+use setuptools: 
+https://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-setuptools-and-distutils2
+http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/
+
+1) create an account with pyPI and/or TestPyPi
+
+passwords may only contain letters and numbers, not other symbols.
+
+2) set up .pypirc
+https://stackoverflow.com/questions/1569315/setup-py-upload-is-failing-with-upload-failed-401-you-must-be-identified-t/1569331#1569331'
+On windows, an you’ll need to set a HOME environ var to point to the directory where this file lives.
+which is 'C:\Users\NWillers' in my case.
+
+File format:
+[distutils]
+index-servers =
+    pypi
+
+[pypi]
+username:NelisWillers
+password:BestmYbet00
+------------------
+
+put some data in to this file
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+
+https://wiki.python.org/moin/TestPyPI
+
+http://guide.python-distribute.org/contributing.html
+you can remove the password, but will be prompted each time
+
+3) write the setup.py script for the package
+
+http://docs.python.org/2.7/distutils/setupscript.html#
+http://docs.python.org/2.7/distutils/introduction.html#distutils-simple-example
+https://pypi.python.org/pypi?:action=list_classifiers
+http://docs.python.org/2/distutils/sourcedist.html#manifest
+http://docs.python.org/2/distutils/setupscript.html#meta-data
+
+check the long description by
+python setup.py --long-description | rst2html.py > output.html
+http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
+
+
+4) register the meta data with pyPI
+on pyPI
+cd to the directory where setup.py is located and then 
+------------------------------
+python setup.py register -r https://testpypi.python.org/pypi
+------------------------------
+
+on testpyPI
+cd to the directory where setup.py is located and then 
+python setup.py register
+
+
+https://wiki.python.org/moin/TestPyPI
+
+http://docs.python.org/2.7/distutils/packageindex.html#registering-packages
+
+5) uploading the package files
+------------------------------
+python setup.py sdist  upload -r https://testpypi.python.org/pypi
+python setup.py sdist bdist_wininst upload -r https://testpypi.python.org/pypi
+python setup.py register sdist upload -r https://testpypi.python.org/pypi
+------------------------------
+
+python setup.py upload -r https://testpypi.python.org/pypi
+
+python setup.py sdist   <upload source distro>
+python setup.py bdist_egg upload  <upload egg for easy_install>
+python setup.py sdist bdist_wininst upload  <upload source and windows installer>
+python setup.py sdist bdist_wininst upload -r http://example.com/pypi <to specified server>
+
+
+http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
+
+
+6) Uploading source and installers with a batch script
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+
+7) Upload for each version of python you want to distribute
+https://pythonhosted.org/an_example_pypi_project/setuptools.html
+
+8) get version number from the code files
+
+VERSION = __import__(PACKAGE).__version__
+setup(
+    name=NAME,
+    version=VERSION,
+
+http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
+http://legacy.python.org/dev/peps/pep-0386/
+
+9) Installing a package
+-------------------------------------
+pip install --upgrade -i https://testpypi.python.org/pypi pyradi2
+-----------------------------------------
+install locally on your pc
+$ python setup.py install <will install from here to python directory>
+
+it may be necessary to use --allow-external
+http://www.pip-installer.org/en/latest/reference/pip_wheel.html#allow-external
+
+10) Ignoring Files (.gitignore, etc)
+http://www.scotttorborg.com/python-packaging/minimal.html
+
+11) development mode
+http://pythonhosted.org/setuptools/setuptools.html#development-mode
+
+
+12) including data
+include_package_data
+http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
+http://www.scotttorborg.com/python-packaging/metadata.html
+
+using manifest file
+http://danielsokolowski.blogspot.com/2012/08/setuptools-includepackagedata-option.html
+
+   # your system should use distribute which is successor to setuptools 
+   # and distutils, http://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-and-setuptools
+   # 'distribute' imports itself as 'setuptools'
+   
+http://docs.python.org/2/distutils/sourcedist.html#manifest-template 
+  
+13) testing
+http://www.scotttorborg.com/python-packaging/testing.html
+
+hen, to run tests, we can simply do:
+
+$ python setup.py test
+
+
+14) Requirements
+https://caremad.io/blog/setup-vs-requirement/
+

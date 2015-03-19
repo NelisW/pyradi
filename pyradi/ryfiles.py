@@ -380,6 +380,7 @@ def downloadFileUrl(url,  saveFilename=None):
 
     The URL is used to download a file, to the saveFilename specified.
     If no saveFilename is given, the basename of the URL is used.
+    Before doownloading, first test to see if the file already exists.
 
     Args:
         | url (string): the url to be accessed.
@@ -397,22 +398,25 @@ def downloadFileUrl(url,  saveFilename=None):
     else:
         filename = saveFilename
 
-    import urllib2
-    from urllib2 import HTTPError
+    if os.path.exists(filename):
+        pass
+    else:
+        import urllib2
+        from urllib2 import HTTPError
 
-    try:
-        #get file handle
-        f = urllib2.urlopen(url)
-        # Open file for writing
-        with open(filename, "wb") as file:
-            file.write(f.read())
-    #handle errors
-    except urllib2.HTTPError as e:
-       print('HTTP Error: {} for {}'.format(e.code, url))
-       return None
-    except urllib2. URLError as e:
-       print('URL Error: {} for {}'.format(e.reason, url))
-       return None
+        try:
+            #get file handle
+            f = urllib2.urlopen(url)
+            # Open file for writing
+            with open(filename, "wb") as file:
+                file.write(f.read())
+        #handle errors
+        except urllib2.HTTPError as e:
+           print('HTTP Error: {} for {}'.format(e.code, url))
+           return None
+        except urllib2. URLError as e:
+           print('URL Error: {} for {}'.format(e.reason, url))
+           return None
 
     return filename
 
