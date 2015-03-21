@@ -23,34 +23,53 @@ Setup script for pyradi. This procedure must be followed only once so set up.
 
 5.  Write and test the long description, this goes onto PyPI project page.
 
-6.  On every new release:  Register the meta data with PyPI    
+6. If not allready existing, mkdir ../pyradi-docs/_build. Alternatively clone the
+   gh-pages branch from https://github.com/NelisW/pyradi-docs/tree/gh-pages
+   To be on the same level as the main pyradi directory:In other words,
+   create a new folder on the same level as where pyradi root is:
+    ..
+    +-pyradi
+      +-.git
+      |-setup.py (this file)
+      | ...
+      +-pyradi
+        + ... all the pyradi files
+    +-pyradi-docs
+      +-.git
+      +-_build
+
+7.  On every new release:  Register the meta data with PyPI    
     cd to where setup.py is located and run the following command:
     python setup.py register   [[this will register new release on pyPI]]
 
-7.  Create the package files zip and installers (not uploading)
+8.  Create the package files zip and installers (not uploading)
     python setup.py sdist bdist_wininst [[ built in dist directory ]]
 
-8.  Test locally by unzipping the package and running
+9.  Test locally by unzipping the package and running
     python setup.py install  [[ will install to site-packages]]
     test this installation prior to uploading to pyPI
 
-9.  Upload the packages to PyPIy
+10.  Upload the packages to PyPIy
     python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
 
-10. Installing a package from the server to local pyPI
+11. Installing a package from the server to local pyPI
     pip install --upgrade pyradi
 
 See the bottom of this file for additional notes.
 
 Release cycle when updating PyRadi
 
-1.  Make the code changes required in the googlecode svn checkout.
+1.  Make the code changes required in the git master branch.
     Test as necessary.
 
 2.  Raise the software version one count in __init()__.py
 
-3.  Build the Python Sphinx documentation in googlecode directories.
-    Do both the HTML and PDF docs.
+3.  Build the Python Sphinx documentation by changing to the 
+    /pyradi/pyradi/doc directory.
+    Make sure that the gh-pages branch is checked out in the 
+    /pyradi/pyradi/doc/../../../pyradi-docs directory.
+
+    Create both the HTML and PDF docs.
     See that the documentation is correct (spot checks).
     cd to /pyradi/pyradi/doc
     make html
@@ -58,39 +77,40 @@ Release cycle when updating PyRadi
     cd to /pyradi/pyradi/doc/_build/latex
     pdflatex pyradi.tex
 
-4.  Commit the pyradi code & docs to google code svn
+    This procedure will create the docs in the build directory
+    /pyradi/pyradi/doc/../../../pyradi-docs/_build.
+    which should contain a clone of the gh-pages repo at 
+    https://github.com/NelisW/pyradi-docs/tree/gh-pages.
+    Commit the changes to the pyradi-docs repo.
+
+4.  Commit the pyradi code to the pyradi repo, master branch.
 
 5.  Update the IPython notebook documentation in the local git clone.
     Do a complete rebuild of the notebooks: restart kernel and run all cells.
     Check that all cells are rendered.
 
-6.  task removed.
+6.  If a new notebook name is used, get the nbviewer link to the html rendering.
 
-7.  task removed.
+7.  Update README.md with the new notebook name.
 
-8.  If a new notebook name is used, get the nbviewer link to the html rendering.
+8.  Commit the ipynb files to the local git repo.
 
-9.  Update README.md with the new notebook name.
+9. Push the local git repo changes to github repo.
 
-10.  Commit the ipynb files to the local git repo.
-
-11. Push the local git repo changes to github repo.
-
-12. cd to root pyradi directory and do in a command window:
+10. cd to root pyradi directory and do in a command window:
     python setup.py register   [[this will register new release on pyPI]]
 
-13. Create the package files zip and installers (not uploading)
+11. Create the package files zip and installers (not uploading)
     python setup.py sdist bdist_wininst [[ built in dist directory ]]
 
-14. Test locally by unzipping the package and running
+12. Test locally by unzipping the package and running
     python setup.py install  [[ will install to site-packages]]
     test this installation prior to uploading to pyPI
 
-15 Upload the packages to PyPIy
+13 Upload the packages to PyPIy
     python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
     
-
-most of the code in this script comes from 
+some of the code in this script below comes from 
 https://github.com/paltman/python-setup-template/blob/master/setup.py
 I am just not using much of it :-((
 """
