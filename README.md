@@ -68,12 +68,12 @@ There are many free
 [getting started ](http://www.python.org/about/gettingstarted/) blogs websites and tutorials 
 [videos](https://www.youtube.com/playlist?list=PLEA1FEF17E1E5C0DA),  
 [more videos](http://pyvideo.org/) and 
-[conferences](http://www.python.org/community/workshops/.  Material for Numpy is less bountiful, but the 
+[conferences](http://www.python.org/community/workshops/).  Material for Numpy is less bountiful, but the 
 [numpy reference](http://docs.scipy.org/doc/numpy/numpy-ref-1.8.0.pdf) and StackOverflow are good sources.
 Just google some variation of 'learning python' and make your choice.
 
 A very good introduction to Python for scientific work are the 
-[http://folk.uio.no/hpl/scripting/book_comparison.html two books] by Hans Petter Langtangen.
+[two books](http://folk.uio.no/hpl/scripting/book_comparison.html) by Hans Petter Langtangen.
 
 
 ##Status
@@ -83,8 +83,7 @@ The development is ongoing as and when new needs arise.  We are open for feature
 
 ##Documentation
 - Module documentation is available in  
-- [HTML](http://nelisw.github.io/pyradi-docs/_build/html/index.html) and  
-- [PDF](https://raw.githubusercontent.com/NelisW/pyradi-docs/gh-pages/_build/latex/pyradi.pdf).
+- [HTML](http://nelisw.github.io/pyradi-docs/_build/html/index.html) and  [PDF](https://raw.githubusercontent.com/NelisW/pyradi-docs/gh-pages/_build/latex/pyradi.pdf).
 - A number of IPython notebooks demonstrate pyradi use. Head on over to 
 [Computational Radiometry](https://github.com/NelisW/ComputationalRadiometry) to download the notebooks. If you are not using the IPython notebook, the are also [HTML renderings](https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi). 
 - At the end of each of the pyradi files, in the __main__ section, you will find test and example code demonstrating the use of that specific file. Some day, these will find their way into a tutorial, but for now, please study the example code.
@@ -107,7 +106,7 @@ The pyradi version in pip is built at regular intervals from the subversion repo
 Instructions on how to use pip is available at <http://www.pythonforbeginners.com/basics/python-pip-usage> and  <http://www.pip-installer.org/en/latest/installing.html>.
 
 ##Get the code from GitHub
-You can download the very latest version of pyradi from the pyradi repository on GitHub.
+You can download the very [latest version of pyradi](https://github.com/NelisW/pyradi) from the pyradi repository on GitHub.
 
 Note that the subversion download only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
 
