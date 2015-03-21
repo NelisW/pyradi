@@ -71,7 +71,7 @@ functions to implement this model with minimal code.
 An example solution is given in this script_ and is further explained with results in SPIE8543Pyradi_.
 
     
-.. _script: https://code.google.com/p/pyradi/source/browse/trunk/examples/exflamesensor.py
+.. _script: https://github.com/NelisW/pyradi/tree/master/pyradi/examples
 
 .. [notebooks]: https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 

@@ -217,4 +217,5 @@ signal, even though the flame fills only 0.01 of the sensor field of view.
    C.J. Willers, M. S. Willers, R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, 
    A de Waal and A.E. Mudau.
    
-.. _exflamesensor.py: http://code.google.com/p/pyradi/source/browse/trunk/exflamesensor.py
+.. _exflamesensor.py: https://github.com/NelisW/pyradi/tree/master/pyradi/examples
+

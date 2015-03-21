@@ -24,16 +24,13 @@
 computational radiometry (flux flow) calculations. 
 
     | The toolkit is available at
-    | https://pypi.python.org/pypi/pyradi/ (pip installation package)
-    | http://code.google.com/p/pyradi (latest version in the repository)
+    | https://pypi.python.org/pypi/pyradi/ (pip installation package)  
+    | https://github.com/NelisW/pyradi (latest version in the repository)  
 
     | See docs at 
-    | http://pyradi.googlecode.com/svn//trunk/doc/_build/html/index.html
-
-    | Visit the google group at 
-    | http://groups.google.com/group/pyradi-dev
-
-
+    | http://nelisw.github.io/pyradi-docs/_build/html/index.html  
+    | https://raw.githubusercontent.com/NelisW/pyradi-docs/gh-pages/_build/latex/pyradi.pdf  
+    
     | IPython notebooks demonstrating the use of pyradi is available at  
     | https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 
