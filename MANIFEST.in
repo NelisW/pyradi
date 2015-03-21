@@ -13,5 +13,5 @@ prune pyradi/data/absorptioncoeff
 
 include pyradi/data/absorptioncoeff/*.txt
 
-recursive-include pyradi/doc/_build/html *
-include pyradi/doc/_build/latex/pyradi.pdf
+#recursive-include pyradi/doc/_build/html *
+#include pyradi/doc/_build/latex/pyradi.pdf

@@ -97,8 +97,13 @@ Release cycle when updating PyRadi
 
 9. Push the local git repo changes to github repo.
 
-10. cd to root pyradi directory and do in a command window:
+10. Register the new version on PyPI by one of the two following methods:
+
+10a. cd to root pyradi directory and do in a command window:
     python setup.py register   [[this will register new release on pyPI]]
+
+10b. Log in on the PyPi website and manually register the new release, 
+     to create a new index (release).    
 
 11. Create the package files zip and installers (not uploading)
     python setup.py sdist bdist_wininst [[ built in dist directory ]]
@@ -107,8 +112,13 @@ Release cycle when updating PyRadi
     python setup.py install  [[ will install to site-packages]]
     test this installation prior to uploading to pyPI
 
-13 Upload the packages to PyPIy
-    python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
+13 Upload the packages to PyPIy, by one of two methods:
+
+13a. python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
+
+13b. Log in to the PyPi website and manually upload the files against new 
+     release that was registered in 10b above.
+     
     
 some of the code in this script below comes from 
 https://github.com/paltman/python-setup-template/blob/master/setup.py
@@ -223,7 +233,7 @@ NAME = 'pyradi'
 DESCRIPTION = 'The PyRadi toolkit provides utilities for radiometry (flux flow) calculations, supporting electro-optical and infrared system design.'
 AUTHOR = 'Nelis Willers'
 AUTHOR_EMAIL = 'neliswillers@gmail.com'
-URL = 'https://code.google.com/p/pyradi/'
+URL = 'https://github.com/NelisW/pyradi/'
 VERSION = __import__(PACKAGE).__version__
 
 print(sys.prefix)
