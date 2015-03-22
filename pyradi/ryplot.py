@@ -292,7 +292,7 @@ class Markers:
 
         for marker in self.markers:
             ax.plot(marker[0], marker[1],
-                c = marker[2].markerfacecolor,
+                color = marker[2].markerfacecolor,
                 markerfacecoloralt = marker[2].markerfacecoloralt,
                 markeredgecolor = marker[2].markeredgecolor,
                 marker = marker[2].marker,
@@ -2871,31 +2871,31 @@ if __name__ == '__main__':
 
 
 
-    #next line include both 0 and 360 degrees, i.e., overlap on edge
-    angled = np.linspace(0.,360.,25) 
-    angler = np.pi * angled / 180.
-    grange = np.linspace(500.,4000.,8)
-    #create a 2-D meshgrid.
-    grangeg, anglerg= np.meshgrid(grange,angler + np.pi * 7.5 / 180)
+    if True:    #next line include both 0 and 360 degrees, i.e., overlap on edge
+        angled = np.linspace(0.,360.,25) 
+        angler = np.pi * angled / 180.
+        grange = np.linspace(500.,4000.,8)
+        #create a 2-D meshgrid.
+        grangeg, anglerg= np.meshgrid(grange,angler + np.pi * 7.5 / 180)
 
-    height  = 2000.
-    launch = (1 + np.cos(anglerg) ) ** .1 * (1 - np.exp(-( 500 + grangeg) / 2000.) ) 
-    launch *=  np.exp(-( 500 + grangeg) / (6000. -  height))
-    launch = np.where(launch<0.2, 0.2, launch)
-    #normalise
-    launch -= np.min(launch)
-    launch /= np.max(launch)
+        height  = 2000.
+        launch = (1 + np.cos(anglerg) ) ** .1 * (1 - np.exp(-( 500 + grangeg) / 2000.) ) 
+        launch *=  np.exp(-( 500 + grangeg) / (6000. -  height))
+        launch = np.where(launch<0.2, 0.2, launch)
+        #normalise
+        launch -= np.min(launch)
+        launch /= np.max(launch)
 
-    pm = Plotter(1,1,2,figsize=(16,8))
-    pm.polarMesh(1,angler+np.pi, grange, launch.T,
-        ptitle='Probability of launch for height {:.0f} [m]'.format(height),
-        radscale=[0, 4000], cbarshow=True,
-        cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
-        rgrid=[500], thetagrid=[45], drawGrid=True,
-        direction='clockwise', zerooffset=np.pi/2, )
-    pm.polar3d(2, angler, grange, launch, zlabel='zlabel',
-        linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
-    pm.saveFig('3Dlaunch.png')
+        pm = Plotter(1,1,2,figsize=(16,8))
+        pm.polarMesh(1,angler+np.pi, grange, launch.T,
+            ptitle='Probability of launch for height {:.0f} [m]'.format(height),
+            radscale=[0, 4000], cbarshow=True,
+            cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
+            rgrid=[500], thetagrid=[45], drawGrid=True,
+            direction='clockwise', zerooffset=np.pi/2, )
+        pm.polar3d(2, angler, grange, launch, zlabel='zlabel',
+            linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
+        pm.saveFig('3Dlaunch.png')
 
     if True:
         ############################################################################
@@ -3006,103 +3006,106 @@ if __name__ == '__main__':
     #demonstrate the use of a polar mesh plot radial scales
     #create the radial and angular vectors
 
-    r = np.linspace(0,1.25,100)
-    p = np.linspace(0,2*np.pi,100)
-    P,R = np.meshgrid(p,r)
-    # value = ((np.sin(P))**2 + np.cos(P)*(R**2 - 1)**2)
-    value = ((R**2 - 1)**2) * np.sin(2 * P)
-    pmesh = Plotter(1, 2, 2,'Polar plot in mesh',figsize=(12,8))
-    pmesh.polarMesh(1, p, r, value, meshCmap = cm.jet_r, cbarshow=True,\
-                  drawGrid=False, rgrid=None, thetagrid=None,\
-                  thetagridfontsize=10, radialgridfontsize=8,
-                  direction='counterclockwise', zerooffset=0)
-    pmesh.polarMesh(2, p, r, value, meshCmap = cm.gray, cbarshow=True,\
-                  drawGrid=True, rgrid=[3],\
-                  thetagridfontsize=10, radialgridfontsize=8,
-                  direction='clockwise', zerooffset=np.pi/2)
-    pmesh.polarMesh(3, p, r, value, meshCmap = cm.hot, cbarshow=True,\
-                  drawGrid=True,thetagrid=[45], rgrid=[.25,1.25],\
-                  thetagridfontsize=10, radialgridfontsize=8,
-                  direction='counterclockwise', zerooffset=0)
-    pmesh.polarMesh(4, p, r, value, meshCmap = cm.jet, cbarshow=True,\
-                  drawGrid=True, thetagrid=[15], rgrid=[0.2, 1.],\
-                  thetagridfontsize=10, radialgridfontsize=8,
-                  direction='clockwise', zerooffset=-np.pi/2)#, radscale=[0.5,1.25])
-    pmesh.saveFig('pmeshrad.png')
-    #pmesh.saveFig('pmeshrad.eps')
+    if True:
+        r = np.linspace(0,1.25,100)
+        p = np.linspace(0,2*np.pi,100)
+        P,R = np.meshgrid(p,r)
+        # value = ((np.sin(P))**2 + np.cos(P)*(R**2 - 1)**2)
+        value = ((R**2 - 1)**2) * np.sin(2 * P)
+        pmesh = Plotter(1, 2, 2,'Polar plot in mesh',figsize=(12,8))
+        pmesh.polarMesh(1, p, r, value, meshCmap = cm.jet_r, cbarshow=True,\
+                      drawGrid=False, rgrid=None, thetagrid=None,\
+                      thetagridfontsize=10, radialgridfontsize=8,
+                      direction='counterclockwise', zerooffset=0)
+        pmesh.polarMesh(2, p, r, value, meshCmap = cm.gray, cbarshow=True,\
+                      drawGrid=True, rgrid=[3],\
+                      thetagridfontsize=10, radialgridfontsize=8,
+                      direction='clockwise', zerooffset=np.pi/2)
+        pmesh.polarMesh(3, p, r, value, meshCmap = cm.hot, cbarshow=True,\
+                      drawGrid=True,thetagrid=[45], rgrid=[.25,1.25],\
+                      thetagridfontsize=10, radialgridfontsize=8,
+                      direction='counterclockwise', zerooffset=0)
+        pmesh.polarMesh(4, p, r, value, meshCmap = cm.jet, cbarshow=True,\
+                      drawGrid=True, thetagrid=[15], rgrid=[0.2, 1.],\
+                      thetagridfontsize=10, radialgridfontsize=8,
+                      direction='clockwise', zerooffset=-np.pi/2)#, radscale=[0.5,1.25])
+        pmesh.saveFig('pmeshrad.png')
+        #pmesh.saveFig('pmeshrad.eps')
 
-    #3D plot example
-    def parametricCurve(z, param1 = 2, param2 = 1):
-        r = z**param1 + param2
-        theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
-        return (r * np.sin(theta), r * np.cos(theta))
+        #3D plot example
+        def parametricCurve(z, param1 = 2, param2 = 1):
+            r = z**param1 + param2
+            theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
+            return (r * np.sin(theta), r * np.cos(theta))
 
-    P3D = Plotter(5, 1, 1,'Plot 3D Single', figsize=(12,8))
-    z = np.linspace(-2, 2, 100)
-    x, y = parametricCurve(z)
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
-    P3D.saveFig('3D.png')
+        P3D = Plotter(5, 1, 1,'Plot 3D Single', figsize=(12,8))
+        z = np.linspace(-2, 2, 100)
+        x, y = parametricCurve(z)
+        P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
+        P3D.saveFig('3D.png')
 
-    P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
-    plabel = ['parametric curve 1', 'parametric curve 2', 'parametric curve 3']
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
-    P3D.saveFig('3DwithLabel.png')
-    P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
-    P3D.plot3d(1, 0.8*x.T, 0.9*y.T, 1.2*z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=plabel, legendAlpha=0.5)
-    P3D.saveFig('3DwithLabelRepeat.png')
+        P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
+        plabel = ['parametric curve 1', 'parametric curve 2', 'parametric curve 3']
+        P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
+        P3D.saveFig('3DwithLabel.png')
+        P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
+        P3D.plot3d(1, 0.8*x.T, 0.9*y.T, 1.2*z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=plabel, legendAlpha=0.5)
+        P3D.saveFig('3DwithLabelRepeat.png')
 
-    P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
-    P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
-    P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
-    P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
-    P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
-    P3D.saveFig('S3D.png')
+        P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
+        P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
+        P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
+        P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
+        P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
+        P3D.saveFig('S3D.png')
 
-    P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
-    label = ['Param1={} Param2={}'.format(2,1)]
-    for i in range(2):
-        param1 = 2-i
-        param2 = i
-        label.append('Param1={} Param2={}'.format(param1, param2))
-        x1, y1 = parametricCurve(z, param1, param2)
-        x = np.vstack((x,x1))
-        y = np.vstack((y,y1))
+        P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
+        label = ['Param1={} Param2={}'.format(2,1)]
+        for i in range(2):
+            param1 = 2-i
+            param2 = i
+            label.append('Param1={} Param2={}'.format(param1, param2))
+            x1, y1 = parametricCurve(z, param1, param2)
+            x = np.vstack((x,x1))
+            y = np.vstack((y,y1))
 
-    z = np.vstack((z,z,z))
+        z = np.vstack((z,z,z))
 
-    P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, 
-        legendAlpha=0.5, markers=['o','v','^','<'], markevery=4)
-    P3D.saveFig('M3D.png')
+        P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, 
+            legendAlpha=0.5, markers=['o','v','^','<'], markevery=4)
+        P3D.saveFig('M3D.png')
 
     ############################################################################
     # demonstrate the use of the contextmanager and with statement
-    x=np.linspace(-3,3,20)
-    with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
-        p.plot(1,x,x*x)
-    with savePlot(1,saveName='testwith.svg') as p:
-        p.plot(1,x,x*x)
+    if True:
+        x=np.linspace(-3,3,20)
+        with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
+            p.plot(1,x,x*x)
+        with savePlot(1,saveName='testwith.svg') as p:
+            p.plot(1,x,x*x)
 
     ############################################################################
     import matplotlib.mlab as mlab
-    delta = 0.025
-    x = np.arange(-3.0, 3.0, delta)
-    y = np.arange(-2.0, 2.0, delta)
-    X, Y = np.meshgrid(x, y)
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-    # difference of Gaussians
-    Z = 10.0 * (Z2 - Z1)
-    pmc = Plotter(1)
-    pmc.meshContour(1, X, Y, Z, levels=15,
-                ptitle='meshContour', shading='gouraud',plotCol=['k'],
-                titlefsize=12,  meshCmap=cm.rainbow, cbarshow=True,
-                cbarorientation='vertical', cbarfontsize=12,
-                xlabel='X-value', ylabel='Y-value',
-                drawGrid=True, yInvert=True, negativeSolid=False,
-                contourFill=True, contourLine=True, logScale=False )
-    #the current version uses pngs, since there appears to be a
-    #problem with eps files.
-    pmc.saveFig('meshContour.png', dpi=300)
+    if True:
+        delta = 0.025
+        x = np.arange(-3.0, 3.0, delta)
+        y = np.arange(-2.0, 2.0, delta)
+        X, Y = np.meshgrid(x, y)
+        Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+        Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+        # difference of Gaussians
+        Z = 10.0 * (Z2 - Z1)
+        pmc = Plotter(1)
+        pmc.meshContour(1, X, Y, Z, levels=15,
+                    ptitle='meshContour', shading='gouraud',plotCol=['k'],
+                    titlefsize=12,  meshCmap=cm.rainbow, cbarshow=True,
+                    cbarorientation='vertical', cbarfontsize=12,
+                    xlabel='X-value', ylabel='Y-value',
+                    drawGrid=True, yInvert=True, negativeSolid=False,
+                    contourFill=True, contourLine=True, logScale=False )
+        #the current version uses pngs, since there appears to be a
+        #problem with eps files.
+        pmc.saveFig('meshContour.png', dpi=300)
 
 
 
@@ -3112,323 +3115,327 @@ if __name__ == '__main__':
       scale = np.sqrt(np.exp(-(x**2 +y**2)))
       return np.sin(2 * x) * np.cos(4 * y) * scale
 
-    x = np.linspace(-2, 2, 101)
-    y = np.linspace(-2, 2, 101)
-    varx, vary = np.meshgrid(x, y)
-    zdata = myFunc(varx.flatten(), vary.flatten()).reshape(varx.shape)
+    if True:
+        x = np.linspace(-2, 2, 101)
+        y = np.linspace(-2, 2, 101)
+        varx, vary = np.meshgrid(x, y)
+        zdata = myFunc(varx.flatten(), vary.flatten()).reshape(varx.shape)
 
-    # print(zdata.shape)
+        # print(zdata.shape)
 
-    p = Plotter(1,2,2,figsize=(18,14))
-    p.mesh3D(1, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
-      rstride=3, cstride=3, linewidth= 1, maxNX=5, maxNY=5, maxNZ=0,
-      drawGrid=True, cbarshow=True, cmap=None)
-    p.mesh3D(2, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
-      rstride=3, cstride=3, linewidth= 0.3, maxNX=5, maxNY=5, maxNZ=0,
-      drawGrid=True, cbarshow=True, alpha=0.2)
-    p.mesh3D(3, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
-      rstride=3, cstride=3, linewidth= 0.2, maxNX=5, maxNY=5, maxNZ=0,
-      drawGrid=True, cmap=cm.jet,  cbarshow=True, elev=70, azim=15)
-    p.mesh3D(4, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
-      rstride=3, cstride=3, linewidth= 0, maxNX=5, maxNY=5, maxNZ=0, drawGrid=True,
-      cmap=cm.brg, cbarshow=True)
+        p = Plotter(1,2,2,figsize=(18,14))
+        p.mesh3D(1, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+          rstride=3, cstride=3, linewidth= 1, maxNX=5, maxNY=5, maxNZ=0,
+          drawGrid=True, cbarshow=True, cmap=None)
+        p.mesh3D(2, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+          rstride=3, cstride=3, linewidth= 0.3, maxNX=5, maxNY=5, maxNZ=0,
+          drawGrid=True, cbarshow=True, alpha=0.2)
+        p.mesh3D(3, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+          rstride=3, cstride=3, linewidth= 0.2, maxNX=5, maxNY=5, maxNZ=0,
+          drawGrid=True, cmap=cm.jet,  cbarshow=True, elev=70, azim=15)
+        p.mesh3D(4, varx, vary, zdata, ptitle='Title', xlabel='x', ylabel='y', zlabel='z',
+          rstride=3, cstride=3, linewidth= 0, maxNX=5, maxNY=5, maxNZ=0, drawGrid=True,
+          cmap=cm.brg, cbarshow=True)
 
-    p.saveFig('mesh3d01.png')
+        p.saveFig('mesh3d01.png')
 
 
 
     ############################################################################
     #demonstrate the use of plotArray
     #import array from example data file
-    filename = "data/arrayplotdemo.txt"
-    f = open(filename)
-    lines = f.readlines()
-    #the labels are in the first line (row). Skip the '%' symbol
-    labels = lines[0].split()[1:]
-    #the array is the rest of the file
-    arrDummyDemo = np.genfromtxt(filename,skip_header=1)
-    #the figure title is the filename
-    maintitle = filename.split('/')[-1]
+    if True:
+        filename = "data/arrayplotdemo.txt"
+        f = open(filename)
+        lines = f.readlines()
+        #the labels are in the first line (row). Skip the '%' symbol
+        labels = lines[0].split()[1:]
+        #the array is the rest of the file
+        arrDummyDemo = np.genfromtxt(filename,skip_header=1)
+        #the figure title is the filename
+        maintitle = filename.split('/')[-1]
 
-    Ar = Plotter(9, 1, 1,maintitle)
-    Ar.plotArray(1,arrDummyDemo, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
-        sepSpace=0.05)
-    Ar.saveFig('ArrayPlot01.png')
+        Ar = Plotter(9, 1, 1,maintitle)
+        Ar.plotArray(1,arrDummyDemo, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+            sepSpace=0.05)
+        Ar.saveFig('ArrayPlot01.png')
 
-    t = np.linspace(0, 4 * np.pi, 100).reshape(-1,1)
-    arr = np.hstack((t,   np.sin(t * 2 * np.pi / 4.0)))
-    arr = np.hstack((arr, np.cos(t * 2 * np.pi / 4.0)))
-    labels = ['time','a','b']
-    for i in range(7):
-        arr = np.hstack((arr, np.sin(t * 2 * np.pi / (i+1))))
-        arr = np.hstack((arr, np.cos(t * 2 * np.pi / (i+1))))
-        labels.append(' s{} '.format(i))
-        labels.append(' c{} '.format(i))
+        t = np.linspace(0, 4 * np.pi, 100).reshape(-1,1)
+        arr = np.hstack((t,   np.sin(t * 2 * np.pi / 4.0)))
+        arr = np.hstack((arr, np.cos(t * 2 * np.pi / 4.0)))
+        labels = ['time','a','b']
+        for i in range(7):
+            arr = np.hstack((arr, np.sin(t * 2 * np.pi / (i+1))))
+            arr = np.hstack((arr, np.cos(t * 2 * np.pi / (i+1))))
+            labels.append(' s{} '.format(i))
+            labels.append(' c{} '.format(i))
 
-    Ar2 = Plotter(10, 1, 1,maintitle)
-    Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
-        sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
-    Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
-        sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
-    Ar2.saveFig('ArrayPlot02.png')
+        Ar2 = Plotter(10, 1, 1,maintitle)
+        Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+            sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
+        Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+            sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
+        Ar2.saveFig('ArrayPlot02.png')
 
-    Ar3 = Plotter(11, 1, 1,maintitle)
-    Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
-        sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
-    Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
-        sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
-    Ar3.saveFig('ArrayPlot03.png')
+        Ar3 = Plotter(11, 1, 1,maintitle)
+        Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+            sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
+        Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
+            sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
+        Ar3.saveFig('ArrayPlot03.png')
 
 
     ############################################################################
     #demonstrate the use of a polar mesh plot and markers
     #create the radial and angular vectors
+    if True:
 
-    r = np.linspace(0,1.25,100)
-    p = np.linspace(0,2*np.pi,100)
-    P, R = np.meshgrid(p, r)
-    value =  ((R**2 - 1)**2) * np.sin(2 * P)
-    pmesh = Plotter(1, 1, 1,'Polar plot in mesh',figsize=(12,8))
-    pmesh.polarMesh(1, p, r, value, cbarshow=True, \
-                  cbarorientation = 'vertical', cbarfontsize = 10,  \
-                  )#, radscale=[0.5,1.25])
+        r = np.linspace(0,1.25,100)
+        p = np.linspace(0,2*np.pi,100)
+        P, R = np.meshgrid(p, r)
+        value =  ((R**2 - 1)**2) * np.sin(2 * P)
+        pmesh = Plotter(1, 1, 1,'Polar plot in mesh',figsize=(12,8))
+        pmesh.polarMesh(1, p, r, value, cbarshow=True,
+                      cbarorientation = 'vertical', cbarfontsize = 10)
 
-    # add filled markers
-    markers = Markers(markerfacecolor='y', marker='*')
-    markers.add(0*np.pi/6,1)
-    markers.add(1*np.pi/6,0.9,markerfacecolor='k', marker='v',fillstyle='top')
-    markers.add(2*np.pi/6,0.8,fillstyle='top',markeredgecolor='g')
-    markers.add(3*np.pi/6,0.7,marker='v')
-    markers.add(4*np.pi/6,0.6,marker='p',fillstyle='top')
-    markers.add(5*np.pi/6,0.5,markerfacecolor='r',marker='H',fillstyle='bottom',markerfacecoloralt='PaleGreen')
-    markers.add(6*np.pi/6,0.4,marker='D',fillstyle='left',markerfacecoloralt='Sienna',markersize=10)
-    markers.plot(pmesh.getSubPlot(1))
+        # add filled markers
+        markers = Markers(markerfacecolor='y', marker='*')
+        markers.add(0*np.pi/6,1)
+        markers.add(1*np.pi/6,0.9,markerfacecolor='k', marker='^',fillstyle='top')
+        markers.add(2*np.pi/6,0.8,fillstyle='top',markeredgecolor='g')
+        markers.add(3*np.pi/6,0.7,marker='v',markerfacecolor='r')
+        markers.add(4*np.pi/6,0.6,marker='p',fillstyle='top')
+        markers.add(5*np.pi/6,0.5,markerfacecolor='r',marker='H',fillstyle='bottom',markerfacecoloralt='PaleGreen')
+        markers.add(6*np.pi/6,0.4,marker='D',fillstyle='left',markerfacecoloralt='Sienna',markersize=10)
+        markers.plot(pmesh.getSubPlot(1))
 
-    pmesh.saveFig('pmesh.png')
-    #pmesh.saveFig('pmesh.eps')
+        pmesh.saveFig('pmesh.png')
+        #pmesh.saveFig('pmesh.eps')
 
 
     ############################################################################
     ##create some data
-    xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
-    yLinS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
-    yLinSS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
+    if True:
+        xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
+        yLinS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
+        yLinSS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
 
-    yLinA=yLinS
-    yLinA = np.hstack((yLinA, \
-            1.0e7 * np.random.random(xLinS.shape[0]).reshape(-1, 1)))
-    yLinA = np.hstack((yLinA, \
-            1.0e7 * np.random.random(xLinS.shape[0]).reshape(-1, 1)))
+        yLinA=yLinS
+        yLinA = np.hstack((yLinA, \
+                1.0e7 * np.random.random(xLinS.shape[0]).reshape(-1, 1)))
+        yLinA = np.hstack((yLinA, \
+                1.0e7 * np.random.random(xLinS.shape[0]).reshape(-1, 1)))
 
-    A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
-    A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
-            plotCol=['c--'],
-           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
-           pltaxis=[0, 10, 0, 2000],
-           maxNX=10, maxNY=2,
-           powerLimits = [-4,  2, -5, 5])
-    A.logLog(2, xLinS, yLinA, "Array LogLog","X", "Y",\
-             label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    A.semilogX(3, xLinS, yLinA, "Array SemilogX","X", "Y",\
-               label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
-               label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-    A.saveFig('A.png')
-    #A.saveFig('A.eps')
+        A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
+        A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
+                plotCol=['c--'],
+               label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+               pltaxis=[0, 10, 0, 2000],
+               maxNX=10, maxNY=2,
+               powerLimits = [-4,  2, -5, 5])
+        A.logLog(2, xLinS, yLinA, "Array LogLog","X", "Y",\
+                 label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+        A.semilogX(3, xLinS, yLinA, "Array SemilogX","X", "Y",\
+                   label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+        A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
+                   label=['A1', 'A2', 'A3'],legendAlpha=0.5)
+        A.saveFig('A.png')
+        #A.saveFig('A.eps')
 
-    AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
-    AA.plot(1, xLinS, yLinA, plotCol=['b--'],
-           label=['A1', 'A2', 'A3'],legendAlpha=0.5,
-           pltaxis=[0, 10, 0, 2000],
-           maxNX=10, maxNY=2,
-           powerLimits = [-4,  2, -5, 5])
-    currentP = AA.getSubPlot(1)
-    currentP.set_xlabel('X Label')
-    currentP.set_ylabel('Y Label')
-    currentP.set_title('The figure title')
-    currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
-                horizontalalignment='center', verticalalignment='center')
-    currentP.text(0.5 * 10, 1300,
-         r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
-         fontsize=20)
-    for xmaj in currentP.xaxis.get_majorticklocs():
-        currentP.axvline(x=xmaj,ls='-')
-    for xmin in currentP.xaxis.get_minorticklocs():
-        currentP.axvline(x=xmin,ls='--')
-    for ymaj in currentP.yaxis.get_majorticklocs():
-        currentP.axhline(y=ymaj,ls='--')
-    for ymin in currentP.yaxis.get_minorticklocs():
-        currentP.axhline(y=ymin,ls='--')
+        AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
+        AA.plot(1, xLinS, yLinA, plotCol=['b--'],
+               label=['A1', 'A2', 'A3'],legendAlpha=0.5,
+               pltaxis=[0, 10, 0, 2000],
+               maxNX=10, maxNY=2,
+               powerLimits = [-4,  2, -5, 5])
+        currentP = AA.getSubPlot(1)
+        currentP.set_xlabel('X Label')
+        currentP.set_ylabel('Y Label')
+        currentP.set_title('The figure title')
+        currentP.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
+                    horizontalalignment='center', verticalalignment='center')
+        currentP.text(0.5 * 10, 1300,
+             r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
+             fontsize=20)
+        for xmaj in currentP.xaxis.get_majorticklocs():
+            currentP.axvline(x=xmaj,ls='-')
+        for xmin in currentP.xaxis.get_minorticklocs():
+            currentP.axvline(x=xmin,ls='--')
+        for ymaj in currentP.yaxis.get_majorticklocs():
+            currentP.axhline(y=ymaj,ls='--')
+        for ymin in currentP.yaxis.get_minorticklocs():
+            currentP.axhline(y=ymin,ls='--')
 
-    AA.saveFig('AA.png')
-    # AA.saveFig('AA.eps')
+        AA.saveFig('AA.png')
+        # AA.saveFig('AA.eps')
 
-    S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
-    S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
-           label=['Original'],legendAlpha=0.5)
-    S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
-             label=['Original'],legendAlpha=0.5)
-    S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
+        S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
+        S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
                label=['Original'],legendAlpha=0.5)
-    S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
-               label=['Original'],legendAlpha=0.5)
-    S.saveFig('S.png', dpi=300)
-    #S.saveFig('S.eps')
-    #plot again on top of the existing graphs
-    S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
-               plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
-    S.logLog(2, xLinS, 1.3*yLinSS, "Single LogLog","X", "Y",\
-              plotCol='g',label=['Repeat on top'],legendAlpha=0.5)
-    S.semilogX(3, xLinS, 0.5*yLinSS, "Single SemilogX","X", "Y",\
-               plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
-    S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
-               plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
-    S.saveFig('SS.png', dpi=300)
-    #S.saveFig('SS.eps')
+        S.logLog(2, xLinS, yLinS, "Single LogLog","X", "Y",\
+                 label=['Original'],legendAlpha=0.5)
+        S.semilogX(3, xLinS, yLinS, "Single SemilogX","X", "Y",\
+                   label=['Original'],legendAlpha=0.5)
+        S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
+                   label=['Original'],legendAlpha=0.5)
+        S.saveFig('S.png', dpi=300)
+        #S.saveFig('S.eps')
+        #plot again on top of the existing graphs
+        S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
+                   plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
+        S.logLog(2, xLinS, 1.3*yLinSS, "Single LogLog","X", "Y",\
+                  plotCol='g',label=['Repeat on top'],legendAlpha=0.5)
+        S.semilogX(3, xLinS, 0.5*yLinSS, "Single SemilogX","X", "Y",\
+                   plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
+        S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
+                   plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
+        S.saveFig('SS.png', dpi=300)
+        #S.saveFig('SS.eps')
 
-    r = np.arange(0, 3.01, 0.01).reshape(-1, 1)
-    theta = 2*np.pi*r
-    r2 = np.hstack((r,r**2))
-    P = Plotter(3, 2, 2,'Polar Plots', figsize=(12,8))
-    P.polar(1,theta, r, "Single Polar",\
-           label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
-    P.polar(2,theta, r2, "Array Polar",\
-           label=['A', 'B'],legendAlpha=0.5,rscale=[2,6],rgrid=[2,6],\
-           thetagrid=[45], direction=u'clockwise', zerooffset=0)
-    P.polar(3,theta, r, "Single Polar",\
-           label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
-           direction=u'clockwise', zerooffset=np.pi/2)
-    P.polar(4,theta, r2, "Array Polar",\
-           label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
-           thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
-    P.saveFig('P.png')
-    #P.saveFig('P.eps')
-    #plot again on top of existing graphs
-    rr = np.arange(0.1, 3.11, 0.01).reshape(-1, 1)
-    thetar = 2*np.pi*rr
-    P.polar(1,thetar, 0.5 * rr, "Single Polar",\
-           plotCol='r',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
-    P.polar(2,thetar, 0.75 * rr, "Array Polar",\
-           plotCol='g',label=['A', 'B'],legendAlpha=0.5,rscale=[0,6],rgrid=[2,6],\
-           thetagrid=[45], direction=u'clockwise', zerooffset=0)
-    P.polar(3,thetar, 1.2 * rr, "Single Polar",\
-           plotCol='k',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
-           direction=u'clockwise', zerooffset=np.pi/2)
-    P.polar(4,thetar, 1.5 * rr, "Array Polar",\
-           plotCol='y',label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
-           thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
-    P.saveFig('PP.png')
-    #P.saveFig('PP.eps')
+        r = np.arange(0, 3.01, 0.01).reshape(-1, 1)
+        theta = 2*np.pi*r
+        r2 = np.hstack((r,r**2))
+        P = Plotter(3, 2, 2,'Polar Plots', figsize=(12,8))
+        P.polar(1,theta, r, "Single Polar",\
+               label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
+        P.polar(2,theta, r2, "Array Polar",\
+               label=['A', 'B'],legendAlpha=0.5,rscale=[2,6],rgrid=[2,6],\
+               thetagrid=[45], direction=u'clockwise', zerooffset=0)
+        P.polar(3,theta, r, "Single Polar",\
+               label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
+               direction=u'clockwise', zerooffset=np.pi/2)
+        P.polar(4,theta, r2, "Array Polar",\
+               label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
+               thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
+        P.saveFig('P.png')
+        #P.saveFig('P.eps')
+        #plot again on top of existing graphs
+        rr = np.arange(0.1, 3.11, 0.01).reshape(-1, 1)
+        thetar = 2*np.pi*rr
+        P.polar(1,thetar, 0.5 * rr, "Single Polar",\
+               plotCol='r',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
+        P.polar(2,thetar, 0.75 * rr, "Array Polar",\
+               plotCol='g',label=['A', 'B'],legendAlpha=0.5,rscale=[0,6],rgrid=[2,6],\
+               thetagrid=[45], direction=u'clockwise', zerooffset=0)
+        P.polar(3,thetar, 1.2 * rr, "Single Polar",\
+               plotCol='k',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
+               direction=u'clockwise', zerooffset=np.pi/2)
+        P.polar(4,thetar, 1.5 * rr, "Array Polar",\
+               plotCol='y',label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
+               thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
+        P.saveFig('PP.png')
+        #P.saveFig('PP.eps')
 
-    #polar with negative values
-    theta=np.linspace(0,2.0*np.pi,600)
-    r = np.sin(3.4*theta)
-    PN = Plotter(3, 2, 2,'Negative Polar Plots', figsize=(12,8))
-    PN.polar(1,theta, r, "sin(3.3x)",\
-           legendAlpha=0.5,rscale=[0,1.5],rgrid=[0.5,1.5],highlightNegative=True)
-    tt = np.linspace(0,24*np.pi,3000)
-    rr = np.exp(np.cos(tt)) - 2 * np.cos(4 * tt) + (np.sin(tt / 12))**5
-    PN.polar(2,tt, rr, "Math function",\
-           legendAlpha=0.5,rscale=[0,5],rgrid=[0.5,5.0],highlightNegative=True,
-           highlightCol='r',highlightWidth=4)
-    PN.polar(3,theta, r, "sin(3.3x)", \
-           legendAlpha=0.5,rscale=[-1.5,1.5],rgrid=[0.5,1.5],highlightNegative=True)
-    tt = np.linspace(0,2 * np.pi,360)
-    rr = 1 + 3 * np.sin(tt)
-    PN.polar(4,tt,rr, "1 + 3sin(x)", \
-           legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction=u'clockwise',
-           zerooffset=np.pi/2,highlightCol='r',highlightWidth=2)
-    PN.saveFig('PN.png')
-    #PN.saveFig('PN.eps')
+        #polar with negative values
+        theta=np.linspace(0,2.0*np.pi,600)
+        r = np.sin(3.4*theta)
+        PN = Plotter(3, 2, 2,'Negative Polar Plots', figsize=(12,8))
+        PN.polar(1,theta, r, "sin(3.3x)",\
+               legendAlpha=0.5,rscale=[0,1.5],rgrid=[0.5,1.5],highlightNegative=True)
+        tt = np.linspace(0,24*np.pi,3000)
+        rr = np.exp(np.cos(tt)) - 2 * np.cos(4 * tt) + (np.sin(tt / 12))**5
+        PN.polar(2,tt, rr, "Math function",\
+               legendAlpha=0.5,rscale=[0,5],rgrid=[0.5,5.0],highlightNegative=True,
+               highlightCol='r',highlightWidth=4)
+        PN.polar(3,theta, r, "sin(3.3x)", \
+               legendAlpha=0.5,rscale=[-1.5,1.5],rgrid=[0.5,1.5],highlightNegative=True)
+        tt = np.linspace(0,2 * np.pi,360)
+        rr = 1 + 3 * np.sin(tt)
+        PN.polar(4,tt,rr, "1 + 3sin(x)", \
+               legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction=u'clockwise',
+               zerooffset=np.pi/2,highlightCol='r',highlightWidth=2)
+        PN.saveFig('PN.png')
+        #PN.saveFig('PN.eps')
 
-    #test/demo to show that multiple plots can be done in the same subplot, on top of older plots
-    xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
-    M= Plotter(1, 1, 1,'Multi-plots',figsize=(12,8))
-    #it seems that all attempts to plot in same subplot space must use same ptitle.
-    yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['b'], label=['A1'])
-    yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['g'], label=['A2'])
-    yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['r'], label=['A3'])
-    yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
-    M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['c'], \
-           label=['A4'],legendAlpha=0.5, maxNX=10, maxNY=2)
-    M.saveFig('M.png')
-    #M.saveFig('M.eps')
-
-
-    xv,yv = np.mgrid[-5:5:21j, -5:5:21j]
-    z = np.sin(np.sqrt(xv**2 + yv**2))
-    I = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm.winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
-    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
-    I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
-    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-    I.saveFig('I.png')
-#    I.saveFig('I.eps')
-    #plot on existing
-    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
-    I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
-    I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
-    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-    I.saveFig('II.png')
-#    I.saveFig('II.eps')
-
-    I = Plotter(5, 2, 2,'Images & Array Linear', figsize=(12, 8))
-    I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-    barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
-    I.showImage(2, z, ptitle='cubehelix colormap, default font ',cmap=cubehelixcmap(), cbarshow=True, cbarcustomticks=barticks)
-    I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
-    I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-    I.saveFig('cmaps.png')
-
-    #demonstrate setting axis values
-    x=np.linspace(-3,3,20)
-    p = Plotter(1)
-    p.plot(1,x,x,pltaxis=[-2,1,-3,2])
-    p.saveFig('testaxis.png')
+        #test/demo to show that multiple plots can be done in the same subplot, on top of older plots
+        xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
+        M= Plotter(1, 1, 1,'Multi-plots',figsize=(12,8))
+        #it seems that all attempts to plot in same subplot space must use same ptitle.
+        yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
+        M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['b'], label=['A1'])
+        yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
+        M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['g'], label=['A2'])
+        yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
+        M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['r'], label=['A3'])
+        yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
+        M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['c'], \
+               label=['A4'],legendAlpha=0.5, maxNX=10, maxNY=2)
+        M.saveFig('M.png')
+        #M.saveFig('M.eps')
 
 
-    #test the ability to return to existing plots and add new lines
-    x = np.linspace(0,10,10)
-    a = Plotter(1)
-    b = Plotter(2)
-    c = Plotter(3)
-    for i in [1,2]:
-        a.plot(1,x,x ** i, str(i))
-        b.plot(1,x,(-x) ** i,str(i))
-        c.plot(1,x,(5-x) ** i,str(i))
-    a.saveFig('ma.png')
-    b.saveFig('mb.png')
-    c.saveFig('mc.png')
+        xv,yv = np.mgrid[-5:5:21j, -5:5:21j]
+        z = np.sin(np.sqrt(xv**2 + yv**2))
+        I = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
+        I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm.winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
+        I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
+        I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+        I.saveFig('I.png')
+    #    I.saveFig('I.eps')
+        #plot on existing
+        I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
+        I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
+        I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+        I.saveFig('II.png')
+    #    I.saveFig('II.eps')
+
+        I = Plotter(5, 2, 2,'Images & Array Linear', figsize=(12, 8))
+        I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
+        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        I.showImage(2, z, ptitle='cubehelix colormap, default font ',cmap=cubehelixcmap(), cbarshow=True, cbarcustomticks=barticks)
+        I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
+        I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
+        I.saveFig('cmaps.png')
+
+        #demonstrate setting axis values
+        x=np.linspace(-3,3,20)
+        p = Plotter(1)
+        p.plot(1,x,x,pltaxis=[-2,1,-3,2])
+        p.saveFig('testaxis.png')
+
+
+        #test the ability to return to existing plots and add new lines
+        x = np.linspace(0,10,10)
+        a = Plotter(1)
+        b = Plotter(2)
+        c = Plotter(3)
+        for i in [1,2]:
+            a.plot(1,x,x ** i, str(i))
+            b.plot(1,x,(-x) ** i,str(i))
+            c.plot(1,x,(5-x) ** i,str(i))
+        a.saveFig('ma.png')
+        b.saveFig('mb.png')
+        c.saveFig('mc.png')
 
     ############################################################################
     #demonstrate multipage pdf output
     #reference for the multipage pdf code: http://blog.marmakoide.org/?p=94
+    if True:
 
-    x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
-    y=1 + np.random.random(x.shape[0]).reshape(-1, 1)
+        x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
+        y=1 + np.random.random(x.shape[0]).reshape(-1, 1)
 
-    #create the pdf document
-    pdf_pages = PdfPages('multipagepdf.pdf')
+        #create the pdf document
+        pdf_pages = PdfPages('multipagepdf.pdf')
 
-    # create the first page
-    A = Plotter(1, 2, 1,figsize=(12,8))
-    A.plot(1, x, y, "Array Linear","X", "Y")
-    A.logLog(2, x, y, "Array LogLog","X", "Y")
-    # A.getPlot().tight_layout()
-    pdf_pages.savefig(A.getPlot())
+        # create the first page
+        A = Plotter(1, 2, 1,figsize=(12,8))
+        A.plot(1, x, y, "Array Linear","X", "Y")
+        A.logLog(2, x, y, "Array LogLog","X", "Y")
+        # A.getPlot().tight_layout()
+        pdf_pages.savefig(A.getPlot())
 
-    #create the second page
-    B = Plotter(1, 1, 1,figsize=(12,8))
-    B.polar(1, x, y, "Polar")
-    # B.getPlot().tight_layout()
-    pdf_pages.savefig(B.getPlot())
+        #create the second page
+        B = Plotter(1, 1, 1,figsize=(12,8))
+        B.polar(1, x, y, "Polar")
+        # B.getPlot().tight_layout()
+        pdf_pages.savefig(B.getPlot())
 
-    # Write the PDF document to the disk
-    pdf_pages.close()
+        # Write the PDF document to the disk
+        pdf_pages.close()
 
     print('module ryplot done!')
