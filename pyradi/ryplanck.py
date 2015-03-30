@@ -79,6 +79,9 @@ from functools import wraps
 #np.exp() has upper limit in IEEE double range, catch this in Planck calcs
 explimit = 709.7
 
+
+
+
 class PlanckConstants:
     """Precalculate the Planck function constants using the values in
        scipy.constants.  Presumbly these constants are up to date and
@@ -224,6 +227,9 @@ def fixDimensions(planckFun):
     specgrid, tempgrid = np.meshgrid(specIn,tempIn)
     spec = np.ravel(specgrid)
     temp = np.ravel(tempgrid)
+
+    #test for zero temperature
+    temp = np.where(temp!=0.0, temp, 1e-300);
 
     #this is the actual planck calculation
     planckA = planckFun(spec,temp) 
@@ -381,6 +387,7 @@ def planckql(spectral, temperature):
     #this happens for low temperatures and short wavelengths
     exP = pconst.c2l / (spectral * temperature)
     exP2 = np.where(exP<explimit, exP, 1);
+    # print(np.max(exP), np.max(exP2))
     p = (pconst.c1ql /( np.exp(exP2)-1) )  / (spectral**4 )
     #if exponent is exP>=explimit, force Planck to zero
     planckA = np.where(exP<explimit, p, 0);
