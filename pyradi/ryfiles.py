@@ -203,7 +203,7 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
 
 
 ################################################################
-def cleanFilename(sourcestring,  removestring =" %:/,.\\[]"):
+def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>"):
     """Clean a string by removing selected characters.
 
     Creates a legal and 'clean' source string from a string by removing some 

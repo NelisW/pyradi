@@ -483,7 +483,7 @@ class Plotter:
     ############################################################
     ##
     def __init__(self,fignumber=0,subpltnrow=1,subpltncol=1,\
-                 figuretitle=None, figsize=(9,9)):
+                 figuretitle=None, figsize=(9,9), titlefontsize=14):
         """Class constructor
 
         The constructor defines the number for this figure, allowing future reference
@@ -498,6 +498,7 @@ class Plotter:
                 | subpltncol (int): subplot number of columns
                 | figuretitle (string): the overall heading for the figure
                 | figsize ((w,h)): the figure size in inches
+                | titlefontsize (int): the figure title size in points
 
             Returns:
                 | Nothing. Creates the figure for subequent use.
@@ -548,7 +549,7 @@ class Plotter:
         if figuretitle:
             self.figtitle=plt.gcf().text(.5,.95,figuretitle,\
                         horizontalalignment='center',\
-                        fontproperties=FontProperties(size=16))
+                        fontproperties=FontProperties(size=titlefontsize))
             self.bbox_extra_artists.append(self.figtitle)
 
 
