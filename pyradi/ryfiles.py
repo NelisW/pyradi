@@ -589,16 +589,19 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
 
 ################################################################
 ##
-def epsLaTexFigure(filename, epsname, caption, scale, filemode='a'):
+def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None, filemode='a', strPost=''):
     """ Write the LaTeX code to include an eps graphic as a latex figure.
         The text is added to an existing file.
+
 
     Args:
         | fname (string):  text writing output path and filename.
         | epsname (string): filename/path to eps file (relative to where the LaTeX document is built).
         | caption (string): figure caption
         | scale (double): figure scale to textwidth [0..1]
+        | vscale (double): figure scale to textheight [0..1]
         | filemode (string): file open mode (a=append, w=new file) (optional)
+        | strPost (string): string to write to file after latex figure block (optional)
 
     Returns:
         | None, writes a file to disk
@@ -610,11 +613,16 @@ def epsLaTexFigure(filename, epsname, caption, scale, filemode='a'):
     with open(filename, filemode) as outfile:
         outfile.write('\\begin{figure}[tb]\n')
         outfile.write('\\centering\n')
-        outfile.write('\\resizebox{{{0}\\textwidth}}{{!}}{{\includegraphics{{eps/{1}}}}}\n'.\
-            format(scale,epsname))
-        outfile.write('\\caption{{{0}. \label{{fig:{1}}}}}\n'.format(caption,epsname.split('.')[0]))
+        if scale is not None or vscale is not None:
+            scale = 1 if scale is None else scale
+            vscale = 1 if vscale is None else vscale
+            outfile.write('\\includegraphics[width={0}\\textwidth,height={1}\\textheight,keepaspectratio]{{{2}}}\n'.\
+                format(scale, vscale, epsname))
+        else:
+            outfile.write('\\includegraphics{{{0}}}\n'.format(epsname))
+        outfile.write('\\caption{{{0}. \label{{fig:{1}}}}}\n'.format(caption,epsname))
         outfile.write('\\end{figure}\n')
-        outfile.write('\n')
+        outfile.write('{}\n'.format(strPost))
         outfile.write('\n')
 
 ################################################################
