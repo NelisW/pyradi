@@ -7,36 +7,39 @@ Spherical Plotting utility
 Overview
 ----------
 
-.. automodule:: pyradi.ryplotspherical
+This module will be removed in future.  There seems to be no movement in porting Mayavi to Python 3.
 
-Module functions
-------------------
 
-.. autofunction:: pyradi.ryplotspherical.readOffFile	
+#.. automodule:: pyradi.ryplotspherical
 
-.. autofunction:: pyradi.ryplotspherical.getRotateFromOffFile	
+#Module functions
+#------------------
 
-.. autofunction:: pyradi.ryplotspherical.getOrbitFromOffFile	
+#.. autofunction:: pyradi.ryplotspherical.readOffFile	
 
-.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajOFFFile	
+#.. autofunction:: pyradi.ryplotspherical.getRotateFromOffFile	
 
-.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.getOrbitFromOffFile	
 
-.. autofunction:: pyradi.ryplotspherical.getOrbitFromElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajOFFFile	
 
-.. autofunction:: pyradi.ryplotspherical.getRotateFromElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.writeOSSIMTrajElevAzim	
 
-.. autofunction:: pyradi.ryplotspherical.plotSpherical	
+#.. autofunction:: pyradi.ryplotspherical.getOrbitFromElevAzim	
 
-.. autofunction:: pyradi.ryplotspherical.plotOSSIMSpherical	
+#.. autofunction:: pyradi.ryplotspherical.getRotateFromElevAzim	
 
-.. autofunction:: pyradi.ryplotspherical.sphericalPlotElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.plotSpherical	
 
-.. autofunction:: pyradi.ryplotspherical.polarPlotElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.plotOSSIMSpherical	
 
-.. autofunction:: pyradi.ryplotspherical.globePlotElevAzim	
+#.. autofunction:: pyradi.ryplotspherical.sphericalPlotElevAzim	
 
-.. autofunction:: pyradi.ryplotspherical.plotVertexSphere	
+#.. autofunction:: pyradi.ryplotspherical.polarPlotElevAzim	
+
+#.. autofunction:: pyradi.ryplotspherical.globePlotElevAzim	
+
+#.. autofunction:: pyradi.ryplotspherical.plotVertexSphere	
 
 
 

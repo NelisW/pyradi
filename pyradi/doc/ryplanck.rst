@@ -46,3 +46,5 @@ Module functions
 
 .. autofunction:: pyradi.ryplanck.dplnckqf	
 
+.. autofunction:: pyradi.ryplanck.fixDimensions
+

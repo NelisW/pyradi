@@ -83,7 +83,9 @@ Release cycle when updating PyRadi
     https://github.com/NelisW/pyradi-docs/tree/gh-pages.
     Commit the changes to the pyradi-docs repo.
 
-4.  Commit the pyradi code to the pyradi repo, master branch.
+4a. Commit the pyradi code to the pyradi repo, master branch.
+
+4b. Commit pyradi-docs to the pyradi-docs repo, gh-pages branch.
 
 5.  Update the IPython notebook documentation in the local git clone.
     Do a complete rebuild of the notebooks: restart kernel and run all cells.

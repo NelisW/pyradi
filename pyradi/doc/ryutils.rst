@@ -44,3 +44,4 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.framesLast
 
+.. autofunction:: pyradi.ryutils.savitzkyGolay1D
