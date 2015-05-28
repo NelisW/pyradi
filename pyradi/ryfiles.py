@@ -564,7 +564,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
                 for frame in range(0, lastframe+1, 1):
                     dataframe = np.fromfile(fin, vartype,framesize)
                     if frame in loadFrames:
-                        if data == None:
+                        if data is None:
                             data = dataframe
                         else:
                             data = np.concatenate((data, dataframe))
@@ -577,7 +577,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
     sizeCheck = frames * rows * cols
 
     if sizeCheck == data.size:
-        rawShaped = data.reshape(frames, rows ,cols)
+        rawShaped = data.reshape(int(frames), int(rows) ,int(cols))
         #print('  Returning {0} frames of size {1} x {2} and data type {3} '.format(  \
         #rawShaped.shape[0],rawShaped.shape[1],rawShaped.shape[2],rawShaped.dtype))
     else:

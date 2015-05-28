@@ -42,7 +42,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
 
 
 __version__ = "$Revision$"

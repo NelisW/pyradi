@@ -38,7 +38,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 #prepare so long for Python 3
 from __future__ import division
 from __future__ import print_function
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -226,22 +226,23 @@ def upMu(uprightMu=True, textcomp=False):
       # set up the use of external latex, fonts and packages
       if not textcomp :
         mpl.rcParams['text.latex.preamble'] = [
-          r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-          r'\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
-          r'\usepackage{helvet}',  # set the normal font here
-          r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-          r'\sansmath']  # <- tricky! -- gotta actually tell tex to use!
+          # r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+          '\\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+          '\\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
+          '\\usepackage{helvet}',  # set the normal font here
+          '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+          '\\sansmath']  # <- tricky! -- gotta actually tell tex to use!
         upmu = '\si{\micro}'
       else:
         mpl.rcParams['text.latex.preamble'] = [
-          r'\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
-          r'\usepackage{helvet}',  # set the normal font here
-          r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-          r'\sansmath'  # <- tricky! -- gotta actually tell tex to use!
+          '\\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
+          '\\usepackage{helvet}',  # set the normal font here
+          '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+          '\\sansmath'  # <- tricky! -- gotta actually tell tex to use!
           ] 
-        upmu = r'\textmu{}'
+        upmu = '\\textmu{}'
     else:
-      upmu = '$\mu$'
+      upmu = '$\\mu$'
     return upmu
 
 
@@ -683,48 +684,47 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     features of the signal better than other types of filtering
     approaches, such as moving averages techniques.
 
-    Parameters
-    ----------
-    y : array_like, shape (N,)
-        the values of the time history of the signal.
-    window_size : int
-        the length of the window. Must be an odd integer number.
-    order : int
-        the order of the polynomial used in the filtering.
-        Must be less then `window_size` - 1.
-    deriv: int
-        the order of the derivative to compute (default = 0 means only smoothing)
-    Returns
-    -------
-    ys : ndarray, shape (N)
-        the smoothed signal (or it's n-th derivative).
-    Notes
-    -----
+
     The Savitzky-Golay is a type of low-pass filter, particularly
     suited for smoothing noisy data. The main idea behind this
     approach is to make for each point a least-square fit with a
     polynomial of high order over a odd-sized window centered at
     the point.
-    Examples
-    --------
-    t = np.linspace(-4, 4, 500)
-    y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
-    ysg = savitzky_golay(y, window_size=31, order=4)
-    import matplotlib.pyplot as plt
-    plt.plot(t, y, label='Noisy signal')
-    plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
-    plt.plot(t, ysg, 'r', label='Filtered signal')
-    plt.legend()
-    plt.show()
-    References
-    ----------
-    .. [1] A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
-       Data by Simplified Least Squares Procedures. Analytical
-       Chemistry, 1964, 36 (8), pp 1627-1639.
-    .. [2] Numerical Recipes 3rd Edition: The Art of Scientific Computing
-       W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
-       Cambridge University Press ISBN-13: 9780521880688
-    """
+    
+    Examples:
+        t = np.linspace(-4, 4, 500)
+        y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
+        ysg = savitzky_golay(y, window_size=31, order=4)
+        import matplotlib.pyplot as plt
+        plt.plot(t, y, label='Noisy signal')
+        plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
+        plt.plot(t, ysg, 'r', label='Filtered signal')
+        plt.legend()
+        plt.show()
+        
+    References:
+        [1] A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
+            Data by Simplified Least Squares Procedures. Analytical
+            Chemistry, 1964, 36 (8), pp 1627-1639.
+        [2] Numerical Recipes 3rd Edition: The Art of Scientific Computing
+            W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
+            Cambridge University Press ISBN-13: 9780521880688
+    
+    
+    Args:
+        | y : array_like, shape (N,) the values of the time history of the signal.
+        | window_size : int the length of the window. Must be an odd integer number.
+        | order : int the order of the polynomial used in the filtering.
+            Must be less then `window_size` - 1.
+        | deriv: int the order of the derivative to compute (default = 0 means only smoothing)
+            
+
+    Returns:
+        | ys : ndarray, shape (N) the smoothed signal (or it's n-th derivative).
+            
+     Raises:
+        | Exception raised for window size errors.
+   """
     import numpy as np
     from math import factorial
 

@@ -21,6 +21,12 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
+
+Please note that all mayavi-based code has been commented out.
+This is because Mayavi is (1) not available in Anaconda and (2) not
+yet ported to Python 3.  This capability might be brought back if 
+there is a need.
+
 This module provides tools for creating and viewing spherical plots.
 
 The spherical plotting tool, using Mayavi, requires two sets of data
@@ -125,7 +131,8 @@ if sys.version_info[0] > 2:
 import os.path, fnmatch
 import numpy as np
 from scipy.interpolate import interp1d
-from mayavi import mlab
+#mayavi commented out
+#from mayavi import mlab
 
 ##############################################################################
 ##
@@ -688,301 +695,306 @@ def getOrbitFromElevAzim(azimuth, elevation,  xTargPos, yTargPos, zTargPos, dist
         sensorPos[:,2].reshape(-1, 1), roll, pitch, yaw, azel)
 
 
+# #mayavi commented out
+# ################################################################
+# ##
+# def plotSpherical(figure, dataset, vertices, triangles, ptitle='', tsize=0.4, theight=1):
+#     """Plot the spherical data given a data set, triangle set and vertex set.
 
-################################################################
-##
-def plotSpherical(figure, dataset, vertices, triangles, ptitle='', tsize=0.4, theight=1):
-    """Plot the spherical data given a data set, triangle set and vertex set.
+#     The vertex set defines the direction cosines of the individual samples.
+#     The triangle set defines how the surfrace must be structured between the samples.
+#     The data set defines, for each direction cosine, the length of the vector.
 
-    The vertex set defines the direction cosines of the individual samples.
-    The triangle set defines how the surfrace must be structured between the samples.
-    The data set defines, for each direction cosine, the length of the vector.
+#     Args:
+#         | figure(int): mlab figure number
+#         | dataset(np.array(double)): array of data set values
+#         | vertices(np.array([])): array of direction cosine vertices as [x y z]
+#         | triangles(np.array([])): array of triangles as []
+#         | ptitle(string): title or header for this display
+#         | tsize(double): title width in in normalised figure width
+#         | theight(double): title top vertical location in normalised figure height
 
-    Args:
-        | figure(int): mlab figure number
-        | dataset(np.array(double)): array of data set values
-        | vertices(np.array([])): array of direction cosine vertices as [x y z]
-        | triangles(np.array([])): array of triangles as []
-        | ptitle(string): title or header for this display
-        | tsize(double): title width in in normalised figure width
-        | theight(double): title top vertical location in normalised figure height
+#     Returns:
+#         | provides an mlab figure.
 
-    Returns:
-        | provides an mlab figure.
+#     Raises:
+#         | No exception is raised.
+# """
 
-    Raises:
-        | No exception is raised.
-"""
+#     #calculate a (x,y,z) data set from the direction vectors
+#     x =  dataset * vertices[:,0]
+#     y =  dataset * vertices[:,1]
+#     z =  dataset * vertices[:,2]
 
-    #calculate a (x,y,z) data set from the direction vectors
-    x =  dataset * vertices[:,0]
-    y =  dataset * vertices[:,1]
-    z =  dataset * vertices[:,2]
+#     mlab.figure(figure, fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
 
-    mlab.figure(figure, fgcolor=(0, 0, 0), bgcolor=(1, 1, 1))
-
-    # Visualize the points
-    pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
-    mlab.title(ptitle, size=tsize, height=theight)
-
-
-
-################################################################
-##
-def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, trianglefile):
-    """Plot the spherical data given a data set, triangle set and vertex set.
-
-    The vertex set defines the direction cosines of the individual samples.
-    The triangle set defines how the surfrace must be structured between the samples.
-    The data set defines, for each direction cosine, the length of the vector.
-
-    There is no means to discriminate between negative and pi phase shift.
-    In this function we plot colour ratio values initially in absolute form,
-    then only positive and then only negative values. In between these two
-    shells the values are going through zero.
-
-    Args:
-        | basefigure (int): value where figure count must start
-        | nColours ([int]): selection of colours to display
-        | plottitle (string): plot title or header
-        | datafile (string): dataset file filename
-        | vertexfile (string): vertex file filename
-        | trianglefile (string): triangles file filename
-
-    Returns:
-        | provides an mlab figure.
-
-    Raises:
-        | No exception is raised.
-"""
-    vertices = np.genfromtxt(vertexfile, autostrip=True,comments='%')
-    triangles = np.genfromtxt(trianglefile, autostrip=True,comments='%')
-    radianArray = np.loadtxt(datafile, skiprows=1, dtype = float)
-    specBand = ['LWIR', 'MWIR', 'SWIR1', 'SWIR2']
-    for i in nColours:
-        dataset = radianArray[:,5+i]
-        ptitle = '{0} {1}'.format(plottitle,specBand[i])
-        plotSpherical(basefigure+10+i, dataset, vertices, triangles, ptitle)
-
-    #calculate colour ratio
-    #   log() to compress the scales
-    #   abs() to not loose negative values
-    colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,5]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/LWIR))')
-    plotSpherical(basefigure+2,colourratio, vertices, triangles, ptitle)
-
-    colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,7]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/SWIR1))')
-    plotSpherical(basefigure+3,colourratio, vertices, triangles, ptitle)
-
-    colourratio = np.log(radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(SWIR1/MWIR)')
-    plotSpherical(basefigure+4,colourratio, vertices, triangles, ptitle)
-
-    colourratio = np.log(-radianArray[:,7]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1SWIR1/MWIR))')
-    plotSpherical(basefigure+5,colourratio, vertices, triangles, ptitle)
-
-
-    colourratio = np.log(np.abs(radianArray[:,8]/radianArray[:,6]))
-    ptitle = '{0} {1}'.format(plottitle,'log(abs(SWIR2/MWIR))')
-    plotSpherical(basefigure+6,colourratio, vertices, triangles, ptitle)
-
-
-    colourratio = np.log(radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +SWIR2/MWIR)')
-    plotSpherical(basefigure+7,colourratio, vertices, triangles, ptitle)
-
-    colourratio = np.log(-radianArray[:,8]/radianArray[:,6])
-    ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(SWIR2/MWIR))')
-    plotSpherical(basefigure+8,colourratio, vertices, triangles, ptitle)
+#     # Visualize the points
+#     pts = mlab.triangular_mesh(x, y, z, triangles )# z, scale_mode='none', scale_factor=0.2)
+#     mlab.title(ptitle, size=tsize, height=theight)
 
 
 
-################################################################
-##
-def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
-    colormap='Spectral', doWireFrame=False, line_width = 0.2):
-    """Plot spherical data (azimuth, elevation and value) given in spherical format
+# #mayavi commented out
+# ################################################################
+# ##
+# def plotOSSIMSpherical(basefigure, nColours, plottitle, datafile, vertexfile, trianglefile):
+#     """Plot the spherical data given a data set, triangle set and vertex set.
 
-    This function assumes that the polar data is defined in terms of elevation
-    angle with zero at the equator and azimuth measured around the equator,
-    from 0 to 2pi.  All angles are in degrees.
+#     The vertex set defines the direction cosines of the individual samples.
+#     The triangle set defines how the surfrace must be structured between the samples.
+#     The data set defines, for each direction cosine, the length of the vector.
 
-    All axes, x, y, and z are scaled with the magnitude of value in the
-    (azim, elev) direction.
+#     There is no means to discriminate between negative and pi phase shift.
+#     In this function we plot colour ratio values initially in absolute form,
+#     then only positive and then only negative values. In between these two
+#     shells the values are going through zero.
 
-    The colour on the surface represents the value at the given azim/elev location.
+#     Args:
+#         | basefigure (int): value where figure count must start
+#         | nColours ([int]): selection of colours to display
+#         | plottitle (string): plot title or header
+#         | datafile (string): dataset file filename
+#         | vertexfile (string): vertex file filename
+#         | trianglefile (string): triangles file filename
 
-    Args:
-        | figure (int): mlab figure number
-        | azimuth (numpy 1D array): vector of values
-        | elevation (numpy 1D array): vector of values
-        | value (numpy 2D array): array with values corresponding with azim/elevation
-        | ptitle (string): plot title
-        | colormap (string): defines the colour map to be used
-        | doWireFrame (bool): switches fireframe on or off
-        | line_width (double): wireframe line width
+#     Returns:
+#         | provides an mlab figure.
 
-    Returns:
-        | provides an mlab figure.
+#     Raises:
+#         | No exception is raised.
+# """
+#     vertices = np.genfromtxt(vertexfile, autostrip=True,comments='%')
+#     triangles = np.genfromtxt(trianglefile, autostrip=True,comments='%')
+#     radianArray = np.loadtxt(datafile, skiprows=1, dtype = float)
+#     specBand = ['LWIR', 'MWIR', 'SWIR1', 'SWIR2']
+#     for i in nColours:
+#         dataset = radianArray[:,5+i]
+#         ptitle = '{0} {1}'.format(plottitle,specBand[i])
+#         plotSpherical(basefigure+10+i, dataset, vertices, triangles, ptitle)
 
-    Raises:
-        | No exception is raised.
-"""
-    phi, theta = np.meshgrid(elevation,azimuth)
-    x = value * np.sin(phi) * np.cos(theta)
-    y = value * np.sin(phi) * np.sin(theta)
-    z = - value * np.cos(phi)
-    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
-    mlab.clf()
-    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
-    if doWireFrame:
-        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
-    if ptitle:
-        mlab.title(ptitle, size=0.5, height=1)
+#     #calculate colour ratio
+#     #   log() to compress the scales
+#     #   abs() to not loose negative values
+#     colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,5]))
+#     ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/LWIR))')
+#     plotSpherical(basefigure+2,colourratio, vertices, triangles, ptitle)
+
+#     colourratio = np.log(np.abs(radianArray[:,6]/radianArray[:,7]))
+#     ptitle = '{0} {1}'.format(plottitle,'log(abs(MWIR/SWIR1))')
+#     plotSpherical(basefigure+3,colourratio, vertices, triangles, ptitle)
+
+#     colourratio = np.log(radianArray[:,7]/radianArray[:,6])
+#     ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +(SWIR1/MWIR)')
+#     plotSpherical(basefigure+4,colourratio, vertices, triangles, ptitle)
+
+#     colourratio = np.log(-radianArray[:,7]/radianArray[:,6])
+#     ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(1SWIR1/MWIR))')
+#     plotSpherical(basefigure+5,colourratio, vertices, triangles, ptitle)
 
 
-################################################################
-##
-def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
-    colormap='Spectral', doWireFrame=False, line_width = 0.2):
-    """Plot spherical data (azimuth, elevation and value) given in polar format.
+#     colourratio = np.log(np.abs(radianArray[:,8]/radianArray[:,6]))
+#     ptitle = '{0} {1}'.format(plottitle,'log(abs(SWIR2/MWIR))')
+#     plotSpherical(basefigure+6,colourratio, vertices, triangles, ptitle)
 
-    This function assumes that the polar data is defined in terms of elevation
-    angle with zero at the equator and azimuth measured around the equator,
-    from 0 to 2pi.  All angles are in degrees.
 
-    The x and y axes are scaled with the maximum magnitude of value. The z axis is
-    scaled with the actual magnitude of value in the  (azim, elev) direction. 
+#     colourratio = np.log(radianArray[:,8]/radianArray[:,6])
+#     ptitle = '{0} {1}'.format(plottitle,'log(Positive ratio: +SWIR2/MWIR)')
+#     plotSpherical(basefigure+7,colourratio, vertices, triangles, ptitle)
 
-    The colour on the surface represents the value at the given azim/elev location.
-
-    Args:
-        | figure (int): mlab figure number
-        | azimuth (numpy 1D array): vector of values
-        | elevation (numpy 1D array): vector of values
-        | value (numpy 2D array): array with values corresponding with azim/elevation
-        | ptitle (string): plot title
-        | colormap (string): defines the colour map to be used
-        | doWireFrame (bool): switches fireframe on or off
-        | line_width (double): wireframe line width
-
-    Returns:
-        | provides an mlab figure.
-
-    Raises:
-        | No exception is raised.
-"""
-    line_width = 0.5
-    rmax = np.amax(np.amax(value))
-    phi, theta = np.meshgrid(elevation,azimuth)
-    x = rmax * np.sin(phi) * np.cos(theta)
-    y = rmax * np.sin(phi) * np.sin(theta)
-    z = - value * np.cos(phi)
-    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
-    mlab.clf()
-    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
-    if doWireFrame:
-        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
-    if ptitle:
-        mlab.title(ptitle, size=0.5, height=1)
+#     colourratio = np.log(-radianArray[:,8]/radianArray[:,6])
+#     ptitle = '{0} {1}'.format(plottitle,'log(Negative ratio: -(SWIR2/MWIR))')
+#     plotSpherical(basefigure+8,colourratio, vertices, triangles, ptitle)
 
 
 
-################################################################
-##
-def globePlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
-    colormap='Spectral', doWireFrame=False, line_width = 0.2):
-    """Plot spherical data on a sphere.
+# #mayavi commented out
+# ################################################################
+# ##
+# def sphericalPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+#     colormap='Spectral', doWireFrame=False, line_width = 0.2):
+#     """Plot spherical data (azimuth, elevation and value) given in spherical format
 
-    This function assumes that the polar data is defined in terms of elevation
-    angle with zero at the equator and azimuth measured around the equator,
-    from 0 to 2pi.  All angles are in degrees.
+#     This function assumes that the polar data is defined in terms of elevation
+#     angle with zero at the equator and azimuth measured around the equator,
+#     from 0 to 2pi.  All angles are in degrees.
 
-    The x, y, and z values defines vertices on a sphere. The colour on the
-    sphere represents the value at the given azim/elev location.
+#     All axes, x, y, and z are scaled with the magnitude of value in the
+#     (azim, elev) direction.
 
-    Args:
-        | figure (int): mlab figure number
-        | azimuth (numpy 1D array): vector of values
-        | elevation (numpy 1D array): vector of values
-        | value (numpy 2D array): array with values corresponding with azim/elevation
-        | ptitle (string): plot title
-        | colormap (string): defines the colour map to be used
-        | doWireFrame (bool): switches fireframe on or off
-        | line_width (double): wireframe line width
+#     The colour on the surface represents the value at the given azim/elev location.
 
-    Returns:
-        | provides an mlab figure.
+#     Args:
+#         | figure (int): mlab figure number
+#         | azimuth (numpy 1D array): vector of values
+#         | elevation (numpy 1D array): vector of values
+#         | value (numpy 2D array): array with values corresponding with azim/elevation
+#         | ptitle (string): plot title
+#         | colormap (string): defines the colour map to be used
+#         | doWireFrame (bool): switches fireframe on or off
+#         | line_width (double): wireframe line width
 
-    Raises:
-        | No exception is raised.
-"""
-    rmax = np.amax(np.amax(value))
-    phi, theta = np.meshgrid(elevation,azimuth)
-    x = np.sin(phi) * np.cos(theta)
-    y = np.sin(phi) * np.sin(theta)
-    z = - np.cos(phi)
-    mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
-    mlab.clf()
-    mlab.mesh(x, y, z, scalars = value, colormap=colormap)
-    if doWireFrame:
-        mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
-    if ptitle:
-        mlab.title(ptitle, size=0.5, height=1)
+#     Returns:
+#         | provides an mlab figure.
+
+#     Raises:
+#         | No exception is raised.
+# """
+#     phi, theta = np.meshgrid(elevation,azimuth)
+#     x = value * np.sin(phi) * np.cos(theta)
+#     y = value * np.sin(phi) * np.sin(theta)
+#     z = - value * np.cos(phi)
+#     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+#     mlab.clf()
+#     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
+#     if doWireFrame:
+#         mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
+#     if ptitle:
+#         mlab.title(ptitle, size=0.5, height=1)
+
+
+# #mayavi commented out
+# ################################################################
+# ##
+# def polarPlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+#     colormap='Spectral', doWireFrame=False, line_width = 0.2):
+#     """Plot spherical data (azimuth, elevation and value) given in polar format.
+
+#     This function assumes that the polar data is defined in terms of elevation
+#     angle with zero at the equator and azimuth measured around the equator,
+#     from 0 to 2pi.  All angles are in degrees.
+
+#     The x and y axes are scaled with the maximum magnitude of value. The z axis is
+#     scaled with the actual magnitude of value in the  (azim, elev) direction. 
+
+#     The colour on the surface represents the value at the given azim/elev location.
+
+#     Args:
+#         | figure (int): mlab figure number
+#         | azimuth (numpy 1D array): vector of values
+#         | elevation (numpy 1D array): vector of values
+#         | value (numpy 2D array): array with values corresponding with azim/elevation
+#         | ptitle (string): plot title
+#         | colormap (string): defines the colour map to be used
+#         | doWireFrame (bool): switches fireframe on or off
+#         | line_width (double): wireframe line width
+
+#     Returns:
+#         | provides an mlab figure.
+
+#     Raises:
+#         | No exception is raised.
+# """
+#     line_width = 0.5
+#     rmax = np.amax(np.amax(value))
+#     phi, theta = np.meshgrid(elevation,azimuth)
+#     x = rmax * np.sin(phi) * np.cos(theta)
+#     y = rmax * np.sin(phi) * np.sin(theta)
+#     z = - value * np.cos(phi)
+#     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+#     mlab.clf()
+#     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
+#     if doWireFrame:
+#         mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
+#     if ptitle:
+#         mlab.title(ptitle, size=0.5, height=1)
 
 
 
-################################################################
-##
-def plotVertexSphere(figure, filename):
-    """Plot spherical data on a sphere.
+# #mayavi commented out
+# ################################################################
+# ##
+# def globePlotElevAzim(figure, azimuth, elevation, value, ptitle=None,\
+#     colormap='Spectral', doWireFrame=False, line_width = 0.2):
+#     """Plot spherical data on a sphere.
 
-    This function assumes that the polar data is defined in terms of elevation
-    angle with zero at the equator and azimuth measured around the equator,
-    from 0 to 2pi.  All angles are in degrees.
+#     This function assumes that the polar data is defined in terms of elevation
+#     angle with zero at the equator and azimuth measured around the equator,
+#     from 0 to 2pi.  All angles are in degrees.
 
-    The x, y, and z values defines vertices on a sphere. The colour on the
-    sphere represents the value at the given azim/elev location.
+#     The x, y, and z values defines vertices on a sphere. The colour on the
+#     sphere represents the value at the given azim/elev location.
 
-    Args:
-        | figure (int): mlab figure number
-        | filename (string): filename for data to be plotted
+#     Args:
+#         | figure (int): mlab figure number
+#         | azimuth (numpy 1D array): vector of values
+#         | elevation (numpy 1D array): vector of values
+#         | value (numpy 2D array): array with values corresponding with azim/elevation
+#         | ptitle (string): plot title
+#         | colormap (string): defines the colour map to be used
+#         | doWireFrame (bool): switches fireframe on or off
+#         | line_width (double): wireframe line width
 
-    Returns:
-        | provides an mlab figure.
+#     Returns:
+#         | provides an mlab figure.
 
-    Raises:
-        | No exception is raised.
-"""
-    #load the data
-    dataset = np.loadtxt(filename)
+#     Raises:
+#         | No exception is raised.
+# """
+#     rmax = np.amax(np.amax(value))
+#     phi, theta = np.meshgrid(elevation,azimuth)
+#     x = np.sin(phi) * np.cos(theta)
+#     y = np.sin(phi) * np.sin(theta)
+#     z = - np.cos(phi)
+#     mlab.figure(figure, bgcolor=(1, 1, 1), fgcolor=(0, 0, 0), size=(600, 600))
+#     mlab.clf()
+#     mlab.mesh(x, y, z, scalars = value, colormap=colormap)
+#     if doWireFrame:
+#         mlab.mesh(x, y, z, color=(0,0,0), representation='wireframe', line_width = line_width)
+#     if ptitle:
+#         mlab.title(ptitle, size=0.5, height=1)
 
-    #prepare the vertex vector structures
-    x = np.zeros(2)
-    y = np.zeros(2)
-    z = np.zeros(2)
-    x[0] = 0
-    y[0] = 0
-    z[0] = 0
 
-    #plot the vertex vectors
-    for i in range(dataset.shape[0]):
-        x[1] = dataset[i][0]
-        y[1] = dataset[i][1]
-        z[1] = dataset[i][2]
-        mlab.plot3d(x, y, z, tube_radius=0.025, colormap='Spectral')
-    #plot the three planes
-    x,y = np.mgrid[-1:1:2j, -1:1:2j]
-    z = np.zeros(x.shape)
-    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(1,0,0))
-    x,z = np.mgrid[-1:1:2j, -1:1:2j]
-    y = np.zeros(x.shape)
-    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,1,0))
-    z,y = np.mgrid[-1:1:2j, -1:1:2j]
-    x = np.zeros(y.shape)
-    mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,0,1))
+
+# #mayavi commented out
+# ################################################################
+# ##
+# def plotVertexSphere(figure, filename):
+#     """Plot spherical data on a sphere.
+
+#     This function assumes that the polar data is defined in terms of elevation
+#     angle with zero at the equator and azimuth measured around the equator,
+#     from 0 to 2pi.  All angles are in degrees.
+
+#     The x, y, and z values defines vertices on a sphere. The colour on the
+#     sphere represents the value at the given azim/elev location.
+
+#     Args:
+#         | figure (int): mlab figure number
+#         | filename (string): filename for data to be plotted
+
+#     Returns:
+#         | provides an mlab figure.
+
+#     Raises:
+#         | No exception is raised.
+# """
+#     #load the data
+#     dataset = np.loadtxt(filename)
+
+#     #prepare the vertex vector structures
+#     x = np.zeros(2)
+#     y = np.zeros(2)
+#     z = np.zeros(2)
+#     x[0] = 0
+#     y[0] = 0
+#     z[0] = 0
+
+#     #plot the vertex vectors
+#     for i in range(dataset.shape[0]):
+#         x[1] = dataset[i][0]
+#         y[1] = dataset[i][1]
+#         z[1] = dataset[i][2]
+#         mlab.plot3d(x, y, z, tube_radius=0.025, colormap='Spectral')
+#     #plot the three planes
+#     x,y = np.mgrid[-1:1:2j, -1:1:2j]
+#     z = np.zeros(x.shape)
+#     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(1,0,0))
+#     x,z = np.mgrid[-1:1:2j, -1:1:2j]
+#     y = np.zeros(x.shape)
+#     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,1,0))
+#     z,y = np.mgrid[-1:1:2j, -1:1:2j]
+#     x = np.zeros(y.shape)
+#     mlab.surf(x,y,z, opacity=0.2,warp_scale=1,color=(0,0,1))
 
 ################################################################
 ##
@@ -1022,26 +1034,26 @@ if __name__ == '__main__':
     #     velocityX, 0, 0, 1, 0.01 )
     writeOSSIMTrajElevAzim(10,'AzEl10', 'Orbit', distance, xpos, ypos, zpos,  
         velocityX, 0, 0, engineSetting, 0.01 )
-    exit(-1)
 
     #########################################################################
     print('Demo the LUT plots')
 
-    filename = 'data/plotspherical/vertexsphere_0_12.txt'
-    plotVertexSphere(1,filename)
-    mlab.show()
+# #mayavi commented out
+#     filename = 'data/plotspherical/vertexsphere_0_12.txt'
+#     plotVertexSphere(1,filename)
+#     mlab.show()
 
-    with open('data/plotspherical/source-H10-C2.dat') as f:
-        lines = f.readlines()
-        xlabel, ylabel, ptitle = lines[0].split()
-    aArray = np.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
-    azim1D = aArray[1:,0] * (np.pi/180)
-    elev1D = aArray[0,1:] * (np.pi/180) - np.pi
-    pRad = aArray[1:,1:]
-    polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-    sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
-    globePlotElevAzim(3, azim1D, elev1D, pRad, ptitle, doWireFrame=False)
-    mlab.show()
+#     with open('data/plotspherical/source-H10-C2.dat') as f:
+#         lines = f.readlines()
+#         xlabel, ylabel, ptitle = lines[0].split()
+#     aArray = np.loadtxt('data/plotspherical/source-H10-C2.dat', skiprows=1, dtype = float)
+#     azim1D = aArray[1:,0] * (np.pi/180)
+#     elev1D = aArray[0,1:] * (np.pi/180) - np.pi
+#     pRad = aArray[1:,1:]
+#     polarPlotElevAzim(1, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+#     sphericalPlotElevAzim(2, azim1D, elev1D, pRad, ptitle, doWireFrame=True)
+#     globePlotElevAzim(3, azim1D, elev1D, pRad, ptitle, doWireFrame=False)
+#     mlab.show()
 
 
 
@@ -1069,16 +1081,17 @@ if __name__ == '__main__':
         distance, xpos, ypos, zpos, 0, 0, 0, 0, 0.01)
 
 
-    #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
-    plotOSSIMSpherical(0,[0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
-        'data/plotspherical/vertexsphere_4_2562.txt',
-        'data/plotspherical/trianglessphere_4_2562.txt')
+# #mayavi commented out
+#     #plot orbiting dataset - in this case a signature from a simple jet aircraft model.
+#     plotOSSIMSpherical(0,[0,1,2,3],'Orbiting','data/plotspherical/orbitIntensity2562.txt',
+#         'data/plotspherical/vertexsphere_4_2562.txt',
+#         'data/plotspherical/trianglessphere_4_2562.txt')
 
-    plotOSSIMSpherical(100,[0,1,2,3],'Rotating','data/plotspherical/rotateIntensity2562.txt',
-        'data/plotspherical/vertexsphere_4_2562.txt',
-        'data/plotspherical/trianglessphere_4_2562.txt')
+#     plotOSSIMSpherical(100,[0,1,2,3],'Rotating','data/plotspherical/rotateIntensity2562.txt',
+#         'data/plotspherical/vertexsphere_4_2562.txt',
+#         'data/plotspherical/trianglessphere_4_2562.txt')
 
-    mlab.show()
+#     mlab.show()
 
 
 
