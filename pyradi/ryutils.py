@@ -35,10 +35,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -462,9 +461,15 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  \
     Raises:
         | No exception is raised.
         | If an invalid filter type is specified, return None.
+        | If negative spectral is specified, return None.
     """
 
-    tau = taustop+(taupass-taustop)*np.exp(-(2*(spectral-center)/width)**exponent)
+    maxexp = np.log(sys.float_info.max)/np.log(np.max(2*(spectral-center)/width))
+    # minexp = np.log(sys.float_info.min)/np.log(np.min(2*(spectral-center)/width))
+    exponent = maxexp if exponent > maxexp else exponent
+    # exponent = minexp if exponent < minexp else exponent
+
+    tau = taustop+(taupass-taustop)*np.exp(-(2*np.abs(spectral-center)/width)**exponent)
     maxtau=np.max(tau)
     if filtertype == 'bandpass':
         pass
@@ -731,13 +736,13 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
-    except ValueError, msg:
+    except ValueError as msg:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
         raise TypeError("window_size size must be a positive odd number")
     if window_size < order + 2:
         raise TypeError("window_size is too small for the polynomials order")
-    order_range = range(order+1)
+    order_range = list(range(order+1))
     half_window = (window_size -1) // 2
     # precompute coefficients
     b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
@@ -802,7 +807,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
 
     figtype = ".png"  # eps, jpg, png
-    figtype = ".eps"  # eps, jpg, png
+    # figtype = ".eps"  # eps, jpg, png
 
 
     #demonstrate the pulse detection algorithms

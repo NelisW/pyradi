@@ -55,10 +55,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -76,7 +75,7 @@ if sys.version_info[0] > 2:
 import scipy.constants as const
 import matplotlib.pyplot as plt
 import numpy as np
-import ryplanck
+from . import ryplanck
 import sys
 
 ################################################################################

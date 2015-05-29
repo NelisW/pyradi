@@ -36,10 +36,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -53,7 +52,7 @@ if sys.version_info[0] > 2:
 
 import numpy as np
 from string import maketrans
-import StringIO
+import io
 
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
@@ -72,11 +71,11 @@ def fixHeaders(instr):
         | No exception is raised.
     """
 
-    intab = u"+-[]@"
-    outtab = u"pmbba"
+    intab = "+-[]@"
+    outtab = "pmbba"
 
-    if isinstance(instr, unicode):
-        translate_table = dict((ord(char), unicode(outtab)) for char in intab)
+    if isinstance(instr, str):
+        translate_table = dict((ord(char), str(outtab)) for char in intab)
     else:
         assert isinstance(instr, str)
         translate_table = maketrans(intab, outtab)
@@ -247,7 +246,7 @@ def loadtape7(filename, colspec = []):
     s = s + ''.join(lines[headline+1+deltaHead:-1])
 
     #read the string in from a StringIO in-memory file
-    lines = np.ndfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
+    lines = np.ndfromtxt(io.StringIO(s), dtype=None,  names=True)
 
     #extract the wavenumber col as the first column in the new table
     coldata= lines[fixHeaders(colspec[0])].reshape(-1, 1)

@@ -4,7 +4,7 @@ Setup script for pyradi. This procedure must be followed only once so set up.
 1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
     letters and numbers, not other symbols.
 
-2.  On Windows create an environmental variable to your home directory (C:\Users\username)
+2.  On Windows create an environmental variable to your home directory (C:\\Users\\username)
 
 3.  Place the .pypirc file in your home directory (to where HOME points). The format
     of this file is as follows (no spaces in last two lines):
@@ -198,9 +198,7 @@ def find_package_data(
                         or fn.lower() == pattern.lower()):
                         bad_name = True
                         if show_ignored:
-                            print >> sys.stderr, (
-                                'Directory %s ignored by pattern %s'
-                                % (fn, pattern))
+                            print('Directory {} ignored by pattern {}'.format(fn, pattern), file=sys.stderr)
                         break
                 if bad_name:
                     continue
@@ -221,9 +219,7 @@ def find_package_data(
                         or fn.lower() == pattern.lower()):
                         bad_name = True
                         if show_ignored:
-                            print >> sys.stderr, (
-                                'File %s ignored by pattern %s'
-                                % (fn, pattern))
+                            print('File {} ignored by pattern {}'.format(fn, pattern), file=sys.stderr)
                         break
                 if bad_name:
                     continue

@@ -56,10 +56,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__='pyradi team'
@@ -657,7 +656,7 @@ def planck(spectral, temperature, type='el'):
     Raises:
         | No exception is raised, returns None on error.
     """
-    if type in plancktype.keys():
+    if type in list(plancktype.keys()):
         #select the appropriate fn as requested by user
         exitance = plancktype[type](spectral, temperature)
     else:
@@ -699,7 +698,7 @@ def dplanck(spectral, temperature, type='el'):
         | No exception is raised, returns None on error.
     """
 
-    if type in dplancktype.keys():
+    if type in list(dplancktype.keys()):
         #select the appropriate fn as requested by user
         exitance = dplancktype[type](spectral, temperature)
     else:
@@ -716,7 +715,7 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
     
-    import ryutils
+    from . import ryutils
 
     if True:
         #--------------------------------------------------------------------------------------
@@ -955,7 +954,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------------------
     #now plot a number of graphs
     if True:
-        import ryplot
+        from . import ryplot
 
         #plot a single planck curve on linear scale for 300K source
         wl=np.logspace(np.log10(0.2), np.log10(20), num=100).reshape(-1, 1)

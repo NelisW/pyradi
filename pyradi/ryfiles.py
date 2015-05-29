@@ -36,10 +36,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__='pyradi team'
@@ -187,7 +186,7 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
         | No exception is raised.
     """
 
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         infile = open(filename, 'rb')
     else:
         infile = filename
@@ -221,7 +220,7 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>"):
         | No exception is raised.
     """
     #remove the undesireable characters
-    return filter(lambda c: c not in removestring, sourcestring)
+    return [c for c in sourcestring if c not in removestring]
 
 
 
@@ -401,20 +400,20 @@ def downloadFileUrl(url,  saveFilename=None):
     if os.path.exists(filename):
         pass
     else:
-        import urllib2
-        from urllib2 import HTTPError
+        import urllib.request, urllib.error, urllib.parse
+        from urllib.error import HTTPError
 
         try:
             #get file handle
-            f = urllib2.urlopen(url)
+            f = urllib.request.urlopen(url)
             # Open file for writing
             with open(filename, "wb") as file:
                 file.write(f.read())
         #handle errors
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
            print('HTTP Error: {} for {}'.format(e.code, url))
            return None
-        except urllib2. URLError as e:
+        except urllib.error. URLError as e:
            print('URL Error: {} for {}'.format(e.reason, url))
            return None
 
@@ -750,8 +749,8 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
 
-    import ryplot
-    import ryutils
+    from . import ryplot
+    from . import ryutils
 
     # read two-dimensional lookup table
     xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')

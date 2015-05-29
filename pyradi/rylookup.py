@@ -34,10 +34,9 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 """
 ### this file uses four  spaces for one tab
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -463,8 +462,8 @@ class RadLookup:
                     self.dicTableDLRad[tmprInstr] = self.dicTableDLRad[tmprInstr].astype(np.float64)
 
                 #calculate the radiance in the optics and sensor for later interpolation of Tinternal
-                tempTint = 273.15 + np.linspace(np.min(self.dicCaldata.keys())-20,
-                                              np.max(self.dicCaldata.keys())+20, 101)
+                tempTint = 273.15 + np.linspace(np.min(list(self.dicCaldata.keys()))-20,
+                                              np.max(list(self.dicCaldata.keys()))+20, 101)
                 xx = np.ones(tempTint.shape)
                 _, spectrlHR = np.meshgrid(xx,self.specEffWiFil)
                 specLTint = spectrlHR * ryplanck.planck(self.nu, tempTint, type='en')
@@ -708,7 +707,7 @@ class RadLookup:
 
         if self.calTablesCalculated:
 
-            numsubplots = len(self.dicCaldata.keys())
+            numsubplots = len(list(self.dicCaldata.keys()))
 
             p = ryplot.Plotter(1,numsubplots,1, figsize=(10,10))
             for j,tmprInstr in enumerate(self.dicCaldata):

@@ -39,10 +39,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 
 __version__ = "$Revision$"
@@ -389,7 +388,7 @@ class ProcessImage:
         #uncompress the tick labels  - match  with compression above
 
         fstr = '{0:' + cbarformat + '}'
-        customticksz = zip(imgLevels, [fstr.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels])
+        customticksz = list(zip(imgLevels, [fstr.format(self.compressSet[selectCompressSet][1](x)) for x in irrLevels]))
 
         return imgHEQ, customticksz
 
@@ -620,7 +619,7 @@ class Plotter:
                 | No exception is raised.
         """
 
-        col = self.plotColCirc.next()
+        col = next(self.plotColCirc)
         return col
 
     ############################################################
@@ -755,7 +754,7 @@ class Plotter:
             Raises:
                 | No exception is raised.
         """
-        if (self.nrow,self.ncol, subplotNum) in self.subplots.keys():
+        if (self.nrow,self.ncol, subplotNum) in list(self.subplots.keys()):
             return self.subplots[(self.nrow,self.ncol, subplotNum)]
         else:
             return None
@@ -823,7 +822,7 @@ class Plotter:
        """
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
       ax = self.subplots[pkey]
@@ -901,7 +900,7 @@ class Plotter:
       """
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
       ax = self.subplots[pkey]
@@ -989,7 +988,7 @@ class Plotter:
        """
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
       ax = self.subplots[pkey]
@@ -1068,7 +1067,7 @@ class Plotter:
       """
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
             self.subplots[pkey] = \
                          self.fig.add_subplot(self.nrow,self.ncol, plotnum)
       ax = self.subplots[pkey]
@@ -1284,7 +1283,7 @@ class Plotter:
           ax.set_ylim(pltaxis[2],pltaxis[3])
 
       if xTicks is not None:
-          ticks = ax.set_xticks(xTicks.keys())
+          ticks = ax.set_xticks(list(xTicks.keys()))
           ax.set_xticklabels([xTicks[key] for key in xTicks], 
               rotation=xtickRotation, fontsize=xytickfsize)
       
@@ -1412,7 +1411,7 @@ class Plotter:
               plt.rcParams['contour.negative_linestyle'] = 'dashed'
 
       #create subplot if not existing
-      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+      if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
           self.subplots[(self.nrow,self.ncol, plotnum)] = \
                self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
@@ -1491,7 +1490,7 @@ class Plotter:
                   tickVals = []
                   # need this roundabout trick to handle minus sign in unicode
                   for item in cbartickvals:
-                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
                           str = '{0:f}'.format(val)
@@ -1500,7 +1499,7 @@ class Plotter:
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
           else:
-              ticks,  ticklabels = zip(*cbarcustomticks)
+              ticks,  ticklabels = list(zip(*cbarcustomticks))
               # cbar = self.fig.colorbar(pmplotcf,ticks=ticks, orientation=cbarorientation)
               cbar = self.fig.colorbar(pmplotcf,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
@@ -1634,7 +1633,7 @@ class Plotter:
           zvals = np.log10(zvals) 
 
       #create subplot if not existing
-      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+      if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
           self.subplots[(self.nrow,self.ncol, plotnum)] = \
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
@@ -1724,7 +1723,7 @@ class Plotter:
                   tickVals = []
                   # need this roundabout trick to handle minus sign in unicode
                   for item in cbartickvals:
-                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
                           str = '{0:f}'.format(val)
@@ -1733,7 +1732,7 @@ class Plotter:
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
         else:
-              ticks,  ticklabels = zip(*cbarcustomticks)
+              ticks,  ticklabels = list(zip(*cbarcustomticks))
               cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
               # cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
@@ -1861,7 +1860,7 @@ class Plotter:
 
       ax = None
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
           self.subplots[pkey] = \
                        self.fig.add_subplot(self.nrow,self.ncol, plotnum, polar=True)
 
@@ -1979,7 +1978,7 @@ class Plotter:
       if thetagrid is None:
         ax.set_xticklabels([])
       else:
-        plt.thetagrids(range(0, 360, thetagrid[0]))
+        plt.thetagrids(list(range(0, 360, thetagrid[0])))
 
       #Set increment and maximum radial limits
       if rscale is None:
@@ -2035,7 +2034,7 @@ class Plotter:
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
       pkey = (self.nrow, self.ncol, plotnum)
-      if pkey not in self.subplots.keys():
+      if pkey not in list(self.subplots.keys()):
           self.subplots[pkey] = \
                        self.fig.add_subplot(self.nrow,self.ncol, plotnum)
 
@@ -2065,7 +2064,7 @@ class Plotter:
               cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
 
           else:
-              ticks,  ticklabels = zip(*cbarcustomticks)
+              ticks,  ticklabels = list(zip(*cbarcustomticks))
 
               if cbarorientation == 'vertical':
                 cbar = self.fig.colorbar(cimage,ticks=ticks, cax=cax)
@@ -2157,7 +2156,7 @@ class Plotter:
 
 
 
-        if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+        if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
             self.subplots[(self.nrow,self.ncol, plotnum)] = \
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
@@ -2302,7 +2301,7 @@ class Plotter:
       X,Y = Radial*np.cos(Theta),Radial*np.sin(Theta)
 
       #create subplot if not existing
-      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+      if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
           self.subplots[(self.nrow,self.ncol, plotnum)] = \
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
       #get axis
@@ -2450,7 +2449,7 @@ class Plotter:
 
 
       #create subplot if not existing
-      if (self.nrow,self.ncol, plotnum) not in self.subplots.keys():
+      if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
           self.subplots[(self.nrow,self.ncol, plotnum)] = \
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='polar')
       #get axis
@@ -2497,7 +2496,7 @@ class Plotter:
       if thetagrid is None:
           plt.thetagrids([])
       else:
-          plt.thetagrids(range(0, 360, thetagrid[0]))
+          plt.thetagrids(list(range(0, 360, thetagrid[0])))
       plt.tick_params(axis='x', which='major', labelsize=thetagridfontsize)
 
           # plt.thetagrids(radscale[0], radscale[1],5)
@@ -2543,7 +2542,7 @@ class Plotter:
                   tickVals = []
                   # need this roundabout trick to handle minus sign in unicode
                   for item in cbartickvals:
-                      valstr = item.get_text().replace(u'\u2212', '-').replace('$','')
+                      valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
                           str = '{0:f}'.format(val)
@@ -2552,7 +2551,7 @@ class Plotter:
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
           else:
-              ticks,  ticklabels = zip(*cbarcustomticks)
+              ticks,  ticklabels = list(zip(*cbarcustomticks))
               cbar = self.fig.colorbar(pmplot,ticks=ticks, orientation=cbarorientation)
               # cbar = self.fig.colorbar(pmplot,ticks=ticks, cax=cax)
               if cbarorientation == 'vertical':
@@ -2628,7 +2627,7 @@ class Plotter:
         ## keep track of whether the outer grid was already defined.
         #use current subplot number as outer grid reference
         ogkey = (self.nrow, self.ncol)
-        if ogkey not in self.gridSpecsOuter.keys():
+        if ogkey not in list(self.gridSpecsOuter.keys()):
             self.gridSpecsOuter[ogkey] = \
                          gridspec.GridSpec(self.nrow,self.ncol, wspace=0, hspace=0)
         outer_grid = self.gridSpecsOuter[ogkey]
@@ -2636,7 +2635,7 @@ class Plotter:
         ## keep track of whether the inner grid was already defined.
         #inner_grid (nested):
         igkey = (self.nrow, self.ncol, plotnum)
-        if igkey not in self.gridSpecsInner.keys():
+        if igkey not in list(self.gridSpecsInner.keys()):
             self.gridSpecsInner[igkey] = \
                          gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, 
                       subplot_spec=outer_grid[plotnum-1],wspace=0, hspace=sepSpace)
@@ -2644,7 +2643,7 @@ class Plotter:
 
         #set up list of all cols if required
         if not selectCols:
-            selectCols = range(yAll.shape[0])
+            selectCols = list(range(yAll.shape[0]))
 
         nestplotnum = 0
         #create subplot for each y-axis vector
@@ -2653,7 +2652,7 @@ class Plotter:
 
                 ## if this row of array plot in key, else create
                 rkey = (self.nrow, self.ncol, plotnum, nestplotnum)
-                if rkey not in self.arrayRows.keys():
+                if rkey not in list(self.arrayRows.keys()):
                     self.arrayRows[rkey] = \
                                  plt.Subplot(self.fig, inner_grid[nestplotnum])
                     self.fig.add_subplot(self.arrayRows[rkey])
@@ -2730,7 +2729,7 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
         yield p
     finally:
         if saveName is not None:
-            if isinstance(saveName, basestring):
+            if isinstance(saveName, str):
                 p.saveFig(filename=saveName)
             else:
                 for fname in saveName:
@@ -2991,7 +2990,7 @@ if __name__ == '__main__':
         # demonstrate dates on the x-axis
         dates = ['01/02/1991','01/03/1991','01/04/1991']
         x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
-        y = np.asarray(range(len(x)))
+        y = np.asarray(list(range(len(x))))
         pd = Plotter(1)
         pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
         pd.saveFig('plotdateX.png')
@@ -3301,13 +3300,13 @@ if __name__ == '__main__':
                label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
         P.polar(2,theta, r2, "Array Polar",\
                label=['A', 'B'],legendAlpha=0.5,rscale=[2,6],rgrid=[2,6],\
-               thetagrid=[45], direction=u'clockwise', zerooffset=0)
+               thetagrid=[45], direction='clockwise', zerooffset=0)
         P.polar(3,theta, r, "Single Polar",\
                label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
-               direction=u'clockwise', zerooffset=np.pi/2)
+               direction='clockwise', zerooffset=np.pi/2)
         P.polar(4,theta, r2, "Array Polar",\
                label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
-               thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
+               thetagrid=[45], direction='counterclockwise', zerooffset=-np.pi/2)
         P.saveFig('P.png')
         #P.saveFig('P.eps')
         #plot again on top of existing graphs
@@ -3317,13 +3316,13 @@ if __name__ == '__main__':
                plotCol='r',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0.5,3])
         P.polar(2,thetar, 0.75 * rr, "Array Polar",\
                plotCol='g',label=['A', 'B'],legendAlpha=0.5,rscale=[0,6],rgrid=[2,6],\
-               thetagrid=[45], direction=u'clockwise', zerooffset=0)
+               thetagrid=[45], direction='clockwise', zerooffset=0)
         P.polar(3,thetar, 1.2 * rr, "Single Polar",\
                plotCol='k',label=['Single'],legendAlpha=0.5,rscale=[0,3],rgrid=[0,3], \
-               direction=u'clockwise', zerooffset=np.pi/2)
+               direction='clockwise', zerooffset=np.pi/2)
         P.polar(4,thetar, 1.5 * rr, "Array Polar",\
                plotCol='y',label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
-               thetagrid=[45], direction=u'counterclockwise', zerooffset=-np.pi/2)
+               thetagrid=[45], direction='counterclockwise', zerooffset=-np.pi/2)
         P.saveFig('PP.png')
         #P.saveFig('PP.eps')
 
@@ -3343,7 +3342,7 @@ if __name__ == '__main__':
         tt = np.linspace(0,2 * np.pi,360)
         rr = 1 + 3 * np.sin(tt)
         PN.polar(4,tt,rr, "1 + 3sin(x)", \
-               legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction=u'clockwise',
+               legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction='clockwise',
                zerooffset=np.pi/2,highlightCol='r',highlightWidth=2)
         PN.saveFig('PN.png')
         #PN.saveFig('PN.eps')
@@ -3369,7 +3368,7 @@ if __name__ == '__main__':
         z = np.sin(np.sqrt(xv**2 + yv**2))
         I = Plotter(4, 2, 2,'Images & Array Linear', figsize=(12, 8))
         I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm.winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        barticks = list(zip([-1, 0, 1], ['low', 'med', 'high']))
         I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
@@ -3377,7 +3376,7 @@ if __name__ == '__main__':
     #    I.saveFig('I.eps')
         #plot on existing
         I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        barticks = list(zip([-1, 0, 1], ['low', 'med', 'high']))
         I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
@@ -3386,7 +3385,7 @@ if __name__ == '__main__':
 
         I = Plotter(5, 2, 2,'Images & Array Linear', figsize=(12, 8))
         I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
-        barticks = zip([-1, 0, 1], ['low', 'med', 'high'])
+        barticks = list(zip([-1, 0, 1], ['low', 'med', 'high']))
         I.showImage(2, z, ptitle='cubehelix colormap, default font ',cmap=cubehelixcmap(), cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")

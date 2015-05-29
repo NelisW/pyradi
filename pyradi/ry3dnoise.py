@@ -34,10 +34,9 @@ and readers of the book Electro-Optical System Analysis and Design: A Radiometry
 Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__='MS Willers'
@@ -51,9 +50,9 @@ if sys.version_info[0] > 2:
 
 
 import numpy as np
-import ryfiles
-import ryplot
-import ryptw
+from . import ryfiles
+from . import ryplot
+from . import ryptw
 
 
 ################################################################
@@ -393,7 +392,7 @@ if __name__ == '__main__':
     outfilename = 'sensornoise.txt'
 
     # load images
-    framesToLoad = range(1, 21, 1)
+    framesToLoad = list(range(1, 21, 1))
     frames, img    = ryfiles.readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
 
     if frames > 0:
@@ -452,7 +451,7 @@ if __name__ == '__main__':
     rows = header.h_Rows
     cols = header.h_Cols
 
-    framesToLoad = range(1, 101, 1)
+    framesToLoad = list(range(1, 101, 1))
     frames = len(framesToLoad)
 
     data = ryptw.getPTWFrame (header, framesToLoad[0])

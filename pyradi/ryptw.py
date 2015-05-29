@@ -59,10 +59,9 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
 
 __version__= "$Revision$"
 __author__='JJ Calitz'
@@ -982,7 +981,7 @@ if __name__ == '__main__':
     print(data.shape)
 
     #loading single frames
-    framesToLoad = range(1, 101, 1)
+    framesToLoad = list(range(1, 101, 1))
     frames = len(framesToLoad)
     data = getPTWFrame (header, framesToLoad[0])
     for frame in framesToLoad[1:]:
