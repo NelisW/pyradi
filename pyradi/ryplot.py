@@ -1,10 +1,10 @@
 #  $Id$
 #  $HeadURL$
 ################################################################
-# The contents of this file are subject to the Mozilla Publiccense
-# Version 1.1 (the "License"); you may not use this file except in
+# The contents of this file are subject to the BSD 3Clause (New)cense
+# you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
-# http://www.mozilla.org/MPL/
+# http://directory.fsf.org/wiki/License:BSD_3Clause
 
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
@@ -1336,7 +1336,10 @@ class Plotter:
         will cover any previous contours.
 
         The data set must have three two dimensional arrays, each for x, y, and z.  
-        The data in x, y, and z arrays must have matching data points.  The x and y arrays each define the grid in terms of x and y values, i.e., the x array contains the x values for the data set, while the y array contains the y values.  The z array contains the z values for the corresponding x and y values in the contour mesh.
+        The data in x, y, and z arrays must have matching data points.  The x and y arrays 
+        each define the grid in terms of x and y values, i.e., the x array contains the 
+        x values for the data set, while the y array contains the y values.  The z array 
+        contains the z values for the corresponding x and y values in the contour mesh.
 
         Z-values can be plotted on a log scale, in which case the colourbar is adjusted 
         to show true values, but on the nonlinear scale.
