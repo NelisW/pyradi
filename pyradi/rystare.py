@@ -2000,8 +2000,10 @@ def checkParamsNum(funcName,distribName,runDistribName,distribParams,correctNum)
     return proceed
 
 ################################################################
-def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
-    """This code provides examples of use of the pyradi.rystare model for a CMOS/CCD photosensor.
+def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None, 
+    doPlots=False, doHisto=False, doImages=False):
+    """This code provides examples of use of the pyradi.rystare model for 
+    a CMOS/CCD photosensor.
 
     Two models are provided 'simple' and 'advanced'
 
@@ -2012,6 +2014,9 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
         | doTest (string):  which example to run 'Simple', or 'Advanced'
         | outfilename (string):  filename for output files
         | pathtoimage (string):  fully qualified path to where the image is located
+        | doPlots (boolean):  flag to control the creation of false colour image plots with colour bars 
+        | doHisto (boolean):  flag to control the creation of image histogram plots
+        | doImages (boolean):  flag to control the creation of monochrome image plots 
 
     Returns:
         | Nothing, as a side effect files are created.
@@ -2024,6 +2029,8 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
     import os.path
+    from matplotlib import cm as mcm
+    import matplotlib.mlab as mlab
 
     import pyradi.ryfiles as ryfiles
     import pyradi.ryutils as ryutils
@@ -2203,29 +2210,27 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
         fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/SignalVoltage'].value), np.var(strh5['rystare/SignalVoltage'].value)))
         fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/SignalDN'].value), np.var(strh5['rystare/SignalDN'].value)))
 
+    if doPlots:
+        lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
+                   'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/PRNU/nonuniformity',
+                   'rystare/noise/darkFPN/nonuniformity']
+        # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
+        ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
 
-    # lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
-    #            'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/PRNU/nonuniformity',
-    #            'rystare/noise/darkFPN/nonuniformity']
-    # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
-    # # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
+    if doHisto:
+        lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
+                   'rystare/SignalDN','rystare/signalLight','rystare/signalDark',
+                   'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
+        ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
-    # lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
-    #            'rystare/SignalDN','rystare/signalLight','rystare/signalDark',
-    #            'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
-    # ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
-
-    # lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotonRate', 'rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
-    #             'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/noisematrix','rystare/noise/sf/source_follower_noise',
-    #             'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
-    # ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
+    if doImages:
+        lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotonRate', 'rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
+                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/noisematrix','rystare/noise/sf/source_follower_noise',
+                    'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
+        ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
 
     strh5.flush()
     strh5.close()
-
-
-
-
 
 
 ################################################################
