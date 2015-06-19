@@ -28,9 +28,9 @@ HDF5 pitfalls:
 
 #HDF5 in Python
 
-##Motivation for using HDF5 in SensorSim
+##Motivation for using HDF5 in pyradi.rystare
 
-An HDF5 file is a convenient means to store data in a structure.  In SensorSim it is used to store all input and output data in one collective location.  This is a convenient way to keep track of all the variables in one place.  
+An HDF5 file is a convenient means to store data in a structure.  In pyradi.rystare it is used to store all input and output data in one collective location.  This is a convenient way to keep track of all the variables in one place.  
 
 Using HDF5 for this purpose is definitely more verbose and requires careful coding to keep track of the `[...]` and `.value` constructs.
 
@@ -73,16 +73,16 @@ To read a value in the file, use the `.value` attribute to retrieve the value. W
 An HDF5 file is opened for reading and writing, but once a variable has been created/written in an existing file, you cannot *create* the variable again.  You can *assign* to the existing variable with a slightly different notation (adding the slicing ellipsis [...] to the end, see the reason below):
 
     g = erase_create_HDF('test.hdf5')
-    g['ccd/value/illumination/value/image_irrad_scale/value'] = 4
-    print(g['ccd/value/illumination/value/image_irrad_scale/value'].value)
-    g['ccd/value/illumination/value/image_irrad_scale/value'] = 6 # ERROR!!!
-    print(g['ccd/value/illumination/value/image_irrad_scale/value'].value)
+    g['rystare/value/illumination/value/image_irrad_scale/value'] = 4
+    print(g['rystare/value/illumination/value/image_irrad_scale/value'].value)
+    g['rystare/value/illumination/value/image_irrad_scale/value'] = 6 # ERROR!!!
+    print(g['rystare/value/illumination/value/image_irrad_scale/value'].value)
 
     g = erase_create_HDF('test.hdf5')
-    g['ccd/value/illumination/value/image_irrad_scale/value'] = 4
-    print(g['ccd/value/illumination/value/image_irrad_scale/value'].value)
-    g['ccd/value/illumination/value/image_irrad_scale/value'][...] = 6 # working now
-    print(g['ccd/value/illumination/value/image_irrad_scale/value'].value)
+    g['rystare/value/illumination/value/image_irrad_scale/value'] = 4
+    print(g['rystare/value/illumination/value/image_irrad_scale/value'].value)
+    g['rystare/value/illumination/value/image_irrad_scale/value'][...] = 6 # working now
+    print(g['rystare/value/illumination/value/image_irrad_scale/value'].value)
 
 The slicing ellipsis `...` is used to denote 'all remaining dimensions' when slicing an array, as in [see [here](http://nbviewer.ipython.org/github/NelisW/ComputationalRadiometry/blob/master/02-PythonWhirlwindCheatSheet.ipynb)]:
 
@@ -103,39 +103,39 @@ resulting in
 
 The meaning of `[...]` therefore means 'all dimensions' in the array, because none are specified.  So when we assign in this statement
 
-    g['ccd/value/illumination/value/image_irrad_scale/value'][...] = 6 # working now
+    g['rystare/value/illumination/value/image_irrad_scale/value'][...] = 6 # working now
 
 it means that the existing variable is assigned along all the dimensions with the new value.
 
 This works for scalars and arrays, but the ellipsis notation must still be used to assign to an existing variable:
 
     g = erase_create_HDF('test.hdf5')
-    g['ccd/illumination/image'] = np.ones((10,10))
-    print(g['ccd/illumination/image'].value)
-    g['ccd/illumination/image'][...] = np.zeros((10,10))
-    print(g['ccd/illumination/image'].value)
+    g['rystare/illumination/image'] = np.ones((10,10))
+    print(g['rystare/illumination/image'].value)
+    g['rystare/illumination/image'][...] = np.zeros((10,10))
+    print(g['rystare/illumination/image'].value)
 
 The above example implies that a variable size cannot be changed - you cannot replace a small array with a larger one (or vice versa).
 
 You can overwrite an existing value in the HDF5 file as explained above.  However, the data type and shape must be the same as the currently existing value in the file.  *If you want to **change the type or shape, first delete the existing variable:***
 
 	g = erase_create_HDF('test.hdf5')
-	g['ccd/illumination/image'] = np.ones((3,3))
-	print(g['ccd/illumination/image'].value)
-	del g['ccd/illumination/image']
+	g['rystare/illumination/image'] = np.ones((3,3))
+	print(g['rystare/illumination/image'].value)
+	del g['rystare/illumination/image']
 	g.create_dataset('ccd/illumination/image', data=np.ones((10,10)))
-	print(g['ccd/illumination/image'].value)
+	print(g['rystare/illumination/image'].value)
 
 
 HDF5 appears to be a **strongly typed** file format.  If a scalar value is first  created as an integer, a float assigned to the same value will be truncated to an integer, as shown here.
 
     g = erase_create_HDF('test.hdf5')
-    g['ccd/illumination/image_irrad_scale'] = 4
-    print(g['ccd/illumination/image_irrad_scale'].value)
-    g['ccd/illumination/image_irrad_scale'][...] = 0.001
-    print(g['ccd/illumination/image_irrad_scale'].value)
-    g['ccd/illumination/image_irrad_scaleflt']= 0.001
-    print(g['ccd/illumination/image_irrad_scaleflt'].value)
+    g['rystare/illumination/image_irrad_scale'] = 4
+    print(g['rystare/illumination/image_irrad_scale'].value)
+    g['rystare/illumination/image_irrad_scale'][...] = 0.001
+    print(g['rystare/illumination/image_irrad_scale'].value)
+    g['rystare/illumination/image_irrad_scaleflt']= 0.001
+    print(g['rystare/illumination/image_irrad_scaleflt'].value)
 
 yields the following (note that the first float value is truncated):
 
@@ -176,7 +176,7 @@ To build a list of  all dataset values at the end of group paths:
 The `flush()` function flushes all changed data to file and `close()` closes the file.
 
 	g = erase_create_HDF('test.hdf5')
-	g['ccd/illumination/image_irrad_scale'] = 4
+	g['rystare/illumination/image_irrad_scale'] = 4
 	g.flush()
 	g.close()
 
