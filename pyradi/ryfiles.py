@@ -742,6 +742,9 @@ def read2DLookupTable(filename):
 def open_HDF(filename):
     """Open and return an HDF5 file with the given filename.
 
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
+
     Args:
         | filename (string): name of the file to be opened
 
@@ -760,6 +763,9 @@ def open_HDF(filename):
 ######################################################################################
 def erase_create_HDF(filename):
     """Create and return a new HDS5 file with the given filename, erase the file if existing.
+
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
 
     Args:
         | filename (string): name of the file to be created
@@ -781,6 +787,9 @@ def erase_create_HDF(filename):
 def print_HDF5_text(vartext):
     """Prints text in visiting algorithm in HDF5 file.
 
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
+
     Args:
         | vartext (string): string to be printed
 
@@ -797,6 +806,9 @@ def print_HDF5_text(vartext):
 ######################################################################################
 def print_HDF5_dataset_value(var, obj):
     """Prints a data set in visiting algorithm in HDF5 file.
+
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
 
     Args:
         | var (string): path to a dataset
@@ -818,6 +830,9 @@ def print_HDF5_dataset_value(var, obj):
 def get_HDF_branches(hdf5File):
     """Print list of all the branches in the file
 
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
+
     Args:
         | hdf5File (H5py file): the file to be opened
 
@@ -834,6 +849,9 @@ def get_HDF_branches(hdf5File):
 ######################################################################################
 def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
     """Plot arrays in the HFD5 as scaled bitmap images.
+
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
 
     Retain zero in the array as black in the image, only scale the max value to 255
 
@@ -863,6 +881,9 @@ def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
 ######################################################################################
 def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False):
     """Plot images contained in hfd5f with colour map to show magnitude.
+
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
 
     http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps
 
@@ -899,6 +920,9 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
 ######################################################################################
 def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
     """Plot histograms of images contained in hfd5f
+
+    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+    for more information on using HDF5 as a data structure.
 
     Retain zero in the array as black in the image, only scale the max value to 255
 

@@ -87,29 +87,33 @@ Changes to Matlab code
 
 1. Renamed many, if not all, variables to be more descriptive.
 
-2. Created a number of new functions by splitting up the Matlab functions for increaaed modularity.
+2. Created a number of new functions by splitting up the Matlab functions for increased modularity.
 
 3. Store (almost) all input and output variables in an HDF5 file for full record keeping.
 
-4. Precalculate the image data input as HDF5 files with linear detector parameters embedded in the file.  This was done to support future image size calculations.  The idea is to embed the target frequency in the data file to relate observed performance with the frequency on the focal plane.
+4. Precalculate the image data input as HDF5 files with linear detector parameters embedded 
+   in the file.  This was done to support future image size calculations.  The idea is to 
+   embed the target frequency in the data file to relate observed performance with the 
+   frequency on the focal plane.
 
-5. Moved sourcefollower calcs out from under dark signal flag. sourcefollower noise is now always calculated irrespective of whether dark noise is selected or not.
+5. Moved sourcefollower calcs out from under dark signal flag. sourcefollower noise is 
+   now always calculated irrespective of whether dark noise is selected or not.
 
-6. Input image now photon rate irradiance q/(m2.s), image should already include photon noise in input.  Removed from ccd library: irradiance from radiant to photon units, adding photon shot noise.  This functionality has been added to the image generation code.
-
-7. Both CCD and CMOS now have fill factors, the user can set CCD fill factor differently from CMOS fill factor.  The fill factor value is used as-in in the rest of the code, without checking for CCD or CMOS.  This is done because CCD fill factor is 1.0 for full frame sensors but can be less than 1.0 for other types of CCD.
+6. Input image now photon rate irradiance q/(m2.s), image should already include photon noise 
+   in input.  Removed from ccd library: irradiance from radiant to photon units, adding 
+   photon shot noise.  This functionality has been added to the image generation code.
+ 
+7. Both CCD and CMOS now have fill factors, the user can set CCD fill factor differently 
+   from CMOS fill factor.  The fill factor value is used as-in in the rest of the code, 
+   without checking for CCD or CMOS.  This is done because CCD fill factor is 1.0 for 
+   full frame sensors but can be less than 1.0 for other types of CCD.
 
 8. Now uses SciPy's CODATA constants where these are available.
 
 9. Put all of the code into a single file rystare.py in the pyradi repository.
 
-10. Minor changes to Konnik's excellent documentation to be Sphinx compatible.  Documentation is now generated as part of the pyradi documentation.
-
-
-To Do
-------------
-
-1. Relate 'ccd/noise/PRNU/factor' to the definition of non-uniformity.
+10. Minor changes to Konnik's excellent documentation to be Sphinx compatible.  
+    Documentation is now generated as part of the pyradi documentation.
 
 
 Example Code

@@ -19,53 +19,15 @@
 ################################################################
 """
 This module provides a high level model for CCD and CMOS staring array 
-signal chain modelling. 
-
-The model accepts an input image in photon rate irradiance units 
-and then proceeds to calculate the various noise components and 
-signal components along the signal processing chain.
-
-The work is based on a paper and Matlab code by Mikhail Konnik,
+signal chain modelling. The work is based on a paper and Matlab code by Mikhail Konnik,
 available at:
 
 - Paper available at: http://arxiv.org/pdf/1412.4031.pdf
 - Matlab code available at: https://bitbucket.org/aorta/highlevelsensorsim
 
-The code presented here was ported from Matlab and validated 
-against results obtained with the Matlab code, up to a point 
-and then substantially reworked and refactored.  During the refactoring
-due diligence was applied with regression testing, checking the new
-results against the previous results.
-
-The documentation in the code was copied from Konnik's Matlab code, so 
-he deserves all credit for the detailed documentation.
-
-At the end of this file there is example code that models two
-different cases:
-
-- a simple model: which is completely linear (no non-linearities), 
-  where all noise are basically Gaussian, and without 
-  source follower noise, 
-- an advanced model: which has V/V and V/e non-linearities, 
-  Wald or lognormal noise, source follower and sense node noise 
-  sources and even ADC non-linearities.
-
-The code supports enabling/disabling of key components by using flags.
-
-The Python implementation of the model uses an HDF5 file to capture the
-input and output data for record keeping or subsequent analysis.
-
-Input images are read from HDF5 files as well.  These files store the
-image as well as the images' dimensional scaling in the focal plane.  
-The intent is to later create test targets with specific spatial 
-frequencies in these files.
-
-
-
-
+See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.html 
+or pyradi/doc/rystare.rst  for more detail.
 """
-
-
 
 #prepare so long for Python 3
 from __future__ import division
