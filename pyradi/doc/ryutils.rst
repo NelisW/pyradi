@@ -45,3 +45,11 @@ Module functions
 .. autofunction:: pyradi.ryutils.framesLast
 
 .. autofunction:: pyradi.ryutils.savitzkyGolay1D
+
+.. autofunction:: pyradi.ryutils.rect
+
+.. autofunction:: pyradi.ryutils.circ
+
+.. autofunction:: pyradi.ryutils.poissonarray
+
+

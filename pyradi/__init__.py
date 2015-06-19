@@ -1,6 +1,3 @@
-#  $Id$
-#  $HeadURL$
-
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
@@ -50,4 +47,5 @@ __author__='pyradi team'
 #import ryptw
 #import ryutils
 #import rylookup
+#import rystare
 

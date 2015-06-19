@@ -13,7 +13,7 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
   
   * Data manipulation (e.g., file input/output, interpolation, spectral quantity conversions, reading Flir Inc PTW files)
   
-  * Detector modelling from physical parameters
+  * Detector modelling from physical parameters: including single element detectors and staring arrays
   
   * 3-D noise analysis of image sequences
   

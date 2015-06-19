@@ -40,3 +40,21 @@ Module functions
 	
 .. autofunction:: pyradi.ryfiles.downloadUntar	
 	
+.. autofunction:: pyradi.ryfiles.open_HDF
+
+.. autofunction:: pyradi.ryfiles.erase_create_HDF
+
+.. autofunction:: pyradi.ryfiles.print_HDF5_text
+
+.. autofunction:: pyradi.ryfiles.print_HDF5_dataset_value
+         
+.. autofunction:: pyradi.ryfiles.get_HDF_branches
+
+.. autofunction:: pyradi.ryfiles.plotHDF5Bitmaps
+
+.. autofunction:: pyradi.ryfiles.plotHDF5Images
+
+.. autofunction:: pyradi.ryfiles.plotHDF5Histograms
+
+
+

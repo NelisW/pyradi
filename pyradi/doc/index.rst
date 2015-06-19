@@ -41,6 +41,8 @@ Welcome to pyradi's documentation!
    
    rydetector
    
+   rystare
+   
    codingguidelines
    
 

@@ -45,6 +45,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 'rangeEquation',
          '_rangeEquationCalc', 'detectThresholdToNoise','detectSignalToNoise','upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
+         'rect', 'circ','poissonarray',
          ]
 
 import sys
@@ -792,6 +793,119 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
                         inspectral.reshape(-1, ),mode='same'.encode('utf-8'))
     return outspectral,  windowfn
 
+######################################################################################
+def circ(x, y, d=1):
+    """ Generation of a circular aperture.
+
+    Args:
+        | x (np.array[N,M]): x-grid, metres
+        | y (np.array[N,M]): y-grid, metres
+        | d (float): diameter in metres.
+        | comment (string): the symbol used to comment out lines, default value is None.
+        | delimiter (string): delimiter used to separate columns, default is whitespace.
+
+    Returns:
+        | z (np.array[N,M]): z-grid, 1's inside radius, meters/pixels.
+
+    Raises:
+        | No exception is raised.
+
+    Author: Prof. Jason Schmidt, revised/ported by CJ Willers
+
+    Original source: http://arxiv.org/pdf/1412.4031.pdf
+    """
+    z = None
+    r = np.sqrt(x ** 2 + y ** 2)
+    z = np.zeros(r.shape)
+    z[r < d / 2.] = 1.0
+    z[r == d / 2.] = 0.5
+
+    return z
+
+    
+######################################################################################
+def rect(x, y, sx=1, sy=1):
+    """ Generation of a rectangular aperture.
+
+    Args:
+        | x (np.array[N,M]): x-grid, metres
+        | y (np.array[N,M]): x-grid, metres
+        | sx (float): full size along x.
+        | sy (float): full size along y.
+
+    Returns:
+        | Nothing.
+
+    Raises:
+        | No exception is raised.
+
+    Author:  CJ Willers
+
+    Original source: http://arxiv.org/pdf/1412.4031.pdf
+    """
+
+    z = None
+    if x is not None and y is not None:
+        z = np.zeros(x.shape)
+        z[np.logical_and(np.abs(x) < sx/2.,np.abs(y) < sy/2.)] = 1.
+        z[np.logical_and(np.abs(x) == sx/2., np.abs(y) == sy/2.)] = 0.5
+
+    return z
+ 
+ 
+######################################################################################################
+def poissonarray(inp, seedval=None, tpoint=1000):
+    r"""This routine calculates a Poisson random variable for an array of input values
+    with potentially very high event counts.
+
+    At high mean values the Poisson distribution calculation overflows. For 
+    mean values exceeding 1000, the Poisson distribution may be approximated by a 
+    Gaussian distribution. 
+    
+    The function accepts a two-dimensional array and calculate a separate random
+    value for each element in the array, using the element value as the mean value.
+    A typical use case is when calculating shot noise for image data.
+
+    From http://en.wikipedia.org/wiki/Poisson_distribution#Related_distributions
+    For sufficiently large values of :math:`\lambda`, (say :math:`\lambda>1000`), 
+    the normal distribution with mean :math:`\lambda` and 
+    variance :math:`\lambda` (standard deviation :math:`\sqrt{\lambda}`) 
+    is an excellent approximation to the Poisson distribution. 
+    If :math:`\lambda` is greater than about 10, then the normal distribution 
+    is a good approximation if an appropriate continuity correction is performed, i.e., 
+    :math:`P(X \le x)`, where (lower-case) x is a non-negative integer, is replaced by 
+    :math:`P(X\le\,x+0.5)`.
+
+    :math:`F_\mathrm{Poisson}(x;\lambda)\approx\,F_\mathrm{normal}(x;\mu=\lambda,\sigma^2=\lambda)`
+
+    Args:
+        | inp (np.array[N,M]): array with mean value 
+        | seedval (int): seed for random number generator, None means use system time.
+        | tpoint (int): Threshold when to switch over between Poisson and Normal distributions
+ 
+    Returns:
+        | outp (np.array[N,M]): Poisson random variable for given mean value
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    #If seed is omitted or None, current system time is used
+    np.random.seed(seedval)
+
+    #this is a bit of a mess: 
+    # - for values smaller than tpoint calculate using standard Poisson distribution
+    # - for values larger than tpoint but nonzero use normal approximation, add small sdelta to avoid variance==0
+    # - for values larger than tpoint but zero keep at zero, sdelta added has no effect, just avoids zero divide
+    sdelta = 1e-10
+    outp = np.zeros(inp.shape)
+    outp =  (inp<=tpoint) * np.random.poisson(inp * (inp<=tpoint) )\
+                        + ((inp>tpoint) & (inp!=0)) * np.random.normal(loc=inp, scale=np.sqrt(inp+sdelta))
+
+    return outp
+ 
+    
 ################################################################
 ##
 
@@ -809,6 +923,7 @@ if __name__ == '__main__':
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
 
+    doAll = False
 
     #demonstrate the pulse detection algorithms
     pulsewidth = 100e-9
@@ -1126,4 +1241,58 @@ if __name__ == '__main__':
     print('{} renders in LaTeX as an upright symbol'.format(upMu(True)))
     print('{} renders in LaTeX as an italic/slanted symbol'.format(upMu(False)))
 
+    #----------  test circ ---------------------
+    if  doAll:  
+        a = 3.
+        b = 3.
+        d = 2.
+        samples = 10
+        varx = np.linspace(-a/2, a/2, samples*a)
+        vary = np.linspace(-b/2, b/2, samples*b)
+        x, y = np.meshgrid(varx, vary)
+        z = circ(x, y, d)
+
+        #calculate area two ways to confirm
+        print('Circ area is {}, should be {}'.format(np.sum(z)/(samples * a * samples * b), np.pi*(d/2)**2/(a * b)))
+     
+        if samples < 20:
+            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_circ.png']) as p:
+                p.mesh3D(1, x, y, z, ptitle='tool_circ', 
+                 xlabel='x', ylabel='y', zlabel='z', 
+                 maxNX=3, maxNY=3, maxNZ=4, alpha=0.5);
+
+             
+    #----------  test rect ---------------------
+    if  doAll:  
+        a = 3.
+        b = 3.
+        sx = 2.
+        sy = 2.
+        samples = 10
+        varx = np.linspace(-a/2, a/2, samples*a)
+        vary = np.linspace(-b/2, b/2, samples*b)
+        x, y = np.meshgrid(varx, vary)
+        z = rect(x, y, sx, sy)
+
+        #calculate area two ways to confirm
+        print('Rect area is {}, should be {}'.format(np.sum(z)/(samples * a * samples * b), sx*sy/(a * b)))
+     
+        if samples < 20:
+            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_rect.png']) as p:
+                p.mesh3D(1, x, y, z, ptitle='tool_rect', 
+                 xlabel='x', ylabel='y', zlabel='z', 
+                 maxNX=3, maxNY=3, maxNZ=4, alpha=0.5);
+    
+     #----------  poissonarray ---------------------
+    if doAll:
+        asize = 100000 # you need values of more than 10000000 to get really good stats
+        tpoint = 1000
+        for lam in [0, 10, tpoint-5, tpoint-1, tpoint, tpoint+1, tpoint+5, 20000]:
+            inp = lam * np.ones((asize,1))
+            out =  poissonarray(inp, tpoint=tpoint)
+                
+            print('lam={} mean={} var={} err-mean={} err-var={}'.format(lam, 
+               np.mean(out),np.var(out), (lam-np.mean(out))/lam, (lam-np.var(out))/lam))
+
+               
     print('module ryutils done!')

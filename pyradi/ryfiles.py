@@ -36,18 +36,15 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-
-
-
-
 __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
          'cleanFilename', 'listFiles','readRawFrames','rawFrameToImageFile',
          'arrayToLaTex','epsLaTexFigure',
          'read2DLookupTable', 
-         'downloadFileUrl', 'unzipGZipfile', 'untarTarfile',
-         'downloadUntar']
+         'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
+         'open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
+         'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms']
 
 import sys
 if sys.version_info[0] > 2:
@@ -58,6 +55,9 @@ if sys.version_info[0] > 2:
 from scipy.interpolate import interp1d
 import numpy as np
 import os.path, fnmatch
+from matplotlib import cm as mcm
+import h5py
+from skimage.io import imread, imsave
 
 ################################################################
 def saveHeaderArrayTextFile(filename,dataArray, header=None,
@@ -737,6 +737,194 @@ def read2DLookupTable(filename):
     yVec = aArray[0, 1:] 
     data = aArray[1:, 1:]
     return(xVec, yVec, data, xlabel, ylabel, title)
+
+######################################################################################
+def open_HDF(filename):
+    """Open and return an HDF5 file with the given filename.
+
+    Args:
+        | filename (string): name of the file to be opened
+
+    Returns:
+        | HDF5 file.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    f = h5py.File(filename)
+    return f
+
+
+######################################################################################
+def erase_create_HDF(filename):
+    """Create and return a new HDS5 file with the given filename, erase the file if existing.
+
+    Args:
+        | filename (string): name of the file to be created
+
+    Returns:
+        | HDF5 file.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    if os.path.isfile(filename):
+        os.remove(filename)
+    f = h5py.File(filename)
+    return f
+
+######################################################################################
+def print_HDF5_text(vartext):
+    """Prints text in visiting algorithm in HDF5 file.
+
+    Args:
+        | vartext (string): string to be printed
+
+    Returns:
+        | HDF5 file.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    print(vartext)
+
+######################################################################################
+def print_HDF5_dataset_value(var, obj):
+    """Prints a data set in visiting algorithm in HDF5 file.
+
+    Args:
+        | var (string): path to a dataset
+        | obj (h5py dataset): dataset to be printed
+
+    Returns:
+        | HDF5 file.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    if type(obj.file[var]) is h5py._hl.dataset.Dataset:
+        print(var, obj.file[var].name)
+
+
+######################################################################################
+def get_HDF_branches(hdf5File):
+    """Print list of all the branches in the file
+
+    Args:
+        | hdf5File (H5py file): the file to be opened
+
+    Returns:
+        | HDF5 file.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    return hdf5File.visit(get_HDF_branches)
+
+######################################################################################
+def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
+    """Plot arrays in the HFD5 as scaled bitmap images.
+
+    Retain zero in the array as black in the image, only scale the max value to 255
+
+    Args:
+        | hfd5f (H5py file): the file to be opened
+        | prefix (string): prefix to be prepended to filename
+        | format (string): type of file to be created png/jpeg
+        | lstimgs ([string]): list of paths to image in the HFD5 file
+
+    Returns:
+        | Nothing.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    from . import ryplot
+
+    for lstimg in lstimgs:
+        arr = hfd5f['{}'.format(lstimg)].value
+        if np.max(arr) != 0.:
+            arr = 255 * arr/np.max(arr)
+            imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),format), arr.astype(np.uint8))
+
+
+######################################################################################
+def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False):
+    """Plot images contained in hfd5f with colour map to show magnitude.
+
+    http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps
+
+    Args:
+        | hfd5f (H5py file): the file to be opened
+        | prefix (string): prefix to be prepended to filename
+        | colormap (Matplotlib colour map): colour map to be used in plot
+        | cbarshow (boolean): indicate if colour bar must be shown
+        | lstimgs ([string]): list of paths to image in the HFD5 file
+        | logscale (boolean): True if display must be on log scale
+
+    Returns:
+        | Nothing.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    from . import ryplot
+
+    for lstimg in lstimgs:
+        arr = hfd5f['{}'.format(lstimg)].value
+        if logscale:
+            filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
+            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+                p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+        else:
+            filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
+            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+                p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+
+
+######################################################################################
+def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
+    """Plot histograms of images contained in hfd5f
+
+    Retain zero in the array as black in the image, only scale the max value to 255
+
+    Args:
+        | hfd5f (H5py file): the file to be opened
+        | prefix (string): prefix to be prepended to filename
+        | format (string): type of file to be created png/jpeg
+        | lstimgs ([string]): list of paths to image in the HFD5 file
+        | bins ([int]): Number of bins to be used in histogram
+
+    Returns:
+        | Nothing.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    from . import ryplot
+
+    for lstimg in lstimgs:
+        arr = hfd5f['{}'.format(lstimg)].value
+        his, bin = np.histogram(arr,bins=bins)
+        filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
+        with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
+            p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin')
 
 
 ################################################################
