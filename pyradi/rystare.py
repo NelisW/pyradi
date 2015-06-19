@@ -130,7 +130,7 @@ def photosensor(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -256,7 +256,7 @@ def source_follower(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -314,7 +314,7 @@ def cds(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -468,7 +468,7 @@ def adc(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -574,7 +574,7 @@ def sense_node_chargetovoltage(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -708,7 +708,7 @@ def sense_node_reset_noise(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -769,7 +769,7 @@ def dark_current_and_dark_noises(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -897,7 +897,7 @@ def source_follower_noise(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -952,7 +952,7 @@ def set_photosensor_constants(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -985,7 +985,7 @@ def create_data_arrays(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -1025,7 +1025,7 @@ def image_irradiance_to_flux(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+         | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -1060,7 +1060,7 @@ def convert_to_electrons(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -1147,7 +1147,7 @@ def responsivity_FPN_light(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -1246,7 +1246,7 @@ def responsivity_FPN_dark(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: Signal_CCD_electrons (np.array[N,M]): image with noise, irradiance [W/m2].
+        | in strh5: (hdf5 file) updated data fields
 
     Raises:
         | No exception is raised.
@@ -2039,7 +2039,7 @@ def checkParamsNum(funcName,distribName,runDistribName,distribParams,correctNum)
 
 ################################################################
 def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
-    """This code provides examples of use of the CcdCmosSim models for a CMOS/CCD photosensor.
+    """This code provides examples of use of the pyradi.rystare model for a CMOS/CCD photosensor.
 
     Two models are provided 'simple' and 'advanced'
 
@@ -2233,13 +2233,13 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None):
 
     with open('{}{}.txt'.format(prefix,outfilename), 'wt') as fo: 
         fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalPhotonRateIrradiance',np.mean(strh5['rystare/SignalPhotonRateIrradiance'].value), np.var(strh5['rystare/SignalPhotonRateIrradiance'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('light_signal',np.mean(strh5['rystare/signalLight'].value), np.var(strh5['rystare/signalLight'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('dark_signal',np.mean(strh5['rystare/signalDark'].value), np.var(strh5['rystare/signalDark'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('signalLight',np.mean(strh5['rystare/signalLight'].value), np.var(strh5['rystare/signalLight'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('signalDark',np.mean(strh5['rystare/signalDark'].value), np.var(strh5['rystare/signalDark'].value)))
         fo.write('{:25}, {:.5e}, {:.5e}\n'.format('source_follower_noise',np.mean(strh5['rystare/noise/sf/source_follower_noise'].value), np.var(strh5['rystare/noise/sf/source_follower_noise'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('Signal_CCD_photons',np.mean(strh5['rystare/SignalPhotons'].value), np.var(strh5['rystare/SignalPhotons'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('Signal_CCD_electrons',np.mean(strh5['rystare/SignalElectrons'].value), np.var(strh5['rystare/SignalElectrons'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('Signal_CCD_voltage',np.mean(strh5['rystare/SignalVoltage'].value), np.var(strh5['rystare/SignalVoltage'].value)))
-        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('Signal_CCD_DN',np.mean(strh5['rystare/SignalDN'].value), np.var(strh5['rystare/SignalDN'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalPhotons',np.mean(strh5['rystare/SignalPhotons'].value), np.var(strh5['rystare/SignalPhotons'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalElectrons',np.mean(strh5['rystare/SignalElectrons'].value), np.var(strh5['rystare/SignalElectrons'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/SignalVoltage'].value), np.var(strh5['rystare/SignalVoltage'].value)))
+        fo.write('{:25}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/SignalDN'].value), np.var(strh5['rystare/SignalDN'].value)))
 
 
     # lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',

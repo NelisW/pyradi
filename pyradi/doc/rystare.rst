@@ -1,10 +1,6 @@
-Staring Array Module (CCD)
+Staring Array Module (rystare)
 ****************************
 .. include global.rst
-
-Introduction 
-****************************
-
 
 Overview
 --------
@@ -86,6 +82,36 @@ significantly from frame to frame. Temporal noise, on the other hand, changes
 from one frame to the next.  All these noise sources are modelled in the code.
 For more details see Konnik's original paper or the docstrings present in the code.
 
+Changes to Matlab code
+--------------------------
+
+1. Renamed many, if not all, variables to be more descriptive.
+
+2. Created a number of new functions by splitting up the Matlab functions for increaaed modularity.
+
+3. Store (almost) all input and output variables in an HDF5 file for full record keeping.
+
+4. Precalculate the image data input as HDF5 files with linear detector parameters embedded in the file.  This was done to support future image size calculations.  The idea is to embed the target frequency in the data file to relate observed performance with the frequency on the focal plane.
+
+5. Moved sourcefollower calcs out from under dark signal flag. sourcefollower noise is now always calculated irrespective of whether dark noise is selected or not.
+
+6. Input image now photon rate irradiance q/(m2.s), image should already include photon noise in input.  Removed from ccd library: irradiance from radiant to photon units, adding photon shot noise.  This functionality has been added to the image generation code.
+
+7. Both CCD and CMOS now have fill factors, the user can set CCD fill factor differently from CMOS fill factor.  The fill factor value is used as-in in the rest of the code, without checking for CCD or CMOS.  This is done because CCD fill factor is 1.0 for full frame sensors but can be less than 1.0 for other types of CCD.
+
+8. Now uses SciPy's CODATA constants where these are available.
+
+9. Put all of the code into a single file rystare.py in the pyradi repository.
+
+10. Minor changes to Konnik's excellent documentation to be Sphinx compatible.  Documentation is now generated as part of the pyradi documentation.
+
+
+To Do
+------------
+
+1. Relate 'ccd/noise/PRNU/factor' to the definition of non-uniformity.
+
+
 Example Code
 -------------
 
@@ -130,67 +156,67 @@ todo
 
 Code Overview
 ---------------
-.. automodule:: CcdCmosSim.ccd
+.. automodule:: pyradi.rystare
 
 
 Module functions
 ------------------
 
-.. autofunction:: CcdCmosSim.ccd.photosensor	
+.. autofunction:: pyradi.rystare.photosensor	
 
-.. autofunction:: CcdCmosSim.ccd.source_follower	
+.. autofunction:: pyradi.rystare.source_follower	
 
-.. autofunction:: CcdCmosSim.ccd.cds
+.. autofunction:: pyradi.rystare.cds
 
-.. autofunction:: CcdCmosSim.ccd.adc
+.. autofunction:: pyradi.rystare.adc
 
-.. autofunction:: CcdCmosSim.ccd.sense_node_chargetovoltage
+.. autofunction:: pyradi.rystare.sense_node_chargetovoltage
 
-.. autofunction:: CcdCmosSim.ccd.sense_node_reset_noise
+.. autofunction:: pyradi.rystare.sense_node_reset_noise
 
-.. autofunction:: CcdCmosSim.ccd.dark_current_and_dark_noises
+.. autofunction:: pyradi.rystare.dark_current_and_dark_noises
 
-.. autofunction:: CcdCmosSim.ccd.source_follower_noise
+.. autofunction:: pyradi.rystare.source_follower_noise
 
-.. autofunction:: CcdCmosSim.ccd.set_photosensor_constants
+.. autofunction:: pyradi.rystare.set_photosensor_constants
 
-.. autofunction:: CcdCmosSim.ccd.create_data_arrays
+.. autofunction:: pyradi.rystare.create_data_arrays
 
-.. autofunction:: CcdCmosSim.ccd.image_irradiance_to_flux
+.. autofunction:: pyradi.rystare.image_irradiance_to_flux
 
-.. autofunction:: CcdCmosSim.ccd.convert_to_electrons
+.. autofunction:: pyradi.rystare.convert_to_electrons
 
-.. autofunction:: CcdCmosSim.ccd.shotnoise
+.. autofunction:: pyradi.rystare.shotnoise
 
-.. autofunction:: CcdCmosSim.ccd.responsivity_FPN_light
+.. autofunction:: pyradi.rystare.responsivity_FPN_light
 
-.. autofunction:: CcdCmosSim.ccd.responsivity_FPN_dark
+.. autofunction:: pyradi.rystare.responsivity_FPN_dark
 
-.. autofunction:: CcdCmosSim.ccd.FPN_models
+.. autofunction:: pyradi.rystare.FPN_models
 
-.. autofunction:: CcdCmosSim.ccd.create_HDF5_image
+.. autofunction:: pyradi.rystare.create_HDF5_image
 
-.. autofunction:: CcdCmosSim.ccd.define_metrics
+.. autofunction:: pyradi.rystare.define_metrics
 
-.. autofunction:: CcdCmosSim.ccd.limitzero
+.. autofunction:: pyradi.rystare.limitzero
 
-.. autofunction:: CcdCmosSim.ccd.distribution_exp
+.. autofunction:: pyradi.rystare.distribution_exp
 
-.. autofunction:: CcdCmosSim.ccd.distribution_lognormal
+.. autofunction:: pyradi.rystare.distribution_lognormal
 
-.. autofunction:: CcdCmosSim.ccd.distribution_inversegauss
+.. autofunction:: pyradi.rystare.distribution_inversegauss
 
-.. autofunction:: CcdCmosSim.ccd.distribution_logistic
+.. autofunction:: pyradi.rystare.distribution_logistic
 
-.. autofunction:: CcdCmosSim.ccd.distribution_wald
+.. autofunction:: pyradi.rystare.distribution_wald
 
-.. autofunction:: CcdCmosSim.ccd.distributions_generator
+.. autofunction:: pyradi.rystare.distributions_generator
 
-.. autofunction:: CcdCmosSim.ccd.validateParam
+.. autofunction:: pyradi.rystare.validateParam
 
-.. autofunction:: CcdCmosSim.ccd.checkParamsNum
+.. autofunction:: pyradi.rystare.checkParamsNum
 
-.. autofunction:: CcdCmosSim.ccd.run_example
+.. autofunction:: pyradi.rystare.run_example
 
 
 
