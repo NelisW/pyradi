@@ -13,7 +13,7 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
   
 * Data manipulation (e.g., file input/output, interpolation, spectral quantity conversions, reading Flir Inc PTW files)
   
-* Detector modelling from physical parameters
+* Detector modelling from physical parameters, including single element detectors and staring arrays
   
 * 3-D noise analysis of image sequences
   
@@ -50,12 +50,13 @@ Documentation
 Local API documentation in html and pdf format is available in the pradi installation directory, along the paths `doc/_build/html/index.html` and `doc/_build/latex/pyradi.pdf`. 
 
 Online API documentation in html format is available
-`here <https://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html>`_.
+`here <http://nelisw.github.io/pyradi-docs/_build/html/index.html>`_.
 
-Tutorial examples on the application of pyradi are available online in these 
+Detailed tutorial examples on the application of pyradi are available online in these 
 `notebooks <https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi>`_.
 
 For a detailed theoretical background and many more examples see the book_ by CJ Willers. See also SPIE8543Pyradi_. 
+
 
     
 Example application 
@@ -75,7 +76,7 @@ An example solution is given in this script_ and is further explained with resul
 
 .. [notebooks]: https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 
-.. [online]: https://pyradi.googlecode.com/svn//trunk/pyradi/doc/_build/html/index.html
+.. [online]: http://nelisw.github.io/pyradi-docs/_build/html/introduction.html#example-application
    
 .. [book] *Electro-Optical System Analysis and Design: A Radiometry Perspective*,  
    C.J. Willers, Volume PM236, SPIE Press, 2013. http://spie.org/x648.html?product_id=2021423
