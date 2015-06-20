@@ -1,9 +1,9 @@
 Staring Array Module (rystare)
-****************************
+*******************************
 .. include global.rst
 
 Overview
---------
+----------
 
 This module provides a high level model for CCD and CMOS staring array 
 signal chain modelling.  The model accepts an input image in photon rate irradiance units 

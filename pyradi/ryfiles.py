@@ -400,22 +400,45 @@ def downloadFileUrl(url,  saveFilename=None):
     if os.path.exists(filename):
         pass
     else:
-        import urllib.request, urllib.error, urllib.parse
-        from urllib.error import HTTPError
 
-        try:
-            #get file handle
-            f = urllib.request.urlopen(url)
-            # Open file for writing
-            with open(filename, "wb") as file:
-                file.write(f.read())
-        #handle errors
-        except urllib.error.HTTPError as e:
-           print('HTTP Error: {} for {}'.format(e.code, url))
-           return None
-        except urllib.error. URLError as e:
-           print('URL Error: {} for {}'.format(e.reason, url))
-           return None
+        if sys.version_info[0] > 2:
+            #python 3
+            import urllib
+            from urllib import Request
+            import urllib.error 
+            from urllib.error import HTTPError 
+
+            try:
+                #get file handle
+                f = Request.urlopen(url)
+                # Open file for writing
+                with open(filename, "wb") as file:
+                    file.write(f.read())
+            #handle errors
+            except urllib.error.HTTPError as e:
+               print('HTTP Error: {} for {}'.format(e.code, url))
+               return None
+            except urllib.error.URLError as e:
+               print('URL Error: {} for {}'.format(e.reason, url))
+               return None
+        else:
+            #python 2.7
+            import urllib2
+            from urllib2 import HTTPError
+
+            try:
+                #get file handle
+                f = urllib2.urlopen(url)
+                # Open file for writing
+                with open(filename, "wb") as file:
+                    file.write(f.read())
+            #handle errors
+            except urllib2.HTTPError as e:
+               print('HTTP Error: {} for {}'.format(e.code, url))
+               return None
+            except urllib2. URLError as e:
+               print('URL Error: {} for {}'.format(e.reason, url))
+               return None
 
     return filename
 
