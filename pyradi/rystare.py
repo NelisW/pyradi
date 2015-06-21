@@ -141,12 +141,14 @@ def photosensor(strh5):
 
     # Full-well check-up and saturate the pixel if there are more electrons than full-well.
     # find all of pixels that are saturated (there are more electrons that full-well of the pixel)
-    idx = strh5['rystare/SignalElectrons'].value >= strh5['rystare/FullWellElectrons'].value
-    strh5['rystare/SignalElectrons'].value[idx] = strh5['rystare/FullWellElectrons'].value 
+    strh5['rystare/SignalElectrons'][...] = np.where(
+        strh5['rystare/SignalElectrons'].value > strh5['rystare/FullWellElectrons'].value, 
+        strh5['rystare/FullWellElectrons'].value, strh5['rystare/SignalElectrons'].value)
+     
 
     # find all of pixels that are less than zero and truncate to zero (no negative electron count).
-    idx = strh5['rystare/SignalElectrons'].value < 0 
-    strh5['rystare/SignalElectrons'].value[idx] = 0       
+    strh5['rystare/SignalElectrons'][...] = np.where(
+        strh5['rystare/SignalElectrons'].value < 0, 0, strh5['rystare/SignalElectrons'].value)
 
     # round the number of electrons.  
     strh5['rystare/SignalElectrons'][...] = np.floor(strh5['rystare/SignalElectrons'].value) 
@@ -963,6 +965,7 @@ def create_data_arrays(strh5):
     # strh5['rystare/SignalPhotonRateIrradiance'] = np.zeros(sensor_size)
     strh5['rystare/SignalPhotonRate'] = np.zeros(sensor_size)
     strh5['rystare/SignalPhotons'] = np.zeros(sensor_size)
+    strh5['rystare/QuantumEfficiency'] = np.zeros(sensor_size)
     strh5['rystare/SignalElectrons'] = np.zeros(sensor_size)
     strh5['rystare/signalDark'] = np.zeros(sensor_size)
     strh5['rystare/signalLight'] = np.zeros(sensor_size)
@@ -1037,10 +1040,10 @@ def convert_to_electrons(strh5):
 
     # Converting the signal from Photons to Electrons
     # Quantum Efficiency = Quantum Efficiency Interaction X Quantum Yield Gain.
-    QE = strh5['rystare/ExternalQuantumEff'].value * strh5['rystare/QuantumYield'].value
+    strh5['rystare/QuantumEfficiency'][...] = strh5['rystare/ExternalQuantumEff'].value * strh5['rystare/QuantumYield'].value
 
     # number of electrons [e] generated in detector
-    strh5['rystare/signalLight'][...] = strh5['rystare/SignalPhotons'].value * QE
+    strh5['rystare/signalLight'][...] = strh5['rystare/SignalPhotons'].value * strh5['rystare/QuantumEfficiency'].value 
 
     return strh5
 
@@ -2222,20 +2225,20 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     if doPlots:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/PRNU/nonuniformity',
-                   'rystare/noise/darkFPN/nonuniformity']
+                   'rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
         # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
         ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
 
     if doHisto:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark',
-                   'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
+                   'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
     if doImages:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotonRate', 'rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                     'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/noisematrix','rystare/noise/sf/source_follower_noise',
-                    'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity']
+                    'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
 
     strh5.flush()

@@ -32,7 +32,7 @@ computational radiometry (flux flow) calculations.
     | https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 
 """
-__version__= "0.1.57"
+__version__= "0.1.58"
 __versionSVN__= "svn $Revision$"
 __author__='pyradi team'
 
