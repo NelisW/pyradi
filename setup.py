@@ -99,6 +99,8 @@ Release cycle when updating PyRadi
 
 9. Push the local git repo changes to github repo.
 
+--  NB make sure the local IE proxy is not set in IE.  Must be 'no proxy'
+
 10. Register the new version on PyPI by one of the two following methods:
 
 10a. cd to root pyradi directory and do in a command window:
