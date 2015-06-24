@@ -121,7 +121,7 @@ def photosensor(strh5):
         strh5 = convert_to_electrons(strh5) 
 
         # adjust 'rystare/signalLight' with responsivity PRNU non-uniformity
-        if strh5['rystare/flag/PRNU'].value:
+        if strh5['rystare/signal/responseNU/flag'].value:
             strh5 = responsivity_FPN_light(strh5)
 
     # at this point the photon signal is converted to electrons, after all responsivity effects
@@ -290,17 +290,17 @@ def cds(strh5):
     
     if strh5['rystare/SensorType'].value in 'CMOS':  
         #If the sensor is CMOS and the Column FPN is on  - add the column FPN noise  (CMOS only!)
-        if strh5['rystare/flag/darkcurrent_offsetFPN'].value: 
+        if strh5['rystare/darkoffset/NU/flag'].value: 
 
-            strh5['rystare/noise/darkFPN_offset/noisematrix'][...] = FPN_models(strh5, strh5['rystare/imageSizePixels'].value[0],
-                strh5['rystare/imageSizePixels'].value[1],char('column'),strh5['rystare/noise/darkFPN_offset/model'].value,
-                strh5['rystare/noise/darkFPN_offset/parameters'].value)
+            strh5['rystare/darkoffset/NU/noisematrix'][...] = FPN_models(strh5, strh5['rystare/imageSizePixels'].value[0],
+                strh5['rystare/imageSizePixels'].value[1],char('column'),strh5['rystare/darkoffset/NU/model'].value,
+                strh5['rystare/darkoffset/NU/parameters'].value)
 
             # add pixel FPN dark noise.
-            # strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value.dot((1 + strh5['rystare/noise/darkFPN_offset/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * strh5['rystare/noise/darkFPN_offset/DNcolumn'].value)))      # add pixel FPN dark noise.
+            # strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value.dot((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/DNcolumn'].value)))      # add pixel FPN dark noise.
             strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * \
-                ((1 + strh5['rystare/noise/darkFPN_offset/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * \
-                strh5['rystare/noise/darkFPN_offset/DNcolumn'].value)))      
+                ((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * \
+                strh5['rystare/darkoffset/NU/DNcolumn'].value)))      
 
     # strh5['rystare/SignalVoltage'][...] = (strh5['rystare/SignalVoltage'].value).dot((strh5['rystare/A_CDS))
     strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * strh5['rystare/CDS-Gain']
@@ -752,10 +752,11 @@ def dark_current_and_dark_noises(strh5):
         (strh5['rystare/OperatingTemperature'].value ** 2)) / (strh5['rystare/beta'].value + strh5['rystare/OperatingTemperature'].value)
     
     #average quantity of dark current that is thermally generated [e]  !!! This is Janesick equations 11.15 and 11.16  
-    strh5['rystare/DarkCurrentElecrons'][...] = strh5['rystare/IntegrationTime'].value * 2.55e15 * \
-    detareacm2 * strh5['rystare/DarkFigureMerit'].value * (strh5['rystare/OperatingTemperature'].value ** 1.5) * \
-                     np.exp(- strh5['rystare/Eg-eV'].value / (2 * strh5['rystare/Boltzman-Constant-eV'].value * \
-                        strh5['rystare/OperatingTemperature'].value))
+    strh5['rystare/DarkCurrentElecrons'][...] = \
+                strh5['rystare/IntegrationTime'].value * 2.55e15 * \
+                detareacm2 * strh5['rystare/DarkFigureMerit'].value * (strh5['rystare/OperatingTemperature'].value ** 1.5) * \
+                np.exp(- strh5['rystare/Eg-eV'].value / (2 * strh5['rystare/Boltzman-Constant-eV'].value * \
+                strh5['rystare/OperatingTemperature'].value))
 
     #creating the average value electrons dark signal image
     strh5['rystare/signalDark'][...] = strh5['rystare/DarkCurrentElecrons'].value * np.ones(strh5['rystare/SignalElectrons'].value.shape)
@@ -971,10 +972,10 @@ def create_data_arrays(strh5):
     strh5['rystare/signalLight'] = np.zeros(sensor_size)
     strh5['rystare/SignalVoltage'] = np.zeros(sensor_size)
     strh5['rystare/SignalDN'] = np.zeros(sensor_size) 
-    # strh5['rystare/noise/PRNU/noisematrix'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/PRNU/nonuniformity'] = np.zeros(sensor_size) 
-    # strh5['rystare/noise/darkFPN/noisematrix'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/darkFPN/nonuniformity'] = np.zeros(sensor_size) 
+    # strh5['rystare/signal/responseNU/noisematrix'] = np.zeros(sensor_size) 
+    strh5['rystare/signal/responseNU/nonuniformity'] = np.zeros(sensor_size) 
+    # strh5['rystare/dark/responseNU/noisematrix'] = np.zeros(sensor_size) 
+    strh5['rystare/dark/responseNU/nonuniformity'] = np.zeros(sensor_size) 
     strh5['rystare/noise/sn_reset/noisematrix'] = np.zeros(sensor_size) 
     strh5['rystare/noise/sf/source_follower_noise'] = np.zeros(sensor_size)
 
@@ -1123,18 +1124,18 @@ def responsivity_FPN_light(strh5):
     """
 
     #the random generator seed is fixed with value from input
-    np.random.seed(strh5['rystare/noise/PRNU/seed'].value)
+    np.random.seed(strh5['rystare/signal/responseNU/seed'].value)
 
     #matrix for the PRNU
     normalisedVariation = FPN_models(
         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-        'pixel', strh5['rystare/noise/PRNU/model'].value, strh5['rystare/noise/PRNU/parameters'].value)
+        'pixel', strh5['rystare/signal/responseNU/model'].value, strh5['rystare/signal/responseNU/parameters'].value)
 
     #np.random.randn has mean=0, variance = 1, so we multiply with variance and add to mean
-    strh5['rystare/noise/PRNU/nonuniformity'][...] = (1 + normalisedVariation * strh5['rystare/noise/PRNU/factor'].value)
+    strh5['rystare/signal/responseNU/nonuniformity'][...] = (1 + normalisedVariation * strh5['rystare/signal/responseNU/factor'].value)
 
     #apply the PRNU noise to the light signal of the photosensor.
-    strh5['rystare/signalLight'][...] = strh5['rystare/signalLight'].value * strh5['rystare/noise/PRNU/nonuniformity'].value
+    strh5['rystare/signalLight'][...] = strh5['rystare/signalLight'].value * strh5['rystare/signal/responseNU/nonuniformity'].value
         
     return strh5
 
@@ -1222,22 +1223,57 @@ def responsivity_FPN_dark(strh5):
     """
 
     #the random generator seed is fixed
-    np.random.seed(strh5['rystare/noise/darkFPN/seed'].value)
+    np.random.seed(strh5['rystare/dark/responseNU/seed'].value)
 
-    # darkFPN noise image
-    noisematrix = FPN_models(
+    darksignalnoisematrix = FPN_models(
         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-        'pixel', strh5['rystare/noise/darkFPN/model'].value, strh5['rystare/noise/darkFPN/parameters'].value)
+        'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
     
-    strh5['rystare/noise/darkFPN/nonuniformity'][...] = (1 + strh5['rystare/noise/darkFPN/DN'].value * noisematrix)
+    strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
 
     #gaussian noise values may be negative, here we limit them if desired
-    if strh5['rystare/noise/darkFPN/model'].value in ['Janesick-Gaussian']:
-        if strh5['rystare/noise/darkFPN/limitnegative'].value:
-            strh5['rystare/noise/darkFPN/nonuniformity'][...] = limitzero(strh5['rystare/noise/darkFPN/nonuniformity'].value, thr=0.6)
+    if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
+        if strh5['rystare/dark/responseNU/limitnegative'].value:
+            strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6)       
 
     #apply the darkFPN noise to the dark_signal.
-    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/noise/darkFPN/nonuniformity'].value
+    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
+
+
+# if (gaussnose)
+#              ccd.dark_signal = ccd.dark_signal.*(1 +(ccd.noise.darkFPN.DN)*(ccd.noise.darkFPN.noisematrix));
+# else
+#              ccd.dark_signal = ccd.dark_signal.*(1 + ccd.noise.darkFPN.noisematrix);
+# end
+
+    #get the initial deviation from the mean    
+
+    # #handle gauss and nongaussian different
+    # if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
+    #     darksignalnoisematrix = FPN_models(
+    #         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
+    #         'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+
+    #     strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
+    #     #gaussian noise values may be negative, here we limit them if desired
+    #     #only 'Janesick-Gaussian' was tested, 'AR-ElGamal' limitnegative not yet tested, so negative-going values are allowed.
+    #     if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
+    #         if strh5['rystare/dark/responseNU/limitnegative'].value:
+    #             strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6) 
+
+    # #this would be Wald andlognormal
+    # else:
+    #     darksignalnoisematrix = FPN_models(
+    #         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
+    #         'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+    #     strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + darksignalnoisematrix)
+
+
+    # #apply the darkFPN noise to the dark_signal.
+    # strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
+
+
+
 
     return strh5
 
@@ -1375,7 +1411,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
 
 ######################################################################################
 def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, fracblurr=0, 
-                   irrad_scale=0, wavelength=0.55e-6):
+                   irrad_scale=0, irrad_min=0, wavelength=0.55e-6, steps=10):
     r"""This routine performs makes a simple illuminated circle with blurred boundaries.
 
     Then the  sensor's radiant irradiance in units [W/m2] are converted to  
@@ -1395,13 +1431,15 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
 
     Args:
         | imageName (string): the image name, used to form the filename
-        | imtype (string): string to define the type if image to be created ['zeros','disk']
+        | imtype (string): string to define the type if image to be created ['zeros','disk','stairslin','stairslog']
         | pixelPitch ([float, float]):  detector pitch in m [row,col]
         | numPixels ([int, int]): number of pixels [row,col]
         | fracdiameter (float):  diameter of the disk as fraction of minimum image size
         | fracblurr (float):   blurr of the disk as fraction of minimum image size
         | irrad_scale (float): multiplicative scale factor (max value)
+        | irrad_min (float): additive minimum value in the image
         | wavelength (float): wavelength where photon rate calcs are done in [m]
+        | steps (int): number of steps in the stairs image
 
     Returns:
         | nothing: as a side effect an image file is written
@@ -1414,9 +1452,8 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
 
     hdffilename = 'image-{}-{}-{}.hdf5'.format(imageName, numPixels[0], numPixels[1])
     imghd5 = ryfiles.erase_create_HDF(hdffilename)
-    imghd5['image/imageName'] = imageName
-    imghd5['image/imageFilename'] = hdffilename
     imghd5['image/imageSizePixels'] = numPixels
+    imghd5['image/wavelength'] = wavelength
     imghd5['image/pixelPitch'] = pixelPitch
     imghd5['image/imageSizeRows'] = pixelPitch[0] * numPixels[0]
     imghd5['image/imageSizeCols'] = pixelPitch[0] * numPixels[0]
@@ -1427,20 +1464,31 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
     x1, y1 = np.meshgrid(varx, vary)
 
     if imtype in ['zeros']:
-        imghd5['image/PhotonRateIrradiance'] = np.zeros((x1.shape))
+        imghd5['image/imageName'] = imageName
+        imghd5['image/imageFilename'] = hdffilename
+        imghd5['image/iradianceLux'] = 0
 
+        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset[...] = np.zeros((x1.shape))
+        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
+        dset[...] = np.zeros((x1.shape))
+        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
+        dset[...] = np.zeros((x1.shape))
+        
     elif imtype in ['disk']:
 
         minSize = np.min(imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeRows'].value)
+        imghd5['image/imageName'] = imageName
+        imghd5['image/imageFilename'] = hdffilename
         imghd5['image/disk_diameter'] = fracdiameter * minSize
         imghd5['image/blurr'] = fracblurr * minSize
         imghd5['image/irrad_scale'] = irrad_scale 
-
+        imghd5['image/irrad_min'] = irrad_min 
 
         delta_x = varx[1] - varx[0]
         delta_y = vary[1] - vary[0]
 
-        Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) * imghd5['image/irrad_scale'].value
+        Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value
 
         dia = max(1, 2 * round(imghd5['image/blurr'].value / np.max(delta_x,delta_y)))
         varx = np.linspace(-dia, dia, 2 * dia)
@@ -1449,16 +1497,67 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         H = ryutils.circ(x, y, dia)
         Ein = (np.abs(signal.convolve2d(Uin, H, mode='same'))/np.sum(H))  ** 2
 
+        #photon rate irradiance lux, with no  noise
+        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
+
         #Power in a single photon, in [Joule = Watt*s]
         P_photon = const.h * const.c / wavelength
 
         #convert to photon rate irradiance
         Ein = Ein / P_photon
         
+        #photon rate irradiance in the image ph/(m2.s), with no photon noise
+        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
+        dset[...] = Ein
         #photon rate irradiance in the image ph/(m2.s), adding photon noise
-        photonRateIrradiance = shotnoise(Ein) 
+        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
+        dset[...] = shotnoise(Ein) 
+        
+    elif imtype in ['stairslin','stairslog']:
+        #this section creates a stair-case signal increasing from irrad_min to irrad_scale+irrad_min
+        imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
+        imghd5['image/imageFilename'] = hdffilename
+        imghd5['image/irrad_scale'] = irrad_scale 
+        imghd5['image/irrad_min'] = irrad_min 
+        imghd5['image/steps'] = steps 
 
-        imghd5['image/PhotonRateIrradiance'] = photonRateIrradiance
+        size = imghd5['image/imageSizePixels'].value[1]
+
+        if imtype in ['stairslin']:
+            varx = np.linspace(0,size-1,size)
+        else:
+            varx = np.logspace(-1,np.log10(size-1),size)
+        varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
+        varx = varx / np.max(varx) 
+
+        vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
+
+        x, y = np.meshgrid(varx,vary)
+
+        Ein = x * np.ones(x.shape) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value 
+        Ein *= np.where(y<-imghd5['image/imageSizeRows'].value/3.,0, 1)
+        Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
+
+        #photon rate irradiance lux, with no  noise
+        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
+
+        #Power in a single photon, in [Joule = Watt*s]
+        P_photon = const.h * const.c / wavelength
+
+        #convert to photon rate irradiance
+        Ein = Ein / P_photon
+        
+        #photon rate irradiance in the image ph/(m2.s), with no photon noise
+        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
+        dset[...] = Ein
+        #photon rate irradiance in the image ph/(m2.s), adding photon noise
+        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
+        dset[...] = shotnoise(Ein) 
+
+        # imghd5['image/PhotonRateIrradianceNoNoise'][...] = Ein
+        # imghd5['image/PhotonRateIrradiance'][...] = shotnoise(Ein) 
 
     imghd5.flush()
     imghd5.close()
@@ -2096,11 +2195,11 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     # Light Noise parameters
     strh5['rystare/flag/photonshotnoise'] = True #photon shot noise.
     # photo response non-uniformity noise (PRNU), or also called light Fixed Pattern Noise (light FPN)
-    strh5['rystare/flag/PRNU'] = True
-    strh5['rystare/noise/PRNU/seed'] = 362436069
-    strh5['rystare/noise/PRNU/model'] = 'Janesick-Gaussian' 
-    strh5['rystare/noise/PRNU/parameters'] = [] # see matlab filter or scipy lfilter functions for details
-    strh5['rystare/noise/PRNU/factor'] = 0.01 # PRNU factor in percent [typically about 1\% for CCD and up to 5% for CMOS];
+    strh5['rystare/signal/responseNU/flag'] = True
+    strh5['rystare/signal/responseNU/seed'] = 362436069
+    strh5['rystare/signal/responseNU/model'] = 'Janesick-Gaussian' 
+    strh5['rystare/signal/responseNU/parameters'] = [] # see matlab filter or scipy lfilter functions for details
+    strh5['rystare/signal/responseNU/factor'] = 0.01 # PRNU factor in percent [typically about 1\% for CCD and up to 5% for CMOS];
 
     # Dark Current Noise parameters
     strh5['rystare/flag/darkcurrent'] = True
@@ -2116,32 +2215,32 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     #dark current Fixed Pattern Noise 
     strh5['rystare/flag/DarkCurrentDarkFPN-Pixel'] = True
     # Janesick's book: dark current FPN quality factor is typically between 10\% and 40\% for CCD and CMOS sensors
-    strh5['rystare/noise/darkFPN/DN'] = 0.3 
-    strh5['rystare/noise/darkFPN/seed'] = 362436128
-    strh5['rystare/noise/darkFPN/limitnegative'] = True # only used with 'Janesick-Gaussian' 
+    strh5['rystare/dark/responseNU/DN'] = 0.3 #sigma for dark current signal generation spread 
+    strh5['rystare/dark/responseNU/seed'] = 362436128
+    strh5['rystare/dark/responseNU/limitnegative'] = True # only used with 'Janesick-Gaussian' 
 
     if doTest in ['Simple']:
-        strh5['rystare/noise/darkFPN/model'] = 'Janesick-Gaussian' 
-        strh5['rystare/noise/darkFPN/parameters'] = [];   # see matlab filter or scipy lfilter functions for details
+        strh5['rystare/dark/responseNU/model'] = 'Janesick-Gaussian' 
+        strh5['rystare/dark/responseNU/parameters'] = [];   # see matlab filter or scipy lfilter functions for details
     elif  doTest in ['Advanced']:
-        strh5['rystare/noise/darkFPN/model'] = 'LogNormal' #suitable for long exposures
-        strh5['rystare/noise/darkFPN/parameters'] = [0., 0.4] #first is lognorm_mu; second is lognorm_sigma.
+        strh5['rystare/dark/responseNU/model'] = 'LogNormal' #suitable for long exposures
+        strh5['rystare/dark/responseNU/parameters'] = [0., 0.4] #first is lognorm_mu; second is lognorm_sigma.
     else:
         pass
 
     # #alternative model
-    # strh5['rystare/noise/darkFPN/model']  = 'Wald'
-    # strh5['rystare/noise/darkFPN/parameters']  = 2. #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
+    # strh5['rystare/dark/responseNU/model']  = 'Wald'
+    # strh5['rystare/dark/responseNU/parameters']  = 2. #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
 
     # #alternative model
-    # strh5['rystare/noise/darkFPN/model']  = 'AR-ElGamal'
-    # strh5['rystare/noise/darkFPN/parameters']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
+    # strh5['rystare/dark/responseNU/model']  = 'AR-ElGamal'
+    # strh5['rystare/dark/responseNU/parameters']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
 
     #dark current Offset Fixed Pattern Noise 
-    strh5['rystare/flag/darkcurrent_offsetFPN'] = True
-    strh5['rystare/noise/darkFPN_offset/model'] = 'Janesick-Gaussian'
-    strh5['rystare/noise/darkFPN_offset/parameters'] = [] # see matlab filter or scipy lfilter functions for details
-    strh5['rystare/noise/darkFPN_offset/DNcolumn'] = 0.0005 # percentage of (V_REF - V_SN)
+    strh5['rystare/darkoffset/NU/flag'] = True
+    strh5['rystare/darkoffset/NU/model'] = 'Janesick-Gaussian'
+    strh5['rystare/darkoffset/NU/parameters'] = [] # see matlab filter or scipy lfilter functions for details
+    strh5['rystare/darkoffset/NU/DNcolumn'] = 0.0005 # percentage of (V_REF - V_SN)
 
     # Source Follower VV non-linearity
     strh5['rystare/flag/VVnonlinearity'] = False
@@ -2224,21 +2323,21 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
     if doPlots:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
-                   'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/PRNU/nonuniformity',
-                   'rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
+                   'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/signal/responseNU/nonuniformity',
+                   'rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
         # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
         ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
 
     if doHisto:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark',
-                   'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
+                   'rystare/signal/responseNU/nonuniformity','rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
     if doImages:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotonRate', 'rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                     'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/noisematrix','rystare/noise/sf/source_follower_noise',
-                    'rystare/noise/PRNU/nonuniformity','rystare/noise/darkFPN/nonuniformity','rystare/QuantumEfficiency']
+                    'rystare/signal/responseNU/nonuniformity','rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
 
     strh5.flush()
@@ -2264,6 +2363,8 @@ if __name__ == '__main__':
 
     #----------  create test images ---------------------
     if doAll:
+        pass
+
         numPixels = [256, 256]  # [ROW, COLUMN] size
         pixelPitch = [5e-6, 5e-6] # pixels pitch, in [m], [ROW, COLUMN] 
 
@@ -2273,6 +2374,14 @@ if __name__ == '__main__':
         #create an image with a blurred disk
         create_HDF5_image(imageName='Disk', imtype='disk', pixelPitch=pixelPitch,
                 numPixels=numPixels, fracdiameter=0.7, fracblurr=0.2, irrad_scale=0.1)
+
+        #create an image with linear stairs
+        create_HDF5_image(imageName='Stairslin-10', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
+                numPixels=[250, 250], irrad_scale=37.04e-3, irrad_min=74.08e-6)
+
+        #create an image with log stairs
+        create_HDF5_image(imageName='Stairslin-40', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
+                numPixels=[100,520], irrad_scale=37.04e-3, irrad_min=74.08e-6, steps=40)
 
 
     #----------  test the limitzero function ---------------------

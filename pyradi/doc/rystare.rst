@@ -13,7 +13,7 @@ signal components along the signal flow chain.
 The code in this module serves as an example of implementation of a high-level 
 CCD/CMOS photosensor signal chain model. The model is described in the article 
 'High-level numerical simulations of noise in solid-state photosensors:  
-review and tutorial' by Mikhail Konnik and James Welsh. 
+review and tutorial' by Mikhail Konnik and James Welsh, arXiv:1412.4031v1 [astro-ph.IM]. 
 The code was originally written in Matlab and used for the Adaptive Optics 
 simulations and study of noise propagation in wavefront sensors, but can be 
 used for many other applications involving light registration on CCD/CMOS
