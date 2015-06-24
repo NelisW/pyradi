@@ -288,19 +288,19 @@ def cds(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
     
+
     if strh5['rystare/SensorType'].value in 'CMOS':  
         #If the sensor is CMOS and the Column FPN is on  - add the column FPN noise  (CMOS only!)
         if strh5['rystare/darkoffset/NU/flag'].value: 
-
-            strh5['rystare/darkoffset/NU/noisematrix'][...] = FPN_models(strh5, strh5['rystare/imageSizePixels'].value[0],
-                strh5['rystare/imageSizePixels'].value[1],char('column'),strh5['rystare/darkoffset/NU/model'].value,None)
-
             # add pixel FPN dark noise.
-            # strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value.dot((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/spread'].value)))      # add pixel FPN dark noise.
-            strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * \
-                ((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * \
-                    (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/spread'].value)))      
+            sigma = strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/spread'].value
+            noisematrix = FPN_models(strh5['rystare/imageSizePixels'].value[0],
+                strh5['rystare/imageSizePixels'].value[1], char('column'), strh5['rystare/darkoffset/NU/model'].value, sigma)
 
+            strh5['rystare/darkoffset/NU/value'][...] = (1 + noisematrix) 
+
+    strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * strh5['rystare/darkoffset/NU/value'].value
+                     
     # strh5['rystare/SignalVoltage'][...] = (strh5['rystare/SignalVoltage'].value).dot((strh5['rystare/A_CDS))
     strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * strh5['rystare/CDS-Gain']
 
@@ -586,21 +586,21 @@ def sense_node_chargetovoltage(strh5):
             #     strh5['rystare/SignalVoltage'][...] = \
             #        (strh5['rystare/SenseResetVref'].value + \
             #         strh5['rystare/noise/sn/ResetFactor'].value * \
-            #         strh5['rystare/noise/sn_reset/noisematrix'].value).dot((np.exp(- strh5['rystare/nonlinearity/A_SNratio'].value * \
+            #         strh5['rystare/noise/sn_reset/resetnoise'].value).dot((np.exp(- strh5['rystare/nonlinearity/A_SNratio'].value * \
             #             strh5['rystare/q'].value * strh5['rystare/SignalElectrons'].value / strh5['rystare/k1'].value)))
             if strh5['rystare/flag/Venonlinearity'].value:
                 strh5['rystare/SignalVoltage'][...] = \
                    ( \
                     strh5['rystare/SenseResetVref'].value + \
                     strh5['rystare/noise/sn/ResetFactor'].value * \
-                    strh5['rystare/noise/sn_reset/noisematrix'].value\
+                    strh5['rystare/noise/sn_reset/resetnoise'].value\
                     ) * \
                    ((np.exp(- strh5['rystare/nonlinearity/A_SNratio'].value * \
                         strh5['rystare/q'].value * strh5['rystare/SignalElectrons'].value / strh5['rystare/k1'].value)))
             else:
                 strh5['rystare/SignalVoltage'][...] = \
                    ( \
-                   strh5['rystare/SenseResetVref'].value + strh5['rystare/noise/sn/ResetFactor'].value * strh5['rystare/noise/sn_reset/noisematrix'].value \
+                   strh5['rystare/SenseResetVref'].value + strh5['rystare/noise/sn/ResetFactor'].value * strh5['rystare/noise/sn_reset/resetnoise'].value \
                     ) - (strh5['rystare/SignalElectrons'].value * strh5['rystare/SenseNodeGain'].value)
 
         else:
@@ -689,7 +689,7 @@ def sense_node_reset_noise(strh5):
     np.random.seed(None)
 
     # Soft-Reset case for the CMOS sensor
-    strh5['rystare/noise/sn_reset/noisematrix'][...] = np.exp(strh5['rystare/noise/sn/ResetKTC-Sigma'].value * np.random.randn(strh5['rystare/imageSizePixels'].value)) - 1.   
+    strh5['rystare/noise/sn_reset/resetnoise'][...] = np.exp(strh5['rystare/noise/sn/ResetKTC-Sigma'].value * np.random.randn(strh5['rystare/imageSizePixels'].value)) - 1.   
 
     return strh5
 
@@ -971,12 +971,12 @@ def create_data_arrays(strh5):
     strh5['rystare/signalLight'] = np.zeros(sensor_size)
     strh5['rystare/SignalVoltage'] = np.zeros(sensor_size)
     strh5['rystare/SignalDN'] = np.zeros(sensor_size) 
-    # strh5['rystare/signal/responseNU/noisematrix'] = np.zeros(sensor_size) 
     strh5['rystare/signal/responseNU/nonuniformity'] = np.zeros(sensor_size) 
-    # strh5['rystare/dark/responseNU/noisematrix'] = np.zeros(sensor_size) 
-    strh5['rystare/dark/responseNU/nonuniformity'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/sn_reset/noisematrix'] = np.zeros(sensor_size) 
+    strh5['rystare/darkresponse/NU/value'] = np.zeros(sensor_size) 
+    strh5['rystare/noise/sn_reset/resetnoise'] = np.zeros(sensor_size) 
     strh5['rystare/noise/sf/source_follower_noise'] = np.zeros(sensor_size)
+    strh5['rystare/darkoffset/NU/value'] = np.ones(sensor_size) 
+
 
     strh5['rystare/noise/sf/sigma_SF'] = np.zeros((1,1)) 
 
@@ -1131,7 +1131,7 @@ def responsivity_FPN_light(strh5):
         'pixel', strh5['rystare/signal/responseNU/model'].value, strh5['rystare/signal/responseNU/spread'].value)
 
     #np.random.randn has mean=0, variance = 1, so we multiply with variance and add to mean
-    strh5['rystare/signal/responseNU/nonuniformity'][...] = (1 + normalisedVariation * strh5['rystare/signal/responseNU/spread'].value)
+    strh5['rystare/signal/responseNU/nonuniformity'][...] = (1 + normalisedVariation)
 
     #apply the PRNU noise to the light signal of the photosensor.
     strh5['rystare/signalLight'][...] = strh5['rystare/signalLight'].value * strh5['rystare/signal/responseNU/nonuniformity'].value
@@ -1221,43 +1221,37 @@ def responsivity_FPN_dark(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-# if (gaussnose)
-#              ccd.dark_signal = ccd.dark_signal.*(1 +(ccd.noise.darkFPN.DN)*(ccd.noise.darkFPN.noisematrix));
-# else
-#              ccd.dark_signal = ccd.dark_signal.*(1 + ccd.noise.darkFPN.noisematrix);
-# end
-
     #get the initial deviation from the mean    
 
     #handle gauss and nongaussian different
-    if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
-        if 'rystare/dark/responseNU/filter_params' in strh5:
-            filter_params = strh5['rystare/dark/responseNU/filter_params'].value
+    if strh5['rystare/darkresponse/NU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
+        if 'rystare/darkresponse/NU/filter_params' in strh5:
+            filter_params = strh5['rystare/darkresponse/NU/filter_params'].value
         else:
             filter_params = None
         
         darksignalnoisematrix = FPN_models(
             strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/spread'].value,
+            'pixel', strh5['rystare/darkresponse/NU/model'].value, strh5['rystare/darkresponse/NU/spread'].value,
             filter_params=filter_params)
 
-        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/spread'].value * darksignalnoisematrix)
+        strh5['rystare/darkresponse/NU/value'][...] = (1 + darksignalnoisematrix)
         #gaussian noise values may be negative, here we limit them if desired
         #only 'Janesick-Gaussian' was tested, 'AR-ElGamal' limitnegative not yet tested, so negative-going values are allowed.
-        if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
-            if strh5['rystare/dark/responseNU/limitnegative'].value:
-                strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6) 
+        if strh5['rystare/darkresponse/NU/model'].value in ['Janesick-Gaussian']:
+            if strh5['rystare/darkresponse/NU/limitnegative'].value:
+                strh5['rystare/darkresponse/NU/value'][...] = limitzero(strh5['rystare/darkresponse/NU/value'].value, thr=0.6) 
 
     #this would be Wald and lognormal
     else:
         darksignalnoisematrix = FPN_models(
             strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/spread'].value)
-        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + darksignalnoisematrix)
+            'pixel', strh5['rystare/darkresponse/NU/model'].value, strh5['rystare/darkresponse/NU/spread'].value)
+        strh5['rystare/darkresponse/NU/value'][...] = (1 + darksignalnoisematrix)
 
 
     #apply the darkFPN noise to the dark_signal.
-    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
+    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/darkresponse/NU/value'].value
 
     return strh5
 
@@ -1361,7 +1355,12 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
             # noiseout = repmat_(x,sensor_signal_rows,1) # making PRNU as a ROW-repeated noise, just like light FPN
             noiseout = np.tile(x, (sensor_signal_rows, 1)) # making PRNU as a ROW-repeated noise, just like light FPN
 
-    elif noisedistribution in ['Janesick-Gaussian']:    #Janesick-Gaussian FPN model np.random.randn has mean=0, variance = 1
+    elif noisedistribution in ['Janesick-Gaussian']:    
+        #Janesick-Gaussian FPN model np.random.randn has mean=0, variance = 1
+        #multiply with spread to get stddev equal to spread
+        if spread is None:
+            print('When using Janesick-Gaussian the spread must be defined')
+            exit(-1)
 
         if noisetype in ['pixel']:
             noiseout = np.random.randn(sensor_signal_rows,sensor_signal_columns)  # here y is observed (filtered) signal. Any WSS process y[n] can be of
@@ -1373,8 +1372,13 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
         if noisetype in ['row']:
             x = np.random.randn(sensor_signal_rows,1)  #dark FPN [e] <------ Konnik
             noiseout = np.tile(x, (1, sensor_signal_columns))  #making PRNU as a ROW-repeated noise, just like light FPN
+            
+        noiseout = noiseout * spread    
       
     elif noisedistribution in ['Wald']:  # Wald FPN model
+        if spread is None:
+            print('When using Wald the spread must be defined')
+            exit(-1)
 
         if noisetype in ['pixel']:
             noiseout = distributions_generator('wald',spread,[sensor_signal_rows,sensor_signal_columns]) + np.random.randn(sensor_signal_rows,sensor_signal_columns)
@@ -1384,6 +1388,9 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
             noiseout = np.tile(x, (sensor_signal_rows, 1))  #making PRNU as a ROW-repeated noise, just like light FPN
 
     elif noisedistribution in ['LogNormal']:
+        if spread is None:
+            print('When using LogNormal the spread must be defined')
+            exit(-1)
 
         if noisetype in ['pixel']:
             noiseout = distributions_generator('lognorm',[0.0,spread],[sensor_signal_rows,sensor_signal_columns])
@@ -2200,25 +2207,25 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     #dark current Fixed Pattern Noise 
     strh5['rystare/flag/DarkCurrentDarkFPN-Pixel'] = True
     # Janesick's book: dark current FPN quality factor is typically between 10\% and 40\% for CCD and CMOS sensors
-    strh5['rystare/dark/responseNU/seed'] = 362436128
-    strh5['rystare/dark/responseNU/limitnegative'] = True # only used with 'Janesick-Gaussian' 
+    strh5['rystare/darkresponse/NU/seed'] = 362436128
+    strh5['rystare/darkresponse/NU/limitnegative'] = True # only used with 'Janesick-Gaussian' 
 
     if doTest in ['Simple']:
-        strh5['rystare/dark/responseNU/model'] = 'Janesick-Gaussian' 
-        strh5['rystare/dark/responseNU/spread'] =  0.3 #0.3-0.4 sigma for dark current signal (Janesick's book)
+        strh5['rystare/darkresponse/NU/model'] = 'Janesick-Gaussian' 
+        strh5['rystare/darkresponse/NU/spread'] =  0.3 #0.3-0.4 sigma for dark current signal (Janesick's book)
     elif  doTest in ['Advanced']:
-        strh5['rystare/dark/responseNU/model'] = 'LogNormal' #suitable for long exposures
-        strh5['rystare/dark/responseNU/spread'] = 0.4 # lognorm_sigma.
+        strh5['rystare/darkresponse/NU/model'] = 'LogNormal' #suitable for long exposures
+        strh5['rystare/darkresponse/NU/spread'] = 0.4 # lognorm_sigma.
     else:
         pass
 
     # #alternative model
-    # strh5['rystare/dark/responseNU/model']  = 'Wald'
-    # strh5['rystare/dark/responseNU/spread']  = 2.0 #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
+    # strh5['rystare/darkresponse/NU/model']  = 'Wald'
+    # strh5['rystare/darkresponse/NU/spread']  = 2.0 #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
 
     # #alternative model
-    # strh5['rystare/dark/responseNU/model']  = 'AR-ElGamal'
-    # strh5['rystare/dark/responseNU/filter_params']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
+    # strh5['rystare/darkresponse/NU/model']  = 'AR-ElGamal'
+    # strh5['rystare/darkresponse/NU/filter_params']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
 
     #dark current Offset Fixed Pattern Noise 
     strh5['rystare/darkoffset/NU/flag'] = True
@@ -2307,20 +2314,20 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     if doPlots:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/signal/responseNU/nonuniformity',
-                   'rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
+                   'rystare/darkresponse/NU/value','rystare/QuantumEfficiency']
         # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
         ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
 
     if doHisto:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark',
-                   'rystare/signal/responseNU/nonuniformity','rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
+                   'rystare/signal/responseNU/nonuniformity','rystare/darkresponse/NU/value','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
     if doImages:
         lstimgs = ['rystare/SignalPhotonRateIrradiance','rystare/SignalPhotonRate', 'rystare/SignalPhotons','rystare/SignalElectrons','rystare/SignalVoltage',
-                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/noisematrix','rystare/noise/sf/source_follower_noise',
-                    'rystare/signal/responseNU/nonuniformity','rystare/dark/responseNU/nonuniformity','rystare/QuantumEfficiency']
+                    'rystare/SignalDN','rystare/signalLight','rystare/signalDark', 'rystare/noise/sn_reset/resetnoise','rystare/noise/sf/source_follower_noise',
+                    'rystare/signal/responseNU/nonuniformity','rystare/darkresponse/NU/value','rystare/QuantumEfficiency']
         ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
 
     strh5.flush()
