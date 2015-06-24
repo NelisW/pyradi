@@ -1222,24 +1222,6 @@ def responsivity_FPN_dark(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-    #the random generator seed is fixed
-    np.random.seed(strh5['rystare/dark/responseNU/seed'].value)
-
-    darksignalnoisematrix = FPN_models(
-        strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-        'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
-    
-    strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
-
-    #gaussian noise values may be negative, here we limit them if desired
-    if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
-        if strh5['rystare/dark/responseNU/limitnegative'].value:
-            strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6)       
-
-    #apply the darkFPN noise to the dark_signal.
-    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
-
-
 # if (gaussnose)
 #              ccd.dark_signal = ccd.dark_signal.*(1 +(ccd.noise.darkFPN.DN)*(ccd.noise.darkFPN.noisematrix));
 # else
@@ -1248,32 +1230,29 @@ def responsivity_FPN_dark(strh5):
 
     #get the initial deviation from the mean    
 
-    # #handle gauss and nongaussian different
-    # if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
-    #     darksignalnoisematrix = FPN_models(
-    #         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-    #         'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+    #handle gauss and nongaussian different
+    if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
+        darksignalnoisematrix = FPN_models(
+            strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
+            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
 
-    #     strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
-    #     #gaussian noise values may be negative, here we limit them if desired
-    #     #only 'Janesick-Gaussian' was tested, 'AR-ElGamal' limitnegative not yet tested, so negative-going values are allowed.
-    #     if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
-    #         if strh5['rystare/dark/responseNU/limitnegative'].value:
-    #             strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6) 
+        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
+        #gaussian noise values may be negative, here we limit them if desired
+        #only 'Janesick-Gaussian' was tested, 'AR-ElGamal' limitnegative not yet tested, so negative-going values are allowed.
+        if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
+            if strh5['rystare/dark/responseNU/limitnegative'].value:
+                strh5['rystare/dark/responseNU/nonuniformity'][...] = limitzero(strh5['rystare/dark/responseNU/nonuniformity'].value, thr=0.6) 
 
-    # #this would be Wald andlognormal
-    # else:
-    #     darksignalnoisematrix = FPN_models(
-    #         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-    #         'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
-    #     strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + darksignalnoisematrix)
-
-
-    # #apply the darkFPN noise to the dark_signal.
-    # strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
+    #this would be Wald and lognormal
+    else:
+        darksignalnoisematrix = FPN_models(
+            strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
+            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + darksignalnoisematrix)
 
 
-
+    #apply the darkFPN noise to the dark_signal.
+    strh5['rystare/signalDark'][...] = strh5['rystare/signalDark'].value * strh5['rystare/dark/responseNU/nonuniformity'].value
 
     return strh5
 
