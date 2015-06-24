@@ -395,7 +395,7 @@ HDF5 File
 The Python implementation of the model uses an HDF5 file to capture the
 input and output data for record keeping or subsequent analysis. 
 HDF5 files provide for hierarchical data structures and easy read/save to disk. 
-See the file `hdf5-as-data-format.md` for more detail.
+See the file `hdf5-as-data-format.md` ([hdf5asdataformat]_) in the pyradi root directory for more detail.
 
 Input images are written to and read from HDF5 files as well.  These files store the
 image as well as the images' dimensional scaling in the focal plane.  
@@ -468,4 +468,5 @@ Module functions
 .. autofunction:: pyradi.rystare.run_example
 
 
+.. [hdf5asdataformat] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
 

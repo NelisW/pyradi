@@ -293,14 +293,13 @@ def cds(strh5):
         if strh5['rystare/darkoffset/NU/flag'].value: 
 
             strh5['rystare/darkoffset/NU/noisematrix'][...] = FPN_models(strh5, strh5['rystare/imageSizePixels'].value[0],
-                strh5['rystare/imageSizePixels'].value[1],char('column'),strh5['rystare/darkoffset/NU/model'].value,
-                strh5['rystare/darkoffset/NU/parameters'].value)
+                strh5['rystare/imageSizePixels'].value[1],char('column'),strh5['rystare/darkoffset/NU/model'].value,None)
 
             # add pixel FPN dark noise.
-            # strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value.dot((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/DNcolumn'].value)))      # add pixel FPN dark noise.
+            # strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value.dot((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/spread'].value)))      # add pixel FPN dark noise.
             strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * \
-                ((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * (strh5['rystare/sn/V-FW'].value * \
-                strh5['rystare/darkoffset/NU/DNcolumn'].value)))      
+                ((1 + strh5['rystare/darkoffset/NU/noisematrix'].value * \
+                    (strh5['rystare/sn/V-FW'].value * strh5['rystare/darkoffset/NU/spread'].value)))      
 
     # strh5['rystare/SignalVoltage'][...] = (strh5['rystare/SignalVoltage'].value).dot((strh5['rystare/A_CDS))
     strh5['rystare/SignalVoltage'][...] = strh5['rystare/SignalVoltage'].value * strh5['rystare/CDS-Gain']
@@ -1129,10 +1128,10 @@ def responsivity_FPN_light(strh5):
     #matrix for the PRNU
     normalisedVariation = FPN_models(
         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-        'pixel', strh5['rystare/signal/responseNU/model'].value, strh5['rystare/signal/responseNU/parameters'].value)
+        'pixel', strh5['rystare/signal/responseNU/model'].value, strh5['rystare/signal/responseNU/spread'].value)
 
     #np.random.randn has mean=0, variance = 1, so we multiply with variance and add to mean
-    strh5['rystare/signal/responseNU/nonuniformity'][...] = (1 + normalisedVariation * strh5['rystare/signal/responseNU/factor'].value)
+    strh5['rystare/signal/responseNU/nonuniformity'][...] = (1 + normalisedVariation * strh5['rystare/signal/responseNU/spread'].value)
 
     #apply the PRNU noise to the light signal of the photosensor.
     strh5['rystare/signalLight'][...] = strh5['rystare/signalLight'].value * strh5['rystare/signal/responseNU/nonuniformity'].value
@@ -1232,11 +1231,17 @@ def responsivity_FPN_dark(strh5):
 
     #handle gauss and nongaussian different
     if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian', 'AR-ElGamal']:
+        if 'rystare/dark/responseNU/filter_params' in strh5:
+            filter_params = strh5['rystare/dark/responseNU/filter_params'].value
+        else:
+            filter_params = None
+        
         darksignalnoisematrix = FPN_models(
             strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/spread'].value,
+            filter_params=filter_params)
 
-        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/DN'].value * darksignalnoisematrix)
+        strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + strh5['rystare/dark/responseNU/spread'].value * darksignalnoisematrix)
         #gaussian noise values may be negative, here we limit them if desired
         #only 'Janesick-Gaussian' was tested, 'AR-ElGamal' limitnegative not yet tested, so negative-going values are allowed.
         if strh5['rystare/dark/responseNU/model'].value in ['Janesick-Gaussian']:
@@ -1247,7 +1252,7 @@ def responsivity_FPN_dark(strh5):
     else:
         darksignalnoisematrix = FPN_models(
             strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
-            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/parameters'].value)
+            'pixel', strh5['rystare/dark/responseNU/model'].value, strh5['rystare/dark/responseNU/spread'].value)
         strh5['rystare/dark/responseNU/nonuniformity'][...] = (1 + darksignalnoisematrix)
 
 
@@ -1258,7 +1263,8 @@ def responsivity_FPN_dark(strh5):
 
 
 ######################################################################################################
-def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistribution, noise_params):
+def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistribution, 
+           spread, filter_params=None):
     r"""The routine contains various models on simulation of Fixed Pattern Noise.
 
     There are many models for simulation of the FPN: some of the models are suitable
@@ -1322,9 +1328,10 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     Args:
         | sensor_signal_rows(int): number of rows in the signal matrix
         | sensor_signal_columns(int): number of columns in the signal matrix
-        | noisetype(int): type of noise to generate: valid are 'pixel' or 'column'
-        | noisedistribution(int): the probability distribution name
-        | noise_params(int): a vector of parameters for the probability distribution name
+        | noisetype(string): type of noise to generate: ['pixel' or 'column']
+        | noisedistribution(string): the probability distribution name ['AR-ElGamal', 'Janesick-Gaussian', 'Wald', 'LogNormal']
+        | spread(float): spread around mean value (sigma/chi.lambda) for the probability distribution
+        | filter_params([nd.array]): a vector of parameters for the probability filter
  
     Returns:
         | noiseout (np.array[N,M]): generated noise of FPN.
@@ -1338,17 +1345,17 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     """
 
     if noisedistribution in ['AR-ElGamal']: # AR-ElGamal FPN model
-        if len(noise_params) == 0:
+        if not filter_params:
             print('When using AR-ElGamal the filter parameters must be defined')
             exit(-1)
         if noisetype in ['pixel']:
             x2 = np.random.randn(sensor_signal_rows, sensor_signal_columns) # uniformly distributed White Gaussian Noise.
             #Matlab's filter operates on the first dimension of the array, while scipy.signal.lfilter by default operates on the the last dimension.
             # http://stackoverflow.com/questions/16936558/matlab-filter-not-compatible-with-python-lfilter
-            noiseout = sp.signal.lfilter(1,noise_params,x2,axis=0)  # here y is observed (filtered) signal. Any WSS process y[n] can be of
+            noiseout = sp.signal.lfilter(1,filter_params,x2,axis=0)  # here y is observed (filtered) signal. Any WSS process y[n] can be of
 
         if noisetype in ['column']:
-            x = sp.signal.lfilter(1, noise_params, np.random.randn(1, sensor_signal_columns))    # AR(1) model
+            x = sp.signal.lfilter(1, filter_params, np.random.randn(1, sensor_signal_columns))    # AR(1) model
             # numpy equivalent of matlab repmat(a, m, n) is tile(a, (m, n))
             # http://stackoverflow.com/questions/1721802/what-is-the-equivalent-of-matlabs-repmat-in-numpy
             # noiseout = repmat_(x,sensor_signal_rows,1) # making PRNU as a ROW-repeated noise, just like light FPN
@@ -1370,19 +1377,19 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     elif noisedistribution in ['Wald']:  # Wald FPN model
 
         if noisetype in ['pixel']:
-            noiseout = distributions_generator('wald',noise_params[0],[sensor_signal_rows,sensor_signal_columns]) + np.random.randn(sensor_signal_rows,sensor_signal_columns)
+            noiseout = distributions_generator('wald',spread,[sensor_signal_rows,sensor_signal_columns]) + np.random.randn(sensor_signal_rows,sensor_signal_columns)
 
         if noisetype in ['column']:
-            x = distributions_generator('wald',noise_params[0],[1,sensor_signal_columns]) + np.random.randn(1,sensor_signal_columns)
+            x = distributions_generator('wald',spread,[1,sensor_signal_columns]) + np.random.randn(1,sensor_signal_columns)
             noiseout = np.tile(x, (sensor_signal_rows, 1))  #making PRNU as a ROW-repeated noise, just like light FPN
 
     elif noisedistribution in ['LogNormal']:
 
         if noisetype in ['pixel']:
-            noiseout = distributions_generator('lognorm',[noise_params[0],noise_params[1]],[sensor_signal_rows,sensor_signal_columns])
+            noiseout = distributions_generator('lognorm',[0.0,spread],[sensor_signal_rows,sensor_signal_columns])
 
         if noisetype in ['column']:
-            x = distributions_generator('lognorm',[noise_params[0],noise_params[1]],[1,sensor_signal_columns])
+            x = distributions_generator('lognorm',[0.0,spread],[1,sensor_signal_columns])
             noiseout = np.tile(x, (sensor_signal_rows, 1))
 
 
@@ -1909,7 +1916,7 @@ def distribution_wald(distribParams, out, funcName):
         chi = distribParams[0]
         if validateParam(funcName,'Wald','wald','chi','chi',chi,[str('> 0')]):
             # out = feval_(funcName,'ig',[1,chi],*out.shape)
-            out = distributions_generator('ig', [1, lam], [1, numdp])
+            out = distributions_generator('ig', [1, chi], sampleSize=out.shape)
 
     return out
 
@@ -2177,8 +2184,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/signal/responseNU/flag'] = True
     strh5['rystare/signal/responseNU/seed'] = 362436069
     strh5['rystare/signal/responseNU/model'] = 'Janesick-Gaussian' 
-    strh5['rystare/signal/responseNU/parameters'] = [] # see matlab filter or scipy lfilter functions for details
-    strh5['rystare/signal/responseNU/factor'] = 0.01 # PRNU factor in percent [typically about 1\% for CCD and up to 5% for CMOS];
+    strh5['rystare/signal/responseNU/spread'] = 0.01 # sigma [about 1\% for CCD and up to 5% for CMOS]
 
     # Dark Current Noise parameters
     strh5['rystare/flag/darkcurrent'] = True
@@ -2194,32 +2200,30 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     #dark current Fixed Pattern Noise 
     strh5['rystare/flag/DarkCurrentDarkFPN-Pixel'] = True
     # Janesick's book: dark current FPN quality factor is typically between 10\% and 40\% for CCD and CMOS sensors
-    strh5['rystare/dark/responseNU/DN'] = 0.3 #sigma for dark current signal generation spread 
     strh5['rystare/dark/responseNU/seed'] = 362436128
     strh5['rystare/dark/responseNU/limitnegative'] = True # only used with 'Janesick-Gaussian' 
 
     if doTest in ['Simple']:
         strh5['rystare/dark/responseNU/model'] = 'Janesick-Gaussian' 
-        strh5['rystare/dark/responseNU/parameters'] = [];   # see matlab filter or scipy lfilter functions for details
+        strh5['rystare/dark/responseNU/spread'] =  0.3 #0.3-0.4 sigma for dark current signal (Janesick's book)
     elif  doTest in ['Advanced']:
         strh5['rystare/dark/responseNU/model'] = 'LogNormal' #suitable for long exposures
-        strh5['rystare/dark/responseNU/parameters'] = [0., 0.4] #first is lognorm_mu; second is lognorm_sigma.
+        strh5['rystare/dark/responseNU/spread'] = 0.4 # lognorm_sigma.
     else:
         pass
 
     # #alternative model
     # strh5['rystare/dark/responseNU/model']  = 'Wald'
-    # strh5['rystare/dark/responseNU/parameters']  = 2. #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
+    # strh5['rystare/dark/responseNU/spread']  = 2.0 #small parameters (w<1) produces extremely narrow distribution, large parameters (w>10) produces distribution with large tail.
 
     # #alternative model
     # strh5['rystare/dark/responseNU/model']  = 'AR-ElGamal'
-    # strh5['rystare/dark/responseNU/parameters']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
+    # strh5['rystare/dark/responseNU/filter_params']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
 
     #dark current Offset Fixed Pattern Noise 
     strh5['rystare/darkoffset/NU/flag'] = True
     strh5['rystare/darkoffset/NU/model'] = 'Janesick-Gaussian'
-    strh5['rystare/darkoffset/NU/parameters'] = [] # see matlab filter or scipy lfilter functions for details
-    strh5['rystare/darkoffset/NU/DNcolumn'] = 0.0005 # percentage of (V_REF - V_SN)
+    strh5['rystare/darkoffset/NU/spread'] = 0.0005 # percentage of (V_REF - V_SN)
 
     # Source Follower VV non-linearity
     strh5['rystare/flag/VVnonlinearity'] = False

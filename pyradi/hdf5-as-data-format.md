@@ -117,6 +117,11 @@ This works for scalars and arrays, but the ellipsis notation must still be used 
 
 The above example implies that a variable size cannot be changed - you cannot replace a small array with a larger one (or vice versa).
 
+You can test to see if a dataset is defined along a path with a simple test:
+
+        if 'rystare/dark/responseNU/filter_params' in g:
+            filter_params = g['rystare/dark/responseNU/filter_params'].value
+
 You can overwrite an existing value in the HDF5 file as explained above.  However, the data type and shape must be the same as the currently existing value in the file.  *If you want to **change the type or shape, first delete the existing variable:***
 
 	g = erase_create_HDF('test.hdf5')
