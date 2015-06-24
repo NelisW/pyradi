@@ -1331,7 +1331,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
         | sensor_signal_columns(int): number of columns in the signal matrix
         | noisetype(string): type of noise to generate: ['pixel' or 'column']
         | noisedistribution(string): the probability distribution name ['AR-ElGamal', 'Janesick-Gaussian', 'Wald', 'LogNormal']
-        | spread(float): spread around mean value (sigma/chi.lambda) for the probability distribution
+        | spread(float): spread around mean value (sigma/chi/lambda) for the probability distribution
         | filter_params([nd.array]): a vector of parameters for the probability filter
  
     Returns:

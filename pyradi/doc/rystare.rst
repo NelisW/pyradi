@@ -429,7 +429,7 @@ Module functions
 
 .. autofunction:: pyradi.rystare.set_photosensor_constants
 
-.. autofunction:: pyradi.rystare.create_data_arrays
+.. autofunction:: pyradi.rystare.create_datasets
 
 .. autofunction:: pyradi.rystare.image_irradiance_to_flux
 
