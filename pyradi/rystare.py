@@ -288,17 +288,17 @@ def check_create_datasets(strh5):
     strh5['rystare/darkcurrentelectronsnonoise'] = 0.  
     strh5['rystare/ADC/gain'] = 0.
 
-    if (strh5['rystare/sensenode/resetnoisefactor'].value > 1.):
-        print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoisefactor'].value,
+    if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
+        print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
             '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
             'The factor is set to 1.'))
-        strh5['rystare/sensenode/resetnoisefactor'].value = 1.
+        strh5['rystare/sensenode/resetnoise/factor'].value = 1.
     else:
-        if (strh5['rystare/sensenode/resetnoisefactor'].value < 0):
-            print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoisefactor'].value,
+        if (strh5['rystare/sensenode/resetnoise/factor'].value < 0):
+            print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
             '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
             'The factor is set to 0, SNReset noise is not simulated.'))
-            strh5['rystare/sensenode/resetnoisefactor'].value=0
+            strh5['rystare/sensenode/resetnoise/factor'].value=0
 
 
     return strh5
@@ -369,18 +369,18 @@ def source_follower(strh5):
 
     #adding Source Follower VV non-linearity
     if strh5['rystare/flag/VVnonlinearity'].value:
-        nonlinearity_alpha=(strh5['rystare/sourcefollowergain'][...] * (strh5['rystare/nonlinearity/A_SFratio'].value - 1)) / \
+        nonlinearity_alpha=(strh5['rystare/sourcefollower/gain'][...] * (strh5['rystare/nonlinearity/A_SFratio'].value - 1)) / \
                     (strh5['rystare/sensenode/volt-fullwell'].value)
 
         strh5['rystare/A_SF_new'][...] = nonlinearity_alpha * \
                        ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
-                       (strh5['rystare/sensenode/vrefreset'].value)) + (strh5['rystare/sourcefollowergain'].value) *\
+                       (strh5['rystare/sensenode/vrefreset'].value)) + (strh5['rystare/sourcefollower/gain'].value) *\
                        np.ones(strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1])
 
     #Source Follower signal
         strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value).dot(strh5['rystare/A_SF_new'].value)
     else:
-        strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/sourcefollowergain'].value
+        strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/sourcefollower/gain'].value
 
 
     return strh5
@@ -442,7 +442,7 @@ def cds(strh5):
     strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/darkoffset/NU/value'].value
                      
     # strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value).dot((strh5['rystare/A_CDS))
-    strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/sourcefollower/CDS-gain']
+    strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/CDS/gain']
 
     return strh5
 
@@ -712,7 +712,7 @@ def charge_to_voltage(strh5):
             # diagram node 15 reset noise in electrons stored in 'rystare/noise/sn_reset/resetnoise'
            
             vinput = strh5['rystare/sensenode/vrefreset'].value + \
-                    strh5['rystare/sensenode/resetnoisefactor'].value * strh5['rystare/noise/sn_reset/resetnoise'].value
+                    strh5['rystare/sensenode/resetnoise/factor'].value * strh5['rystare/noise/sn_reset/resetnoise'].value
         
             # diagram node 15b reset noise in electrons stored in 'rystare/noise/sn_reset/resetnoise'
 
@@ -988,31 +988,38 @@ def source_follower_noise(strh5):
     """
 
     # this is the CDS dominant time constant usually set as :math:`\tau_D = 0.5t_s` [sec].
-    tau_D = 0.5 * (strh5['rystare/sourcefollower/CDS-sampletosamplingtime'].value)
+    tau_D = 0.5 * (strh5['rystare/CDS/sampletosamplingtime'].value)
     tau_RTN = 0.1 * tau_D
 
     #frequency, with delta_f as a spacing.
-    f = np.linspace(1., strh5['rystare/sourcefollower/dataClockSpeed'].value, 
-        1 + (strh5['rystare/sourcefollower/dataClockSpeed'].value - 1) / strh5['rystare/sourcefollower/freqsamplingdelta'].value).reshape(1,-1)
+    numFsamp = strh5['rystare/sourcefollower/dataclockspeed'].value / strh5['rystare/sourcefollower/freqsamplingdelta'].value
+    f = np.linspace(1., strh5['rystare/sourcefollower/dataclockspeed'].value, numFsamp).reshape(1,-1)
+    strh5['rystare/sourcefollower/noise/spectralfreq'] = f
 
     #CDS transfer function
-    H_CDS = (2. - 2. * np.cos(2. * np.pi * strh5['rystare/sourcefollower/CDS-sampletosamplingtime'].value * f)) / (1. + (2. * np.pi * tau_D * f) ** 2) 
+    H_CDS = (2. - 2. * np.cos(2. * np.pi * strh5['rystare/CDS/sampletosamplingtime'].value * f)) / (1. + (2. * np.pi * tau_D * f) ** 2) 
+    strh5['rystare/sourcefollower/noise/cdsgain'] = H_CDS
 
-    #DEPENDING ON SENSOR TYPE, THE NOISE IS SLIGHTLY DIFFERENT
-    #RTS noise power
-    #In CCD photosensors, source follower noise is typically limited by the flicker noise.
-    S_RTN = np.asarray([0]).reshape(1,-1)
+    # RTN noise only in CMOS photosensors
+    S_RTN = np.zeros(f.shape)
+    if strh5['rystare/sensortype'].value in ['CMOS']:  
+        S_RTN = (2. * ((strh5['rystare/sourcefollower/deltaindmodulation'].value) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
+    strh5['rystare/sourcefollower/noise/spectrumRTN'] = S_RTN
 
-    #In CMOS photosensors, source follower noise is typically limited by the RTS noise.
-    if strh5['rystare/sensortype'].value in ['CMOS']:  #for CMOS sensors only
-        S_RTN = (2. * ((strh5['rystare/sourcefollower/DeltaIndModulation'].value) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
 
-    S_SF = (strh5['rystare/sourcefollower/whitenoisedensity'].value ** 2) * (1. + strh5['rystare/sourcefollower/flickerCornerHz'].value / f) + S_RTN 
+
+    # white and 1/f noise
+    W_SF = (strh5['rystare/sourcefollower/whitenoisedensity'].value ** 2) * (1. + strh5['rystare/sourcefollower/flickerCornerHz'].value / f) 
+    strh5['rystare/sourcefollower/noise/spectrumwhiteflicker'] = W_SF
+
+    #total noise
+    S_SF =  W_SF + S_RTN 
+    strh5['rystare/sourcefollower/noise/spectrumtotal'] = S_SF
 
     #Calculating the std of SF noise:
     nomin = np.sqrt(strh5['rystare/sourcefollower/freqsamplingdelta'].value * np.dot(S_SF, H_CDS.T))
-    denomin =     (1 - np.exp(- (strh5['rystare/sourcefollower/CDS-sampletosamplingtime'].value) / tau_D)).reshape(-1,1)  #\
-                #    strh5['rystare/sensenode/gain'].value * strh5['rystare/sourcefollowergain'].value * 
+    denomin =     (1 - np.exp(- (strh5['rystare/CDS/sampletosamplingtime'].value) / tau_D)).reshape(-1,1)  #\
+                #    strh5['rystare/sensenode/gain'].value * strh5['rystare/sourcefollower/gain'].value * 
 
     #the resulting source follower std noise
     strh5['rystare/sourcefollower/sigma'][...] = nomin / denomin
@@ -2247,13 +2254,12 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/externalquantumeff'] = 0.8  # external quantum efficiency, fraction not reflected.
     strh5['rystare/quantumyield'] = 1. # number of electrons absorbed per one photon into material bulk
     strh5['rystare/fullwellelectrons'] = 2e4 # full well of the pixel (how many electrons can be stored in one pixel), [e]
-    strh5['rystare/senseresetvref'] = 3.1 # Reference voltage to reset the sense node. [V] typically 3-10 V.
 
     #source follower
-    strh5['rystare/sourcefollowergain'] = 1. # Source follower gain, [V/V], lower means amplify the noise.
+    strh5['rystare/sourcefollower/gain'] = 1. # Source follower gain, [V/V], lower means amplify the noise.
 
     # Correlated Double Sampling (CDS)
-    strh5['rystare/sourcefollower/CDS-gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
+    strh5['rystare/CDS/gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
 
     # Analogue-to-Digital Converter (ADC)
     strh5['rystare/ADC/num-bits'] = 12. # noise is more apparent on high Bits
@@ -2315,11 +2321,11 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     elif  doTest in ['Advanced']:
     #source follower noise.
         strh5['rystare/sourcefollower/noise/flag'] = True
-        strh5['rystare/sourcefollower/CDS-sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
+        strh5['rystare/CDS/sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
         strh5['rystare/sourcefollower/flickerCornerHz'] = 1e6 #flicker noise corner frequency $f_c$ in [Hz], where power spectrum of white and flicker noise are equal [Hz].
-        strh5['rystare/sourcefollower/dataClockSpeed'] = 20e6 #MHz data rate clocking speed.
+        strh5['rystare/sourcefollower/dataclockspeed'] = 20e6 #MHz data rate clocking speed.
         strh5['rystare/sourcefollower/whitenoisedensity'] = 15e-9 #thermal white noise [\f$V/Hz^{1/2}\f$, typically \f$15 nV/Hz^{1/2}\f$ ]
-        strh5['rystare/sourcefollower/DeltaIndModulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
+        strh5['rystare/sourcefollower/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
         strh5['rystare/sourcefollower/freqsamplingdelta'] = 10000. #sampling spacing for the frequencies (e.g., sample every 10kHz);
     else:
         pass
@@ -2329,7 +2335,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/sensenode/nonlinear/alpha'] = 0.05 #how many times should A_SF be increased due to non-linearity?    
     strh5['rystare/sensenode/gain'] = 5e-6 # Sense node gain, A_SN [V/e]
     strh5['rystare/sensenode/resetnoise/flag'] = True
-    strh5['rystare/sensenode/resetnoisefactor'] = 0.8 # the compensation factor of the Sense Node Reset Noise: 
+    strh5['rystare/sensenode/resetnoise/factor'] = 0.8 # the compensation factor of the Sense Node Reset Noise: 
                                            # 1 - no compensation from CDS for Sense node reset noise.
                                            # 0 - fully compensated SN reset noise by CDS.
     strh5['rystare/sensenode/vrefreset'] = 3.1 # Reference voltage to reset the sense node. [V] typically 3-10 V.
