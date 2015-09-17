@@ -161,7 +161,7 @@ class RadLookup:
                     'LookupDLRad', 'LookupDLTemp', 'LookupTempRad',  'LookupRadTemp',
                     'PlotTempRadiance',
                     'PlotSpectrals', 'PlotCalSpecRadiance', 'PlotCalDLRadiance',
-                    'PlotCalTempRadiance', 'PlotCalTintRad', 'PlotCalDLTemp'
+                    'PlotCalTempRadiance', 'PlotCalTintRad', 'PlotCalDLTemp', 'PlotCalTempDL'
                     ]
 
         self.specName = specName
@@ -956,6 +956,53 @@ class RadLookup:
                 savePath = os.path.join(savePath,self.specName)
 
             p.saveFig('{}-CalDLTemp.{}'.format(savePath, saveExt))
+
+            plt.close(p.getPlot())
+    ################################################################
+    def PlotCalTempDL(self, savePath=None, saveExt='png'):
+        """Plot digital level versus temperature for both camera temperatures
+
+        The filename is constructed from the given object name, save path, and
+        the word 'CalDLTemp'.
+
+        Args:
+            | savePath (string): Path to where the plots must be saved (optional).
+            | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+
+        Returns:
+            | None, the images are saved to a specified location or in the location
+            | from which the script is running.
+
+        Raises:
+            | No exception is raised.
+        """
+
+        if self.calTablesCalculated:
+
+            p = ryplot.Plotter(1,1,1, figsize=(10,5))
+            for j,tmprInstr in enumerate(self.dicCaldata):
+                DL = self.dicTableDLRad[tmprInstr][:,0]
+                temp = self.LookupDLTemp(DL, tmprInstr)
+                if j == 0:
+                    plotColB = ['r']
+                    plotColM = ['b--']
+                else:
+                    plotColB = ['c']
+                    plotColM = ['g--']
+                p.plot(1,temp,DL,label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
+                p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,1],
+                   label=['Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
+                currentP = p.getSubPlot(1)
+                currentP.set_xlabel('Temperature K')
+                currentP.set_ylabel('Digital level')
+                currentP.set_title('{} Temperature vs Digital Level'.format(self.specName))
+
+            if savePath==None:
+                savePath=self.specName
+            else:
+                savePath = os.path.join(savePath,self.specName)
+
+            p.saveFig('{}-CalTempDL.{}'.format(savePath, saveExt))
 
             plt.close(p.getPlot())
 

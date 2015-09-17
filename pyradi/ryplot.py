@@ -39,11 +39,6 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-
-
-
-
-
 __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
@@ -764,6 +759,7 @@ class Plotter:
     ##
     def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
+                    legendLoc='best',
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
@@ -792,6 +788,7 @@ class Plotter:
                 | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
                 | legendAlpha (float): transparency for legend box (optional)
+                | legendLoc (string): location for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -828,7 +825,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
-                    plotCol, linewidths, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc,
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
                     xylabelfsize, xytickfsize,
@@ -842,6 +839,7 @@ class Plotter:
     ##
     def logLog(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
+                    legendLoc='best',
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
@@ -870,6 +868,8 @@ class Plotter:
                 | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
                 | legendAlpha (float): transparency for legend box (optional)
+                | legendLoc (string): location for legend box (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -913,7 +913,7 @@ class Plotter:
         #             markers=markers)
 
       self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
-                    plotCol, linewidths, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc,
                     pltaxis, maxNX, maxNY, linestyle,
                     powerLimits,titlefsize, 
                     xylabelfsize, xytickfsize,
@@ -929,6 +929,7 @@ class Plotter:
     ##
     def semilogX(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
+                    legendLoc='best',
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
@@ -958,6 +959,7 @@ class Plotter:
                 | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
                 | legendAlpha (float): transparency for legend box (optional)
+                | legendLoc (string): location for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -994,7 +996,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
-                    plotCol, linewidths, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
                     xylabelfsize, xytickfsize,
@@ -1009,6 +1011,7 @@ class Plotter:
     ##
     def semilogY(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
+                    legendLoc='best',
                     pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
@@ -1037,6 +1040,7 @@ class Plotter:
                 | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
                 | label  ([strings]): legend label for ordinate, list withM entries (optional)
                 | legendAlpha (float): transparency for legend box (optional)
+                | legendLoc (string): location for legend box (optional)
                 | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
@@ -1073,7 +1077,7 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
-                    plotCol, linewidths, label,legendAlpha, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc, 
                     pltaxis, maxNX, maxNY, linestyle, 
                     powerLimits, titlefsize,
                     xylabelfsize, xytickfsize, 
@@ -1086,8 +1090,91 @@ class Plotter:
 
     ############################################################
     ##
+    def stackplot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
+                    plotCol=[], linewidths=None, label=[],legendAlpha=0.0,
+                    legendLoc='best',
+                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
+                    powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
+                    xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
+                    xScientific=False, yScientific=False,
+                    yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
+                     xTicks=None, xtickRotation=0, markers=[],
+                    markevery=None, zorders=None, clip_on=True  ):
+      """Plot stacked data on linear scales for abscissa and ordinates.
+
+        Given an existing figure, this function plots in a specified subplot position.
+        The function arguments are described below in some detail. Note that the y-values
+        or ordinates can be more than one column, each column representing a different
+        line in the plot.  If more
+        than one column is present, the label argument can contain the legend labels for
+        each of the columns/lines.  The pltaxis argument defines the min/max scale values
+        for the x and y axes.
+
+            Args:
+                | plotnum (int): subplot number, 1-based index
+                | x (np.array[N,] or [N,1]): abscissa
+                | y (np.array[N,] or [N,M]): ordinates - could be M columns
+                | ptitle (string): plot title (optional)
+                | xlabel (string): x-axis label (optional)
+                | ylabel (string): y-axis label (optional)
+                | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+                | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
+                | label  ([strings]): legend label for ordinate, list withM entries (optional)
+                | legendAlpha (float): transparency for legend box (optional)
+                | legendLoc (string): location for legend box (optional)
+                | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None. (optional)
+                | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
+                | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
+                | linestyle (string): linestyle for this plot (optional)
+                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
+                | titlefsize (int): title font size, default 12pt (optional)
+                | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
+                | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
+                | labelfsize (int): label/legend font size, default 10pt (optional)
+                | xScientific (bool): use scientific notation on x axis (optional)
+                | yScientific (bool): use scientific notation on y axis (optional)
+                | drawGrid (bool): draw the grid on the plot (optional)
+                | yInvert (bool): invert the y-axis (optional)
+                | xInvert (bool): invert the x-axis (optional)
+                | xIsDate (bool): convert the datetime x-values to dates (optional)
+                | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
+                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | markers ([string]) markers to be used for plotting data points (optional)
+                | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | clip_on (bool) clips objects to drawing axes (optional)
+
+            Returns:
+                | the axis object for the plot
+
+            Raises:
+                | No exception is raised.
+      """
+      ## see self.MyPlot for parameter details.
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in list(self.subplots.keys()):
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum)
+      ax = self.subplots[pkey]
+
+      self.myPlot(ax.stackplot, plotnum, x, y.T, ptitle,xlabel,ylabel,
+                    plotCol, linewidths, label,legendAlpha, legendLoc, 
+                    pltaxis, maxNX, maxNY, linestyle, 
+                    powerLimits, titlefsize,
+                    xylabelfsize, xytickfsize, 
+                    labelfsize, drawGrid, 
+                    xScientific, yScientific,
+                    yInvert, xInvert, xIsDate,
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+
+      return ax
+
+
+    ############################################################
+    ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
-                     plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
+                    plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
+                    legendLoc='best',
                     pltaxis=None, maxNX=0, maxNY=0, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12, xytickfsize = 10, 
@@ -1122,6 +1209,7 @@ class Plotter:
               | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
               | label  ([strings]): legend label for ordinate, list with M entries
               | legendAlpha (float): transparency for legend box
+              | legendLoc (string): location for legend box (optional)
               | pltaxis ([xmin, xmax, ymin,ymax]): scale for x,y axes. Let Matplotlib decide if None.
               | maxNX (int): draw maxNX+1 tick labels on x axis
               | maxNY (int): draw maxNY+1 tick labels on y axis
@@ -1212,65 +1300,82 @@ class Plotter:
           formy.set_scientific(True)
           ax.yaxis.set_major_formatter(formy)
 
-      for i in range(yy.shape[1]):
-          #set up the line style, either given or next in sequence
-          mmrk = ''
-          if markers:
-              if i >= len(markers):
-                  mmrk = markers[-1]
-              else:
-                  mmrk = markers[i]
+      ###############################stacked plot #######################
+      if plotcommand==ax.stackplot:
+        if not plotCol:
+            plotCol = [self.nextPlotCol() for col in range(0,yy.shape[0])]
 
-          if plotCol:
-              if i >= len(plotCol):
-                  col = plotCol[-1] 
-              else:
-                  col = plotCol[i]
-          else:
-              col = self.nextPlotCol()
+        ax.stackplot(xx.reshape(-1), yy, colors=plotCol)
+        ax.margins(0, 0) # Set margins to avoid "whitespace"
 
-          if linestyle is None:
-              if len(col) > 1:
-                  linestyleL = col[1:]
-              else:
-                  linestyleL = '-' 
-          else:
-              if type(linestyle) == type([1]):
-                  linestyleL = linestyle[i] 
-              else:
-                  linestyleL = linestyle
+        # creating the legend manually
+        ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label, 
+            loc=legendLoc, framealpha=legendAlpha)
 
-          if zorders:
-            if len(zorders) > 1:
-              zorder = zorders[i]
+      ###############################line plot #######################
+      else: # not a stacked plot
+        for i in range(yy.shape[1]):
+            #set up the line style, either given or next in sequence
+            mmrk = ''
+            if markers:
+                if i >= len(markers):
+                    mmrk = markers[-1]
+                else:
+                    mmrk = markers[i]
+
+            if plotCol:
+                if i >= len(plotCol):
+                    col = plotCol[-1] 
+                else:
+                    col = plotCol[i]
             else:
-              zorder = zorders[0]
-          else:
-            zorder = 2
+                col = self.nextPlotCol()
 
-          if not label:
-              if linewidths is not None:
-                plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
-                       marker=mmrk, markevery=markevery, linewidth=linewidths[i],
-                       clip_on=clip_on, zorder=zorder)
-              else:
-                plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
-                       marker=mmrk, markevery=markevery,
-                       clip_on=clip_on, zorder=zorder)
-          else:
-              if linewidths is not None:
-                # print('***************',linewidths)
-                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
-                    marker=mmrk, markevery=markevery, linewidth=linewidths[i],
-                       clip_on=clip_on, zorder=zorder)
-              else:
-                plotcommand(xx,yy[:,i],col,label=label[i], linestyle=linestyleL, 
-                    marker=mmrk, markevery=markevery,
-                       clip_on=clip_on, zorder=zorder)
+            if linestyle is None:
+                if len(col) > 1:
+                    linestyleL = col[1:]
+                else:
+                    linestyleL = '-' 
+            else:
+                if type(linestyle) == type([1]):
+                    linestyleL = linestyle[i] 
+                else:
+                    linestyleL = linestyle
 
-              leg = ax.legend(loc='best', fancybox=True,fontsize=labelfsize)
-              leg.get_frame().set_alpha(legendAlpha)
-              self.bbox_extra_artists.append(leg)
+            if zorders:
+              if len(zorders) > 1:
+                zorder = zorders[i]
+              else:
+                zorder = zorders[0]
+            else:
+              zorder = 2
+
+            if not label:
+                if linewidths is not None:
+                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                         marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                         clip_on=clip_on, zorder=zorder)
+                else:
+                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                         marker=mmrk, markevery=markevery,
+                         clip_on=clip_on, zorder=zorder)
+            else:
+                if linewidths is not None:
+                  # print('***************',linewidths)
+                  line, = plotcommand(xx,yy[:,i],col,#label=label[i],
+                        linestyle=linestyleL, 
+                        marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                        clip_on=clip_on, zorder=zorder)
+                else:
+                  line, = plotcommand(xx,yy[:,i],col,#label=label[i],
+                        linestyle=linestyleL, 
+                        marker=mmrk, markevery=markevery,
+                        clip_on=clip_on, zorder=zorder)
+                line.set_label(label[i])
+                leg = ax.legend( loc=legendLoc, fancybox=True,fontsize=labelfsize)
+                leg.get_frame().set_alpha(legendAlpha)
+                # ax.legend()
+                self.bbox_extra_artists.append(leg)
 
       if xIsDate:
           plt.gcf().autofmt_xdate()
@@ -1550,7 +1655,7 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
                   logScale=False, alpha=1, alphawire=1, 
-                  azim=45, elev=30, zorders=None, clip_on=True
+                  azim=45, elev=30, distance=10, zorders=None, clip_on=True
                    ):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
@@ -1619,6 +1724,7 @@ class Plotter:
                 | alphawire (float): mesh transparency (optional)
                 | azim (float): graph view azimuth angle  [degrees] (optional)
                 | elev (float): graph view evelation angle  [degrees] (optional)
+                | distance (float): distance between viewer and plot (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
 
@@ -1709,6 +1815,7 @@ class Plotter:
 
 
       ax.view_init(azim=azim, elev=elev)
+      ax.dist = distance
  
       if cbarshow is True and cmap is not None:
         #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
@@ -2873,6 +2980,21 @@ if __name__ == '__main__':
     import datetime as dt
 
 
+    if True:  # stacked plot
+        fnx = lambda : np.random.randint(5, 50, 10)
+        y = np.row_stack((fnx(), fnx(), fnx()))
+        x = np.arange(10)
+
+        # Make new array consisting of fractions of column-totals,
+        # using .astype(float) to avoid integer division
+        percent = y /  y.sum(axis=0).astype(float) * 100 
+        #data must vary along rows for single column  (row-major)
+        percent = percent.T
+        print(percent.shape)
+        sp = Plotter(1,1,1,figsize=(16,8))
+        sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label', 
+            plotCol=['b','r','g'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
+        sp.saveFig('stackplot.png')
 
     if True:    #next line include both 0 and 360 degrees, i.e., overlap on edge
         angled = np.linspace(0.,360.,25) 

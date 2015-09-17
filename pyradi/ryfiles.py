@@ -807,6 +807,30 @@ def erase_create_HDF(filename):
     return f
 
 ######################################################################################
+def get_HDF_DS(hdf5File, path):
+    """Check to see if a path is present in an HDF5 file and then return the dataset.
+
+    Args:
+        | hdf5File (string): HDF5 file to be read
+        | path (string): path to the dataset
+
+    Returns:
+        | HDF5 contents along the path, or None.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    if path in hdf5File:
+        rtn = hdf5File[path]
+    else:
+        rtn = None
+
+    return rtn
+
+
+######################################################################################
 def print_HDF5_text(vartext):
     """Prints text in visiting algorithm in HDF5 file.
 

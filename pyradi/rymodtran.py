@@ -36,8 +36,13 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
+#prepare so long for Python 3
+from __future__ import division
+from __future__ import print_function
+# from __future__ import unicode_literals
 
-
+# import string
+# from string import maketrans   # Required to call maketrans function.
 
 
 __version__= "$Revision$"
@@ -52,7 +57,8 @@ if sys.version_info[0] > 2:
 
 import numpy as np
 from string import maketrans
-import io
+# import io
+import StringIO
 
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
@@ -74,12 +80,25 @@ def fixHeaders(instr):
     intab = "+-[]@"
     outtab = "pmbba"
 
-    if isinstance(instr, str):
-        translate_table = dict((ord(char), str(outtab)) for char in intab)
+    # if isinstance(instr, str):
+    #     translate_table = dict((ord(char), str(outtab)) for char in intab)
+    # else:
+    #     assert isinstance(instr, str)
+    #     translate_table = maketrans(intab, outtab)
+    # print(instr, type(translate_table),translate_table )
+    # return instr.translate(translate_table)
+
+    intab = u"+-[]@"
+    outtab = u"pmbba"
+
+    # print(instr)
+    if isinstance(instr, unicode):
+        translate_table = dict((ord(char), unicode(outtab)) for char in intab)
     else:
         assert isinstance(instr, str)
         translate_table = maketrans(intab, outtab)
     return instr.translate(translate_table)
+
 
 
 ##############################################################################
@@ -246,9 +265,13 @@ def loadtape7(filename, colspec = []):
     s = s + ''.join(lines[headline+1+deltaHead:-1])
 
     #read the string in from a StringIO in-memory file
-    lines = np.ndfromtxt(io.StringIO(s), dtype=None,  names=True)
+    # lines = np.ndfromtxt(io.StringIO(s), dtype=None,  names=True)
+    lines = np.ndfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
+
+    # print('lines=',lines)
 
     #extract the wavenumber col as the first column in the new table
+    # print(colspec, fixHeaders(colspec[0]))
     coldata= lines[fixHeaders(colspec[0])].reshape(-1, 1)
     # then append the other required columns
     for colname in colspec[1:]:

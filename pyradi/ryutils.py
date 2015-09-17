@@ -594,6 +594,7 @@ def convertSpectralDomain(inspectraldomain,  type=''):
     return outspectraldomain
 
 
+
 ################################################################
 ##
 def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):

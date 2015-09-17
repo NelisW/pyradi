@@ -52,6 +52,7 @@ import scipy.stats as stats
 import scipy.constants as const
 import re
 
+import pyradi.ryfiles as ryfiles
 import pyradi.ryutils as ryutils
 import pyradi.ryplot as ryplot
 
@@ -193,12 +194,19 @@ def photosensor(strh5):
 
     # diagram node 20 signal in volts stored in 'rystare/signal/voltage'
 
+    strh5 = fixed_pattern_offset(strh5)
+
+    # diagram node 21 fixed pattern offset in volts stored in 'rystare/darkoffset/NU/value'
 
     # signal's amplification and de-noising by Correlated Double Sampling
     strh5 = cds(strh5)
 
+    # diagram node 23 signal in volts stored in 'rystare/signal/voltage'
+
     # Analogue-To-Digital Converter
     strh5 = adc(strh5)
+
+    # diagram node 27 ADC signal stored in 'rystare/signal/DN'
 
     return strh5
 
@@ -280,13 +288,14 @@ def check_create_datasets(strh5):
     strh5['rystare/darkoffset/NU/value'] = np.ones(sensor_size) 
     strh5['rystare/signal/voltagebeforeSF'] = np.zeros(sensor_size)
 
+    strh5['rystare/ADC/gain'] = np.ones(sensor_size)
+
     strh5['rystare/sourcefollower/sigma'] = np.zeros((1,1)) 
     strh5['rystare/sensenode/volt-fullwell'] = 0.
     strh5['rystare/sensenode/volt-min'] = 0.
     strh5['rystare/sensenode/capacitance'] = 0.
     strh5['rystare/sensenode/ResetKTC-sigma'] = 0.
     strh5['rystare/darkcurrentelectronsnonoise'] = 0.  
-    strh5['rystare/ADC/gain'] = 0.
 
     if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
         print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
@@ -367,24 +376,64 @@ def source_follower(strh5):
 
     strh5['rystare/signal/voltagebeforeSF'][...] = strh5['rystare/signal/voltage'].value
 
-    #adding Source Follower VV non-linearity
-    if strh5['rystare/flag/VVnonlinearity'].value:
-        nonlinearity_alpha=(strh5['rystare/sourcefollower/gain'][...] * (strh5['rystare/nonlinearity/A_SFratio'].value - 1)) / \
-                    (strh5['rystare/sensenode/volt-fullwell'].value)
+    sones =  np.ones(strh5['rystare/imageSizePixels'].value)
+    strh5['rystare/sourcefollower/gainA'] = strh5['rystare/sourcefollower/gain'].value * sones
 
-        strh5['rystare/A_SF_new'][...] = nonlinearity_alpha * \
-                       ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
-                       (strh5['rystare/sensenode/vrefreset'].value)) + (strh5['rystare/sourcefollower/gain'].value) *\
-                       np.ones(strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1])
+    # calculating Source Follower VV non-linearity
+    if strh5['rystare/sourcefollower/nonlinearity/flag'].value:
+        nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
+              (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
 
-    #Source Follower signal
-        strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value).dot(strh5['rystare/A_SF_new'].value)
-    else:
-        strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/sourcefollower/gain'].value
+        strh5['rystare/sourcefollower/gainA'][...] = sones * nonlinearity_alpha * \
+                ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
+                (strh5['rystare/sensenode/vrefreset'].value)) + \
+                (strh5['rystare/sourcefollower/gain'].value)
+                       
+
+    # #Source Follower signal
+    #     strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value) * strh5['rystare/sourcefollower/gainA'].value
+
+
+    strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * \
+                                            strh5['rystare/sourcefollower/gainA'].value
 
 
     return strh5
 
+######################################################################################
+def fixed_pattern_offset(strh5):
+    """Add dark fixed pattens offset
+ 
+    Args:
+        | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
+ 
+    Returns:
+        | in strh5: (hdf5 file) updated data fields
+
+    Raises:
+        | No exception is raised.
+
+    Author: Mikhail V. Konnik, revised/ported by CJ Willers
+
+    Original source: http://arxiv.org/pdf/1412.4031.pdf
+    """
+
+    strh5['rystare/darkoffset/NU/value'][...] = np.zeros(tuple(strh5['rystare/imageSizePixels'].value))
+    if strh5['rystare/sensortype'].value in 'CMOS':  
+        #If the sensor is CMOS and the darkoffset/NU is on 
+        if strh5['rystare/darkoffset/NU/flag'].value: 
+
+            # add dark fixed pattern offset
+            sigma = strh5['rystare/sensenode/volt-fullwell'].value * \
+                    strh5['rystare/darkoffset/NU/spread'].value
+
+            noisematrix = FPN_models(strh5['rystare/imageSizePixels'].value[0],
+                strh5['rystare/imageSizePixels'].value[1], 'column', 
+                strh5['rystare/darkoffset/NU/model'].value, sigma)
+
+            strh5['rystare/darkoffset/NU/value'][...] = noisematrix
+
+    return strh5
 
 ######################################################################################
 def cds(strh5):
@@ -427,22 +476,15 @@ def cds(strh5):
 
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
+
+    strh5['rystare/signal/voltagebeforecds'] = strh5['rystare/signal/voltage'].value
     
-
-    if strh5['rystare/sensortype'].value in 'CMOS':  
-        #If the sensor is CMOS and the Column FPN is on  - add the column FPN noise  (CMOS only!)
-        if strh5['rystare/darkoffset/NU/flag'].value: 
-            # add pixel FPN dark noise.
-            sigma = strh5['rystare/sensenode/volt-fullwell'].value * strh5['rystare/darkoffset/NU/spread'].value
-            noisematrix = FPN_models(strh5['rystare/imageSizePixels'].value[0],
-                strh5['rystare/imageSizePixels'].value[1], 'column', strh5['rystare/darkoffset/NU/model'].value, sigma)
-
-            strh5['rystare/darkoffset/NU/value'][...] = (1 + noisematrix) 
-
-    strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/darkoffset/NU/value'].value
+    strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value + strh5['rystare/darkoffset/NU/value'].value
                      
-    # strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value).dot((strh5['rystare/A_CDS))
+    # diagram node 22 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltage'
+
     strh5['rystare/signal/voltage'][...] = strh5['rystare/signal/voltage'].value * strh5['rystare/CDS/gain']
+
 
     return strh5
 
@@ -581,29 +623,41 @@ def adc(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-    N_max = 2 ** (strh5['rystare/ADC/num-bits'].value)  # maximum number of DN.
+    strh5['rystare/signal/voltagebeforeadc'] = strh5['rystare/signal/voltage'].value 
+    # maximum number of DN.
+    N_max = 2 ** (strh5['rystare/ADC/num-bits'].value)  
 
-    #ADC gain, [DN/V]. 
-    strh5['rystare/ADC/gain'][...] = N_max / (strh5['rystare/sensenode/volt-fullwell'].value - strh5['rystare/sensenode/volt-min'].value)     
+    # gain in DN/v
+    adc_gain  = N_max / \
+        (strh5['rystare/sensenode/volt-fullwell'].value - strh5['rystare/sensenode/volt-min'].value)     
 
-    if strh5['rystare/ADC/nonlinearity/flag'].value:   #ADC non-linearity
-        A_ADC_NL = strh5['rystare/nonlinearity/ADCratio'].value * strh5['rystare/ADC/gain'].value
-        nonlinearity_alpha = (log(A_ADC_NL) / np.log(strh5['rystare/ADC/gain'].value) - 1) / strh5['rystare/sensenode/volt-fullwell'].value
-        signal = strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value   # Removing the reference Voltage  
+    strh5['rystare/ADC/gain'][...] = adc_gain * strh5['rystare/ADC/gain'].value
 
-        A_ADC_new = strh5['rystare/A_ADC)'].value * np.ones(signal.shape)
-        # A_ADC_new = A_ADC_new ** (1 - nonlinearity_alpha.dot(signal)) 
-        A_ADC_new = A_ADC_new ** (1 - nonlinearity_alpha * signal) 
+    # Removing the reference Voltage  
+    signal = strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value   
 
-        # S_DN = np.round(strh5['rystare/ADC/offset'].value + A_ADC_new.dot(signal)) #ADC convertation with NON-LINEARITY      
-        S_DN = np.round(strh5['rystare/ADC/offset'].value + A_ADC_new * signal) #ADC convertation with NON-LINEARITY      
+    if strh5['rystare/ADC/nonlinearity/flag'].value:   
+        # account for non-linearity
+        numerator = strh5['rystare/ADC/nonlinearity/ratio'].value * adc_gain
+        nonlinearity_alpha = (np.log(numerator) / np.log(adc_gain) - 1) \
+               / strh5['rystare/sensenode/volt-fullwell'].value
 
-    else:
-        S_DN = np.round(strh5['rystare/ADC/offset'].value + strh5['rystare/ADC/gain'].value * (strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value)) #ADC convertation
+        strh5['rystare/ADC/gain'][...] = strh5['rystare/ADC/gain'].value ** (1 - nonlinearity_alpha * signal) 
 
-    S_DN[S_DN <= 0] = 0      # Truncating the numbers that are less than 0: 
-    S_DN[S_DN >= N_max] = N_max   # Truncating the numbers that are greater than N_max
-    strh5['rystare/signal/DN'][...] = S_DN  # ??subtract the the signal from N_max to get the normal, non-inverted image.
+    strh5['rystare/signal/voltage'][...] = signal
+    
+    # diagram node 24 ADC gain stored in 'rystare/ADC/gain'
+
+    #DN given by offset plus signal * gain
+    signalDN = np.round(strh5['rystare/ADC/offset'].value + strh5['rystare/ADC/gain'].value * signal)
+
+    # diagram node 26 & 27 ADC signal stored in 'rystare/signal/DN'
+
+    # Truncating the numbers that are less than 0 or larger than N-max
+    signalDN[signalDN <= 0] = 0      
+    signalDN[signalDN >= N_max] = N_max  
+
+    strh5['rystare/signal/DN'][...] = signalDN 
 
     return strh5
 
@@ -1019,7 +1073,6 @@ def source_follower_noise(strh5):
     #Calculating the std of SF noise:
     nomin = np.sqrt(strh5['rystare/sourcefollower/freqsamplingdelta'].value * np.dot(S_SF, H_CDS.T))
     denomin =     (1 - np.exp(- (strh5['rystare/CDS/sampletosamplingtime'].value) / tau_D)).reshape(-1,1)  #\
-                #    strh5['rystare/sensenode/gain'].value * strh5['rystare/sourcefollower/gain'].value * 
 
     #the resulting source follower std noise
     strh5['rystare/sourcefollower/sigma'][...] = nomin / denomin
@@ -1491,7 +1544,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
 
 ######################################################################################
 def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, fracblurr=0, 
-                   irrad_scale=0, irrad_min=0, wavelength=0.55e-6, steps=10):
+                   irrad_scale=1, irrad_min=0, wavelength=0.55e-6, steps=10):
     r"""This routine performs makes a simple illuminated circle with blurred boundaries.
 
     Then the  sensor's radiant irradiance in units [W/m2] are converted to  
@@ -1505,9 +1558,18 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
     data.  The following minimum HDF5 entries are required by pyradi.rystare:
 
         | ``'image/imageName'`` (string):  the image name  
-        | ``'image/PhotonRateIrradiance'`` np.array[M,N]:  a float array with the image pixel values  
+        | ``'image/PhotonRateIrradianceNoNoise'`` np.array[M,N]:  a float array with the image pixel values no noise 
+        | ``'image/PhotonRateIrradiance'`` np.array[M,N]:  a float array with the image pixel values with noise
         | ``'image/pixelPitch'``:  ([float, float]):  detector pitch in m [row,col]  
         | ``'image/imageSizePixels'``:  ([int, int]): number of pixels [row,col]  
+        | ``'image/imageFilename'`` (string):  the image file name  
+        | ``'image/wavelength'`` (float):  where photon rate calcs are done  um
+        | ``'image/imageSizeRows'`` (int):  the number of image rows
+        | ``'image/imageSizeCols'`` (int):  the number of image cols
+        | ``'image/imageSizeDiagonal'`` (float):  the FPA diagonal size in mm 
+        | ``'image/irradianceLux'`` (float):  the maximum luminous exitance in the image lux (optional)
+        | ``'image/irradianceWatts'`` (float):  the maximum exitance in the image W/m2 (optional)
+        | ``'image/temperature'`` (float):  the maximum target temperature in the image K (optional)
 
     Args:
         | imageName (string): the image name, used to form the filename
@@ -1546,9 +1608,8 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
     if imtype in ['zeros']:
         imghd5['image/imageName'] = imageName
         imghd5['image/imageFilename'] = hdffilename
-        imghd5['image/iradianceLux'] = 0
 
-        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
         dset[...] = np.zeros((x1.shape))
         dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
         dset[...] = np.zeros((x1.shape))
@@ -1578,7 +1639,7 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         Ein = (np.abs(signal.convolve2d(Uin, H, mode='same'))/np.sum(H))  ** 2
 
         #photon rate irradiance lux, with no  noise
-        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
         dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
 
         #Power in a single photon, in [Joule = Watt*s]
@@ -1620,7 +1681,7 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
 
         #photon rate irradiance lux, with no  noise
-        dset = imghd5.create_dataset('image/iradianceLux', numPixels, compression="gzip")
+        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
         dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
 
         #Power in a single photon, in [Joule = Watt*s]
@@ -1635,6 +1696,53 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         #photon rate irradiance in the image ph/(m2.s), adding photon noise
         dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
         dset[...] = shotnoise(Ein) 
+
+    elif imtype in ['stairslinIRQ','stairslogIRQ']:
+        #this section creates a stair-case signal increasing from irrad_min to irrad_scale+irrad_min
+        imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
+        imghd5['image/imageFilename'] = hdffilename
+        imghd5['image/irrad_scale'] = irrad_scale 
+        imghd5['image/irrad_min'] = irrad_min 
+        imghd5['image/steps'] = steps 
+
+        size = imghd5['image/imageSizePixels'].value[1]
+
+        if imtype in ['stairslin']:
+            varx = np.linspace(0,size-1,size)
+        else:
+            varx = np.logspace(-1,np.log10(size-1),size)
+        varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
+        varx = varx / np.max(varx) 
+
+        vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
+
+        x, y = np.meshgrid(varx,vary)
+
+        Ein = x * np.ones(x.shape) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value 
+        Ein *= np.where(y<-imghd5['image/imageSizeRows'].value/3.,0, 1)
+        Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
+
+        #photon rate irradiance lux, with no  noise
+        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
+        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
+
+        #Power in a single photon, in [Joule = Watt*s]
+        P_photon = const.h * const.c / wavelength
+
+        #convert to photon rate irradiance
+        Ein = Ein / P_photon
+        
+        #photon rate irradiance in the image ph/(m2.s), with no photon noise
+        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
+        dset[...] = Ein
+        #photon rate irradiance in the image ph/(m2.s), adding photon noise
+        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
+        dset[...] = shotnoise(Ein) 
+
+
+
+    else:
+        print('Unknown image type {}\n no image file created'.format(imtype))
 
     imghd5.flush()
     imghd5.close()
@@ -2207,7 +2315,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         | doImages (boolean):  flag to control the creation of monochrome image plots 
 
     Returns:
-        | Nothing, as a side effect files are created.
+        | hdffilename (string): output HDF filename
 
     Raises:
         | No exception is raised.
@@ -2255,19 +2363,9 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/quantumyield'] = 1. # number of electrons absorbed per one photon into material bulk
     strh5['rystare/fullwellelectrons'] = 2e4 # full well of the pixel (how many electrons can be stored in one pixel), [e]
 
-    #source follower
-    strh5['rystare/sourcefollower/gain'] = 1. # Source follower gain, [V/V], lower means amplify the noise.
-
-    # Correlated Double Sampling (CDS)
-    strh5['rystare/CDS/gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
-
-    # Analogue-to-Digital Converter (ADC)
-    strh5['rystare/ADC/num-bits'] = 12. # noise is more apparent on high Bits
-    strh5['rystare/ADC/offset'] = 0. # Offset of the ADC, in DN
-    strh5['rystare/ADC/nonlinearity/flag'] = False
-
     # Light Noise parameters
     strh5['rystare/flag/photonshotnoise'] = True #photon shot noise.
+
     # photo response non-uniformity noise (PRNU), or also called light Fixed Pattern Noise (light FPN)
     strh5['rystare/detector/response/NU/flag'] = True
     strh5['rystare/detector/response/NU/seed'] = 362436069
@@ -2307,29 +2405,6 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     # strh5['rystare/darkresponse/NU/model']  = 'AR-ElGamal'
     # strh5['rystare/darkresponse/NU/filter_params']  = [1., 0.5] # see matlab filter or scipy lfilter functions for details
 
-    #dark current Offset Fixed Pattern Noise 
-    strh5['rystare/darkoffset/NU/flag'] = True
-    strh5['rystare/darkoffset/NU/model'] = 'Janesick-Gaussian'
-    strh5['rystare/darkoffset/NU/spread'] = 0.0005 # percentage of (V_REF - V_SN)
-
-    # Source Follower VV non-linearity
-    strh5['rystare/flag/VVnonlinearity'] = False
-
-
-    if doTest in ['Simple']:
-        strh5['rystare/sourcefollower/noise/flag'] = False
-    elif  doTest in ['Advanced']:
-    #source follower noise.
-        strh5['rystare/sourcefollower/noise/flag'] = True
-        strh5['rystare/CDS/sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
-        strh5['rystare/sourcefollower/flickerCornerHz'] = 1e6 #flicker noise corner frequency $f_c$ in [Hz], where power spectrum of white and flicker noise are equal [Hz].
-        strh5['rystare/sourcefollower/dataclockspeed'] = 20e6 #MHz data rate clocking speed.
-        strh5['rystare/sourcefollower/whitenoisedensity'] = 15e-9 #thermal white noise [\f$V/Hz^{1/2}\f$, typically \f$15 nV/Hz^{1/2}\f$ ]
-        strh5['rystare/sourcefollower/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
-        strh5['rystare/sourcefollower/freqsamplingdelta'] = 10000. #sampling spacing for the frequencies (e.g., sample every 10kHz);
-    else:
-        pass
-
     #sense node charge to voltage
     strh5['rystare/sensenode/nonlinear/flag'] = False
     strh5['rystare/sensenode/nonlinear/alpha'] = 0.05 #how many times should A_SF be increased due to non-linearity?    
@@ -2339,6 +2414,44 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
                                            # 1 - no compensation from CDS for Sense node reset noise.
                                            # 0 - fully compensated SN reset noise by CDS.
     strh5['rystare/sensenode/vrefreset'] = 3.1 # Reference voltage to reset the sense node. [V] typically 3-10 V.
+
+    #source follower
+    strh5['rystare/sourcefollower/gain'] = 1. # Source follower gain, [V/V], lower means amplify the noise.
+
+
+    #source follower
+    strh5['rystare/sourcefollower/nonlinearity/flag'] = True # VV non-linearity
+    strh5['rystare/sourcefollower/nonlinearity/ratio'] = 1.05 # > 1 for lower signal, < 1 for higher signal
+    strh5['rystare/sourcefollower/flickerCornerHz'] = 1e6 #flicker noise corner frequency $f_c$ in [Hz], where power spectrum of white and flicker noise are equal [Hz].
+    strh5['rystare/sourcefollower/whitenoisedensity'] = 15e-9 #thermal white noise [\f$V/Hz^{1/2}\f$, typically \f$15 nV/Hz^{1/2}\f$ ]
+    strh5['rystare/sourcefollower/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
+    strh5['rystare/sourcefollower/dataclockspeed'] = 20e6 #MHz data rate clocking speed.
+    strh5['rystare/sourcefollower/freqsamplingdelta'] = 10000. #sampling spacing for the frequencies (e.g., sample every 10kHz);
+    if doTest in ['Simple']:
+        strh5['rystare/sourcefollower/noise/flag'] = False
+    elif  doTest in ['Advanced']:
+        strh5['rystare/sourcefollower/noise/flag'] = True
+
+    #dark current Offset Fixed Pattern Noise 
+    strh5['rystare/darkoffset/NU/flag'] = True
+    strh5['rystare/darkoffset/NU/model'] = 'Janesick-Gaussian'
+    strh5['rystare/darkoffset/NU/spread'] = 0.0005 # percentage of (V_REF - V_SN)
+
+
+    # Correlated Double Sampling (CDS)
+    if doTest in ['Simple']:
+        strh5['rystare/CDS/sampletosamplingtime'] = 0 #not used
+    elif  doTest in ['Advanced']:
+        strh5['rystare/CDS/sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
+    else:
+        pass
+    strh5['rystare/CDS/gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
+
+    # Analogue-to-Digital Converter (ADC)
+    strh5['rystare/ADC/num-bits'] = 12. # noise is more apparent on high Bits
+    strh5['rystare/ADC/offset'] = 0. # Offset of the ADC, in DN
+    strh5['rystare/ADC/nonlinearity/flag'] = False
+    strh5['rystare/ADC/nonlinearity/ratio'] = 1.1
 
     #Sensor noises and signal visualisation
     strh5['rystare/flag/plots/doPlots'] = False
@@ -2350,21 +2463,27 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     #=============================================================================
 
     if strh5['rystare/flag/darkframe'].value:  # we have zero light illumination    
-        hdffilename = 'data/image-Zero-256-256.hdf5'
+        imagehdffilename = 'data/image-Zero-256-256.hdf5'
     else:   # load an image, nonzero illumination
-        hdffilename = 'data/image-Disk-256-256.hdf5'
+        imagehdffilename = 'data/image-Disk-256-256.hdf5'
 
     if pathtoimage is None:
-        pathtoimage = os.path.dirname(__file__) + '/' + hdffilename
+        pathtoimage = os.path.dirname(__file__) + '/' + imagehdffilename
 
     imghd5 = ryfiles.open_HDF(pathtoimage)
 
     #images must be in photon rate irradiance units q/(m2.s)
+    strh5['rystare/irradianceLux'] = imghd5['image/irradianceLux'].value
+    strh5['rystare/signal/photonRateIrradianceNoNoise'] = imghd5['image/PhotonRateIrradianceNoNoise'].value
     strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/PhotonRateIrradiance'].value
-
     strh5['rystare/pixelPitch'] = imghd5['image/pixelPitch'].value
     strh5['rystare/imageName'] = imghd5['image/imageName'].value
+    strh5['rystare/imageFilename'] = imghd5['image/imageFilename'].value
     strh5['rystare/imageSizePixels'] = imghd5['image/imageSizePixels'].value
+    strh5['rystare/wavelength'] = imghd5['image/wavelength'].value
+    strh5['rystare/imageSizeRows'] = imghd5['image/imageSizeRows'].value
+    strh5['rystare/imageSizeCols'] = imghd5['image/imageSizeCols'].value
+    strh5['rystare/imageSizeDiagonal'] = imghd5['image/imageSizeDiagonal'].value
 
     #calculate the noise and final images
     strh5 = photosensor(strh5) # here the Photon-to-electron conversion occurred.
@@ -2378,7 +2497,10 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalDark',np.mean(strh5['rystare/signal/darkcurrentelectrons'].value), np.var(strh5['rystare/signal/darkcurrentelectrons'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('source_follower_noise',np.mean(strh5['rystare/sourcefollower/source_follower_noise'].value), np.var(strh5['rystare/sourcefollower/source_follower_noise'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalElectrons',np.mean(strh5['rystare/signal/electrons'].value), np.var(strh5['rystare/signal/electrons'].value)))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltage'].value)))
+        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeSF',np.mean(strh5['rystare/signal/voltagebeforeSF'].value), np.var(strh5['rystare/signal/voltagebeforeSF'].value)))
+        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforecds',np.mean(strh5['rystare/signal/voltagebeforecds'].value), np.var(strh5['rystare/signal/voltagebeforecds'].value)))
+        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeadc',np.mean(strh5['rystare/signal/voltagebeforeadc'].value), np.var(strh5['rystare/signal/voltage'].value)))
+        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltagebeforeadc'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/signal/DN'].value), np.var(strh5['rystare/signal/DN'].value)))
 
     if doPlots:
@@ -2403,6 +2525,106 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5.flush()
     strh5.close()
 
+    return hdffilename
+
+################################################################
+def get_summary_stats(hdffilename):
+    """Return a string with all the summary input and results data.
+
+    Args:
+        | hdffilename (string):  filename for input HDF file
+
+    Returns:
+        | Returns a string with summmary data.
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+
+     """
+    import StringIO
+    
+    output = StringIO.StringIO()
+
+    if hdffilename is not None:
+        strh5 = ryfiles.open_HDF(hdffilename)
+        print(hdffilename)
+
+        print('Image file name             : {}'.format(strh5['rystare/imageFilename'].value))
+        print('Image name                  : {}'.format(strh5['rystare/imageName'].value))
+        print('Sensor type                 : {} '.format(strh5['rystare/sensortype'].value))
+        print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'].value))
+        print('Image size diagonal         : {} m'.format(strh5['rystare/imageSizeDiagonal'].value))
+        print('Image size pixels           : {} '.format(strh5['rystare/imageSizePixels'].value))
+        print('Fill factor                 : {}'.format(strh5['rystare/fillfactor'].value))
+        print('Full well electrons         : {} e'.format(strh5['rystare/fullwellelectrons'].value))
+        print('Integration time            : {} s'.format(strh5['rystare/integrationtime'].value))
+        print('Wavelength                  : {} m'.format(strh5['rystare/wavelength'].value))
+        print('Operating temperature       : {} K'.format(strh5['rystare/operatingtemperature'].value))
+        print('Max image irradiance         : {} lux'.format(np.max(strh5['rystare/irradianceLux'].value)))
+        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateIrradianceNoNoise',np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'].value), np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'].value)))
+        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonRateIrradiance',np.mean(strh5['rystare/signal/photonRateIrradiance'].value), np.var(strh5['rystare/signal/photonRateIrradiance'].value)))
+        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonsNU',np.mean(strh5['rystare/signal/photonRateIrradianceNU'].value), np.var(strh5['rystare/signal/photonRateIrradianceNU'].value)))
+        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalLight',np.mean(strh5['rystare/signal/lightelectrons'].value), np.var(strh5['rystare/signal/lightelectrons'].value)))
+        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDarkNoNoise',np.mean(strh5['rystare/darkcurrentelectronsnonoise'].value), np.var(strh5['rystare/darkcurrentelectronsnonoise'].value)))
+        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDark',np.mean(strh5['rystare/signal/darkcurrentelectrons'].value), np.var(strh5['rystare/signal/darkcurrentelectrons'].value)))
+        print('{:28}: e mean={:.5e}, var={:.5e}'.format('SignalElectrons',np.mean(strh5['rystare/signal/electrons'].value), np.var(strh5['rystare/signal/electrons'].value)))
+        print('{:28}: v mean={:.5e}, var={:.5e}'.format('source_follower_noise',np.mean(strh5['rystare/sourcefollower/source_follower_noise'].value), np.var(strh5['rystare/sourcefollower/source_follower_noise'].value)))
+        print('{:28}: v mean={:.5e}, var={:.5e}'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltage'].value)))
+        print('{:28}: DN mean={:.5e}, var={:.5e}'.format('SignalDN',np.mean(strh5['rystare/signal/DN'].value), np.var(strh5['rystare/signal/DN'].value)))
+        print('{:28}: DN mean={:.5e}, var={:.5e}'.format('ADC gain',np.mean(strh5['rystare/ADC/gain'].value), np.var(strh5['rystare/ADC/gain'].value)))
+        print('ADC                         : DN/v bits={} offset={} DN'.format(strh5['rystare/ADC/num-bits'].value,strh5['rystare/ADC/offset'].value ))
+        print('Dark current figure-merit   : {} '.format(strh5['rystare/darkfiguremerit'].value))
+        print('Quantum external efficiency : {} '.format(strh5['rystare/externalquantumeff'].value))
+        print('Quantum yield               : {} '.format(strh5['rystare/quantumyield'].value))
+        print('Sense node gain             : {} w/e'.format(strh5['rystare/sensenode/gain'].value))
+        print('Sense reset Vref            : {} v'.format(strh5['rystare/sensenode/vrefreset'].value))
+        print('Source follower gain        : {} '.format(strh5['rystare/sourcefollower/gain'].value))
+        print('k1 constant                 : {} '.format(strh5['rystare/constants/k1'].value))
+        if strh5['rystare/darkoffset/NU/flag'].value:
+            print('Dark offset model           : {}'.format(strh5['rystare/darkoffset/NU/model'].value))
+            print('Dark offset spread          : {} e'.format(strh5['rystare/darkoffset/NU/spread'].value))
+        print('Dark response model         : {}'.format(strh5['rystare/darkresponse/NU/model'].value))
+        print('Dark response seed          : {}'.format(strh5['rystare/darkresponse/NU/seed'].value))
+        print('Dark response spread        : {} '.format(strh5['rystare/darkresponse/NU/spread'].value))
+        print('Dark response neg lim flag  : {}'.format(strh5['rystare/darkresponse/NU/limitnegative'].value))
+        if strh5['rystare/detector/response/NU/flag'].value:
+            print('Detector response mode      : {}'.format(strh5['rystare/detector/response/NU/model'].value))
+            print('Detector response seed      : {}'.format(strh5['rystare/detector/response/NU/seed'].value))
+            print('Detector response spread    : {}'.format(strh5['rystare/detector/response/NU/spread'].value))
+        print('Material Eg 0 K             : {} eV'.format(strh5['rystare/material/Eg-eV-0'].value))
+        print('Material Eg                 : {} eV'.format(strh5['rystare/material/Eg-eV'].value))
+        print('Material alpha              : {}  '.format(strh5['rystare/material/alpha'].value))
+        print('Material beta               : {}  '.format(strh5['rystare/material/beta'].value))
+        print('Sense node reset noise factr: {}  '.format(strh5['rystare/sensenode/resetnoise/factor'].value))
+        print('Sense node reset kTC sigma  : {} v'.format(strh5['rystare/sensenode/ResetKTC-sigma'].value))
+        print('Sense node capacitance      : {} fF'.format(1e15 * strh5['rystare/sensenode/capacitance'].value))
+        print('Sense node signal full well : {} V'.format(strh5['rystare/sensenode/volt-fullwell'].value))
+        print('Sense node signal minimum   : {} V'.format(strh5['rystare/sensenode/volt-min'].value))
+        print('Sense node reset noise      : {} '.format(strh5['rystare/sensenode/resetnoise/flag'].value))
+        print('CDS gain                    : {} '.format(strh5['rystare/CDS/gain'].value))
+        print('CDS sample-to-sampling time : {} s'.format(strh5['rystare/CDS/sampletosamplingtime'].value))
+        print('Delta induced modulation    : {} '.format(strh5['rystare/sourcefollower/deltaindmodulation'].value))
+        print('Data clock speed            : {} Hz'.format(strh5['rystare/sourcefollower/dataclockspeed'].value))
+        print('Frequency sampling delta    : {} Hz'.format(strh5['rystare/sourcefollower/freqsamplingdelta'].value))
+        print('White noise density         : {} V/rtHz'.format(strh5['rystare/sourcefollower/whitenoisedensity'].value))
+        print('Flicker corner              : {} Hz'.format(strh5['rystare/sourcefollower/flickerCornerHz'].value))
+        print('{:28}: v mean={:.5e}, var={:.5e}'.format('Source follower sigma',np.mean(strh5['rystare/sourcefollower/sigma'].value), np.var(strh5['rystare/sourcefollower/sigma'].value)))
+        
+        strh5.flush()
+        strh5.close()
+
+    # Retrieve file contents
+    contents = output.getvalue()
+
+    # Close object and discard memory buffer 
+    output.close()
+
+    return contents
+
+
+
 
 ################################################################
 ################################################################
@@ -2419,7 +2641,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
     import pyradi.ryutils as ryutils
 
-    doAll = False
+    doAll = True
 
     #----------  create test images ---------------------
     if doAll:
@@ -2469,5 +2691,8 @@ if __name__ == '__main__':
 
     #----------  how to use example code ---------------------
     if True:
-        run_example(doTest='Advanced')
-        run_example(doTest='Simple')
+        hdffilename = run_example(doTest='Advanced')
+        get_summary_stats(hdffilename)
+        print(20*'- ')
+        hdffilename = run_example(doTest='Simple')
+        get_summary_stats(hdffilename)
