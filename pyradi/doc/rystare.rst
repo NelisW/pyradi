@@ -413,13 +413,15 @@ Module functions
 
 .. autofunction:: pyradi.rystare.photosensor	
 
+.. autofunction:: pyradi.rystare.set_photosensor_constants
+
+.. autofunction:: pyradi.rystare.check_create_datasets
+
 .. autofunction:: pyradi.rystare.source_follower	
 
 .. autofunction:: pyradi.rystare.cds
 
 .. autofunction:: pyradi.rystare.adc
-
-.. autofunction:: pyradi.rystare.sense_node_chargetovoltage
 
 .. autofunction:: pyradi.rystare.sense_node_reset_noise
 
@@ -427,11 +429,9 @@ Module functions
 
 .. autofunction:: pyradi.rystare.source_follower_noise
 
-.. autofunction:: pyradi.rystare.set_photosensor_constants
+.. autofunction:: pyradi.rystare.multiply_detector_area
 
-.. autofunction:: pyradi.rystare.create_datasets
-
-.. autofunction:: pyradi.rystare.image_irradiance_to_flux
+.. autofunction:: pyradi.rystare.multiply_integration_time
 
 .. autofunction:: pyradi.rystare.convert_to_electrons
 
@@ -467,6 +467,7 @@ Module functions
 
 .. autofunction:: pyradi.rystare.run_example
 
+.. autofunction:: pyradi.rystare.get_summary_stats
 
 .. [hdf5asdataformat] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
 
