@@ -1232,7 +1232,7 @@ if __name__ == '__main__':
     p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
     p.saveFig('abshum.eps')
 
-
+    print('US-Std 15C 46 RH has {} g/m3'.format(0.46*abshumidity(15 + 273.15)))
     #highest ever recorded absolute humidity was at dew point of 34C
     print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
         format(abshumidity(np.asarray([34 + 273.15]))[0],34))

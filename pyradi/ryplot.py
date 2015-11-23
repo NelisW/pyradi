@@ -389,7 +389,7 @@ class ProcessImage:
 
     ##############################################################################
     ##
-    def reprojectImageIntoPolar(self, data, origin=None, framesFirst=True):
+    def reprojectImageIntoPolar(self, data, origin=None, framesFirst=True,cval=0.0):
         """Reprojects a 3D numpy array into a polar coordinate system, relative to some origin.
 
         This function reprojects an image from cartesial to polar coordinates.
@@ -400,11 +400,18 @@ class ProcessImage:
         data.shape = (frames, rows, cols), the format of which is indicated by the 
         framesFirst parameter.
 
+        The reprojectImageIntoPolar function maps radial to cartesian coords. 
+        The radial image is however presented in a cartesian grid, the corners have no meaning.
+        The radial coordinates are mapped to the radius, not the corners.
+        This means that in order to map corners, the frequency is scaled with sqrt(2), 
+        The corners are filled with the value specified in cval.
+
         Args:
             | data (np.array): 3-D array to which transformation must be applied.
             | origin ( (x-orig, y-orig) ): data-coordinates of where origin should be placed
             | framesFirst (bool): True if data.shape is (frames, rows, cols), False if 
                 data.shape is (rows, cols, frames)
+            | cval (float): the fill value to be used in coords outside the mapped range(optional)
 
         Returns:
             | output (float np.array): transformed images/array data in the same sequence as input sequence.
@@ -451,7 +458,7 @@ class ProcessImage:
         # (uses less memory than reprojection the 3-dimensional array in one step)
         bands = []
         for band in data.T:
-            zi = spndi.map_coordinates(band, coords, order=1)
+            zi = spndi.map_coordinates(band, coords, order=1,cval=cval)
             bands.append(zi.reshape((nx, ny)))
         output = np.dstack(bands)
         if framesFirst:

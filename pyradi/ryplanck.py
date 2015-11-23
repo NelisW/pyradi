@@ -64,7 +64,7 @@ __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['planck','dplanck','stefanboltzman','planckef',  'planckel', 'plancken',
 'planckqf', 'planckql', 'planckqn', 'dplnckef', 'dplnckel', 'dplncken', 'dplnckqf',
-'dplnckql', 'dplnckqn','an','printConstants']
+'dplnckql', 'dplnckqn','an','printConstants','planckInt']
 
 import sys
 if sys.version_info[0] > 2:
@@ -79,7 +79,7 @@ from functools import wraps
 explimit = 709.7
 
 
-
+import pyradi.ryutils as ryutils
 
 class PlanckConstants:
     """Precalculate the Planck function constants using the values in
@@ -661,10 +661,9 @@ def planck(spectral, temperature, type='el'):
         exitance = plancktype[type](spectral, temperature)
     else:
         # return all minus one if illegal type
-        exitance = - np.ones(spectral.shape)
+        exitance = None
 
     return exitance
-
 
 
 ################################################################
@@ -707,6 +706,131 @@ def dplanck(spectral, temperature, type='el'):
 
     return exitance
 
+
+################################################################
+##
+def planck_integral(wavenum, temperature, radiant,niter=512):
+    """Integrated Planck law spectral exitance by summation from wavenum to infty.
+
+    http://www.spectralcalc.com/blackbody/inband_radiance.html
+    http://www.spectralcalc.com/blackbody/appendixA.html
+    Integral of spectral radiance from wavenum (cm-1) to infinity. 
+    follows Widger and Woodall, Bulletin of Am Met Soc, Vol. 57, No. 10, pp. 1217
+
+    Args:
+        | wavenum (scalar):  spectral limit.
+        | temperature (scalar):  Temperature in [K]
+        | radiant (bool): output units required, W/m2 or q/(s.m2)
+ 
+    Returns:
+        | (scalar):  exitance (not radiance) in units selected.
+        | For radiant units will be [W/(m^2)].
+        | For not radiant units will be [q/(s.m^2)].
+
+    Raises:
+        | No exception is raised, returns None on error.
+    """
+    # compute powers of x, the dimensionless spectral coordinate
+    c1 = const.h * const.c / const.k
+    x = c1 * 100. * wavenum / temperature 
+    x2 = x * x  
+    x3 = x * x2 
+
+    # decide how many terms of sum are needed
+    iter = int(2.0 + 20.0 / x )
+    iter = iter if iter<niter else niter
+
+    # add up terms of sum 
+    sum = 0. 
+    for n in range(1,iter):
+        dn = 1.0 / n 
+        if radiant:
+            sum += np.exp(-n * x) * (x3 + (3.0 * x2 + 6.0 * (x + dn) * dn) * dn) * dn
+        else:
+            sum += np.exp(-n * x) * (x2 + 2.0 * (x + dn) * dn) * dn 
+
+    if radiant:
+        # in units of W/m2
+        c2 = 2.0 * const.h * const.c * const.c
+        rtnval = c2 * (temperature/c1)**4. * sum  
+    else:
+        # in units of photons/(s.m2)
+        kTohc =  const.k * temperature / (const.h * const.c) 
+        rtnval =  2.0 * const.c * kTohc**3.  * sum 
+
+    # print('wn={} x={} T={} E={} n={}'.format(wavenum,x,temperature, rtnval/np.pi,iter))
+
+    return rtnval * np.pi
+
+################################################################
+##
+def planckInt(spectralLo, spectralHi, temperature, type='el'):
+    """Integrated Planck law spectral exitance.
+
+    Calculates the integral of the Planck law spectral exitance from a surface 
+    at the stated temperature over the specified spectral range. 
+    Temperature can be a scalar, a list or an array. 
+    Exitance can be returned in radiant or photon rate units, 
+    depending on user input in type.
+
+    http://www.spectralcalc.com/blackbody/inband_radiance.html
+    http://www.spectralcalc.com/blackbody/appendixA.html
+
+    Args:
+        | spectralLo (scalar):  spectral lower limit.
+        | spectralHi (scalar):  spectral upper limit.
+        | temperature (scalar):  Temperature in [K]
+        | type (string):
+        |  'e' signifies Radiant values in [W/m^2.*].
+        |  'q' signifies photon rate values  [quanta/(s.m^2.*)].
+        |  'l' signifies wavelength spectral vector  [micrometer].
+        |  'n' signifies wavenumber spectral vector [cm-1].
+        |  'f' signifies frequency spectral vecor [Hz].
+
+    Returns:
+        | (scalar):  spectral radiant exitance (not radiance) in units selected.
+        | For type = 'e*' units will be [W/(m^2)].
+        | For type = 'q*' units will be [q/(s.m^2)].
+        | Returns None on error.
+
+    Raises:
+        | No exception is raised, returns None on error.
+    """
+    if type not in list(plancktype.keys()) or temperature==0.0:
+        exitance = None
+    else:
+        if type[1]=='f':
+            sLo = ryutils.convertSpectralDomain(spectralLo, type='fn') 
+            sHi = ryutils.convertSpectralDomain(spectralHi, type='fn')  
+        elif type[1]=='l':
+            sLo = ryutils.convertSpectralDomain(spectralLo, type='ln') 
+            sHi = ryutils.convertSpectralDomain(spectralHi, type='ln')  
+        else:
+            sLo = spectralLo
+            sHi = spectralHi
+
+        sLo = 1e100 if sLo>1e100 else sLo
+        sHi = 1e100 if sHi>1e100 else sHi
+
+        if sLo > sHi:
+            sLo, sHi = sHi, sLo
+
+        if sLo==0.:
+            mLo = stefanboltzman(temperature, type=type[0])
+        else:
+            mLo = planck_integral(sLo, temperature, type[0]=='e')
+
+        if sHi==0.:
+            mHi = stefanboltzman(temperature, type=type[0])
+        else:
+            mHi = planck_integral(sHi, temperature, type[0]=='e')
+
+        exitance = mLo - mHi
+
+    return exitance
+
+
+
 ################################################################
 ##
 
@@ -715,14 +839,16 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
     
-    from . import ryutils
+    import ryutils
+    doAll = True
 
-    if True:
+
+    if doAll:
         #--------------------------------------------------------------------------------------
         # print all available constants
         pconst.printConstants()
 
-    if True:
+    if doAll:
         #--------------------------------------------------------------------------------------
         # test different input types for temperature but with spectral array
         wavelen = np.linspace(1.0, 2.0, 100)
@@ -765,8 +891,7 @@ if __name__ == '__main__':
 
         print(' ')
 
-
-    if True:
+    if doAll:
         #--------------------------------------------------------------------------------------
         # test at fixed temperature
         # for each function we calculate a spectral exitance and then get the peak and where peak occurs.'
@@ -790,7 +915,8 @@ if __name__ == '__main__':
         peakM =  1.28665e-11*tmprtr**5
         spectralPeakM = 2897.9/tmprtr
         spectralPeak = wl[M.argmax()]
-        I=sum(M)*wld
+        I=np.trapz(M, wl)
+        psum = planckInt(wl1, wl2, tmprtr, type='el')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr**4
         dMe = ( planckel(spectralPeak, tmprtr+dTmprtr)  - planckel(spectralPeak,tmprtr))/dTmprtr
@@ -800,14 +926,17 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [um]'.format(spectralPeak,spectralPeakM, 100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [W/(m^2.um.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
+
 
         print('\nplanckql WAVELENGTH DOMAIN, PHOTON EXITANCE');
         M =planckql(wl,tmprtr);
         peakM =  2.1010732e11*tmprtr*tmprtr*tmprtr*tmprtr
         spectralPeakM = 3669.7/tmprtr
         spectralPeak = wl[M.argmax()]
-        I=sum(M)*wld
+        I=np.trapz(M, wl)
+        psum = planckInt(wl1, wl2, tmprtr, type='ql')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
         dMe = ( planckql(spectralPeak,tmprtr+dTmprtr)  - planckql(spectralPeak,tmprtr))/dTmprtr
@@ -817,6 +946,7 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [um]'.format(spectralPeak,spectralPeakM, 100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2.um.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
 
 
@@ -830,7 +960,8 @@ if __name__ == '__main__':
         peakM =  5.95664593e-19*tmprtr*tmprtr*tmprtr
         spectralPeakM = 5.8788872e10*tmprtr
         spectralPeak = f[M.argmax()]
-        I=sum(M)*fd
+        I=np.trapz(M, f)
+        psum = planckInt(f1, f2, tmprtr, type='ef')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr*tmprtr*tmprtr*tmprtr
         dMe = ( planckef(spectralPeak,tmprtr+dTmprtr)  - planckef(spectralPeak,tmprtr))/dTmprtr
@@ -840,6 +971,7 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [Hz]'.format(spectralPeak,spectralPeakM, 100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [W/(m^2.Hz.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
 
 
@@ -848,7 +980,8 @@ if __name__ == '__main__':
         peakM = 1.965658e4*tmprtr*tmprtr
         spectralPeakM = 3.32055239e10*tmprtr
         spectralPeak = f[M.argmax()]
-        I=sum(M)*fd
+        I=np.trapz(M, f)
+        psum = planckInt(f1, f2, tmprtr, type='qf')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
         dMe = ( planckqf(spectralPeak,tmprtr+dTmprtr)  - planckqf(spectralPeak,tmprtr))/dTmprtr
@@ -858,6 +991,7 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [Hz]'.format(spectralPeak,spectralPeakM,100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2.Hz.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
 
 
@@ -871,7 +1005,8 @@ if __name__ == '__main__':
         peakM =  1.78575759e-8*tmprtr*tmprtr*tmprtr
         spectralPeakM = 1.9609857086*tmprtr
         spectralPeak = n[M.argmax()]
-        I=sum(M)*nd
+        I=np.trapz(M, n)
+        psum = planckInt(n1, n2, tmprtr, type='en')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr*tmprtr*tmprtr*tmprtr
         dMe = ( plancken(spectralPeak,tmprtr+dTmprtr)  - plancken(spectralPeak,tmprtr))/dTmprtr
@@ -881,6 +1016,7 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [cm-1]'.format(spectralPeak,spectralPeakM,100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [W/(m^2.cm-1.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
 
 
@@ -889,7 +1025,8 @@ if __name__ == '__main__':
         peakM = 5.892639e14*tmprtr*tmprtr
         spectralPeakM = 1.1076170659*tmprtr
         spectralPeak =  n[M.argmax()]
-        I=sum(M)*nd
+        I=np.trapz(M, n)
+        psum = planckInt(n1, n2, tmprtr, type='qn')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
         dMe = ( planckqn(spectralPeak,tmprtr+dTmprtr)  - planckqn(spectralPeak,tmprtr))/dTmprtr
@@ -899,6 +1036,7 @@ if __name__ == '__main__':
         print('peak exitance at          {0:e}   {1:e}   {2:+.4f}   [cm-1]'.format(spectralPeak,spectralPeakM, 100 * (spectralPeak-spectralPeakM)/spectralPeakM))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(I, sbl, 100 * (I-sbl)/sbl))
         print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2)]'.format(sblf, sbl, 100 * (sblf-sbl)/sbl))
+        print('radiant exitance (int)    {0:e}   {1:e}   {2:+.4f}   [W/m^2]'.format(psum, sbl, 100 * (psum-sbl)/sbl))
         print('radiant exitance dM/dT    {0:e}   {1:e}   {2:+.4f}   [q/(s.m^2.cm-1.K)]'.format(dMf,  dMe, 100 * (dMf-dMe)/dMe))
         print(' ')
 
@@ -953,8 +1091,8 @@ if __name__ == '__main__':
 
     #--------------------------------------------------------------------------------------
     #now plot a number of graphs
-    if True:
-        from . import ryplot
+    if doAll:
+        import ryplot
 
         #plot a single planck curve on linear scale for 300K source
         wl=np.logspace(np.log10(0.2), np.log10(20), num=100).reshape(-1, 1)
@@ -1037,11 +1175,11 @@ if __name__ == '__main__':
 
         #fdplanck.GetPlot().show()
         fdplanck.saveFig('dplanck.png')
-    print(' ')
+        print(' ')
 
     #--------------------------------------------------------------------------------------
     #a simple calculation to calculate the number of bits required to express colour ratio
-    if True:
+    if doAll:
         print('Calculate the number of bits required to express the colour ratio')
         print('between an MTV flare and a relatively cold aircraft fuselage.')
         #calculate the radiance ratio of aircraft fuselage to MTV flare in 3-5 um band
@@ -1056,4 +1194,4 @@ if __name__ == '__main__':
             format(flareM/aircraftM,  np.log2(flareM/aircraftM)))
 
     #--------------------------------------------------------------------------------------
-    print('\n\nmodule planck done!')
+    print('\nmodule planck done!')

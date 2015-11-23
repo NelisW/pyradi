@@ -263,7 +263,7 @@ setup(
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)',
           'Operating System :: OS Independent',
-          'Programming Language :: Python',
+          'Programming Language :: Python :: 2.7 :: Only',
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Physics',
           'Topic :: Scientific/Engineering :: Visualization',
