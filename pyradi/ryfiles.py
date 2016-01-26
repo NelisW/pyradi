@@ -220,7 +220,7 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>"):
         | No exception is raised.
     """
     #remove the undesireable characters
-    return [c for c in sourcestring if c not in removestring]
+    return ''.join([c for c in sourcestring if c not in removestring])
 
 
 
@@ -527,8 +527,10 @@ def rawFrameToImageFile(image, filename):
     image = (image - ndimage.minimum(image)) / (ndimage.maximum(image) - ndimage.minimum(image))
 
     # http://scikit-image.org/docs/dev/api/skimage.io.html#imsave
-    import skimage.io as io
-    io.imsave(filename, image) 
+    # import skimage.io as io
+    # io.imsave(filename, image) 
+    import scipy.misc
+    scipy.misc.imsave(filename, image)
 
 
 ################################################################
@@ -1008,8 +1010,8 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
 
-    from . import ryplot
-    from . import ryutils
+    import ryplot
+    import ryutils
 
     # read two-dimensional lookup table
     xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
@@ -1079,9 +1081,13 @@ if __name__ == '__main__':
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
     print('{0}\n{1}'.format(inString,cleanFilename(inString) ))
     inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+    print('{0}\n{1}'.format(inString,cleanFilename(inString, " ") ))
+    inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
     print('{0}\n{1}'.format(inString,cleanFilename(inString, "") ))
 
-    print ('\nTest listFiles function:')
+    print ('\nTest listFiles function - only python files in currect dir:')
+    print(listFiles('./', patterns='*.py', recurse=0, return_folders=1))
+    print ('\nTest listFiles function - only python files in nested dirs:')
     print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
 
     ##------------------------- load frames from binary & show ---------------------------
@@ -1110,8 +1116,9 @@ if __name__ == '__main__':
         #now write the raw frames to image files
         type = ['png','png','png','png']
         for i in range(frames):
-            print(i)
+            # print(i)
             filename = 'rawIm{0}.{1}'.format(i,type[i])
+            print('  saving image {} file to {}'.format(i,filename))
             rawFrameToImageFile(img[i],filename)
 
     else:

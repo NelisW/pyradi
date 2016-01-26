@@ -676,10 +676,17 @@ class Plotter:
         # http://matplotlib.1069221.n5.nabble.com/TrueType-font-embedding-in-eps-problem-td12691.html
         # http://stackoverflow.com/questions/5956182/cannot-edit-text-in-chart-exported-by-matplotlib-and-opened-in-illustrator
         # http://newsgroups.derkeiler.com/Archive/Comp/comp.soft-sys.matlab/2008-07/msg02038.html
+
+
         if useTrueType:
             mpl.rcParams['pdf.fonttype'] = 42
             mpl.rcParams['ps.fonttype'] = 42
 
+        #http://stackoverflow.com/questions/15341757/how-to-check-that-pylab-backend-of-matplotlib-runs-inline/17826459#17826459
+        # print(mpl.get_backend())
+        if 'inline' in mpl.get_backend():
+            print('****  savefig does not currently work when running ryplot in IPython')
+            return
 
         if len(filename)>0:
             if self.bbox_extra_artists:
@@ -689,8 +696,6 @@ class Plotter:
             else:
                 self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
                             pad_inches=pad_inches)
-
-
 
 
     ############################################################
@@ -2986,6 +2991,7 @@ if __name__ == '__main__':
 
     import datetime as dt
 
+    doAll = False
 
     if True:  # stacked plot
         fnx = lambda : np.random.randint(5, 50, 10)
@@ -3000,10 +3006,10 @@ if __name__ == '__main__':
         print(percent.shape)
         sp = Plotter(1,1,1,figsize=(16,8))
         sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label', 
-            plotCol=['b','r','g'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
+            plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
         sp.saveFig('stackplot.png')
 
-    if True:    #next line include both 0 and 360 degrees, i.e., overlap on edge
+    if doAll:    #next line include both 0 and 360 degrees, i.e., overlap on edge
         angled = np.linspace(0.,360.,25) 
         angler = np.pi * angled / 180.
         grange = np.linspace(500.,4000.,8)
@@ -3029,7 +3035,7 @@ if __name__ == '__main__':
             linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
         pm.saveFig('3Dlaunch.png')
 
-    if True:
+    if doAll:
         ############################################################################
         #create the wireframe for the sphere
         u = np.linspace(0, np.pi, 100)
@@ -3138,7 +3144,7 @@ if __name__ == '__main__':
     #demonstrate the use of a polar mesh plot radial scales
     #create the radial and angular vectors
 
-    if True:
+    if doAll:
         r = np.linspace(0,1.25,100)
         p = np.linspace(0,2*np.pi,100)
         P,R = np.meshgrid(p,r)
@@ -3209,7 +3215,7 @@ if __name__ == '__main__':
 
     ############################################################################
     # demonstrate the use of the contextmanager and with statement
-    if True:
+    if doAll:
         x=np.linspace(-3,3,20)
         with savePlot(1,saveName=['testwith.png','testwith.eps']) as p:
             p.plot(1,x,x*x)
@@ -3218,7 +3224,7 @@ if __name__ == '__main__':
 
     ############################################################################
     import matplotlib.mlab as mlab
-    if True:
+    if doAll:
         delta = 0.025
         x = np.arange(-3.0, 3.0, delta)
         y = np.arange(-2.0, 2.0, delta)
@@ -3247,7 +3253,7 @@ if __name__ == '__main__':
       scale = np.sqrt(np.exp(-(x**2 +y**2)))
       return np.sin(2 * x) * np.cos(4 * y) * scale
 
-    if True:
+    if doAll:
         x = np.linspace(-2, 2, 101)
         y = np.linspace(-2, 2, 101)
         varx, vary = np.meshgrid(x, y)
@@ -3276,7 +3282,7 @@ if __name__ == '__main__':
     ############################################################################
     #demonstrate the use of plotArray
     #import array from example data file
-    if True:
+    if doAll:
         filename = "data/arrayplotdemo.txt"
         f = open(filename)
         lines = f.readlines()
@@ -3320,7 +3326,7 @@ if __name__ == '__main__':
     ############################################################################
     #demonstrate the use of a polar mesh plot and markers
     #create the radial and angular vectors
-    if True:
+    if doAll:
 
         r = np.linspace(0,1.25,100)
         p = np.linspace(0,2*np.pi,100)
@@ -3347,7 +3353,7 @@ if __name__ == '__main__':
 
     ############################################################################
     ##create some data
-    if True:
+    if doAll:
         xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
         yLinS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
         yLinSS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
@@ -3546,7 +3552,7 @@ if __name__ == '__main__':
     ############################################################################
     #demonstrate multipage pdf output
     #reference for the multipage pdf code: http://blog.marmakoide.org/?p=94
-    if True:
+    if doAll:
 
         x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
         y=1 + np.random.random(x.shape[0]).reshape(-1, 1)
