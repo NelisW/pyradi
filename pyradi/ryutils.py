@@ -43,7 +43,11 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 'rangeEquation',
-         '_rangeEquationCalc', 'detectThresholdToNoise','detectSignalToNoise','upMu',
+         '_rangeEquationCalc', 
+         'detectThresholdToNoiseTpFAR', 'detectSignalToNoiseThresholdToNoisePd',
+         'detectThresholdToNoiseSignalToNoisepD','detectProbabilityThresholdToNoiseSignalToNoise',
+         'detectFARThresholdToNoisepulseWidth',
+         'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
          'rect', 'circ','poissonarray',
          ]
@@ -248,7 +252,34 @@ def upMu(uprightMu=True, textcomp=False):
 
 ##############################################################################
 ##
-def detectThresholdToNoise(pulseWidth, FAR):
+def detectFARThresholdToNoisepulseWidth(ThresholdToNoise, pulseWidth):
+    """ Solve for the FAR, given the threshold to noise ratio and pulse width, for matched filter.
+
+    References:
+
+    "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
+
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+
+    Args:
+        | ThresholdToNoise (float): the threshold to noise ratio.
+        | pulseWidth (float): the signal pulse width in [s].
+
+    Returns:
+        | FAR (float): the false alarm rate in [alarms/s]
+
+    Raises:
+        | No exception is raised.
+    """
+
+    FAR = np.exp(- (ThresholdToNoise ** 2) / 2.) / (2. * pulseWidth * np.sqrt(3)) 
+
+    return FAR
+
+
+##############################################################################
+##
+def detectThresholdToNoiseTpFAR(pulseWidth, FAR):
     """ Solve for threshold to noise ratio, given pulse width and FAR, for matched filter.
 
     Using the theory of matched filter design, calculate the
@@ -279,7 +310,7 @@ def detectThresholdToNoise(pulseWidth, FAR):
 
 ##############################################################################
 ##
-def detectSignalToNoise(ThresholdToNoise, pD):
+def detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, pD):
     """ Solve for the signal to noise ratio, given the threshold to noise ratio and
     probability of detection.
 
@@ -309,6 +340,65 @@ def detectSignalToNoise(ThresholdToNoise, pD):
 
     return SignalToNoise
 
+##############################################################################
+##
+def detectThresholdToNoiseSignalToNoisepD(SignalToNoise, pD):
+    """ Solve for the threshold to noise ratio, given the signal to noise ratio and
+    probability of detection.
+
+    References:
+
+    "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
+
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+
+    Args:
+        | SignalToNoise (float): the signal to noise ratio [-]
+        | pD (float): the probability of detection [-]
+
+    Returns:
+        | range (float): signal to noise ratio
+
+    Raises:
+        | No exception is raised.
+    """
+
+    import scipy.special
+
+    ThresholdToNoise = SignalToNoise - np.sqrt(2) * scipy.special.erfinv(2 * pD -1) 
+
+    return ThresholdToNoise
+
+
+##############################################################################
+##
+def detectProbabilityThresholdToNoiseSignalToNoise(ThresholdToNoise, SignalToNoise):
+    """ Solve for the probability of detection, given the signal to noise ratio and
+     threshold to noise ratio
+
+    References:
+
+    "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
+
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+
+    Args:
+        | ThresholdToNoise (float): the threshold to noise ratio [-]
+        | SignalToNoise (float): the signal to noise ratio [-]
+
+    Returns:
+        | range (float): probability of detection
+
+    Raises:
+        | No exception is raised.
+    """
+
+    import scipy.special
+
+    pD   = 0.5 * (scipy.special.erf((SignalToNoise - ThresholdToNoise) / np.sqrt(2)) + 1)
+
+    return pD
+
 
 ##############################################################################
 ##
@@ -328,7 +418,7 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     The range :math:`R` must be in [m], and :math:`\\tau_a(R)`
     is calculated from a lookup table of atmospheric transmittance vs. range.
     The transmittance lookup table  can be calculated from the simple Bouguer law,
-    or it can have any abritrary shape, provided it decreases with increasing range.
+    or it can have any arbitrary shape, provided it decreases with increasing range.
     The user supplies the lookup table in the form of an array of range values and
     an associated array of transmittance values.  The range values need not be on
     constant linear range increment.
@@ -338,7 +428,7 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     * :math:`n=2` (default value) the general case of a radiating source
       smaller than the field of view.
 
-    * :math:`n=4` the special case of a laser rangefinder illuminating a target
+    * :math:`n=4` the special case of a laser range finder illuminating a target
       smaller than the field of view, viewed against the sky. In this case there
       is an :math:`R^2` attenuation from the laser to the source and another
       :math:`R^2` attenuation from the source to the receiver, hence
@@ -930,8 +1020,8 @@ if __name__ == '__main__':
     pulsewidth = 100e-9
     FAR = 15
     probDetection = 0.999
-    ThresholdToNoise = detectThresholdToNoise(pulsewidth,FAR)
-    SignalToNoise = detectSignalToNoise(ThresholdToNoise, probDetection)
+    ThresholdToNoise = detectThresholdToNoiseTpFAR(pulsewidth,FAR)
+    SignalToNoise = detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, probDetection)
     print('For a laser pulse with width={0}, a FAR={1} and Pd={2},'.format(pulsewidth,FAR,probDetection))
     print('the Threshold to Noise ratio must be {0}'.format(ThresholdToNoise))
     print('and the Signal to Noise ratio must be {0}'.format(SignalToNoise))
