@@ -685,7 +685,7 @@ class Plotter:
         #http://stackoverflow.com/questions/15341757/how-to-check-that-pylab-backend-of-matplotlib-runs-inline/17826459#17826459
         # print(mpl.get_backend())
         if 'inline' in mpl.get_backend():
-            print('****  savefig does not currently work when running ryplot in IPython')
+            print('****  To use saveFig inside IPython please comment out the line "#%matplotlib inline" ')
             return
 
         if len(filename)>0:
