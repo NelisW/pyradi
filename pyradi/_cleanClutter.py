@@ -108,7 +108,7 @@ class cleanClutterTest(unittest.TestCase):
                 os.makedirs(self.tdirs[-1])
         self.totalFiles = 53
         for i in range(0,self.totalFiles):
-            (handle, path) = tempfile.mkstemp(prefix='cleanclutter',suffix='.'+self.exts[i%len(self.exts)], 
+            (handle, path) = tempfile.mkstemp(prefix='cleanclutter',suffix='.'+self.exts[i%len(self.exts)],
                 dir=os.path.join('.',self.tdirs[i%len(self.tdirs)]))
             os.close(handle)
             self.paths.append(path)
@@ -124,11 +124,11 @@ class cleanClutterTest(unittest.TestCase):
         #count all files of given type everywhere in all the dirs
         for ftype in self.exts:
             cntAll[ftype] = len(listFiles(self.root, patterns='*.{}'.format(ftype), recurse=1, return_folders=0))
-        #count files of given type per different directory 
+        #count files of given type per different directory
         for dir in self.dirs:
             cntDirs[dir] = {}
             for ftype in self.exts:
-                cntDirs[dir][ftype] = len(listFiles(os.path.join(self.root,dir), 
+                cntDirs[dir][ftype] = len(listFiles(os.path.join(self.root,dir),
                     patterns='*.{}'.format(ftype), recurse=0, return_folders=0))
         return cntDirs, cntAll
 
@@ -140,7 +140,7 @@ class cleanClutterTest(unittest.TestCase):
         for dirname in self.tdirs:
             # print(dirname)
             shutil.rmtree(dirname) if os.path.exists(dirname) else None
-            
+
 
     def test_listFiles(self):
         """Count the number of files in total and count the number of files per
@@ -175,7 +175,7 @@ class cleanClutterTest(unittest.TestCase):
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
 
-        #delete all files of one type in all the dirs 
+        #delete all files of one type in all the dirs
         ftype = self.exts[1]
         dpath = os.path.join(self.root,'.')
         QueryDelete(1,dpath,'*.{}'.format(ftype),promptUser=False)
@@ -218,17 +218,13 @@ if __name__ == '__main__':
 
     # #we take the conservative approach and do not do blanket erase,
     # #rather do it by type, asking the user first
-    # QueryDelete(0,'.', '*.eps;*.png;*.jpg;*.pdf;*.txt;*.tiff;*.dat;*.lut')
-    # QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt;*.testing')
-    # QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;*.svg' )
-    # QueryDelete(0,'.', '*.hdf5')
+    QueryDelete(0,'.', '*.eps;*.png;*.jpg;*.pdf;*.txt;*.tiff;*.dat;*.lut')
+    QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt;*.testing')
+    QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;*.svg' )
+    QueryDelete(0,'.', '*.hdf5')
 
-    tt = cleanClutterTest()
-    tt.setUp()
-    tt.test_listFiles()
-    tt.test_QueryDelete()
-    tt.tearDown()
-
-
-
-
+    # tt = cleanClutterTest()
+    # tt.setUp()
+    # tt.test_listFiles()
+    # tt.test_QueryDelete()
+    # tt.tearDown()

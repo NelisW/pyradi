@@ -798,13 +798,20 @@ def sense_node_reset_noise(strh5):
     high-performance photosensors incorporate a noise-reduction mechanism such as
     correlated double sampling (CDS).
 
-    The kTC noise is occurs in CMOS sensors, while for CCD sensors the sense
+    kTC noise occurs in CMOS sensors, while for CCD sensors the sense
     node reset noise is removed~ (see Janesick's book) by Correlated Double
     Sampling (CDS). Random fluctuations of charge on the sense node during the reset
     stage result in a corresponding photodiode reset voltage fluctuation. The sense
-    node reset noise is given by:
+    node reset noise (in volt units) is given by:
 
     :math:`\sigma_{RESET}=\sqrt{\frac{k_B T}{C_{SN}}}`
+
+    By the relationship Q=CV it can be shown that the kTC noise can be expressed 
+    as electron count by
+
+    :math:`\sigma_{RESET}=\sqrt{\frac{k_B T C_{SN}}{q}}`
+
+    see also https://en.wikipedia.org/wiki/Johnson%E2%80%93Nyquist_noise
 
     The simulation of the sense node reset noise may be performed as an addition of
     non-symmetric probability distribution to the reference voltage :math:`V_{REF}`.
@@ -876,9 +883,10 @@ def dark_current_and_dark_noises(strh5):
     :math:`D_R = 2.55\cdot10^{15}P_A D_{FM} T^{1.5} \exp\left[-\frac{E_{gap}}{2\cdot k\cdot T}\right],` 
 
     where:
+    :math:`D_R` is in units of [e$^{-1}$/s],
     :math:`P_A` is the pixel's area [:math:`cm^2`];
-    :math:`D_{FM}` is the dark current figure-of-merit at 300K [nA/:math:`cm^2`], varies significantly; 
-    with sensor manufacturer, and used in this simulations as 0.5 nA/:math:`cm^2`;
+    :math:`D_{FM}` is the dark current figure-of-merit in units of [nA/:math:`cm^2`] at 300K, 
+    varies significantly with sensor manufacturer, and used in this simulations as 0.5 nA/:math:`cm^2`;
     :math:`E_{gap}` is the bandgap energy of the semiconductor which also varies with temperature;
     :math:`k` is Boltzman's constant that is :math:`8.617\cdot10^{-5} [eV/K].`
 
@@ -1217,8 +1225,8 @@ def shotnoise(sensor_signal_in):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-    # # Since this is a shot noise, it must be random every time we apply it, unlike the Fixed Pattern Noise (PRNU or DSNU).
-    # #If seed is omitted or None, current system time is used
+    # Since this is a shot noise, it must be random every time we apply it, unlike the Fixed Pattern Noise (PRNU or DSNU).
+    # If seed is omitted or None, current system time is used
     return ryutils.poissonarray(sensor_signal_in, seedval=None)
 
 ######################################################################################################
