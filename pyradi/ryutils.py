@@ -49,7 +49,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'detectFARThresholdToNoisepulseWidth',
          'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
-         'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence'
+         'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence','extractGraph'
          ]
 
 import sys
@@ -1036,6 +1036,7 @@ def draw_siemens_star(outfile, n, dpi):
     imgOut = np.abs(255 - imgOut)
     misc.imsave(outfile, imgOut)
 
+######################################################################################################
 def gen_siemens_star(origin, radius, n):
     centres = np.linspace(0, 360, n+1)[:-1]
     step = (((360.0)/n)/4.0)
@@ -1046,7 +1047,142 @@ def gen_siemens_star(origin, radius, n):
 
 
 ######################################################################################################
-def makemotionsequence(imgfilename, mtnfilename,intTime,frmTim,outrows,outcols,
+def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
+        xaxisLog=False, yaxisLog=False, step=None, value=None):
+    """Scan an image containing graph lines and produce (x,y,value) data.
+    
+    This function processes an image, calculate the location of pixels on a 
+    graph line, and then scale the (r,c) or (x,y) values of pixels with non-zero 
+    values. The 
+
+    Get a bitmap of the graph (scan or screen capture).
+    Take care to make the graph x and y axes horizontal/vertical.
+    The current version of the software does not work with rotated images.
+    Bitmap edit the graph. Clean the graph to the maximum extent possible,
+    by removing all the clutter, such that only the line to be scanned is visible.
+    Crop only the central block that contains the graph box, by deleting
+    the x and y axes notation and other clutter. The size of the cropped image 
+    must cover the range in x and y values you want to cover in the scan. The 
+    graph image/box must be cut out such that the x and y axes min and max
+    correspond exactly with the edges of the bitmap.
+    You must end up with nothing in the image except the line you want 
+    to digitize.
+
+    The current version only handles single lines on the graph, but it does
+    handle vertical and horizontal lines.
+    
+    The function can also write out a value associated with the (x,y) coordinates 
+    of the graph, as the third column. Normally these would have all the same 
+    value if the line represents an iso value.
+
+    The x,y axes can be lin/lin, lin/log, log/lin or log/log, set the flags.
+
+    Args:
+        | filename: name of the image file
+        | xmin: the value corresponding to the left side (column=0)
+        | xmax: the value corresponding to the right side (column=max)
+        | ymin: the value corresponding to the bottom side (row=bottom)
+        | ymax: the value corresponding to the top side (row=top)
+        | outfile: write the sampled points to this output file
+        | doPlot: plot the digitised graph for visual validation
+        | xaxisLog: x-axis is in log10 scale (min max are log values)
+        | yaxisLog: y-axis is in log10 scale (min max are log values)
+        | step: if not None only ouput every step values
+        | value: if not None, write this value as the value column
+
+    Returns:
+        | xval: the sampled and scaled x-values
+        | yval: the sampled and scaled y-values
+        | side effect: a file may be written
+        | side effect: a graph may be displayed
+        
+    Raises:
+        | No exception is raised.
+
+    Author: neliswillers@gmail.com
+    """
+
+    from scipy import ndimage
+    from skimage.morphology import medial_axis
+    if doPlot:
+        import pylab
+        import matplotlib.pyplot as pyplot
+     
+    #read image file, as grey scale
+    img = ndimage.imread(filename, True)
+
+    # find threshold 50% up the way
+    halflevel = img.min() + (img.max()-img.min()) /2
+    # form binary image by thresholding
+    img = img < halflevel
+    #find the skeleton one pixel wide
+    imgskel = medial_axis(img)
+    
+    #if doPlot:
+        # pylab.imshow(imgskel)
+        # pylab.gray()
+        # pylab.show()
+
+    # set up indices arrays to get x and y indices
+    ind = np.indices(img.shape)
+
+    #skeletonise the graph to one pixel only
+    #then get the y pixel value, using indices
+    yval = ind[0,...] * imgskel.astype(float)
+    
+    #if doPlot:
+        # pylab.imshow(yval>0)
+        # pylab.gray()
+        # pylab.show()
+        
+    # invert y-axis origin from left top to left bottom
+    yval = yval.shape[0] - np.max(yval, axis=0)
+    #get indices for only the pixels where we have data
+    wantedIdx = np.where(np.sum(imgskel, axis = 0) > 0)
+
+    # convert to original graph coordinates
+    cvec = np.arange(0.0,img.shape[1])
+
+    xval = xmin + (cvec[wantedIdx] / img.shape[1]) * (xmax - xmin)
+    xval = xval.reshape(-1,1)
+    yval = ymin + (yval[wantedIdx] / img.shape[0]) * (ymax - ymin)
+    yval = yval.reshape(-1,1)
+
+    if xaxisLog:
+        xval =  10** xval
+
+    if yaxisLog:
+        yval =  10 ** yval
+
+    #build the result array
+    outA = np.hstack((xval,yval))
+    if value is not None:
+        outA = np.hstack((outA,value*np.ones(yval.shape)))
+
+    # process step intervals
+    if step is not None:
+        # collect the first value, every step'th value, and last value
+        outA = np.vstack((outA[0,:],outA[1:-2:step,:],outA[-1,:]))
+
+    #write output file
+    if outfile is not None > 0 :
+        np.savetxt(outfile,outA)
+
+    if doPlot:
+        fig = pyplot.figure()
+        ax=fig.add_subplot(1,1,1)
+        ax.plot(xval,yval)
+        if xaxisLog:
+            ax.set_xscale('log')
+        if yaxisLog:
+            ax.set_yscale('log')
+        pylab.show()
+
+    return outA
+
+
+######################################################################################################
+def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,outcols,
                 imgRatio,pixsize,numsamples,fnPlotInput=None):
     r"""Builds a video from a still image and a displacement motion file.
 
@@ -1094,6 +1230,7 @@ def makemotionsequence(imgfilename, mtnfilename,intTime,frmTim,outrows,outcols,
     Args:
         | imgfilename (str): static image filename (monochrome only)
         | mtnfilename (str): motion data filename.
+        | postfix (str): add this string to the end of the output filename.
         | intTime (float): sensor integration time.
         | frmTim (float): sensor frame time.
         | outrows (int): number of rows in the output image.
@@ -1130,7 +1267,7 @@ def makemotionsequence(imgfilename, mtnfilename,intTime,frmTim,outrows,outcols,
         rcmotion = np.load(mtnfilename)['arr_0']
     elif '.txt' in mtnfilename:
         rcmotion = np.loadtxt(mtnfilename)
-    else:   
+    else:
         return '{} not in appropriate format'.format(mtnfilename)
 
     mtnfilenamecore = os.path.split(mtnfilename)[1]
@@ -1147,7 +1284,7 @@ def makemotionsequence(imgfilename, mtnfilename,intTime,frmTim,outrows,outcols,
         I.plot(2,times,rcmotion[:,1:3],'Input motion','Time s','Displacement',label=['row','col'])
         I.plot(3,times,rcmotion[:,1:3]/pixsize,'Input motion','Time s','Displacement pixels',label=['row','col'])
         I.saveFig(fnPlotInput)
-        
+
     fullframe = 0
     subframes = 0
     outimage = np.zeros((outrows*imgRatio,outcols*imgRatio))
@@ -1163,7 +1300,7 @@ def makemotionsequence(imgfilename, mtnfilename,intTime,frmTim,outrows,outcols,
             if fracframe >= fullframe + 1:
                 #output and reset the present image
                 outfilename = os.path.split(imgfilename)[1].replace('.png',
-                           '-{}-{:05d}.png'.format(mtnfilenamecore,fullframe))
+                           '-{}-{}-{:05d}.png'.format(mtnfilenamecore,postfix,fullframe))
 
                 outimage = outimage/subframes
                 saveimage = np.array([[np.sum(vchunk) for vchunk in np.split(hchunk, outrows, 1)]

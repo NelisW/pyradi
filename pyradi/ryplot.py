@@ -33,8 +33,8 @@ https://github.com/NelisW/ComputationalRadiometry
 
 See the __main__ function for examples of use.
 
-This package was partly developed to provide additional material in support of students 
-and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+This package was partly developed to provide additional material in support of students
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry
 Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
@@ -146,7 +146,7 @@ class Markers:
 ####################################################################
 ##
     def __init__(self, markerfacecolor = None, markerfacecoloralt = None,
-                markeredgecolor = None, marker = None, markersize = None, 
+                markeredgecolor = None, marker = None, markersize = None,
                 fillstyle = None):
         """Set default marker values for this collection
 
@@ -326,16 +326,16 @@ class ProcessImage:
         """
 
         __all__ = ['__init__', 'compressEqualizeImage',  'reprojectImageIntoPolar']
-   
+
 
     ############################################################
-    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20, 
+    def compressEqualizeImage(self, image, selectCompressSet=2, numCbarlevels=20,
                     cbarformat='.3f'):
-        """Compress an image (and then inversely expand the color bar values), 
-           prior to histogram equalisation to ensure that the two keep in step, 
-           we store the compression function names as pairs, and invoke the 
+        """Compress an image (and then inversely expand the color bar values),
+           prior to histogram equalisation to ensure that the two keep in step,
+           we store the compression function names as pairs, and invoke the
            compression function as follows:  linear, log. sqrt.  Note that the
-           image is histogram equalised in all cases. 
+           image is histogram equalised in all cases.
 
            Args:
                 | image (np.ndarray):  the image to be processed
@@ -350,7 +350,7 @@ class ProcessImage:
             Raises:
                 | No exception is raised.
 
-     """  
+     """
 
         #compress the input image  - rescale color bar tick to match below
         #also collapse into single dimension
@@ -369,9 +369,9 @@ class ProcessImage:
         #        print('Image irradiance range minimum={0} maximum={1}'.format(minData, maxData))
         #        irradRange=np.linspace(minData, maxData, 100)
         #        normalRange = np.interp(irradRange,imgFlatSort, cdf )
-        #        H = ryplot.Plotter(1, 1, 1,'Mapping Input Irradiance to Equalised Value', 
+        #        H = ryplot.Plotter(1, 1, 1,'Mapping Input Irradiance to Equalised Value',
         #           figsize=(10, 10))
-        #        H.plot(1, "","Irradiance [W/(m$^2$)]", "Equalised value",irradRange, 
+        #        H.plot(1, "","Irradiance [W/(m$^2$)]", "Equalised value",irradRange,
         #           normalRange, powerLimits = [-4,  2,  -10,  2])
         #        #H.getPlot().show()
         #        H.saveFig('cumhist{0}.png'.format(entry), dpi=300)
@@ -392,24 +392,24 @@ class ProcessImage:
     def reprojectImageIntoPolar(self, data, origin=None, framesFirst=True,cval=0.0):
         """Reprojects a 3D numpy array into a polar coordinate system, relative to some origin.
 
-        This function reprojects an image from cartesial to polar coordinates.
-        The origin of the new coordinate system  defaults to the center of the image, 
-        unless the user supplies a new origin. 
+        This function reprojects an image from cartesian to polar coordinates.
+        The origin of the new coordinate system  defaults to the center of the image,
+        unless the user supplies a new origin.
 
-        The data format can be data.shape = (rows, cols, frames) or 
-        data.shape = (frames, rows, cols), the format of which is indicated by the 
+        The data format can be data.shape = (rows, cols, frames) or
+        data.shape = (frames, rows, cols), the format of which is indicated by the
         framesFirst parameter.
 
-        The reprojectImageIntoPolar function maps radial to cartesian coords. 
+        The reprojectImageIntoPolar function maps radial to cartesian coords.
         The radial image is however presented in a cartesian grid, the corners have no meaning.
         The radial coordinates are mapped to the radius, not the corners.
-        This means that in order to map corners, the frequency is scaled with sqrt(2), 
+        This means that in order to map corners, the frequency is scaled with sqrt(2),
         The corners are filled with the value specified in cval.
 
         Args:
             | data (np.array): 3-D array to which transformation must be applied.
             | origin ( (x-orig, y-orig) ): data-coordinates of where origin should be placed
-            | framesFirst (bool): True if data.shape is (frames, rows, cols), False if 
+            | framesFirst (bool): True if data.shape is (frames, rows, cols), False if
                 data.shape is (rows, cols, frames)
             | cval (float): the fill value to be used in coords outside the mapped range(optional)
 
@@ -449,7 +449,7 @@ class ProcessImage:
 
         # Project the r and theta grid back into pixel coordinates
         xi, yi = ryutils.polar2cart(r_grid, theta_grid)
-        xi += origin[0] # We need to shift the origin back to 
+        xi += origin[0] # We need to shift the origin back to
         yi += origin[1] # back to the lower-left corner...
         xi, yi = xi.flatten(), yi.flatten()
         coords = np.vstack((xi, yi)) # (map_coordinates requires a 2xn array)
@@ -472,13 +472,13 @@ class Plotter:
     """ Encapsulates a plotting environment, optimized for compact code.
 
     This class provides a wrapper around Matplotlib to provide a plotting
-    environment specialised towards typical pyradi visualisation.  
-    These functions were developed to provide sophisticated plots by entering 
+    environment specialised towards typical pyradi visualisation.
+    These functions were developed to provide sophisticated plots by entering
     the various plot options on a few lines, instead of typing many commands.
 
-    Provision is made for plots containing subplots (i.e., multiple plots on 
+    Provision is made for plots containing subplots (i.e., multiple plots on
     the same figure), linear scale and log scale plots, images, and cartesian,
-    3-D and polar plots. 
+    3-D and polar plots.
     """
 
     ############################################################
@@ -509,7 +509,7 @@ class Plotter:
         """
 
         __all__ = ['__init__', 'saveFig', 'getPlot', 'plot', 'logLog', 'semilogX',
-                        'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol', 
+                        'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol',
                         'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
                         'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
                         ]
@@ -567,12 +567,12 @@ class Plotter:
            This function modulus-folds either sequence, in
            case longer sequences are required.
 
-           Colours can be one of the basic colours:  
-           ['b', 'g', 'r', 'c', 'm', 'y', 'k']   
+           Colours can be one of the basic colours:
+           ['b', 'g', 'r', 'c', 'm', 'y', 'k']
            or it can be a gray shade float value between 0 and 1,
            such as '0.75', or it can be in hex format '#eeefff'
            or it can be one of the legal html colours.
-           See http://html-color-codes.info/ and 
+           See http://html-color-codes.info/ and
            http://www.computerhope.com/htmcolor.htm.
 
             Args:
@@ -588,7 +588,7 @@ class Plotter:
         """
         # assemble the list as requested, use default if not specified
         if plotCol is None:
-            plotCol = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 
+            plotCol = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
             'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--',
             'b-.', 'g-.', 'r-.', 'c-.', 'm-.', 'y-.', 'k-.' ]
 
@@ -655,7 +655,7 @@ class Plotter:
         bounding boxes. These are however larger than the true bounding box. You still need a
         tool such as epstools or Adobe Acrobat to trim eps files to the true bounding box.
 
-        The type of file written is picked up in the filename. 
+        The type of file written is picked up in the filename.
         Most backends support png, pdf, ps, eps and svg.
 
             Args:
@@ -817,7 +817,7 @@ class Plotter:
                 | xInvert (bool): invert the x-axis (optional)
                 | xIsDate (bool): convert the datetime x-values to dates (optional)
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -839,9 +839,9 @@ class Plotter:
       self.myPlot(ax.plot, plotnum, x, y, ptitle, xlabel, ylabel,
                     plotCol, linewidths, label,legendAlpha, legendLoc,
                     pltaxis, maxNX, maxNY, linestyle,
-                    powerLimits,titlefsize, 
+                    powerLimits,titlefsize,
                     xylabelfsize, xytickfsize,
-                    labelfsize, drawGrid, 
+                    labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers, markevery, zorders, clip_on)
@@ -898,7 +898,7 @@ class Plotter:
                 | xInvert (bool): invert the x-axis (optional)
                 | xIsDate (bool): convert the datetime x-values to dates (optional)
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -919,7 +919,7 @@ class Plotter:
 
         # self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel,ylabel,\
         #             plotCol, label,legendAlpha, pltaxis, \
-        #             maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize, 
+        #             maxNX, maxNY, linestyle, powerLimits,titlefsize,xylabelfsize,
         #             xytickfsize,labelfsize, drawGrid
         #             xTicks, xtickRotation,
         #             markers=markers)
@@ -927,9 +927,9 @@ class Plotter:
       self.myPlot(ax.loglog, plotnum, x, y, ptitle, xlabel, ylabel,
                     plotCol, linewidths, label,legendAlpha, legendLoc,
                     pltaxis, maxNX, maxNY, linestyle,
-                    powerLimits,titlefsize, 
+                    powerLimits,titlefsize,
                     xylabelfsize, xytickfsize,
-                    labelfsize, drawGrid, 
+                    labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers, markevery, zorders, clip_on)
@@ -988,7 +988,7 @@ class Plotter:
                 | xInvert (bool): invert the x-axis (optional)
                 | xIsDate (bool): convert the datetime x-values to dates (optional)
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -1008,11 +1008,11 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogx, plotnum, x, y, ptitle, xlabel, ylabel,\
-                    plotCol, linewidths, label,legendAlpha, legendLoc, 
-                    pltaxis, maxNX, maxNY, linestyle, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc,
+                    pltaxis, maxNX, maxNY, linestyle,
                     powerLimits, titlefsize,
                     xylabelfsize, xytickfsize,
-                    labelfsize, drawGrid, 
+                    labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers, markevery, zorders, clip_on)
@@ -1069,7 +1069,7 @@ class Plotter:
                 | xInvert (bool): invert the x-axis (optional)
                 | xIsDate (bool): convert the datetime x-values to dates (optional)
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -1089,11 +1089,11 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.semilogy, plotnum, x, y, ptitle,xlabel,ylabel,
-                    plotCol, linewidths, label,legendAlpha, legendLoc, 
-                    pltaxis, maxNX, maxNY, linestyle, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc,
+                    pltaxis, maxNX, maxNY, linestyle,
                     powerLimits, titlefsize,
-                    xylabelfsize, xytickfsize, 
-                    labelfsize, drawGrid, 
+                    xylabelfsize, xytickfsize,
+                    labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers, markevery, zorders, clip_on)
@@ -1150,7 +1150,7 @@ class Plotter:
                 | xInvert (bool): invert the x-axis (optional)
                 | xIsDate (bool): convert the datetime x-values to dates (optional)
                 | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-                | xtickRotation (float) x-axis tick label rotation angle (optional) 
+                | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -1170,11 +1170,11 @@ class Plotter:
       ax = self.subplots[pkey]
 
       self.myPlot(ax.stackplot, plotnum, x, y.T, ptitle,xlabel,ylabel,
-                    plotCol, linewidths, label,legendAlpha, legendLoc, 
-                    pltaxis, maxNX, maxNY, linestyle, 
+                    plotCol, linewidths, label,legendAlpha, legendLoc,
+                    pltaxis, maxNX, maxNY, linestyle,
                     powerLimits, titlefsize,
-                    xylabelfsize, xytickfsize, 
-                    labelfsize, drawGrid, 
+                    xylabelfsize, xytickfsize,
+                    labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, markers, markevery, zorders, clip_on)
@@ -1189,7 +1189,7 @@ class Plotter:
                     legendLoc='best',
                     pltaxis=None, maxNX=0, maxNY=0, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
-                    xylabelfsize = 12, xytickfsize = 10, 
+                    xylabelfsize = 12, xytickfsize = 10,
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
@@ -1238,7 +1238,7 @@ class Plotter:
               | xInvert (bool): invert the x-axis (optional)
               | xIsDate (bool): convert the datetime x-values to dates (optional)
               | xTicks ({tick:label}): dict of x-axis tick locations and associated labels (optional)
-              | xtickRotation (float) x-axis tick label rotation angle (optional) 
+              | xtickRotation (float) x-axis tick label rotation angle (optional)
               | markers ([string]) markers to be used for plotting data points (optional)
               | markevery (int | (startind, stride)) subsample when using markers (optional)
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
@@ -1303,7 +1303,7 @@ class Plotter:
           # http://matplotlib.org/examples/pylab_examples/newscalarformatter_demo.html
           # ax.xaxis.set_major_formatter( plt.FormatStrFormatter('%d'))
           # http://matplotlib.org/1.3.1/api/axes_api.html#matplotlib.axes.Axes.ticklabel_format
-          # plt.ticklabel_format(style='sci', axis='x', 
+          # plt.ticklabel_format(style='sci', axis='x',
           #      scilimits=(powerLimits[0], powerLimits[1]))
 
       if yScientific:
@@ -1321,7 +1321,7 @@ class Plotter:
         ax.margins(0, 0) # Set margins to avoid "whitespace"
 
         # creating the legend manually
-        ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label, 
+        ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label,
             loc=legendLoc, framealpha=legendAlpha)
 
       ###############################line plot #######################
@@ -1337,7 +1337,7 @@ class Plotter:
 
             if plotCol:
                 if i >= len(plotCol):
-                    col = plotCol[-1] 
+                    col = plotCol[-1]
                 else:
                     col = plotCol[i]
             else:
@@ -1347,10 +1347,10 @@ class Plotter:
                 if len(col) > 1:
                     linestyleL = col[1:]
                 else:
-                    linestyleL = '-' 
+                    linestyleL = '-'
             else:
                 if type(linestyle) == type([1]):
-                    linestyleL = linestyle[i] 
+                    linestyleL = linestyle[i]
                 else:
                     linestyleL = linestyle
 
@@ -1364,23 +1364,23 @@ class Plotter:
 
             if not label:
                 if linewidths is not None:
-                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
                          marker=mmrk, markevery=markevery, linewidth=linewidths[i],
                          clip_on=clip_on, zorder=zorder)
                 else:
-                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL, 
+                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
                          marker=mmrk, markevery=markevery,
                          clip_on=clip_on, zorder=zorder)
             else:
                 if linewidths is not None:
                   # print('***************',linewidths)
                   line, = plotcommand(xx,yy[:,i],col,#label=label[i],
-                        linestyle=linestyleL, 
+                        linestyle=linestyleL,
                         marker=mmrk, markevery=markevery, linewidth=linewidths[i],
                         clip_on=clip_on, zorder=zorder)
                 else:
                   line, = plotcommand(xx,yy[:,i],col,#label=label[i],
-                        linestyle=linestyleL, 
+                        linestyle=linestyleL,
                         marker=mmrk, markevery=markevery,
                         clip_on=clip_on, zorder=zorder)
                 line.set_label(label[i])
@@ -1401,15 +1401,15 @@ class Plotter:
 
       if xTicks is not None:
           ticks = ax.set_xticks(list(xTicks.keys()))
-          ax.set_xticklabels([xTicks[key] for key in xTicks], 
+          ax.set_xticklabels([xTicks[key] for key in xTicks],
               rotation=xtickRotation, fontsize=xytickfsize)
-      
+
       if  xTicks is None and xtickRotation is not None:
           ticks = ax.get_xticks()
           if xIsDate:
               from datetime import date
               ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
-          ax.set_xticklabels(ticks, 
+          ax.set_xticklabels(ticks,
               rotation=xtickRotation, fontsize=xytickfsize)
 
 
@@ -1432,7 +1432,7 @@ class Plotter:
     def meshContour(self, plotnum, xvals, yvals, zvals, levels=10,
                   ptitle=None, xlabel=None, ylabel=None, shading='flat',
                   plotCol=[], pltaxis=None, maxNX=0, maxNY=0,
-                  xScientific=False, yScientific=False,  
+                  xScientific=False, yScientific=False,
                   powerLimits=[-4,  2,  -4,  2], titlefsize=12,
                   xylabelfsize=12, xytickfsize=10,
                   meshCmap=cm.rainbow, cbarshow=False, cbarorientation='vertical',
@@ -1444,24 +1444,24 @@ class Plotter:
                   zorders=None, clip_on=True ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
-        The data values must be given on a fixed mesh grid of three-dimensional 
-        $(x,y,z)$ array input sets. The mesh grid is defined in $(x,y)$, while the height 
+        The data values must be given on a fixed mesh grid of three-dimensional
+        $(x,y,z)$ array input sets. The mesh grid is defined in $(x,y)$, while the height
         of the mesh is the $z$ value.
 
-        Given an existing figure, this function plots in a specified subplot position. 
-        Only one contour plot is drawn at a time.  Future contours in the same subplot 
+        Given an existing figure, this function plots in a specified subplot position.
+        Only one contour plot is drawn at a time.  Future contours in the same subplot
         will cover any previous contours.
 
-        The data set must have three two dimensional arrays, each for x, y, and z.  
-        The data in x, y, and z arrays must have matching data points.  The x and y arrays 
-        each define the grid in terms of x and y values, i.e., the x array contains the 
-        x values for the data set, while the y array contains the y values.  The z array 
+        The data set must have three two dimensional arrays, each for x, y, and z.
+        The data in x, y, and z arrays must have matching data points.  The x and y arrays
+        each define the grid in terms of x and y values, i.e., the x array contains the
+        x values for the data set, while the y array contains the y values.  The z array
         contains the z values for the corresponding x and y values in the contour mesh.
 
-        Z-values can be plotted on a log scale, in which case the colourbar is adjusted 
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
         to show true values, but on the nonlinear scale.
 
-        The current version only saves png files, since there appears to be a problem 
+        The current version only saves png files, since there appears to be a problem
         saving eps files.
 
         The xvals and yvals vectors may have non-constant grid-intervals, i.e., they do not
@@ -1521,7 +1521,7 @@ class Plotter:
 
       #if this is a log scale plot
       if logScale is True:
-          zvals = np.log10(zvals) 
+          zvals = np.log10(zvals)
 
       contour_negative_linestyle = plt.rcParams['contour.negative_linestyle']
       if contourLine:
@@ -1579,7 +1579,7 @@ class Plotter:
 
       #do the plot
       if contourFill:
-          pmplotcf = ax.contourf(xvals, yvals, zvals, levels, 
+          pmplotcf = ax.contourf(xvals, yvals, zvals, levels,
               cmap=meshCmap, zorder=zorder, clip_on=clip_on)
 
       if contourLine:
@@ -1598,9 +1598,9 @@ class Plotter:
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
           divider = make_axes_locatable(ax)
           if cbarorientation == 'vertical':
-            cax = divider.append_axes("right", size="5%", pad=0.05)          
+            cax = divider.append_axes("right", size="5%", pad=0.05)
           else:
-            cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+            cax = divider.append_axes("bottom", size="5%", pad=0.1)
 
           if not cbarcustomticks:
               # cbar = self.fig.colorbar(pmplotcf,orientation=cbarorientation)
@@ -1656,17 +1656,17 @@ class Plotter:
 
     ############################################################
     ##
-    def mesh3D(self, plotnum, xvals, yvals, zvals, 
-                  ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
-                  rstride=1, cstride=1, linewidth=0, 
+    def mesh3D(self, plotnum, xvals, yvals, zvals,
+                  ptitle=None, xlabel=None, ylabel=None, zlabel=None,
+                  rstride=1, cstride=1, linewidth=0,
                   plotCol=None, edgeCol=None, pltaxis=None, maxNX=0, maxNY=0, maxNZ=0,
-                  xScientific=False, yScientific=False, zScientific=False,  
+                  xScientific=False, yScientific=False, zScientific=False,
                   powerLimits=[-4,  2,  -4,  2, -2, 2], titlefsize=12,
                   xylabelfsize=12, xytickfsize=10, wireframe=False, surface=True,
-                  cmap=cm.rainbow, cbarshow=False, 
+                  cmap=cm.rainbow, cbarshow=False,
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
-                  logScale=False, alpha=1, alphawire=1, 
+                  logScale=False, alpha=1, alphawire=1,
                   azim=45, elev=30, distance=10, zorders=None, clip_on=True
                    ):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
@@ -1677,11 +1677,11 @@ class Plotter:
 
         The mesh grid is defined in (x,y), while the height of the mesh is the z value.
 
-        The data set must have three two dimensional arrays, each for x, y, and z.  
-        The data in x, y, and z arrays must have matching data points.  
+        The data set must have three two dimensional arrays, each for x, y, and z.
+        The data in x, y, and z arrays must have matching data points.
         The x and y arrays each define the grid in terms of x and y values, i.e.,
-        the x array contains the x values for the data set, while the y array 
-        contains the y values.  The z array contains the z values for the 
+        the x array contains the x values for the data set, while the y array
+        contains the y values.  The z array contains the z values for the
         corresponding x and y values in the mesh.
 
         Use wireframe=True to obtain a wireframe plot.
@@ -1691,8 +1691,8 @@ class Plotter:
         Z-values can be plotted on a log scale, in which case the colourbar is adjusted
         to show true values, but on the nonlinear scale.
 
-        The xvals and yvals vectors may have non-constant grid-intervals, i.e., 
-        they do not have to be on regular intervals, but z array must correspond 
+        The xvals and yvals vectors may have non-constant grid-intervals, i.e.,
+        they do not have to be on regular intervals, but z array must correspond
         to the (x,y) grid.
 
             Args:
@@ -1751,7 +1751,7 @@ class Plotter:
 
       #if this is a log scale plot
       if logScale is True:
-          zvals = np.log10(zvals) 
+          zvals = np.log10(zvals)
 
       #create subplot if not existing
       if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
@@ -1821,21 +1821,21 @@ class Plotter:
               zorder=zorder, clip_on=clip_on)
 
       if wireframe:
-        pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride, 
+        pmplot = ax.plot_wireframe(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
               color=col, edgecolor=edcol, linewidth=linewidth, alpha=alphawire,
               zorder=zorder, clip_on=clip_on)
 
 
       ax.view_init(azim=azim, elev=elev)
       ax.dist = distance
- 
+
       if cbarshow is True and cmap is not None:
         #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
         # divider = make_axes_locatable(ax)
         # if cbarorientation == 'vertical':
-        #   cax = divider.append_axes("right", size="5%", pad=0.05)          
+        #   cax = divider.append_axes("right", size="5%", pad=0.05)
         # else:
-        #   cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+        #   cax = divider.append_axes("bottom", size="5%", pad=0.1)
 
         if not cbarcustomticks:
               cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
@@ -1904,7 +1904,7 @@ class Plotter:
                     legendAlpha=0.0, \
                     rscale=None, rgrid=[0,5], thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True,
-                    zorders=None, clip_on=True, markers=[], markevery=None, 
+                    zorders=None, clip_on=True, markers=[], markevery=None,
 ):
       """Create a subplot and plot the data in polar coordinates (linear radial orginates only).
 
@@ -1920,7 +1920,7 @@ class Plotter:
         counterclockwise. Likewise, the rotation offset where the plot zero angle must be,
         is set with `zerooffset`.
 
-        For some obscure reason Matplitlib version 1.13 does not plot negative values on the 
+        For some obscure reason Matplitlib version 1.13 does not plot negative values on the
         polar plot.  We therefore force the plot by making the values positive and then highlight it as negative.
 
             Args:
@@ -1935,14 +1935,14 @@ class Plotter:
                 | highlightCol (string): negative highlight colour string (optional)
                 | highlightWidth (int): negative highlight line width(optional)
                 | legendAlpha (float): transparency for legend box (optional)
-                | rscale ([rmin, rmax]): radial plotting limits. use default setting if None.  
+                | rscale ([rmin, rmax]): radial plotting limits. use default setting if None.
                   If rmin is negative the zero is a circle and rmin is at the centre of the graph (optional)
-                | rgrid ([rinc, numinc]): radial grid, use default is [0,5]. 
-                  If rgrid is None don't show. If rinc=0 then numinc is number of intervals.  
+                | rgrid ([rinc, numinc]): radial grid, use default is [0,5].
+                  If rgrid is None don't show. If rinc=0 then numinc is number of intervals.
                   If rinc is not zero then rinc is the increment and numinc is ignored (optional)
                 | thetagrids (float): theta grid interval [degrees], if None don't show (optional)
                 | direction (string): direction in increasing angle, 'counterclockwise' or 'clockwise' (optional)
-                | zerooffset (float):  rotation offset where zero should be [rad]. Positive 
+                | zerooffset (float):  rotation offset where zero should be [rad]. Positive
                   zero-offset rotation is counterclockwise from 3'o'clock (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | drawGrid (bool): draw a grid on the graph (optional)
@@ -2125,8 +2125,8 @@ class Plotter:
 
     ############################################################
     ##
-    def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None, 
-                  cmap=plt.cm.gray, titlefsize=12, cbarshow=False, 
+    def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None,
+                  cmap=plt.cm.gray, titlefsize=12, cbarshow=False,
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   labelfsize=10, xylabelfsize = 12,):
       """Creates a subplot and show the image using the colormap provided.
@@ -2175,9 +2175,9 @@ class Plotter:
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
           divider = make_axes_locatable(ax)
           if cbarorientation == 'vertical':
-            cax = divider.append_axes("right", size="5%", pad=0.05)          
+            cax = divider.append_axes("right", size="5%", pad=0.05)
           # else:
-          #   cay = divider.append_axes("bottom", size="5%", pad=0.1)          
+          #   cay = divider.append_axes("bottom", size="5%", pad=0.1)
 
           if not cbarcustomticks:
             if cbarorientation == 'vertical':
@@ -2214,7 +2214,7 @@ class Plotter:
 
     ############################################################
     ##
-    def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None, 
+    def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None,
                plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
                xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False,scatter=False,
                markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None):
@@ -2223,10 +2223,10 @@ class Plotter:
         Given an existing figure, this function plots in a specified subplot position.
         The function arguments are described below in some detail.
 
-        Note that multiple 3D data sets can be plotted simultaneously by adding additional 
-        columns to the input coordinates of  the (x,y,z) arrays, each set of columns representing 
-        a different line in the plot. This is convenient if large arrays of data must 
-        be plotted. If more than one column is present, the label argument can contain the 
+        Note that multiple 3D data sets can be plotted simultaneously by adding additional
+        columns to the input coordinates of  the (x,y,z) arrays, each set of columns representing
+        a different line in the plot. This is convenient if large arrays of data must
+        be plotted. If more than one column is present, the label argument can contain the
         legend labels for each of the columns/lines.
 
             Args:
@@ -2255,7 +2255,7 @@ class Plotter:
                 | elev (float): graph view evelation angle  [degrees] (optional)
                 | zorder ([int]): list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool): clips objects to drawing axes (optional)
-                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional). 
+                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional).
             Returns:
                 | the axis object for the plot
 
@@ -2283,13 +2283,13 @@ class Plotter:
                self.fig.add_subplot(self.nrow,self.ncol, plotnum, projection='3d')
 
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
-        
+
         # print(x.shape[-1])
 
         for i in range(x.shape[-1]):
             if plotCol:
                 if i >= len(plotCol):
-                    col = plotCol[-1] 
+                    col = plotCol[-1]
                 else:
                     col = plotCol[i]
             else:
@@ -2298,7 +2298,7 @@ class Plotter:
             if markers:
                 marker = markers[i]
             else:
-                marker = None 
+                marker = None
 
             if zorders:
                 if len(zorders) > 1:
@@ -2317,7 +2317,7 @@ class Plotter:
                         marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on)
             else:
                 if scatter:
-                    ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker, 
+                    ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         zorder=zorder, clip_on=clip_on)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
@@ -2366,8 +2366,8 @@ class Plotter:
 
     ############################################################
     ##
-    def polar3d(self, plotnum, theta, radial, zvals, ptitle=None, 
-                xlabel=None, ylabel=None, zlabel=None, zscale=None,  
+    def polar3d(self, plotnum, theta, radial, zvals, ptitle=None,
+                xlabel=None, ylabel=None, zlabel=None, zscale=None,
                titlefsize=12, xylabelfsize = 12,
                thetaStride=1, radialstride=1, meshCmap = cm.rainbow,
                linewidth=0.1, azim=45, elev=30, zorders=None, clip_on=True,
@@ -2408,7 +2408,7 @@ class Plotter:
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | facecolors ((np.array[N,M]): array of z value facecolours, corresponding to (theta,rho) grid.
                 | alpha (float): facecolour surface transparency (optional)
-                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional).            
+                | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional).
 
 
             Returns:
@@ -2444,11 +2444,11 @@ class Plotter:
 
       #do the plot
       if facecolors is not None:
-        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride,
           linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on,
           facecolors=facecolors, edgecolors=edcol, alpha=alpha)
       else:
-        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride, 
+        ax.plot_surface(X, Y, zvals, rstride=thetaStride, cstride=radialstride,
           linewidth=linewidth, cmap=meshCmap, zorder=zorder, clip_on=clip_on,
           alpha=alpha, edgecolors=edcol)
 
@@ -2476,38 +2476,38 @@ class Plotter:
     ############################################################
     ##
     def polarMesh(self, plotnum, theta, radial, zvals, ptitle=None, shading='flat',
-                radscale=None, titlefsize=12,  meshCmap=cm.rainbow, cbarshow=False, 
+                radscale=None, titlefsize=12,  meshCmap=cm.rainbow, cbarshow=False,
                   cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
                   rgrid=[0,5], thetagrid=[30], drawGrid=False,
                   thetagridfontsize=12, radialgridfontsize=12,
                   direction='counterclockwise', zerooffset=0, logScale=False,
-                  plotCol=[], levels=10, contourFill=True, contourLine=True, 
+                  plotCol=[], levels=10, contourFill=True, contourLine=True,
                   zeroContourLine=None, negativeSolid=False,
-                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5, 
+                  contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
                   zorders=None, clip_on=True):
       """Polar colour contour and filled contour plot for (theta, r, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional (theta,rho,z)
-        array input sets (theta is angle,  and rho is radial distance). The mesh grid is 
-        defined in (theta,rho), while the height of the mesh is the z value. The 
-        (theta,rho) arrays may have non-constant grid-intervals, i.e., they do not 
+        array input sets (theta is angle,  and rho is radial distance). The mesh grid is
+        defined in (theta,rho), while the height of the mesh is the z value. The
+        (theta,rho) arrays may have non-constant grid-intervals, i.e., they do not
         have to be on regular intervals.
 
-        Given an existing figure, this function plots in a specified subplot position. 
-        Only one contour plot is drawn at a time.  Future contours in the same subplot 
+        Given an existing figure, this function plots in a specified subplot position.
+        Only one contour plot is drawn at a time.  Future contours in the same subplot
         will cover any previous contours.
 
-        The data set must have three two dimensional arrays, each for theta, rho, and z.  
-        The data in theta, rho, and z arrays must have matching data points.  
+        The data set must have three two dimensional arrays, each for theta, rho, and z.
+        The data in theta, rho, and z arrays must have matching data points.
         The theta and rho arrays each define the grid in terms of theta and rho values,
-        i.e., the theta array contains the angular values for the data set, while the 
-        rho array contains the radial values.  The z array contains the z values for the 
+        i.e., the theta array contains the angular values for the data set, while the
+        rho array contains the radial values.  The z array contains the z values for the
         corresponding theta and rho values in the contour mesh.
 
-        Z-values can be plotted on a log scale, in which case the colourbar is adjusted 
+        Z-values can be plotted on a log scale, in which case the colourbar is adjusted
         to show true values, but on the nonlinear scale.
 
-        The current version only saves png files, since there appears to be a problem 
+        The current version only saves png files, since there appears to be a problem
         saving eps files.
 
             Args:
@@ -2560,7 +2560,7 @@ class Plotter:
 
       #if this is a log scale plot
       if logScale is True:
-          zvals = np.log10(zvals) 
+          zvals = np.log10(zvals)
 
       contour_negative_linestyle = plt.rcParams['contour.negative_linestyle']
       if contourLine:
@@ -2600,7 +2600,7 @@ class Plotter:
                colors=col, zorder=zorder, clip_on=clip_on)
 
       if contourFill:
-        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap, 
+        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap,
             zorder=zorder, clip_on=clip_on)
 
       if contLabel:
@@ -2652,9 +2652,9 @@ class Plotter:
           # this does not work with the polar projection, use gridspec to do this.
           # divider = make_axes_locatable(ax)
           # if cbarorientation == 'vertical':
-          #   cax = divider.append_axes("right", size="5%", pad=0.05)          
+          #   cax = divider.append_axes("right", size="5%", pad=0.05)
           # else:
-          #   cax = divider.append_axes("bottom", size="5%", pad=0.1)          
+          #   cax = divider.append_axes("bottom", size="5%", pad=0.1)
 
           if not cbarcustomticks:
               cbar = self.fig.colorbar(pmplot,orientation=cbarorientation)
@@ -2692,10 +2692,10 @@ class Plotter:
 
       return ax
 
-    
+
     ############################################################
     ##
-    def plotArray(self, plotnum, inarray, slicedim = 0, labels = None,  
+    def plotArray(self, plotnum, inarray, slicedim = 0, labels = None,
                         maxNX=0, maxNY=0, titlefsize = 8, xylabelfsize = 8,
                         xytickfsize = 8, selectCols=None, sepSpace=0.2,
                         allPlotCol='r'  ):
@@ -2707,21 +2707,21 @@ class Plotter:
 
 
             Args:
-                | plotnum (int):  The subplot number, 1-based index, according to Matplotlib conventions.  
-                  This value must always be given, even if only a single 1,1 subplot is used.  
-                | inarray (np.array): data series to be plotted.  Data direction can be cols or rows. 
-                  The abscissa (x axis) values must be the first col/row, with ordinates in following cols/rows. 
+                | plotnum (int):  The subplot number, 1-based index, according to Matplotlib conventions.
+                  This value must always be given, even if only a single 1,1 subplot is used.
+                | inarray (np.array): data series to be plotted.  Data direction can be cols or rows.
+                  The abscissa (x axis) values must be the first col/row, with ordinates in following cols/rows.
                 | slicedim (int): slice along columns (0) or rows (1) (optional).
-                | labels (list):  a list of strings as labels for each subplot.  
+                | labels (list):  a list of strings as labels for each subplot.
                   x=labels[0], y=labels[1:] (optional).
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional).
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional).
                 | titlefsize (int): title font size, default 12pt (optional).
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional).
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional).
-                | selectCols ([int]): select columns for plot. Col 0 corresponds to col 1 in input data 
-                  (because col 0 is abscissa),plot  all if not given (optional).  
-                | sepSpace (float): vertical spacing between sub-plots in inches (optional).  
+                | selectCols ([int]): select columns for plot. Col 0 corresponds to col 1 in input data
+                  (because col 0 is abscissa),plot  all if not given (optional).
+                | sepSpace (float): vertical spacing between sub-plots in inches (optional).
                 | allPlotCol (str): make all plot lines this colour (optional).
 
             Returns:
@@ -2759,7 +2759,7 @@ class Plotter:
         igkey = (self.nrow, self.ncol, plotnum)
         if igkey not in list(self.gridSpecsInner.keys()):
             self.gridSpecsInner[igkey] = \
-                         gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol, 
+                         gridspec.GridSpecFromSubplotSpec(nestnrow,nestncol,
                       subplot_spec=outer_grid[plotnum-1],wspace=0, hspace=sepSpace)
         inner_grid = self.gridSpecsInner[igkey]
 
@@ -2799,7 +2799,7 @@ class Plotter:
                     ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
                 if maxNY > 0:
                     ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-                
+
                 #share x ticklabels and label to avoid clutter and overlapping
                 plt.setp([a.get_xticklabels() for a in self.fig.axes[:-1]], visible=False)
                 if xlabel is not None:
@@ -2863,35 +2863,35 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
 def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=256.):
     """
     A full implementation of Dave Green's "cubehelix" for Matplotlib.
-    Based on the FORTRAN 77 code provided in 
-    D.A. Green, 2011, BASI, 39, 289. 
-    
+    Based on the FORTRAN 77 code provided in
+    D.A. Green, 2011, BASI, 39, 289.
+
     http://adsabs.harvard.edu/abs/2011arXiv1108.5083G
     http://www.astron-soc.in/bulletin/11June/289392011.pdf
 
-    User can adjust all parameters of the cubehelix algorithm. 
-    This enables much greater flexibility in choosing color maps, while 
-    always ensuring the color map scales in intensity from black 
+    User can adjust all parameters of the cubehelix algorithm.
+    This enables much greater flexibility in choosing color maps, while
+    always ensuring the color map scales in intensity from black
     to white. A few simple examples:
-    
+
     Default color map settings produce the standard "cubehelix".
 
     Create color map in only blues by setting rot=0 and start=0.
 
     Create reverse (white to black) backwards through the rainbow once
     by setting rot=1 and reverse=True.
-    
+
 
     Args:
         | start : scalar, optional
-        |    Sets the starting position in the color space. 0=blue, 1=red, 
+        |    Sets the starting position in the color space. 0=blue, 1=red,
         |    2=green. Defaults to 0.5.
         | rot : scalar, optional
-        |   The number of rotations through the rainbow. Can be positive 
+        |   The number of rotations through the rainbow. Can be positive
         |    or negative, indicating direction of rainbow. Negative values
         |    correspond to Blue->Red direction. Defaults to -1.5
         | gamma : scalar, optional
-        |    The gamma correction for intensity. Defaults to 1.0        
+        |    The gamma correction for intensity. Defaults to 1.0
         | hue : scalar, optional
         |    The hue intensity factor. Defaults to 1.2
         | reverse : boolean, optional
@@ -2918,25 +2918,25 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
     Licence
     Copyright (c) 2014, James R. A. Davenport and contributors All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
     are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of 
+    Redistributions of source code must retain the above copyright notice, this list of
     conditions and the following disclaimer.
 
-    Redistributions in binary form must reproduce the above copyright notice, this 
-    list of conditions and the following disclaimer in the documentation and/or 
+    Redistributions in binary form must reproduce the above copyright notice, this
+    list of conditions and the following disclaimer in the documentation and/or
     other materials provided with the distribution.
-    
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     """
 
@@ -2954,12 +2954,12 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
     blu   = fract+amp*(1.97294*np.cos(angle))
 
 #-- find where RBB are outside the range [0,1], clip
-    red[np.where((red > 1.))] = 1.   
-    grn[np.where((grn > 1.))] = 1.   
+    red[np.where((red > 1.))] = 1.
+    grn[np.where((grn > 1.))] = 1.
     blu[np.where((blu > 1.))] = 1.
 
-    red[np.where((red < 0.))] = 0.   
-    grn[np.where((grn < 0.))] = 0.   
+    red[np.where((red < 0.))] = 0.
+    grn[np.where((grn < 0.))] = 0.
     blu[np.where((blu < 0.))] = 0.
 
 #-- optional color reverse
@@ -2976,7 +2976,7 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
         rr.append((float(k)/(nlev-1.), red[k], red[k]))
         bb.append((float(k)/(nlev-1.), blu[k], blu[k]))
         gg.append((float(k)/(nlev-1.), grn[k], grn[k]))
-    
+
     cdict = {'red':rr, 'blue':bb, 'green':gg}
     return LSC('cubehelix_map',cdict)
 
@@ -3000,24 +3000,24 @@ if __name__ == '__main__':
 
         # Make new array consisting of fractions of column-totals,
         # using .astype(float) to avoid integer division
-        percent = y /  y.sum(axis=0).astype(float) * 100 
+        percent = y /  y.sum(axis=0).astype(float) * 100
         #data must vary along rows for single column  (row-major)
         percent = percent.T
         print(percent.shape)
         sp = Plotter(1,1,1,figsize=(16,8))
-        sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label', 
+        sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label',
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
         sp.saveFig('stackplot.png')
 
     if doAll:    #next line include both 0 and 360 degrees, i.e., overlap on edge
-        angled = np.linspace(0.,360.,25) 
+        angled = np.linspace(0.,360.,25)
         angler = np.pi * angled / 180.
         grange = np.linspace(500.,4000.,8)
         #create a 2-D meshgrid.
         grangeg, anglerg= np.meshgrid(grange,angler + np.pi * 7.5 / 180)
 
         height  = 2000.
-        launch = (1 + np.cos(anglerg) ) ** .1 * (1 - np.exp(-( 500 + grangeg) / 2000.) ) 
+        launch = (1 + np.cos(anglerg) ) ** .1 * (1 - np.exp(-( 500 + grangeg) / 2000.) )
         launch *=  np.exp(-( 500 + grangeg) / (6000. -  height))
         launch = np.where(launch<0.2, 0.2, launch)
         #normalise
@@ -3049,11 +3049,11 @@ if __name__ == '__main__':
         np.random.RandomState(200)
         theta = 2 * np.pi * np.random.uniform(0, 1, size=samples)
         #biased sampling with higher density towards the poles
-        phib = np.pi * (2 * np.random.uniform(0, 1, size=samples) -1 ) / 2 
+        phib = np.pi * (2 * np.random.uniform(0, 1, size=samples) -1 ) / 2
         #uniform sampling corrected for polar bias
-        phiu = np.arccos(2 * np.random.uniform(0, 1, size=samples) -1 ) - np.pi/2 
+        phiu = np.arccos(2 * np.random.uniform(0, 1, size=samples) -1 ) - np.pi/2
 
-        #create normal vectors using the pairs of random angles in a transformation 
+        #create normal vectors using the pairs of random angles in a transformation
         xsb = np.cos(phib) * np.cos(theta)
         ysb = np.cos(phib) * np.sin(theta)
         zsb = np.sin(phib)
@@ -3065,13 +3065,13 @@ if __name__ == '__main__':
         elev = 45 # view angle
         sph = Plotter(1,1,2, figsize=(20,10))
         sph.mesh3D(1,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
-        sph.mesh3D(1,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+        sph.mesh3D(1,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False,
             edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
         sph.plot3d(1, xsb, ysb, zsb, ptitle='', scatter=True,markers=['o' for i in range(len(xsb))],
                    azim=azim, elev=elev)
 
         sph.mesh3D(2,x,y,z,'','x','y','z',alpha=0.1, wireframe=False, surface=True,linewidth=0, drawGrid=False)
-        sph.mesh3D(2,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False, 
+        sph.mesh3D(2,x,y,z,'','x','y','z', alphawire=0.4, wireframe=True, surface=False,
             edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
         sph.plot3d(2, xsu, ysu, zsu, ptitle='', scatter=True,markers=['o' for i in range(len(xsu))],
                    azim=azim, elev=elev)
@@ -3209,7 +3209,7 @@ if __name__ == '__main__':
 
         z = np.vstack((z,z,z))
 
-        P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label, 
+        P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label,
             legendAlpha=0.5, markers=['o','v','^','<'], markevery=4)
         P3D.saveFig('M3D.png')
 
