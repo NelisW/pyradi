@@ -1,0 +1,191 @@
+('CED', 'version', '5.60\x00')
+('Main Header Size', 3476)
+('Frame Header Size', 1016)
+('Frame + Frame Header Size', 5608)
+('Frame Size', 5100)
+('Number of Frames', 100)
+('Year', 2011, 'Month', 2, 'Day', 8)
+('(', '2011', '/', '02', '/', '08', ')')
+('Hour', 15, 'Minute', 46, 'Second', 51)
+('(', '15', ':', '46', ':', '51', ')')
+('Camera Name', 'Jade')
+('Lens', '50 mm')
+('Filter', 'NE_001%')
+('Aperture Name', '')
+('Emissivity', 0.9800000190734863)
+('Ambient Temperature', 293.1499938964844, '(K)')
+('Ambient Temperature', 19.999993896484398, '(degC)')
+('Distance to target', 2.0)
+('Atm Transmission', 1.0)
+('Ext Coef', 0.0)
+('Target', 0)
+('Optic', 0)
+('Atmo', 0)
+('Atm Temp', 293.1499938964844)
+('Cut on Wavelength', 3.700000047683716)
+('Cut off Wavelength', 4.800000190734863)
+('PixelSize', 25.0)
+('PixelPitch', 30.0)
+('Detector Apperture', 2.0)
+('Optic Focal Length', 1.0)
+('Housing Temp1', 311.42999267578125, '(K)')
+('Housing Temp2', 0.0, '(K)')
+('Camera Serial Number', '')
+('Min Threshold', 5699)
+('Max Threshold', 5794)
+('Gain', 0.0)
+('Offset', 0.0)
+('HZoom', 2.0)
+('VZoom', 2.0)
+('Field', 75, 'X', 68)
+('AD converter', 14, 'bit')
+Ext Sync OFF
+Header.h_Signature = CED
+('CEDIP Period', 100.00000223517424, 'Hz')
+('CEDIP Integration', 0.14999999257270247, 'msec')
+('NUC ', 1)
+('Comment', '')
+Calibration File Name
+
+Tools File Name
+
+('Palette Index?', 1)
+('Palette Current', 1)
+('Palette Toggle', 0)
+('Palette AGC', 1)
+('Unit Index?', 1)
+('Current Unit Index', 0)
+('Zoom Pos', '')
+('Key Framenum', 0)
+('Num Keyframes', '')
+('Player lock', 0)
+('Frame Select?', 0)
+('ROI Start', 0)
+('ROI Stop', 99)
+('Player inf loop?', 0)
+('Player Init Frame', 0)
+('Isoterm0?', 0)
+('Isoterm0 DL Min', 65535)
+('Isoterm0 DL Max', 65535)
+('Isoterm0 Color', '\x1e2\xfa\x00')
+('Isoterm1?', 0)
+('Isoterm1 DL Min', 65535)
+('Isoterm1 DL Max', 65535)
+('Isoterm1 Color', '\xfc\xdc\x14\x00')
+('Isoterm2?', 0)
+('Isoterm2 DL Min', 65535)
+('Isoterm2 DL Max', 65535)
+('Isoterm2 Color', '\xfa\x1e\x1e\x00')
+('Zero?', 0)
+('Zero DL', 65535)
+('Palette Width', 20)
+('PaletteF Full', 0)
+('PTR Frame Buffer type', 0)
+('Thermoelasticity', 0.0)
+('Demodulation', 0.0)
+('Coordinate Type', 0)
+('X Origin', 0)
+('Y Origin', 0)
+('Coord Show Orig', 0)
+('Axe Colour', 'dd\xff\x00')
+('Axe Size', 1)
+('Axe Valid?', 1)
+('Distance offset', 0.0)
+('Histogram?', 0)
+('Histogram %', 60)
+Calibration File Name
+
+('PTRFrame Valid?', 0)
+('Subsampling?', 0)
+('Camera flip H', 0)
+('Camera flip V', 0)
+('BB Temp', 0.0)
+('Capture Wheel Index', 0)
+('Capture Wheel Focal Index', 0)
+(3, 68, 75)
+getPTWFrames Error: at least one requested frame not in file
+legal frames for this file are: 1 to 100
+(1,)
+(100, 68, 75)
+Path to XML                  = ./data
+Path to datafiles            = ./data
+Calibration Name             = lwir100mm0150us10ND20090910
+ID                           = lwir100mm10ND
+Version                      = 
+Summary                      = 
+Sensor Response Filename     = ./data/LWIRsensor.txt
+Optics Transmittance Filename= ./data/LW100mmLens.txt
+Filter Filename              = ./data/LWND10.txt
+Source Emissivity Filename   = ./data/Unity.txt
+Atmospheric Transm Filename  = ./data/Unity.txt
+DetectorPitch                = 3e-05
+FillFactor                   = 0.7
+Focallength                  = 0.1
+integrationTime              = 0.00015
+Fnumber                      = 2.0
+Nu (Min, Max, Inc)           = (700.0, 1665.0, 5.0)
+Calibration data set
+
+Instrument temperature = 17.1 C
+DL floor               = 3625.0
+
+      Deg-C           DL      L-CalFilter  E-CalFilter  L-NoFilter  E-NoFilter
+[[  3.2315e+02   4.5710e+03   4.4507e+00   2.8039e-07   4.4886e+01   2.8278e-06]
+ [  3.7315e+02   5.1320e+03   8.3094e+00   5.2349e-07   8.3818e+01   5.2805e-06]
+ [  4.2315e+02   5.9060e+03   1.3496e+01   8.5025e-07   1.3616e+02   8.5778e-06]
+ [  4.7315e+02   6.8870e+03   1.9920e+01   1.2549e-06   2.0098e+02   1.2662e-05]
+ [  5.2315e+02   8.0340e+03   2.7452e+01   1.7295e-06   2.7701e+02   1.7451e-05]
+ [  5.7315e+02   9.3380e+03   3.5957e+01   2.2653e-06   3.6286e+02   2.2860e-05]
+ [  6.2315e+02   1.0834e+04   4.5307e+01   2.8543e-06   4.5724e+02   2.8806e-05]
+ [  6.7315e+02   1.2386e+04   5.5385e+01   3.4893e-06   5.5899e+02   3.5216e-05]
+ [  7.2315e+02   1.4042e+04   6.6092e+01   4.1638e-06   6.6709e+02   4.2027e-05]]
+straight line fit L = 0.0654987680029 DL + -251.431895565
+
+Instrument temperature = 34.4 C
+DL floor               = 4210.0
+
+      Deg-C           DL      L-CalFilter  E-CalFilter  L-NoFilter  E-NoFilter
+[[  3.2315e+02   5.4770e+03   4.4507e+00   2.8039e-07   4.4886e+01   2.8278e-06]
+ [  3.7315e+02   6.0500e+03   8.3094e+00   5.2349e-07   8.3818e+01   5.2805e-06]
+ [  4.2315e+02   6.8170e+03   1.3496e+01   8.5025e-07   1.3616e+02   8.5778e-06]
+ [  4.7315e+02   7.7890e+03   1.9920e+01   1.2549e-06   2.0098e+02   1.2662e-05]
+ [  5.2315e+02   8.9220e+03   2.7452e+01   1.7295e-06   2.7701e+02   1.7451e-05]
+ [  5.7315e+02   1.0262e+04   3.5957e+01   2.2653e-06   3.6286e+02   2.2860e-05]
+ [  6.2315e+02   1.1694e+04   4.5307e+01   2.8543e-06   4.5724e+02   2.8806e-05]
+ [  6.7315e+02   1.3299e+04   5.5385e+01   3.4893e-06   5.5899e+02   3.5216e-05]
+ [  7.2315e+02   1.4921e+04   6.6092e+01   4.1638e-06   6.6709e+02   4.2027e-05]]
+straight line fit L = 0.0656832309156 DL + -312.134948687
+
+Tint=17.1 DL=4571 T=49.9 L=45
+Tint=17.1 DL=5132 T=99.8 L=84
+Tint=17.1 DL=5906 T=149.1 L=135
+Tint=17.1 DL=6887 T=199.0 L=200
+Tint=17.1 DL=8034 T=248.6 L=275
+Tint=17.1 DL=9338 T=298.5 L=360
+Tint=17.1 DL=10834 T=350.5 L=458
+Tint=17.1 DL=12386 T=400.4 L=560
+Tint=17.1 DL=14042 T=450.5 L=668
+ 
+Tint=34.4 DL=5477 T=50.0 L=45
+Tint=34.4 DL=6050 T=100.4 L=84
+Tint=34.4 DL=6817 T=149.2 L=135
+Tint=34.4 DL=7789 T=198.8 L=199
+Tint=34.4 DL=8922 T=248.0 L=274
+Tint=34.4 DL=10262 T=299.5 L=362
+Tint=34.4 DL=11694 T=349.3 L=456
+Tint=34.4 DL=13299 T=401.1 L=561
+Tint=34.4 DL=14921 T=450.4 L=668
+ 
+Tint=25 DL=5477 T=95.6 L=80
+Tint=25 DL=6050 T=134.3 L=118
+Tint=25 DL=6817 T=176.5 L=169
+Tint=25 DL=7789 T=221.8 L=233
+Tint=25 DL=8922 T=268.2 L=307
+Tint=25 DL=10262 T=317.6 L=395
+Tint=25 DL=11694 T=366.0 L=489
+Tint=25 DL=13299 T=416.6 L=594
+Tint=25 DL=14921 T=465.0 L=701
+
+Temperature at (160,120)=148.403880275 C
+Temperature at (140,110)=149.581148631 C
+ryptw Done!
