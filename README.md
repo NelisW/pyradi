@@ -1,5 +1,5 @@
 The purpose of computing is insight, not numbers.<BR>
--- Richard Hamming
+_-- Richard Hamming_
 
 ##Objective
 
