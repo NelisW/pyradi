@@ -1091,8 +1091,7 @@ def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
         | value: if not None, write this value as the value column
 
     Returns:
-        | xval: the sampled and scaled x-values
-        | yval: the sampled and scaled y-values
+        | outA: a numpy array with columns (xval, yval, value)
         | side effect: a file may be written
         | side effect: a graph may be displayed
         
