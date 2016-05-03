@@ -95,9 +95,11 @@ class cleanClutterTest(unittest.TestCase):
         self.tdirs = []
 
     def setUp(self):
-        # print "Creating some random files"
+        print('Creating some random files')
         self.exts = ['txt', 'bin', 'tmp', 'bot','pot']
         self.dirs = ['.','cleancluttertmp1','cleancluttertmp2']
+        print('with extensions: {}'.format(self.exts))
+        print('in directories: {}\n'.format(self.dirs))
         stdir = tempfile.mkdtemp()
         for dir in self.dirs:
             self.tdirs.append(os.path.join(stdir,dir))
@@ -115,6 +117,7 @@ class cleanClutterTest(unittest.TestCase):
         # print(self.root)
         #count the number of files after creation
         self.cntDirs, self.cntAll = self.countFiles()
+        print('{} files in {} directories'.format(self.cntAll, self.cntDirs))
 
     def countFiles(self):
         """count the number of files in total and directories, per type.
@@ -133,7 +136,7 @@ class cleanClutterTest(unittest.TestCase):
         return cntDirs, cntAll
 
     def tearDown(self):
-        # print "Cleaning up"
+        print('Cleaning up.')
         for filename in self.paths:
             # print(filename)
             os.remove(filename) if os.path.exists(filename) else None
@@ -147,7 +150,7 @@ class cleanClutterTest(unittest.TestCase):
         directory: the totals per type should agree.
         The sum of all of these must also be equal to the number of files created.
         """
-        #assert that both evaluations tally up the same
+        print('Assert that the correct number of files in appropriate directories exist')
         self.chkDirs = {keyt: sum([self.cntDirs[keyd][keyt] for keyd in self.dirs]) for keyt in self.exts}
         self.assertTrue(self.chkDirs==self.cntAll)
         #assert that the total counted agrees with the number created
@@ -157,6 +160,9 @@ class cleanClutterTest(unittest.TestCase):
         """Delete given types and in given directories and count after deletion.
         """
         import time
+
+        print('Delete various combinations of types and dirs and check the count.')
+        print('If any test fails the assert will complain, otherwise it will be silent:')
         #first test dry run functionality
         if False:
             QueryDelete(1,self.root,'*.*',promptUser=False,dryrun=True)
@@ -170,8 +176,9 @@ class cleanClutterTest(unittest.TestCase):
         dpath = os.path.join(self.root,dir)
         QueryDelete(0,dpath,'*.{}'.format(ftype),promptUser=False)
         time.sleep(0.3)
-        #do equivalent in our counter dicts
+        #remove from our counter dicts, according to files deleted
         self.cntDirs[dir][ftype] = 0
+        #count on disk
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
 
@@ -180,9 +187,10 @@ class cleanClutterTest(unittest.TestCase):
         dpath = os.path.join(self.root,'.')
         QueryDelete(1,dpath,'*.{}'.format(ftype),promptUser=False)
         time.sleep(0.3)
-        #do equivalent in our counter dicts
+        #remove from our counter dicts, according to files deleted
         for dir in self.cntDirs.keys():
             self.cntDirs[dir][ftype] = 0
+        #count on disk
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
 
@@ -191,9 +199,10 @@ class cleanClutterTest(unittest.TestCase):
         dpath = os.path.join(self.root,dir)
         QueryDelete(0,dpath,'*.*',promptUser=False)
         time.sleep(0.3)
-        #do equivalent in our counter dicts
+        #remove from our counter dicts, according to files deleted
         for ftype in self.exts:
             self.cntDirs[dir][ftype] = 0
+        #count on disk
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
 
@@ -201,12 +210,15 @@ class cleanClutterTest(unittest.TestCase):
         dpath = os.path.join(self.root,'.')
         QueryDelete(1,dpath,'*.*',promptUser=False)
         time.sleep(0.3)
-        #do equivalent in our counter dicts
+        #remove from our counter dicts, according to files deleted
         for ftype in self.exts:
             for dir in self.cntDirs.keys():
                 self.cntDirs[dir][ftype] = 0
+        #count on disk
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
+
+        print('Completed testing.')
 
 def doUnitTest():
     print('Doing unit test...')
@@ -224,7 +236,7 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
 
-    doUnit = True
+    doUnit = False
 
     if doUnit:
         doUnitTest()
