@@ -208,6 +208,14 @@ class cleanClutterTest(unittest.TestCase):
         cntDirs, cntAll = self.countFiles()
         self.assertTrue(self.cntDirs==cntDirs)
 
+def doUnitTest():
+    print('Doing unit test...')
+    tt = cleanClutterTest()
+    tt.setUp()
+    tt.test_listFiles()
+    tt.test_QueryDelete()
+    tt.tearDown()
+
 ################################################################
 ##
 
@@ -216,15 +224,15 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
 
-    # #we take the conservative approach and do not do blanket erase,
-    # #rather do it by type, asking the user first
-    QueryDelete(0,'.', '*.eps;*.png;*.jpg;*.pdf;*.txt;*.tiff;*.dat;*.lut')
-    QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt;*.testing')
-    QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;*.svg' )
-    QueryDelete(0,'.', '*.hdf5')
+    doUnit = True
 
-    # tt = cleanClutterTest()
-    # tt.setUp()
-    # tt.test_listFiles()
-    # tt.test_QueryDelete()
-    # tt.tearDown()
+    if doUnit:
+        doUnitTest()
+    else:
+        # #we take the conservative approach and do not do blanket erase,
+        # #rather do it by type, asking the user first
+        QueryDelete(0,'.', '*.eps;*.png;*.jpg;*.pdf;*.txt;*.tiff;*.dat;*.lut')
+        QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt;*.testing')
+        QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;*.svg' )
+        QueryDelete(0,'.', '*.hdf5')
+
