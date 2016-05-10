@@ -512,7 +512,7 @@ class Plotter:
                         'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol',
                         'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
                         'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
-                        ]
+                        'emptyPlot',]
 
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -1182,6 +1182,7 @@ class Plotter:
       return ax
 
 
+
     ############################################################
     ##
     def myPlot(self, plotcommand,plotnum, x, y, ptitle=None,xlabel=None, ylabel=None,
@@ -1426,6 +1427,36 @@ class Plotter:
           ax.set_xlim(ax.get_xlim()[::-1])
 
       return ax
+
+
+    ############################################################
+    ##
+    def emptyPlot(self,plotnum,projection='rectilinear'):
+      """Returns a handler to an empty plot.
+
+      This function does not do any plotting, the use must add plots using
+      the standard MatPlotLib means.
+
+          Args:
+              | plotnum (int): subplot number, 1-based index
+              | rectilinear (str): type of axes projection, from  
+                [‘aitoff’, ‘hammer’, ‘lambert’, ‘mollweide’, ‘polar’, ‘rectilinear’].
+
+          Returns:
+              | the axis object for the plot
+
+          Raises:
+              | No exception is raised.
+      """
+
+      pkey = (self.nrow, self.ncol, plotnum)
+      if pkey not in list(self.subplots.keys()):
+            self.subplots[pkey] = \
+                         self.fig.add_subplot(self.nrow,self.ncol, plotnum,projection=projection)
+      ax = self.subplots[pkey]
+
+      return ax
+
 
     ############################################################
     ##
