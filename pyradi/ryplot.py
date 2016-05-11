@@ -1440,7 +1440,7 @@ class Plotter:
           Args:
               | plotnum (int): subplot number, 1-based index
               | rectilinear (str): type of axes projection, from  
-                [‘aitoff’, ‘hammer’, ‘lambert’, ‘mollweide’, ‘polar’, ‘rectilinear’].
+                ['aitoff', 'hammer', 'lambert', 'mollweide', 'polar', 'rectilinear.].
 
           Returns:
               | the axis object for the plot
