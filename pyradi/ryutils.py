@@ -46,7 +46,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'detectFARThresholdToNoisepulseWidth', 'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
          'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence',
-         'extractGraph'
+         'extractGraph','luminousEfficiency'
          ]
 
 import sys
@@ -60,6 +60,9 @@ from scipy import constants
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 from matplotlib.collections import PatchCollection
+import os
+import pkg_resources
+from StringIO import StringIO
 
 ##############################################################################
 ##
@@ -1324,6 +1327,78 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
 
     return True
 
+######################################################################################################
+def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
+    r"""Returns the photopic luminous efficiency function on wavelength intervals
+
+    Type must be one of:
+
+    photopic: CIE Photopic V(lambda) modified by Judd (1951) and Vos (1978) [also known as CIE VM(lambda)] 
+    scotopic:  CIE (1951) Scotopic V'(lambda)
+    CIE2008v2:  2 degree CIE "physiologically-relevant" luminous efficiency Stockman & Sharpe
+    CIE2008v10:  10 degree CIE "physiologically-relevant" luminous efficiency Stockman & Sharpe
+
+    For the equation approximations (only photoic and scotopic), if wavelength is not 
+    given a vector is created 0.3-0.8 um.
+
+    For the table data, if wavelength is not given a vector is read from the table.
+
+
+    CIE Photopic V(l) modified by Judd (1951) and Vos (1978) [also known as CIE VM(l)] 
+    from http://www.cvrl.org/index.htm
+
+    Args:
+        | vlamtype (str): type of curve required
+        | wavelen (np.array[]): wavelength in um
+        | eqnapprox (bool): if False read tables, if True use equation
+
+    Returns:
+        | wavelen (np.array[]): wavelength in um
+        | wavelen (np.array[]): wavelength in um
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+
+
+    if eqnapprox:
+        if wavelen is None:
+            wavelen = np.linspace(0.3, 0.8, 100)
+        if 'photopic' in vlamtype:
+            vlam = 1.019 * np.exp(-285.51 * (wavelen - 0.5591) ** 2 ).reshape(-1,)
+        elif  'scotopic' in vlamtype:
+            vlam = 0.99234 * np.exp(-321.1 * (wavelen - 0.502) ** 2 ).reshape(-1,)
+        else:
+            return None, None
+
+    else:
+
+        if 'photopic' in vlamtype:
+            vlamname = 'vljve.csv'
+        elif  'scotopic' in vlamtype:
+            vlamname = 'scvle.csv'
+        elif  'CIE2008v2' in vlamtype:
+            vlamname = 'linCIE2008v2e_1.csv'
+        elif  'CIE2008v10' in vlamtype:
+            vlamname = 'linCIE2008v10e_1.csv'
+        else:
+            return None, None
+
+        resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
+        resource_path = os.path.join('data', 'photometry',vlamname)
+        dat = pkg_resources.resource_string(resource_package, resource_path)
+        dat = np.genfromtxt(StringIO(dat),delimiter=",")
+        if wavelen is not None:
+            vlam = np.interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
+        else:
+            wavelen = dat[:,0]/1000.
+            vlam = dat[:,1]
+
+    return vlam, wavelen
+
+
 ################################################################
 ##
 
@@ -1343,9 +1418,29 @@ if __name__ == '__main__':
     # figtype = ".eps"  # eps, jpg, png
 
     doAll = False
-    makemotionsequence = False
 
-    if makemotionsequence:
+    if True:
+        p = ryplot.Plotter(1,1,1)
+        vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=True)
+        p.plot(1,wl,vlam,label=['{} equation'.format('CIE Photopic VM($\lambda$)')])
+        vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=True)
+        p.plot(1,wl,vlam,label=['{} equation'.format("CIE (1951) Scotopic V'($\lambda$)")])
+        vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=np.linspace(0.3, 0.8, 200), eqnapprox=True)
+        p.plot(1,wl,vlam,label=['{} equation'.format("CIE (1951) Scotopic V'($\lambda$)")])
+
+        vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False)
+        p.plot(1,wl,vlam,label=['{} table'.format('CIE Photopic VM($\lambda$)')])
+        vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=False)
+        p.plot(1,wl,vlam,label=['{} table'.format("CIE (1951) Scotopic V'($\lambda$)")])
+        vlam,wl = luminousEfficiency(vlamtype='CIE2008v2', wavelen=None, eqnapprox=False)
+        p.plot(1,wl,vlam,label=['{} table'.format('CIE 2008 V($\lambda$) 2 deg')])
+        vlam,wl = luminousEfficiency(vlamtype='CIE2008v10', wavelen=None, eqnapprox=False)
+        p.plot(1,wl,vlam,'Luminous Efficiency','Wavelength $\mu$m','Efficiency',
+            label=['{} table'.format('CIE 2008 V($\lambda$) 10 deg')])
+        p.saveFig('vlam.png')
+
+
+    if  doAll:
         imgfilename = 'data/images/Tan-Chau-bw.png'
         mtnfilename = 'data/imgmotion/rowcol-displacement.npz'
         intTime = 0.005
