@@ -35,21 +35,18 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-
-
-
-
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
-         'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 'rangeEquation',
-         '_rangeEquationCalc',
-         'detectThresholdToNoiseTpFAR', 'detectSignalToNoiseThresholdToNoisePd',
-         'detectThresholdToNoiseSignalToNoisepD','detectProbabilityThresholdToNoiseSignalToNoise',
-         'detectFARThresholdToNoisepulseWidth',
-         'upMu',
+         'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 
+         'rangeEquation','_rangeEquationCalc','detectThresholdToNoiseTpFAR', 
+         'detectSignalToNoiseThresholdToNoisePd',
+         'detectThresholdToNoiseSignalToNoisepD',
+         'detectProbabilityThresholdToNoiseSignalToNoise',
+         'detectFARThresholdToNoisepulseWidth', 'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
-         'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence','extractGraph'
+         'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence',
+         'extractGraph'
          ]
 
 import sys

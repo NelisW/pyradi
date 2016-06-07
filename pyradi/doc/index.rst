@@ -43,6 +43,8 @@ Welcome to pyradi's documentation!
    
    rystare
    
+   rypflux
+   
    codingguidelines
    
 
