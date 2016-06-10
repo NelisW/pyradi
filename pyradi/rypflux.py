@@ -65,17 +65,21 @@ class Spectral(object):
     """
     ############################################################
     ##
-    def __init__(self, ID, val, wl=None, wn=None, desc=None):
+    def __init__(self, ID, val, val2=None, wl=None, wn=None, desc=None):
         """Defines a spectral variable of property vs wavelength iof wavenumber
 
         One of wavelength or wavenunber must be supplied, the other is calculated.
         No assumption is made of the sampling interval on eiher wn or wl.
+
+        A second  value vector could optionally be supplied. This is used for atmo
+        transmittance and path radiance.
 
         The constructor defines the 
 
             Args:
                 | ID (str): identification string
                 | val (np.array (N,) or (N,1)): vector of property values
+                | val2 (np.array (N,) or (N,1)): second vector of property values
                 | wl (np.array (N,) or (N,1)): vector of wavelength values
                 | wn (np.array (N,) or (N,1)): vector of wavenumber values
                 | desc (str): description string
@@ -90,8 +94,11 @@ class Spectral(object):
         __all__ = ['__init__', ]
 
         self.ID = ID
-        self.val = val.reshape(-1,1)
         self.desc = desc
+        self.val = val.reshape(-1,1)
+        if val2 is not None:
+            val2 = val2.reshape(-1,1)
+        self.val2 = val2
 
         if wn is not None:
             self.wn =  wn.reshape(-1,1)
@@ -121,6 +128,7 @@ class Spectral(object):
         strn += 'wl: {}\n'.format(self.wl)
         strn += 'wn: {}\n'.format(self.wn)
         strn += 'val: {}\n'.format(self.val)
+        strn += 'val2: {}\n'.format(self.val2)
 
         return strn
 
@@ -134,13 +142,16 @@ class Atmo(Spectral):
     """
     ############################################################
     ##
-    def __init__(self, ID, val, distance=None, wl=None, wn=None, desc=None):
+    def __init__(self, ID, tau, rad=None, distance=None, wl=None, wn=None, desc=None):
         """Defines a spectral variable of property vs wavelength or wavenumber
 
         One of wavelength or wavenunber must be supplied, the other is calculated.
         No assumption is made of the sampling interval on either wn or wl.
 
-        If distance is None, val must be the attenuation coefficients in m^{-1}
+        If distance is not None, tau=transmittance, rad=path radiance, at distance
+
+        If distance is None, tau must be the attenuation coefficients in m^{-1}, and
+        rad must be None or Lpath/(1-tauPath)
 
         If distance is not None, val is the transmittance for given distance in m.
         In this case the attenuation coefficient is calculated and stored in val
@@ -162,10 +173,14 @@ class Atmo(Spectral):
 
         __all__ = ['__init__', ]
 
-        if distance is None:
-            Spectral.__init__(self, ID=ID, val=val, wl=wl, wn=wn, desc=desc)
-        else:
-            Spectral.__init__(self, ID=ID, val=-np.log(val)/distance, wl=wl, wn=wn, desc=desc)
+        acoeff = tau
+
+        if distance is not None:
+            acoeff = -np.log(tau)/distance
+            if rad is not None:
+                rad = rad / (1-tau)
+
+        Spectral.__init__(self, ID=ID, val=acoeff, val2=rad, wl=wl, wn=wn, desc=desc)
            
     ############################################################
     ##
@@ -186,6 +201,7 @@ class Atmo(Spectral):
         strn += 'wl: {}\n'.format(self.wl)
         strn += 'wn: {}\n'.format(self.wn)
         strn += 'attcoeff: {}\n'.format(self.val)
+        strn += 'pathrad: {}\n'.format(self.val2)
 
         return strn
 
@@ -207,6 +223,26 @@ class Atmo(Spectral):
         """
         distance = np.array(distance).reshape(1,-1)
         return np.exp(-distance * self.val)
+
+    ############################################################
+    ##
+    def pathR(self, distance):
+        """Calculates the path radiance at distance
+
+        Distance is in m
+
+            Args:
+                | distance (scalar or np.array (M,)): distance in m if transmittance, or None if att coeff
+
+            Returns:
+                | transmittance (np.array (N,M) ): transmittance along N at distance along M
+
+            Raises:
+                | No exception is raised.
+        """
+        distance = np.array(distance).reshape(1,-1)
+        tau = np.exp(-distance * self.val)
+        return self.val2 / (1-tau)
 
 
 ##############################################################################################
@@ -284,8 +320,8 @@ class Sensor(Spectral):
 ##############################################################################################
 ##############################################################################################
 ##############################################################################################
-class Source(Spectral):
-    """Source characteristics
+class Target(Spectral):
+    """Target / Source characteristics
     """
     ############################################################
     ##
@@ -388,7 +424,7 @@ class PFlux:
         self.spectrals = {}
         self.atmos = {}
         self.sensors = {}
-        self.sources = {}
+        self.targets = {}
 
 
 
@@ -407,50 +443,12 @@ class PFlux:
               'Star light': [0.0011,5000,0.2],
               'Overcast night':[0.0001,5000, 0.],
             }
+        self.llluxCols = ['Irradiance-lm/m2','ColourTemp','FracPhotop']
 
 
 
 
-    ############################################################
-    ##
-    def nElecCntReflSun(self, wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1, 
-        rhoTarg=1, cosTarg=1, inttime=1, pfrac=1, detarea=1, fno=0.8862269255, emissun=1.0, tmprt=6000.):
-        """ Calculate the number of electrons in a detector or photon radiance for reflected sunlight
 
-            All values in base SI units.
-
-            By using the default values when calling the function the radiance at the 
-            source can be calculated.
-
-            Args:
-                | wl (np.array (N,) or (N,1)): wavelength 
-                | tauAtmo (np.array (N,) or (N,1)): transmittance between the scene and sensor 
-                | tauSun (np.array (N,) or (N,1)): transmittance between the scene and sun 
-                | tauFilt (np.array (N,) or (N,1)): sensor filter transmittance 
-                | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
-                | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
-                | rhoTarg (np.array (N,) or (N,1)): target diffuse surface reflectance 
-                | cosTarg (scalar): cosine between surface normal and sun/moon direction
-                | inttime (scalar): detector integration time
-                | pfrac (scalar):  fraction of optics clear aperture
-                | detarea (scalar): detector area
-                | fno (scalar): optics fnumber
-                | emissun (scalar): sun surface emissivity
-                | tmprt (scalar): sun surface temperature
-
-            Returns:
-                | n (scalar): number of electrons accumulated during integration time
-
-            Raises:
-                | No exception is raised.
-        """
-        
-        L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
-                rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
-        L = np.trapz( L, x=wl,axis=0)
-        n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
-
-        return n
 
     ############################################################
     ##
@@ -581,9 +579,9 @@ if __name__ == '__main__':
             print(pf.spectrals[key])
 
         # test loading of atmospheric spectrals
-        pf.atmos['A1'] = Atmo(ID='A1', val=np.array([.2,.5,1]), distance=1000, wl=np.array([1,2,3]), 
+        pf.atmos['A1'] = Atmo(ID='A1', tau=np.array([.2,.5,1]), distance=1000, wl=np.array([1,2,3]), 
             wn=None, desc='My super atmo')
-        pf.atmos['A2'] = Atmo(ID='A1', val=np.array([.2,.5,1]), wl=np.array([1,2,3]), 
+        pf.atmos['A2'] = Atmo(ID='A1', tau=np.array([.2,.5,1]), rad=np.array([.2,.5,1]), wl=np.array([1,2,3]), 
             wn=None, desc='My second atmo')
         print('\n---------------------\Atmos:')
         for key in pf.atmos:
@@ -607,20 +605,13 @@ if __name__ == '__main__':
             print(pf.sensors[key])
 
 
-        pf.sources['S1'] = Source(ID='S1', wl=np.array([1,2,3]), emis=1, tmprt=6000, refl=0,cosTarg=0.5,
-            taumed=np.array([0.45, 0.95, 0.5]), scale=1, 
-            desc='Source one')
-        pf.sensors['S2'] = Source(ID='S2', fno=4, detarea=(15e-6)**2, inttime=0.02, 
-            wl=np.array([1,2,3]), tauOpt=np.array([0.45, 0.95, 0.5]), quantEff=np.array([0.3, 0.4, 0.5]), 
-            desc='Source two')
+        pf.targets['T1'] = Target(ID='T1', wl=np.array([1,2,3]), emis=1, tmprt=300, refl=0, cosTarg=0.5,
+            taumed=np.array([0.45, 0.95, 0.5]), scale=1, desc='Source one')
+        pf.targets['T2'] = Target(ID='T2', wl=np.array([1,2,3]), emis=0., tmprt=6000, refl=1,cosTarg=1,
+            scale=2.17e-5,taumed=0.5,desc='Source two')
         print('\n---------------------\Sources:')
-        for key in pf.sensors:
-            print(pf.sensors[key])
-
-
-
-    def __init__(self, ID, wl, emis, tmprt, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
-
+        for key in pf.targets:
+            print(pf.targets[key])
 
         # print(pf.lllPhotonrates())
 
@@ -635,3 +626,102 @@ if __name__ == '__main__':
     print('module rypflux done!')
 
 
+
+
+
+# # to calculate the electron count in the detector from reflected sunlight only
+# pf = rypflux.PFlux()
+# wl = np.linspace(0.43,0.69, 300)
+# print('Radiance of sunlit surface: {:.2e} q/(s.m2.sr), {} to {} um'.format(
+#         pf.nElecCntReflSun(wl, tauSun=0.6),np.min(wl),np.max(wl)))
+
+# nsun = pf.nElecCntReflSun(wl, tauSun=0.6, tauAtmo=0.8,  tauOpt=0.9, quantEff=0.5, 
+#         rhoTarg=.5, cosTarg=1, inttime=0.01, pfrac=1, detarea=(10e-6)**2, fno=3.2)
+# print('{:.0f} electrons'.format(nsun))
+
+
+
+# # to calculate the scene electron count from the low light table
+# def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg, 
+#              inttime, pfrac, detarea, fno, scenario, specBand, dfPhotRates):
+#     """ Calculate the number of electrons in a detector
+#     All values in base SI units
+#     rhoTarg is the target diffuse reflectance
+#     cosTarg the cosine of the sun incidence angle
+#     scenario must be one of the dfPhotRates index values
+#     specBand must be one of the dfPhotRates column values
+#     """
+    
+#     L =  quantEff * tauOpt * tauFilt *  tauAtmo * \
+#             rhoTarg * dfPhotRates.ix[scenario][specBand]
+#     n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
+#     return n
+    
+    
+# # to calculate the electron count in the detector from a thermal source only
+# def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+#     """ Calculate the number of electrons in a detector
+#     All values in base SI units
+#     """
+    
+#     L = emis * tauAtmo * tauFilt * tauOpt * quantEff * \
+#             ryplanck.planck(wl, tmptr, type='ql')/np.pi
+#     L = np.trapz( L, x=wl,axis=0)
+#     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+#     return n
+    
+
+# # to calculate the electron count in the detector from a thermal source only
+# def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+#     """ Calculate the number of electrons in a detector
+#     All values in base SI units
+#     """
+    
+#     L = tauFilt * (1.0 - tauOpt) * quantEff * \
+#             ryplanck.planck(wl, tmptrOpt, type='ql')/np.pi
+#     L = np.trapz( L, x=wl,axis=0)
+#     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+#     return n    
+
+
+
+    # ############################################################
+    # ##
+    # def nElecCntReflSun(self, wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1, 
+    #     rhoTarg=1, cosTarg=1, inttime=1, pfrac=1, detarea=1, fno=0.8862269255, emissun=1.0, tmprt=6000.):
+    #     """ Calculate the number of electrons in a detector or photon radiance for reflected sunlight
+
+    #         All values in base SI units.
+
+    #         By using the default values when calling the function the radiance at the 
+    #         source can be calculated.
+
+    #         Args:
+    #             | wl (np.array (N,) or (N,1)): wavelength 
+    #             | tauAtmo (np.array (N,) or (N,1)): transmittance between the scene and sensor 
+    #             | tauSun (np.array (N,) or (N,1)): transmittance between the scene and sun 
+    #             | tauFilt (np.array (N,) or (N,1)): sensor filter transmittance 
+    #             | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
+    #             | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
+    #             | rhoTarg (np.array (N,) or (N,1)): target diffuse surface reflectance 
+    #             | cosTarg (scalar): cosine between surface normal and sun/moon direction
+    #             | inttime (scalar): detector integration time
+    #             | pfrac (scalar):  fraction of optics clear aperture
+    #             | detarea (scalar): detector area
+    #             | fno (scalar): optics fnumber
+    #             | emissun (scalar): sun surface emissivity
+    #             | tmprt (scalar): sun surface temperature
+
+    #         Returns:
+    #             | n (scalar): number of electrons accumulated during integration time
+
+    #         Raises:
+    #             | No exception is raised.
+    #     """
+        
+    #     L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
+    #             rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
+    #     L = np.trapz( L, x=wl,axis=0)
+    #     n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
+
+    #     return n
