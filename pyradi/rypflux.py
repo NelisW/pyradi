@@ -65,7 +65,7 @@ class Spectral(object):
     """
     ############################################################
     ##
-    def __init__(self, ID, val, val2=None, wl=None, wn=None, desc=None):
+    def __init__(self, ID, wl=None, wn=None, value=None, emis=None, tran=None, refl=None, atco=None, prad=None, desc=None):
         """Defines a spectral variable of property vs wavelength iof wavenumber
 
         One of wavelength or wavenunber must be supplied, the other is calculated.
@@ -78,10 +78,14 @@ class Spectral(object):
 
             Args:
                 | ID (str): identification string
-                | val (np.array (N,) or (N,1)): vector of property values
-                | val2 (np.array (N,) or (N,1)): second vector of property values
                 | wl (np.array (N,) or (N,1)): vector of wavelength values
                 | wn (np.array (N,) or (N,1)): vector of wavenumber values
+                | value (np.array (N,) or (N,1)): vector of property values
+                | tran (np.array (N,) or (N,1)): transmittance vector 
+                | emis (np.array (N,) or (N,1)): emissivity vector 
+                | refl (np.array (N,) or (N,1)): reflectance vector 
+                | atco (np.array (N,) or (N,1)): attenuation coeff vector  m-1
+                | prad (np.array (N,) or (N,1)): normalised path radiance vector 
                 | desc (str): description string
 
             Returns:
@@ -95,10 +99,24 @@ class Spectral(object):
 
         self.ID = ID
         self.desc = desc
-        self.val = val.reshape(-1,1)
-        if val2 is not None:
-            val2 = val2.reshape(-1,1)
-        self.val2 = val2
+        if value is not None:
+            value = value.reshape(-1,1)
+        self.value = value
+        if emis is not None:
+            emis = emis.reshape(-1,1)
+        self.emis = emis
+        if tran is not None:
+            tran = tran.reshape(-1,1)
+        self.tran = tran
+        if refl is not None:
+            refl = refl.reshape(-1,1)
+        self.refl = refl
+        if atco is not None:
+            atco = atco.reshape(-1,1)
+        self.atco = atco
+        if prad is not None:
+            prad = prad.reshape(-1,1)
+        self.prad = prad
 
         if wn is not None:
             self.wn =  wn.reshape(-1,1)
@@ -123,12 +141,22 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
+        numpts = self.wn.shape[0]
+        stride = numpts / 4
         strn = 'Spectral ID: {}\n'.format(self.ID)
         strn += 'desc: {}\n'.format(self.desc)
-        strn += 'wl: {}\n'.format(self.wl)
-        strn += 'wn: {}\n'.format(self.wn)
-        strn += 'val: {}\n'.format(self.val)
-        strn += 'val2: {}\n'.format(self.val2)
+        strn += 'wl (subsampled.T): {}\n'.format(self.wl[0::stride].T)
+        strn += 'wn (subsampled.T): {}\n'.format(self.wn[0::stride].T)
+        if self.value is not None:
+            strn += 'value (subsampled.T): {}\n'.format(self.value[0::stride].T)
+        if self.tran is not None:
+            strn += 'tran (subsampled.T): {}\n'.format(self.tran[0::stride].T)
+        if self.emis is not None:
+            strn += 'emis (subsampled.T): {}\n'.format(self.emis[0::stride].T)
+        if self.tran is not None:
+            strn += 'tran (subsampled.T): {}\n'.format(self.tran[0::stride].T)
+        if self.refl is not None:
+            strn += 'refl (subsampled.T): {}\n'.format(self.refl[0::stride].T)
 
         return strn
 
@@ -142,26 +170,27 @@ class Atmo(Spectral):
     """
     ############################################################
     ##
-    def __init__(self, ID, tau, rad=None, distance=None, wl=None, wn=None, desc=None):
+    def __init__(self, ID, distance=None, wl=None, wn=None,  tran=None, atco=None, prad=None, desc=None):
         """Defines a spectral variable of property vs wavelength or wavenumber
 
         One of wavelength or wavenunber must be supplied, the other is calculated.
         No assumption is made of the sampling interval on either wn or wl.
 
-        If distance is not None, tau=transmittance, rad=path radiance, at distance
+        If distance is not None, tran=transmittance, prad=path radiance, at distance,
+        then the atco and normalised path radiance is calculated.
 
-        If distance is None, tau must be the attenuation coefficients in m^{-1}, and
-        rad must be None or Lpath/(1-tauPath)
+        If distance is None, atco (attenuation coefficients in m^{-1}), and
+        normalised prad (Lpath/(1-tauPath)) are used as supplied
 
-        If distance is not None, val is the transmittance for given distance in m.
-        In this case the attenuation coefficient is calculated and stored in val
 
             Args:
                 | ID (str): identification string
-                | val (np.array (N,) or (N,1)): transmittance or attenuation coeff
                 | distance (scalar): distance in m if transmittance, or None if att coeff
                 | wl (np.array (N,) or (N,1)): vector of wavelength values
                 | wn (np.array (N,) or (N,1)): vector of wavenumber values
+                | tran (np.array (N,) or (N,1)): transmittance
+                | atco (np.array (N,) or (N,1)): attenuation coeff
+                | prad (np.array (N,) or (N,1)): path radiance over distance 
                 | desc (str): description string
 
             Returns:
@@ -173,14 +202,13 @@ class Atmo(Spectral):
 
         __all__ = ['__init__', ]
 
-        acoeff = tau
-
         if distance is not None:
-            acoeff = -np.log(tau)/distance
-            if rad is not None:
-                rad = rad / (1-tau)
+            if atco is None:
+                atco = -np.log(tran)/distance
+            if prad is not None:
+                prad = prad / (1 - np.exp(- atco * distance))
 
-        Spectral.__init__(self, ID=ID, val=acoeff, val2=rad, wl=wl, wn=wn, desc=desc)
+        Spectral.__init__(self, ID=ID, atco=atco, prad=prad, wl=wl, wn=wn, desc=desc)
            
     ############################################################
     ##
@@ -196,12 +224,18 @@ class Atmo(Spectral):
             Raises:
                 | No exception is raised.
         """
+        numpts = self.wn.shape[0]
+        stride = numpts / 2
         strn =  'Atmo ID: {}\n'.format(self.ID)
         strn += 'desc: {}\n'.format(self.desc)
-        strn += 'wl: {}\n'.format(self.wl)
-        strn += 'wn: {}\n'.format(self.wn)
-        strn += 'attcoeff: {}\n'.format(self.val)
-        strn += 'pathrad: {}\n'.format(self.val2)
+        strn += 'wl (subsampled.T): {}\n'.format(self.wl[0::stride].T)
+        strn += 'wn (subsampled.T): {}\n'.format(self.wn[0::stride].T)
+        if self.atco is not None:
+            strn += 'atco (subsampled.T): {}\n'.format(self.atco[0::stride].T)
+        if self.prad is not None:
+            strn += 'prad (subsampled.T): {}\n'.format(self.prad[0::stride].T)
+        if self.tran is not None:
+            strn += 'tran (subsampled.T): {}\n'.format(self.tran[0::stride].T)
 
         return strn
 
@@ -222,7 +256,7 @@ class Atmo(Spectral):
                 | No exception is raised.
         """
         distance = np.array(distance).reshape(1,-1)
-        return np.exp(-distance * self.val)
+        return np.exp(-distance * self.atco)
 
     ############################################################
     ##
@@ -241,8 +275,8 @@ class Atmo(Spectral):
                 | No exception is raised.
         """
         distance = np.array(distance).reshape(1,-1)
-        tau = np.exp(-distance * self.val)
-        return self.val2 / (1-tau)
+        tran = np.exp(-distance * self.atco)
+        return self.prad * (1 - tran)
 
 
 ##############################################################################################
@@ -262,9 +296,8 @@ class Sensor(Spectral):
                 | fno (scalar): optics fnumber
                 | detarea (scalar): detector area
                 | inttime (scalar): detector integration time
-                | wl (np.array (N,) or (N,1)): wavelength  in um
-                | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
-                | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
+                | tauOpt (Spectral using tran): sensor optics transmittance 
+                | quantEff (Spectral using value): detector quantum efficiency 
                 | pfrac (scalar):  fraction of optics clear aperture
                 | desc (str): description string
 
@@ -281,11 +314,22 @@ class Sensor(Spectral):
         self.fno = fno
         self.detarea = detarea
         self.inttime = inttime
-        self.wl = wl
-        self.tauOpt = tauOpt
-        self.quantEff = quantEff
         self.pfrac = pfrac
         self.desc = desc
+
+        if isinstance(tauOpt, Spectral):
+            self.tauOpt = tauOpt
+        else:
+            print('\n\ntauOpt must be of type Spectral\n\n')
+            self.tauOpt = None
+
+        if isinstance(quantEff, Spectral):
+            self.quantEff = quantEff
+        else:
+            print('\n\nquantEff must be of type Spectral\n\n')
+            self.quantEff = None
+
+
            
     ############################################################
     ##
@@ -307,7 +351,6 @@ class Sensor(Spectral):
         strn += 'detarea: {}\n'.format(self.detarea)
         strn += 'inttime: {}\n'.format(self.inttime)
         strn += 'pfrac: {}\n'.format(self.pfrac)
-        strn += 'wl: {}\n'.format(self.wl)
         strn += 'tauOpt: {}\n'.format(self.tauOpt)
         strn += 'quantEff: {}\n'.format(self.quantEff)
 
@@ -559,6 +602,7 @@ class PFlux:
 ##
 
 if __name__ == '__main__':
+    import pyradi.rymodtran as rymodtran
 
     doAll = False
 
@@ -570,54 +614,64 @@ if __name__ == '__main__':
         dfPhotRates.columns = ['Irradiance-lm/m2','ColourTemp','FracPhotop']
         dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
         print(dfPhotRates)
+        print(pf.lllPhotonrates())
 
         # test loading of spectrals
-        pf.spectrals['ID1'] = Spectral('ID1',val=np.linspace(0,1,2),wl=np.linspace(.4,.7,2),desc="some description")
-        pf.spectrals['ID2'] = Spectral('ID2',val=np.linspace(1,0,2),wl=np.linspace(7,12,2),desc="some description")
         print('\n---------------------\nSpectrals:')
+        spectral = np.loadtxt('data/MWIRsensor.txt')
+        pf.spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        pf.spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
         for key in pf.spectrals:
             print(pf.spectrals[key])
 
+        print(type(pf.spectrals['ID1']))
+
         # test loading of atmospheric spectrals
-        pf.atmos['A1'] = Atmo(ID='A1', tau=np.array([.2,.5,1]), distance=1000, wl=np.array([1,2,3]), 
-            wn=None, desc='My super atmo')
-        pf.atmos['A2'] = Atmo(ID='A1', tau=np.array([.2,.5,1]), rad=np.array([.2,.5,1]), wl=np.array([1,2,3]), 
-            wn=None, desc='My second atmo')
         print('\n---------------------\Atmos:')
+        tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 
+                                         'THRML_SCT', 'SURF_EMIS', 
+                                         'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 
+                                         'DIR_EM', 'BBODY_T[K]'] )        # print(tape7.shape)
+        pf.atmos['A1'] = Atmo(ID='tape7-02', tran=tape72[:,1], prad=tape72[:,6], distance=2000, wl=None, 
+            wn=tape72[:,0], desc='tape7-02')
+        pf.atmos['A2'] = Atmo(ID='tape7-02', atco=-np.log(tape72[:,1])/2000., prad=tape72[:,6] / (1 - tape72[:,1]),
+         wl=1e4/tape72[:,0], 
+            wn=None, desc='tape7-02')
         for key in pf.atmos:
             print(pf.atmos[key])
 
+        numpts = pf.atmos['A1'].wn.shape[0]
+        stride = numpts / 3
+
         for distance in [1000,2000]:
-            print('distance={} m, tau={}'.format(distance,pf.atmos['A1'].tauR(distance)))
+            print('distance={} m, tran={}'.format(distance,pf.atmos['A1'].tauR(distance)[0::stride].T))
 
         distances =np.array([1000,2000])
-        print('distances={} m, tau={}'.format(distances,pf.atmos['A1'].tauR(distances)))
+        print('distances={} m, tran={}'.format(distances,pf.atmos['A1'].tauR(distances)[0::stride].T))
+        print('distances={} m, atco={}'.format(distances,(-np.log(pf.atmos['A1'].tauR(distances))/distances)[0::stride].T))
 
 
+        # test loading of sensors
+        print('\n---------------------\Sensors:')
         pf.sensors['S1'] = Sensor(ID='S1', fno=3.2, detarea=(10e-6)**2, inttime=0.01, 
             wl=np.array([1,2,3]), tauOpt=np.array([0.4, 0.9, 0.2]), quantEff=np.array([0.6, 0.7, 0.4]), 
             pfrac=0.4, desc='Sensor one')
         pf.sensors['S2'] = Sensor(ID='S2', fno=4, detarea=(15e-6)**2, inttime=0.02, 
             wl=np.array([1,2,3]), tauOpt=np.array([0.45, 0.95, 0.5]), quantEff=np.array([0.3, 0.4, 0.5]), 
             desc='Sensor two')
-        print('\n---------------------\Sensors:')
         for key in pf.sensors:
             print(pf.sensors[key])
 
 
+        # test loading of targets/sources
+        print('\n---------------------\Sources:')
         pf.targets['T1'] = Target(ID='T1', wl=np.array([1,2,3]), emis=1, tmprt=300, refl=0, cosTarg=0.5,
             taumed=np.array([0.45, 0.95, 0.5]), scale=1, desc='Source one')
         pf.targets['T2'] = Target(ID='T2', wl=np.array([1,2,3]), emis=0., tmprt=6000, refl=1,cosTarg=1,
             scale=2.17e-5,taumed=0.5,desc='Source two')
-        print('\n---------------------\Sources:')
         for key in pf.targets:
             print(pf.targets[key])
 
-        # print(pf.lllPhotonrates())
-
-        # wl = np.linspace(0.43,0.69, 300)
-        # # photLumEff,_ = ryutils.luminousEfficiency(vlamtype='photopic', wavelen=wl, eqnapprox=True)
-        # print('\nRadiance of sunlit surface: {} q/(s.m2.sr)'.format(pf.nElecCntReflSun(wl, tauSun=0.6)))
 
 
        
@@ -626,6 +680,9 @@ if __name__ == '__main__':
     print('module rypflux done!')
 
 
+        # wl = np.linspace(0.43,0.69, 300)
+        # # photLumEff,_ = ryutils.luminousEfficiency(vlamtype='photopic', wavelen=wl, eqnapprox=True)
+        # print('\nRadiance of sunlit surface: {} q/(s.m2.sr)'.format(pf.nElecCntReflSun(wl, tauSun=0.6)))
 
 
 
