@@ -127,6 +127,7 @@ class Spectral(object):
         else:
             print('Spectral {} has both wn and wl as None'.format(ID))
 
+
     ############################################################
     ##
     def __str__(self):
@@ -142,15 +143,16 @@ class Spectral(object):
                 | No exception is raised.
         """
         numpts = self.wn.shape[0]
-        stride = numpts / 4
-        strn = 'Spectral ID: {}\n'.format(self.ID)
+        stride = numpts / 3
+        strn = 'ID: {}\n'.format(self.ID)
         strn += 'desc: {}\n'.format(self.desc)
 
         # for all numpy arrays, provide subset of values
         for var in self.__dict__:
             # then see if it is an array
             if isinstance(eval('self.{}'.format(var)), np.ndarray):
-                strn += '{} (subsampled.T): {}\n'.format(var, self.value[0::stride].T)
+                svar = (np.vstack((eval('self.{}'.format(var))[0::stride], eval('self.{}'.format(var))[-1] ))).T
+                strn += '{} (subsampled.T): {}\n'.format(var, svar)
 
 
         return strn
@@ -255,18 +257,8 @@ class Atmo(Spectral):
             Raises:
                 | No exception is raised.
         """
-        numpts = self.wn.shape[0]
-        stride = numpts / 2
-        strn =  'Atmo ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
-        strn += 'wl (subsampled.T): {}\n'.format(self.wl[0::stride].T)
-        strn += 'wn (subsampled.T): {}\n'.format(self.wn[0::stride].T)
-        if self.atco is not None:
-            strn += 'atco (subsampled.T): {}\n'.format(self.atco[0::stride].T)
-        if self.prad is not None:
-            strn += 'prad (subsampled.T): {}\n'.format(self.prad[0::stride].T)
-        if self.tran is not None:
-            strn += 'tran (subsampled.T): {}\n'.format(self.tran[0::stride].T)
+
+        strn = Spectral.__str__(self)
 
         return strn
 
@@ -383,8 +375,9 @@ class Sensor():
         strn += 'detarea: {}\n'.format(self.detarea)
         strn += 'inttime: {}\n'.format(self.inttime)
         strn += 'pfrac: {}\n'.format(self.pfrac)
-        strn += 'tauOpt: {}\n'.format(self.tauOptVal)
-        strn += 'quantEff: {}\n'.format(self.quantEffVal)
+        strn += 'tauOpt {}\n'.format(self.tauOptVal)
+        strn += 'quantEff {}\n'.format(self.quantEffVal)
+
 
         return strn
 
@@ -441,7 +434,7 @@ class Target(Spectral):
     """
     ############################################################
     ##
-    def __init__(self, ID, wl, emis, tmprt, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
+    def __init__(self, ID, emis, tmprt, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
         """Source characteristics
 
             Target transmittance = 1 - emis - refl.
@@ -450,7 +443,6 @@ class Target(Spectral):
 
             Args:
                 | ID (str): identification string
-                | wl (np.array (N,) or (N,1)): wavelength 
                 | emis (np.array (N,) or (N,1)): surface emissivity
                 | tmprt (scalar): surface temperature
                 | refl (np.array (N,) or (N,1)): surface reflectance
@@ -469,15 +461,28 @@ class Target(Spectral):
         __all__ = ['__init__', ]
 
         self.ID = ID
-        self.wl = wl
-        self.emis = emis
         self.tmprt = tmprt
-        self.refl = refl
         self.cosTarg = cosTarg
-        self.taumed = taumed
         self.scale = scale
         self.desc = desc
 
+        if isinstance(emis, Spectral) or isinstance(emis, Number):
+            self.emisVal = emis
+        else:
+            print('\n\n{} emis must be of type Spectral or scalar number\n\n'.format(self.ID))
+            self.emisVal = None
+
+        if isinstance(refl, Spectral) or isinstance(refl, Number):
+            self.reflVal = refl
+        else:
+            print('\n\n{} refl must be of type Spectral scalar number\n\n'.format(self.ID))
+            self.reflVal = None
+
+        if isinstance(taumed, Spectral) or isinstance(taumed, Number):
+            self.taumedVal = taumed
+        else:
+            print('\n\n{} taumed must be of type Spectral scalar number\n\n'.format(self.ID))
+            self.taumedVal = None
           
     ############################################################
     ##
@@ -498,12 +503,80 @@ class Target(Spectral):
         strn += 'tmprt: {}\n'.format(self.tmprt)
         strn += 'cosTarg: {}\n'.format(self.cosTarg)
         strn += 'scale: {}\n'.format(self.scale)
-        strn += 'wl: {}\n'.format(self.wl)
-        strn += 'emis: {}\n'.format(self.emis)
-        strn += 'refl: {}\n'.format(self.refl)
-        strn += 'taumed: {}\n'.format(self.taumed)
+
+        strn += 'emis: {}\n'.format(self.emis())
+        strn += 'refl: {}\n'.format(self.refl())
+        strn += 'taumed: {}\n'.format(self.taumed())
 
         return strn
+
+    ############################################################
+    ##
+    def emis(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.emisVal, Spectral):
+             rtnVal = self.emisVal.value
+           
+        if isinstance(self.emisVal, Number):
+            rtnVal = self.emisVal 
+
+        return rtnVal
+
+
+    ############################################################
+    ##
+    def refl(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.reflVal, Spectral):
+             rtnVal = self.reflVal.value
+           
+        if isinstance(self.reflVal, Number):
+            rtnVal = self.reflVal 
+
+        return rtnVal
+
+
+    ############################################################
+    ##
+    def taumed(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.taumedVal, Spectral):
+             rtnVal = self.taumedVal.value
+           
+        if isinstance(self.taumedVal, Number):
+            rtnVal = self.taumedVal 
+
+        return rtnVal
 
 
 ##############################################################################################
@@ -690,7 +763,7 @@ if __name__ == '__main__':
         print(pf.lllPhotonrates())
 
         # test loading of spectrals
-        print('\n---------------------\nSpectrals:')
+        print('\n---------------------Spectrals:')
         spectral = np.loadtxt('data/MWIRsensor.txt')
         pf.spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
         pf.spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
@@ -701,7 +774,7 @@ if __name__ == '__main__':
             pf.spectrals[key].plot(['value'],filename=filename,heading=pf.spectrals[key].desc,ytitle='Value')
 
         # test loading of atmospheric spectrals
-        print('\n---------------------\Atmos:')
+        print('\n---------------------Atmos:')
         tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
         pf.atmos['A1'] = Atmo(ID='tape7-02', tran=tape72[:,1], prad=1e4*tape72[:,2], distance=2000, wl=None, 
             wn=tape72[:,0], desc='tape7-02 raw data input')
@@ -735,9 +808,8 @@ if __name__ == '__main__':
         print('distances={} m, atco={}'.format(distances,(-np.log(pf.atmos['A1'].tauR(distances))/distances)[0::stride].T))
 
 
-
         # test loading of sensors
-        print('\n---------------------\Sensors:')
+        print('\n---------------------Sensors:')
         pf.sensors['S1'] = Sensor(ID='S1', fno=3.2, detarea=(10e-6)**2, inttime=0.01, 
             wl=np.array([1,2,3]), tauOpt=.9, quantEff=.6, 
             pfrac=0.4, desc='Sensor one')
@@ -748,22 +820,21 @@ if __name__ == '__main__':
             desc='Sensor two')
         for key in pf.sensors:
             print(pf.sensors[key])
-            print(pf.sensors[key].tauOpt())
-            print(pf.sensors[key].QE())
+        #     print(pf.sensors[key].tauOpt())
+        #     print(pf.sensors[key].QE())
 
 
         # test loading of targets/sources
-        print('\n---------------------\Sources:')
-        pf.targets['T1'] = Target(ID='T1', wl=np.array([1,2,3]), emis=1, tmprt=300, refl=0, cosTarg=0.5,
-            taumed=np.array([0.45, 0.95, 0.5]), scale=1, desc='Source one')
-        pf.targets['T2'] = Target(ID='T2', wl=np.array([1,2,3]), emis=0., tmprt=6000, refl=1,cosTarg=1,
+        print('\n---------------------Sources:')
+        emisx = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR emissivity")
+        pf.targets['T1'] = Target(ID='T1', emis=emisx, tmprt=300, refl=0, cosTarg=0.5,
+            taumed=.5, scale=1, desc='Source one')
+        pf.targets['T2'] = Target(ID='T2', emis=0., tmprt=6000, refl=1,cosTarg=1,
             scale=2.17e-5,taumed=0.5,desc='Source two')
         for key in pf.targets:
             print(pf.targets[key])
 
 
-
-       
 
     print('\n---------------------\n')
     print('module rypflux done!')
