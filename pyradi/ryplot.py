@@ -1641,7 +1641,8 @@ class Plotter:
                   tickVals = []
                   # need this roundabout trick to handle minus sign in unicode
                   for item in cbartickvals:
-                      valstr = item.get_text().replace('\u2212', '-').replace('$','')
+                      valstr = float(item.get_text().replace(u'\N{MINUS SIGN}', '-').replace('$',''))
+                      # valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
                           str = '{0:f}'.format(val)
