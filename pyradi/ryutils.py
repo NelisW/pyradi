@@ -1779,7 +1779,7 @@ class Target(Spectral):
 
             Target transmittance = 1 - emis - refl.
 
-
+            see http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/09b-StaringArrayDetectors.ipynb#Electron-count--for-various-sources
 
             Args:
                 | ID (str): identification string
@@ -1853,7 +1853,7 @@ class Target(Spectral):
     ############################################################
     ##
     def emis(self):
-        """Returns scaler or np.array for optics transmittance
+        """Returns scaler or np.array for emissivity
 
             Args:
                 | None
@@ -1876,7 +1876,7 @@ class Target(Spectral):
     ############################################################
     ##
     def refl(self):
-        """Returns scaler or np.array for optics transmittance
+        """Returns scaler or np.array for reflectance
 
             Args:
                 | None
@@ -1899,7 +1899,7 @@ class Target(Spectral):
     ############################################################
     ##
     def taumed(self):
-        """Returns scaler or np.array for optics transmittance
+        """Returns scaler or np.array for atmospheric transmittance to illuminating source
 
             Args:
                 | None
@@ -1919,11 +1919,35 @@ class Target(Spectral):
         return rtnVal
 
 
+    ############################################################
+    ##
+    def radiance(self, units='el'):
+        """Returns scaler or np.array for atmospheric transmittance to illuminating source
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+
+        # if units[1] == 'l':
+        #     svar = 
+        vscale =  self.emis * self.refl * self.taumed * self.scale * self.cosTarg
+        rtnVal = vscale * ryplanck.planck(svar, self.tmprt, type=units)
 
 
-
-
-
+        return rtnVal
+# emis
+# refl
+# taumed
+        # Mel = planck(wl, np.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m)]
+        # Mql = planck(wl, np.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m)]
+        # Men = planck(n, np.asarray(temperature).reshape(-1,1), type='en')  # [W/(m$^2$.cm$^{-1}$)]
+        # Mqn = planck(n, np.asarray(temperature).reshape(-1,1), type='qn')  # [q/(s.m$^2$.cm$^{-1}$)]
 
 
 

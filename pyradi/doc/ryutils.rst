@@ -7,6 +7,23 @@ Overview
 ----------
 .. automodule:: pyradi.ryutils
 
+Module classes
+------------------
+
+.. autoclass:: pyradi.ryutils.Spectral
+	:members:
+	
+.. autoclass:: pyradi.ryutils.Atmo
+	:members:
+	
+.. autoclass:: pyradi.ryutils.Sensor
+	:members:
+	
+.. autoclass:: pyradi.ryutils.Target
+	:members:
+	
+
+
 Module functions
 ------------------
 
@@ -51,5 +68,15 @@ Module functions
 .. autofunction:: pyradi.ryutils.circ
 
 .. autofunction:: pyradi.ryutils.poissonarray
+
+.. autofunction:: pyradi.ryutils.draw_siemens_star
+
+.. autofunction:: pyradi.ryutils.gen_siemens_star
+
+.. autofunction:: pyradi.ryutils.extractGraph
+
+.. autofunction:: pyradi.ryutils.makemotionsequence
+
+.. autofunction:: pyradi.ryutils.luminousEfficiency
 
 
