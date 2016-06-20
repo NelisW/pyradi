@@ -219,7 +219,6 @@ class PFlux:
 ##
 
 if __name__ == '__main__':
-    import pyradi.rymodtran as rymodtran
 
     doAll = True
 

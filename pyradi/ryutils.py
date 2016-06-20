@@ -1400,20 +1400,20 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
     return vlam, wavelen
 
 
+
+##############################################################################################
+##############################################################################################
 ##############################################################################################
 class Spectral(object):
     """Generic spectral can be used for any spectral vector
     """
     ############################################################
     ##
-    def __init__(self, ID, wl=None, wn=None, value=None, emis=None, tran=None, refl=None, atco=None, prad=None, desc=None):
-        """Defines a spectral variable of property vs wavelength iof wavenumber
+    def __init__(self, ID, value, wl=None, wn=None, desc=None):
+        """Defines a spectral variable of property vs wavelength or wavenumber
 
         One of wavelength or wavenunber must be supplied, the other is calculated.
         No assumption is made of the sampling interval on eiher wn or wl.
-
-        A second  value vector could optionally be supplied. This is used for atmo
-        transmittance and path radiance.
 
         The constructor defines the 
 
@@ -1422,11 +1422,6 @@ class Spectral(object):
                 | wl (np.array (N,) or (N,1)): vector of wavelength values
                 | wn (np.array (N,) or (N,1)): vector of wavenumber values
                 | value (np.array (N,) or (N,1)): vector of property values
-                | tran (np.array (N,) or (N,1)): transmittance vector 
-                | emis (np.array (N,) or (N,1)): emissivity vector 
-                | refl (np.array (N,) or (N,1)): reflectance vector 
-                | atco (np.array (N,) or (N,1)): attenuation coeff vector  m-1
-                | prad (np.array (N,) or (N,1)): normalised path radiance vector 
                 | desc (str): description string
 
             Returns:
@@ -1440,24 +1435,6 @@ class Spectral(object):
 
         self.ID = ID
         self.desc = desc
-        if value is not None:
-            value = value.reshape(-1,1)
-        self.value = value
-        if emis is not None:
-            emis = emis.reshape(-1,1)
-        self.emis = emis
-        if tran is not None:
-            tran = tran.reshape(-1,1)
-        self.tran = tran
-        if refl is not None:
-            refl = refl.reshape(-1,1)
-        self.refl = refl
-        if atco is not None:
-            atco = atco.reshape(-1,1)
-        self.atco = atco
-        if prad is not None:
-            prad = prad.reshape(-1,1)
-        self.prad = prad
 
         if wn is not None:
             self.wn =  wn.reshape(-1,1)
@@ -1467,6 +1444,11 @@ class Spectral(object):
             self.wn = 1e4 /  self.wl
         else:
             print('Spectral {} has both wn and wl as None'.format(ID))
+
+        if isinstance(value, Number):
+            self.value = value * np.ones(self.wn.shape)
+        elif isinstance(value, np.ndarray):
+            self.value = value.reshape(-1,1)
 
 
     ############################################################
@@ -1485,26 +1467,90 @@ class Spectral(object):
         """
         numpts = self.wn.shape[0]
         stride = numpts / 3
-        strn = 'ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
-
+        strn = '{}\n'.format(self.ID)
+        strn += ' {}-desc: {}\n'.format(self.ID,self.desc)
+ 
         # for all numpy arrays, provide subset of values
         for var in self.__dict__:
             # then see if it is an array
             if isinstance(eval('self.{}'.format(var)), np.ndarray):
                 svar = (np.vstack((eval('self.{}'.format(var))[0::stride], eval('self.{}'.format(var))[-1] ))).T
-                strn += '{} (subsampled.T): {}\n'.format(var, svar)
+                strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
 
 
         return strn
 
+
     ############################################################
     ##
-    def plot(self, vars, filename, heading, ytitle=''):
+    def __mul__(self, other):
+        """Returns a spectral product
+
+        it is not intended that the function will be called directly by the user
+
+            Args:
+                | other (Spectral): the other Spectral to be used in multiplication
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+
+        if isinstance(other, Number):
+            other = Spectral('{}'.format(other),value=other, wn=self.wn,desc='{}'.format(other))
+        # elif isinstance(other, np.ndarray):
+        #     other = other * np.ones(self.wn.shape).reshape(-1,1)
+        # elif isinstance(other.value, Number):
+        #     other.value = other.value * np.ones(other.wn.shape).reshape(-1,1)
+
+        # create new spectral in wn wider than either self or other.
+        wnmin = min(np.min(self.wn),np.min(other.wn))
+        wnmax = max(np.max(self.wn),np.max(other.wn))
+        wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
+        wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
+        wl = 1e4 / self.wn
+
+        if np.mean(np.diff(self.wn)) > 0:
+            s = np.interp(wn,self.wn[:,0], self.value[:,0])
+            o = np.interp(wn,other.wn[:,0], other.value[:,0])
+        else:
+            s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
+            o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+
+        return Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
+             desc='{}*{}'.format(self.desc,other.desc))
+
+    ############################################################
+    ##
+    def __pow__(self, power):
+        """Returns a spectral to some power
+
+        it is not intended that the function will be called directly by the user
+
+            Args:
+                | power (number): spectral raised to power
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.value, Number):
+            self.value = self.value * np.ones(self.wn.shape)
+
+        return Spectral(ID='{}**{}'.format(self.ID,power), value=self.value ** power, 
+            wl=self.wl, wn=self.wn,
+         desc='{}**{}'.format(self.desc,power))
+
+    ############################################################
+    ##
+    def plot(self, filename, heading, ytitle=''):
         """Do a simple plot of spectral variable(s)
 
             Args:
-                | vars ([str]): list of variables to type (in string form)
                 | filename (str): filename for png graphic
                 | heading (str): graph heading
                 | ytitle (str): graph y-axis title
@@ -1518,25 +1564,19 @@ class Spectral(object):
         import pyradi.ryplot as ryplot
         p = ryplot.Plotter(1,2,1,figsize=(8,5))
 
-        for var in vars:
-            # first see if it is in the current class
-            if var in self.__dict__:
-                # then see if it is an array
-                if isinstance(eval('self.{}'.format(var)), np.ndarray):
-                    p.plot(1,self.wl,eval('self.{}'.format(var)),heading,'Wavelength $\mu$m',
-                        ytitle,label=[var])
-                    p.plot(2,self.wn,eval('self.{}'.format(var)),heading,'Wavenumber cm$^{-1}$',
-                        ytitle,label=[var])
+        if isinstance(self.value, np.ndarray):
+            p.plot(1,self.wl,self.value,heading,'Wavelength $\mu$m',
+                ytitle)
+            p.plot(2,self.wn,self.value,heading,'Wavenumber cm$^{-1}$',
+                ytitle)
 
-        p.saveFig(filename)
-
-
+        p.saveFig(ryfiles.cleanFilename(filename))
 
 
 ##############################################################################################
 ##############################################################################################
 ##############################################################################################
-class Atmo(Spectral):
+class Atmo():
     """Atmospheric spectral such as transittance or attenuation coefficient
     """
     ############################################################
@@ -1552,6 +1592,8 @@ class Atmo(Spectral):
 
         If distance is None, atco (attenuation coefficients in m^{-1}), and
         normalised prad (Lpath/(1-tauPath)) are used as supplied
+
+        All spectral variables must be on the same spectral vector wn or wl
 
 
             Args:
@@ -1573,16 +1615,21 @@ class Atmo(Spectral):
 
         __all__ = ['__init__', ]
 
+        self.ID = ID
+        self.desc = desc
+
         if distance is not None:
             if atco is None:
-                atco = -np.log(tran)/distance
+                self.atco = Spectral(self.ID+'-atco', value=-np.log(tran)/distance,wl=wl,wn=wn,desc=self.desc)
+            else:
+                self.atco = Spectral(self.ID+'-atco', value=atco,wl=wl,wn=wn,desc=self.desc)
+               
             if prad is not None:
-                prad = prad / (1 - np.exp(- atco * distance))
-
-        atco = atco.reshape(-1,1)
-        prad = prad.reshape(-1,1)
-
-        Spectral.__init__(self, ID=ID, atco=atco, prad=prad, wl=wl, wn=wn, desc=desc)
+                self.prad = Spectral(self.ID+'-prad',value=prad.reshape(-1,1)/(1-np.exp(-self.atco.value*distance)),
+                    wl=wl,wn=wn,desc=self.desc)
+        else:
+            self.atco = Spectral(self.ID+'-atco', value=atco,wl=wl,wn=wn,desc=self.desc)
+            self.prad = Spectral(self.ID+'-prad', value=prad,wl=wl,wn=wn,desc=self.desc)
            
     ############################################################
     ##
@@ -1599,7 +1646,10 @@ class Atmo(Spectral):
                 | No exception is raised.
         """
 
-        strn = Spectral.__str__(self)
+        strn = 'ID: {}\n'.format(self.ID)
+        strn += 'desc: {}\n'.format(self.desc)
+        strn += '{}\n'.format(self.atco)
+        strn += '{}\n'.format(self.prad)
 
         return strn
 
@@ -1620,7 +1670,7 @@ class Atmo(Spectral):
                 | No exception is raised.
         """
         distance = np.array(distance).reshape(1,-1)
-        return np.exp(-distance * self.atco)
+        return np.exp(-distance * self.atco.value)
 
     ############################################################
     ##
@@ -1639,8 +1689,8 @@ class Atmo(Spectral):
                 | No exception is raised.
         """
         distance = np.array(distance).reshape(1,-1)
-        tran = np.exp(-distance * self.atco)
-        return self.prad * (1 - tran)
+        tran = np.exp(-distance * self.atco.value)
+        return self.prad.value * (1 - tran)
 
 
 ##############################################################################################
@@ -1651,7 +1701,7 @@ class Sensor():
     """
     ############################################################
     ##
-    def __init__(self, ID, fno, detarea, inttime, wl, tauOpt=1, quantEff=1, 
+    def __init__(self, ID, fno, detarea, inttime, tauOpt=1, quantEff=1, 
                 pfrac=1, desc=''):
         """Sensor characteristics
 
@@ -1682,19 +1732,25 @@ class Sensor():
         self.pfrac = pfrac
         self.desc = desc
 
-        if isinstance(tauOpt, Spectral) or isinstance(tauOpt, Number):
-            self.tauOptVal = tauOpt
-        else:
+        self.tauOptVal = tauOpt
+        self.quantEffVal = quantEff
+        if not isinstance(tauOpt, Spectral) and not isinstance(quantEff, Spectral):
+            print('\n\n{} Either tauOpt or quantEff must be of type Spectral\n\n'.format(self.ID))
+            self.tauOptVal = None
+            self.quantEffVal = None
+            return
+
+        if isinstance(tauOpt, Number):
+            self.tauOptVal = Spectral('{}'.format(tauOpt),value=tauOpt, wn=quantEff.wn,desc='{}'.format(tauOpt))
+        if not isinstance(self.tauOptVal, Spectral):
             print('\n\n{} tauOpt must be of type Spectral or scalar number\n\n'.format(self.ID))
+            self.tauOptVal = None
+
+        if isinstance(quantEff, Number):
+            self.quantEffVal = Spectral('{}'.format(quantEff),value=quantEff, wn=tauOpt.wn,desc='{}'.format(quantEff))
+        if not isinstance(self.quantEffVal, Spectral):
+            print('\n\n{} quantEff must be of type Spectral or scalar number\n\n'.format(self.ID))
             self.quantEffVal = None
-
-        if isinstance(quantEff, Spectral) or isinstance(quantEff, Number):
-            self.quantEffVal = quantEff
-        else:
-            print('\n\n{} quantEff must be of type Spectral scalar number\n\n'.format(self.ID))
-            self.quantEffVal = None
-
-
            
     ############################################################
     ##
@@ -1716,8 +1772,8 @@ class Sensor():
         strn += 'detarea: {}\n'.format(self.detarea)
         strn += 'inttime: {}\n'.format(self.inttime)
         strn += 'pfrac: {}\n'.format(self.pfrac)
-        strn += 'tauOpt {}\n'.format(self.tauOptVal)
-        strn += 'quantEff {}\n'.format(self.quantEffVal)
+        strn += '{}\n'.format(self.tauOptVal)
+        strn += '{}\n'.format(self.quantEffVal)
 
 
         return strn
@@ -1965,91 +2021,100 @@ if __name__ == '__main__':
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
+    import pyradi.rymodtran as rymodtran
     import os
 
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
 
+    spectrals = {}
+    atmos = {}
+    sensors = {}
+    targets = {}
+
     doAll = False
 
-    if True:
-        spectrals = {}
-        atmos = {}
-        sensors = {}
-        targets = {}
+    if doAll:
 
         # test loading of spectrals
         print('\n---------------------Spectrals:')
         spectral = np.loadtxt('data/MWIRsensor.txt')
-        spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        spectrals['ID1'] = Spectral('ID1',value=.3,wl=spectral[:,0],desc="MWIR transmittance")
         spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
+        spectrals['ID3'] = spectrals['ID1'] * spectrals['ID2']
+        spectrals['ID4'] = spectrals['ID1'] ** 3
+        spectrals['ID5'] = spectrals['ID2'] * 1.67
+
         for key in spectrals:
             print(spectrals[key])
         for key in spectrals:
             filename ='{}-{}'.format(key,spectrals[key].desc)
-            spectrals[key].plot(['value'],filename=filename,heading=spectrals[key].desc,ytitle='Value')
+            spectrals[key].plot(filename=filename,heading=spectrals[key].desc,ytitle='Value')
+
+    if doAll:
 
         # test loading of atmospheric spectrals
         print('\n---------------------Atmos:')
         tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
-        atmos['A1'] = Atmo(ID='tape7-02', tran=tape72[:,1], prad=1e4*tape72[:,2], distance=2000, wl=None, 
-            wn=tape72[:,0], desc='tape7-02 raw data input')
+        distance = 2000.
+        atmos['A1'] = Atmo(ID='tape7-02-1', tran=tape72[:,1], prad=1e4*tape72[:,2], distance=distance, wl=None, 
+            wn=tape72[:,0], desc='tape7-02-1 raw data input')
         tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
-        atmos['A2'] = Atmo(ID='tape7-02', atco=-np.log(tape72[:,1])/2000., prad=1e4*tape72[:,2] / (1 - tape72[:,1]),
-            wl=1e4/tape72[:,0], wn=None, desc='tape7-02 normalised input')
+        atmos['A2'] = Atmo(ID='tape7-02-2', atco=-np.log(tape72[:,1])/distance, prad=1e4*tape72[:,2] / (1 - tape72[:,1]),
+            wl=1e4/tape72[:,0], wn=None, desc='tape7-02-2 normalised input')
         for key in atmos:
             print(atmos[key])
         for key in atmos:
-            atmos[key].plot(['prad'],filename='{}-{}-{}'.format(key,atmos[key].desc,'prad'),
+            atmos[key].prad.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'prad'),
                 heading=atmos[key].desc,ytitle='Norm Lpath W/(sr.m2.cm-1)')
-            atmos[key].plot(['atco'],filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
+            atmos[key].atco.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
                 heading=atmos[key].desc,ytitle='Attenuation m$^{-1}$')
 
-        numpts = atmos['A1'].wn.shape[0]
-        stride = numpts / 3
-
+        stride = atmos['A1'].atco.wn.shape[0] / 3
         for distance in [1000,2000]:
             print('distance={} m, tran={}'.format(distance,atmos['A1'].tauR(distance)[0::stride].T))
             ID = 'Atau{:.0f}'.format(distance)
-            spectrals[ID] = Spectral(ID,tran=atmos['A1'].tauR(distance),wl=atmos['A1'].wl,desc="MWIR transmittance "+ID)
-            spectrals[ID].plot(['tran'],filename='{}-{}-tau'.format(key,spectrals[ID].desc),
+            spectrals[ID] = Spectral(ID,value=atmos['A1'].tauR(distance),wl=atmos['A1'].atco.wl,desc="MWIR transmittance "+ID)
+            spectrals[ID].plot(filename='{}-{}-tau'.format(key,spectrals[ID].desc),
                 heading=spectrals[ID].desc,ytitle='Transmittance')
             ID = 'Aprad{:.0f}'.format(distance)
-            spectrals[ID] = Spectral(ID,prad=atmos['A1'].pathR(distance),wl=atmos['A1'].wl,desc="MWIR path radiance "+ID)
-            spectrals[ID].plot(['prad'],filename='{}-{}-prad'.format(key,spectrals[ID].desc),
+            spectrals[ID] = Spectral(ID,value=atmos['A1'].pathR(distance),wl=atmos['A1'].atco.wl,desc="MWIR path radiance "+ID)
+            spectrals[ID].plot(filename='{}-{}-prad'.format(key,spectrals[ID].desc),
                 heading=spectrals[ID].desc,ytitle='Lpath W/(sr.m2.cm-1)')
 
         distances =np.array([1000,2000])
         print('distances={} m, tran={}'.format(distances,atmos['A1'].tauR(distances)[0::stride].T))
         print('distances={} m, atco={}'.format(distances,(-np.log(atmos['A1'].tauR(distances))/distances)[0::stride].T))
 
-
+    if doAll:
         # test loading of sensors
         print('\n---------------------Sensors:')
-        sensors['S1'] = Sensor(ID='S1', fno=3.2, detarea=(10e-6)**2, inttime=0.01, 
-            wl=np.array([1,2,3]), tauOpt=.9, quantEff=.6, 
-            pfrac=0.4, desc='Sensor one')
+        ID = 'S1'
+        sensors[ID] = Sensor(ID=ID, fno=3.2, detarea=(10e-6)**2, inttime=0.01, 
+            tauOpt=Spectral(ID=ID,value=.5, wl=np.linspace(4.3, 5, 20), desc=''),
+            quantEff=.6, pfrac=0.4, desc='Sensor one')
         spectral = np.loadtxt('data/MWIRsensor.txt')
-        spectrals['ID1S2'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
-        sensors['S2'] = Sensor(ID='S2', fno=4, detarea=(15e-6)**2, inttime=0.02, 
-            wl=np.array([1,2,3]), tauOpt=spectrals['ID1S2'], quantEff=spectrals['ID1S2'], 
-            desc='Sensor two')
+        ID = 'S2'
+        spectrals[ID] = Spectral(ID,value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        sensors[ID] = Sensor(ID=ID, fno=4, detarea=(15e-6)**2, inttime=0.02, 
+            tauOpt=spectrals[ID], quantEff=spectrals[ID],  desc='Sensor two')
         for key in sensors:
             print(sensors[key])
-        #     print(sensors[key].tauOpt())
-        #     print(sensors[key].QE())
+            # print(sensors[key].tauOpt())
+            # print(sensors[key].QE())
 
 
-        # test loading of targets/sources
-        print('\n---------------------Sources:')
-        emisx = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR emissivity")
-        targets['T1'] = Target(ID='T1', emis=emisx, tmprt=300, refl=0, cosTarg=0.5,
-            taumed=.5, scale=1, desc='Source one')
-        targets['T2'] = Target(ID='T2', emis=0., tmprt=6000, refl=1,cosTarg=1,
-            scale=2.17e-5,taumed=0.5,desc='Source two')
-        for key in targets:
-            print(targets[key])
-
+    if True:
+        # # test loading of targets/sources
+        # print('\n---------------------Sources:')
+        # emisx = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR emissivity")
+        # targets['T1'] = Target(ID='T1', emis=emisx, tmprt=300, refl=0, cosTarg=0.5,
+        #     taumed=.5, scale=1, desc='Source one')
+        # targets['T2'] = Target(ID='T2', emis=0., tmprt=6000, refl=1,cosTarg=1,
+        #     scale=2.17e-5,taumed=0.5,desc='Source two')
+        # for key in targets:
+        #     print(targets[key])
+        pass
 
 
     if doAll:
@@ -2457,4 +2522,4 @@ if __name__ == '__main__':
                np.mean(out),np.var(out), (lam-np.mean(out))/lam, (lam-np.var(out))/lam))
 
 
-    print('module ryutils done!')
+    print('\n\nmodule ryutils done!')

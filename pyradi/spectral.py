@@ -106,7 +106,7 @@ class Spectral(object):
         """
 
         if isinstance(other, Number):
-            other = Spectral('--',value=other, wn=self.wn,desc="--")
+            other = Spectral('{}'.format(other),value=other, wn=self.wn,desc='{}'.format(other))
 
         if isinstance(other.value, Number):
             other.value = other.value * np.ones(other.wn.shape).reshape(-1,1)
@@ -153,11 +153,10 @@ class Spectral(object):
 
     ############################################################
     ##
-    def plot(self, vars, filename, heading, ytitle=''):
+    def plot(self, filename, heading, ytitle=''):
         """Do a simple plot of spectral variable(s)
 
             Args:
-                | vars ([str]): list of variables to type (in string form)
                 | filename (str): filename for png graphic
                 | heading (str): graph heading
                 | ytitle (str): graph y-axis title
@@ -171,15 +170,11 @@ class Spectral(object):
         import pyradi.ryplot as ryplot
         p = ryplot.Plotter(1,2,1,figsize=(8,5))
 
-        for var in vars:
-            # first see if it is in the current class
-            if var in self.__dict__:
-                # then see if it is an array
-                if isinstance(eval('self.{}'.format(var)), np.ndarray):
-                    p.plot(1,self.wl,eval('self.{}'.format(var)),heading,'Wavelength $\mu$m',
-                        ytitle,label=[var])
-                    p.plot(2,self.wn,eval('self.{}'.format(var)),heading,'Wavenumber cm$^{-1}$',
-                        ytitle,label=[var])
+        if isinstance(self.value, np.ndarray):
+            p.plot(1,self.wl,self.value,heading,'Wavelength $\mu$m',
+                ytitle)
+            p.plot(2,self.wn,self.value,heading,'Wavenumber cm$^{-1}$',
+                ytitle)
 
         p.saveFig(ryfiles.cleanFilename(filename))
 
@@ -216,12 +211,12 @@ if __name__ == '__main__':
         spectrals['ID1'] = Spectral('ID1',value=.3,wl=spectral[:,0],desc="MWIR transmittance")
         spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
         spectrals['ID3'] = spectrals['ID1'] * spectrals['ID2']
-        # spectrals['ID4'] = spectrals['ID1'] ** 3
-        # spectrals['ID5'] = spectrals['ID2'] * 1.67
+        spectrals['ID4'] = spectrals['ID1'] ** 3
+        spectrals['ID5'] = spectrals['ID2'] * 1.67
 
         for key in spectrals:
             print(spectrals[key])
         for key in spectrals:
             filename ='{}-{}'.format(key,spectrals[key].desc)
-            spectrals[key].plot(['value'],filename=filename,heading=spectrals[key].desc,ytitle='Value')
+            spectrals[key].plot(filename=filename,heading=spectrals[key].desc,ytitle='Value')
 
