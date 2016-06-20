@@ -1399,6 +1399,534 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
     return vlam, wavelen
 
 
+##############################################################################################
+class Spectral(object):
+    """Generic spectral can be used for any spectral vector
+    """
+    ############################################################
+    ##
+    def __init__(self, ID, wl=None, wn=None, value=None, emis=None, tran=None, refl=None, atco=None, prad=None, desc=None):
+        """Defines a spectral variable of property vs wavelength iof wavenumber
+
+        One of wavelength or wavenunber must be supplied, the other is calculated.
+        No assumption is made of the sampling interval on eiher wn or wl.
+
+        A second  value vector could optionally be supplied. This is used for atmo
+        transmittance and path radiance.
+
+        The constructor defines the 
+
+            Args:
+                | ID (str): identification string
+                | wl (np.array (N,) or (N,1)): vector of wavelength values
+                | wn (np.array (N,) or (N,1)): vector of wavenumber values
+                | value (np.array (N,) or (N,1)): vector of property values
+                | tran (np.array (N,) or (N,1)): transmittance vector 
+                | emis (np.array (N,) or (N,1)): emissivity vector 
+                | refl (np.array (N,) or (N,1)): reflectance vector 
+                | atco (np.array (N,) or (N,1)): attenuation coeff vector  m-1
+                | prad (np.array (N,) or (N,1)): normalised path radiance vector 
+                | desc (str): description string
+
+            Returns:
+                | None
+
+            Raises:
+                | No exception is raised.
+        """
+
+        __all__ = ['__init__', ]
+
+        self.ID = ID
+        self.desc = desc
+        if value is not None:
+            value = value.reshape(-1,1)
+        self.value = value
+        if emis is not None:
+            emis = emis.reshape(-1,1)
+        self.emis = emis
+        if tran is not None:
+            tran = tran.reshape(-1,1)
+        self.tran = tran
+        if refl is not None:
+            refl = refl.reshape(-1,1)
+        self.refl = refl
+        if atco is not None:
+            atco = atco.reshape(-1,1)
+        self.atco = atco
+        if prad is not None:
+            prad = prad.reshape(-1,1)
+        self.prad = prad
+
+        if wn is not None:
+            self.wn =  wn.reshape(-1,1)
+            self.wl = 1e4 /  self.wn
+        elif wl is not None:
+            self.wl =  wl.reshape(-1,1)
+            self.wn = 1e4 /  self.wl
+        else:
+            print('Spectral {} has both wn and wl as None'.format(ID))
+
+
+    ############################################################
+    ##
+    def __str__(self):
+        """Returns string representation of the object
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        numpts = self.wn.shape[0]
+        stride = numpts / 3
+        strn = 'ID: {}\n'.format(self.ID)
+        strn += 'desc: {}\n'.format(self.desc)
+
+        # for all numpy arrays, provide subset of values
+        for var in self.__dict__:
+            # then see if it is an array
+            if isinstance(eval('self.{}'.format(var)), np.ndarray):
+                svar = (np.vstack((eval('self.{}'.format(var))[0::stride], eval('self.{}'.format(var))[-1] ))).T
+                strn += '{} (subsampled.T): {}\n'.format(var, svar)
+
+
+        return strn
+
+    ############################################################
+    ##
+    def plot(self, vars, filename, heading, ytitle=''):
+        """Do a simple plot of spectral variable(s)
+
+            Args:
+                | vars ([str]): list of variables to type (in string form)
+                | filename (str): filename for png graphic
+                | heading (str): graph heading
+                | ytitle (str): graph y-axis title
+
+            Returns:
+                | Nothing, writes png file to disk
+
+            Raises:
+                | No exception is raised.
+        """
+        import pyradi.ryplot as ryplot
+        p = ryplot.Plotter(1,2,1,figsize=(8,5))
+
+        for var in vars:
+            # first see if it is in the current class
+            if var in self.__dict__:
+                # then see if it is an array
+                if isinstance(eval('self.{}'.format(var)), np.ndarray):
+                    p.plot(1,self.wl,eval('self.{}'.format(var)),heading,'Wavelength $\mu$m',
+                        ytitle,label=[var])
+                    p.plot(2,self.wn,eval('self.{}'.format(var)),heading,'Wavenumber cm$^{-1}$',
+                        ytitle,label=[var])
+
+        p.saveFig(filename)
+
+
+
+
+##############################################################################################
+##############################################################################################
+##############################################################################################
+class Atmo(Spectral):
+    """Atmospheric spectral such as transittance or attenuation coefficient
+    """
+    ############################################################
+    ##
+    def __init__(self, ID, distance=None, wl=None, wn=None,  tran=None, atco=None, prad=None, desc=None):
+        """Defines a spectral variable of property vs wavelength or wavenumber
+
+        One of wavelength or wavenunber must be supplied, the other is calculated.
+        No assumption is made of the sampling interval on either wn or wl.
+
+        If distance is not None, tran=transmittance, prad=path radiance, at distance,
+        then the atco and normalised path radiance is calculated.
+
+        If distance is None, atco (attenuation coefficients in m^{-1}), and
+        normalised prad (Lpath/(1-tauPath)) are used as supplied
+
+
+            Args:
+                | ID (str): identification string
+                | distance (scalar): distance in m if transmittance, or None if att coeff
+                | wl (np.array (N,) or (N,1)): vector of wavelength values 
+                | wn (np.array (N,) or (N,1)): vector of wavenumber values
+                | tran (np.array (N,) or (N,1)): transmittance
+                | atco (np.array (N,) or (N,1)): attenuation coeff in m-1
+                | prad (np.array (N,) or (N,1)): path radiance over distance in W/(sr.m2.cm-1)
+                | desc (str): description string
+
+            Returns:
+                | None
+
+            Raises:
+                | No exception is raised.
+        """
+
+        __all__ = ['__init__', ]
+
+        if distance is not None:
+            if atco is None:
+                atco = -np.log(tran)/distance
+            if prad is not None:
+                prad = prad / (1 - np.exp(- atco * distance))
+
+        atco = atco.reshape(-1,1)
+        prad = prad.reshape(-1,1)
+
+        Spectral.__init__(self, ID=ID, atco=atco, prad=prad, wl=wl, wn=wn, desc=desc)
+           
+    ############################################################
+    ##
+    def __str__(self):
+        """Returns string representation of the object
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+
+        strn = Spectral.__str__(self)
+
+        return strn
+
+    ############################################################
+    ##
+    def tauR(self, distance):
+        """Calculates the transmittance at distance 
+
+        Distance is in m
+
+            Args:
+                | distance (scalar or np.array (M,)): distance in m if transmittance, or None if att coeff
+
+            Returns:
+                | transmittance (np.array (N,M) ): transmittance along N at distance along M
+
+            Raises:
+                | No exception is raised.
+        """
+        distance = np.array(distance).reshape(1,-1)
+        return np.exp(-distance * self.atco)
+
+    ############################################################
+    ##
+    def pathR(self, distance):
+        """Calculates the path radiance at distance
+
+        Distance is in m
+
+            Args:
+                | distance (scalar or np.array (M,)): distance in m if transmittance, or None if att coeff
+
+            Returns:
+                | transmittance (np.array (N,M) ): transmittance along N at distance along M
+
+            Raises:
+                | No exception is raised.
+        """
+        distance = np.array(distance).reshape(1,-1)
+        tran = np.exp(-distance * self.atco)
+        return self.prad * (1 - tran)
+
+
+##############################################################################################
+##############################################################################################
+##############################################################################################
+class Sensor():
+    """Sensor characteristics
+    """
+    ############################################################
+    ##
+    def __init__(self, ID, fno, detarea, inttime, wl, tauOpt=1, quantEff=1, 
+                pfrac=1, desc=''):
+        """Sensor characteristics
+
+            Args:
+                | ID (str): identification string
+                | fno (scalar): optics fnumber
+                | detarea (scalar): detector area
+                | inttime (scalar): detector integration time
+                | tauOpt (scalar or Spectral): sensor optics transmittance 
+                | tauOpt (scalar or Spectral): sensor optics transmittance 
+                | quantEff (scalar or np.array): detector quantum efficiency 
+                | pfrac (scalar):  fraction of optics clear aperture
+                | desc (str): description string
+
+            Returns:
+                | None
+
+            Raises:
+                | No exception is raised.
+        """
+
+        __all__ = ['__init__', ]
+
+        self.ID = ID
+        self.fno = fno
+        self.detarea = detarea
+        self.inttime = inttime
+        self.pfrac = pfrac
+        self.desc = desc
+
+        if isinstance(tauOpt, Spectral) or isinstance(tauOpt, Number):
+            self.tauOptVal = tauOpt
+        else:
+            print('\n\n{} tauOpt must be of type Spectral or scalar number\n\n'.format(self.ID))
+            self.quantEffVal = None
+
+        if isinstance(quantEff, Spectral) or isinstance(quantEff, Number):
+            self.quantEffVal = quantEff
+        else:
+            print('\n\n{} quantEff must be of type Spectral scalar number\n\n'.format(self.ID))
+            self.quantEffVal = None
+
+
+           
+    ############################################################
+    ##
+    def __str__(self):
+        """Returns string representation of the object
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        strn =  'Sensor ID: {}\n'.format(self.ID)
+        strn += 'desc: {}\n'.format(self.desc)
+        strn += 'fno: {}\n'.format(self.fno)
+        strn += 'detarea: {}\n'.format(self.detarea)
+        strn += 'inttime: {}\n'.format(self.inttime)
+        strn += 'pfrac: {}\n'.format(self.pfrac)
+        strn += 'tauOpt {}\n'.format(self.tauOptVal)
+        strn += 'quantEff {}\n'.format(self.quantEffVal)
+
+
+        return strn
+
+
+    ############################################################
+    ##
+    def tauOpt(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.tauOptVal, Spectral):
+             rtnVal = self.tauOptVal.value
+           
+        if isinstance(self.tauOptVal, Number):
+            rtnVal = self.tauOptVal 
+
+        return rtnVal
+
+    ############################################################
+    ##
+    def QE(self):
+        """Returns scaler or np.array for detector quantEff
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.quantEffVal, Spectral):
+             rtnVal = self.quantEffVal.value
+           
+        if isinstance(self.quantEffVal, Number):
+            rtnVal = self.quantEffVal 
+
+        return rtnVal
+
+##############################################################################################
+##############################################################################################
+##############################################################################################
+class Target(Spectral):
+    """Target / Source characteristics
+    """
+    ############################################################
+    ##
+    def __init__(self, ID, emis, tmprt, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
+        """Source characteristics
+
+            Target transmittance = 1 - emis - refl.
+
+
+
+            Args:
+                | ID (str): identification string
+                | emis (np.array (N,) or (N,1)): surface emissivity
+                | tmprt (scalar): surface temperature
+                | refl (np.array (N,) or (N,1)): surface reflectance
+                | cosTarg (scalar): cosine between surface normal and illumintor direction
+                | taumed (np.array (N,) or (N,1)): transmittance between the surface and illumintor 
+                | scale (scalar): surface radiance scale factor, sun: 2.17e-5, otherwise 1.
+                | desc (str): description string
+
+            Returns:
+                | None
+
+            Raises:
+                | No exception is raised.
+        """
+
+        __all__ = ['__init__', ]
+
+        self.ID = ID
+        self.tmprt = tmprt
+        self.cosTarg = cosTarg
+        self.scale = scale
+        self.desc = desc
+
+        if isinstance(emis, Spectral) or isinstance(emis, Number):
+            self.emisVal = emis
+        else:
+            print('\n\n{} emis must be of type Spectral or scalar number\n\n'.format(self.ID))
+            self.emisVal = None
+
+        if isinstance(refl, Spectral) or isinstance(refl, Number):
+            self.reflVal = refl
+        else:
+            print('\n\n{} refl must be of type Spectral scalar number\n\n'.format(self.ID))
+            self.reflVal = None
+
+        if isinstance(taumed, Spectral) or isinstance(taumed, Number):
+            self.taumedVal = taumed
+        else:
+            print('\n\n{} taumed must be of type Spectral scalar number\n\n'.format(self.ID))
+            self.taumedVal = None
+          
+    ############################################################
+    ##
+    def __str__(self):
+        """Returns string representation of the object
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        strn =  'Sensor ID: {}\n'.format(self.ID)
+        strn += 'desc: {}\n'.format(self.desc)
+        strn += 'tmprt: {}\n'.format(self.tmprt)
+        strn += 'cosTarg: {}\n'.format(self.cosTarg)
+        strn += 'scale: {}\n'.format(self.scale)
+
+        strn += 'emis: {}\n'.format(self.emis())
+        strn += 'refl: {}\n'.format(self.refl())
+        strn += 'taumed: {}\n'.format(self.taumed())
+
+        return strn
+
+    ############################################################
+    ##
+    def emis(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.emisVal, Spectral):
+             rtnVal = self.emisVal.value
+           
+        if isinstance(self.emisVal, Number):
+            rtnVal = self.emisVal 
+
+        return rtnVal
+
+
+    ############################################################
+    ##
+    def refl(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.reflVal, Spectral):
+             rtnVal = self.reflVal.value
+           
+        if isinstance(self.reflVal, Number):
+            rtnVal = self.reflVal 
+
+        return rtnVal
+
+
+    ############################################################
+    ##
+    def taumed(self):
+        """Returns scaler or np.array for optics transmittance
+
+            Args:
+                | None
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+        if isinstance(self.taumedVal, Spectral):
+             rtnVal = self.taumedVal.value
+           
+        if isinstance(self.taumedVal, Number):
+            rtnVal = self.taumedVal 
+
+        return rtnVal
+
+
+
+
+
+
+
+
+
+
 ################################################################
 ##
 
@@ -1420,6 +1948,86 @@ if __name__ == '__main__':
     doAll = False
 
     if True:
+        spectrals = {}
+        atmos = {}
+        sensors = {}
+        targets = {}
+
+        # test loading of spectrals
+        print('\n---------------------Spectrals:')
+        spectral = np.loadtxt('data/MWIRsensor.txt')
+        spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
+        for key in spectrals:
+            print(spectrals[key])
+        for key in spectrals:
+            filename ='{}-{}'.format(key,spectrals[key].desc)
+            spectrals[key].plot(['value'],filename=filename,heading=spectrals[key].desc,ytitle='Value')
+
+        # test loading of atmospheric spectrals
+        print('\n---------------------Atmos:')
+        tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
+        atmos['A1'] = Atmo(ID='tape7-02', tran=tape72[:,1], prad=1e4*tape72[:,2], distance=2000, wl=None, 
+            wn=tape72[:,0], desc='tape7-02 raw data input')
+        tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
+        atmos['A2'] = Atmo(ID='tape7-02', atco=-np.log(tape72[:,1])/2000., prad=1e4*tape72[:,2] / (1 - tape72[:,1]),
+            wl=1e4/tape72[:,0], wn=None, desc='tape7-02 normalised input')
+        for key in atmos:
+            print(atmos[key])
+        for key in atmos:
+            atmos[key].plot(['prad'],filename='{}-{}-{}'.format(key,atmos[key].desc,'prad'),
+                heading=atmos[key].desc,ytitle='Norm Lpath W/(sr.m2.cm-1)')
+            atmos[key].plot(['atco'],filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
+                heading=atmos[key].desc,ytitle='Attenuation m$^{-1}$')
+
+        numpts = atmos['A1'].wn.shape[0]
+        stride = numpts / 3
+
+        for distance in [1000,2000]:
+            print('distance={} m, tran={}'.format(distance,atmos['A1'].tauR(distance)[0::stride].T))
+            ID = 'Atau{:.0f}'.format(distance)
+            spectrals[ID] = Spectral(ID,tran=atmos['A1'].tauR(distance),wl=atmos['A1'].wl,desc="MWIR transmittance "+ID)
+            spectrals[ID].plot(['tran'],filename='{}-{}-tau'.format(key,spectrals[ID].desc),
+                heading=spectrals[ID].desc,ytitle='Transmittance')
+            ID = 'Aprad{:.0f}'.format(distance)
+            spectrals[ID] = Spectral(ID,prad=atmos['A1'].pathR(distance),wl=atmos['A1'].wl,desc="MWIR path radiance "+ID)
+            spectrals[ID].plot(['prad'],filename='{}-{}-prad'.format(key,spectrals[ID].desc),
+                heading=spectrals[ID].desc,ytitle='Lpath W/(sr.m2.cm-1)')
+
+        distances =np.array([1000,2000])
+        print('distances={} m, tran={}'.format(distances,atmos['A1'].tauR(distances)[0::stride].T))
+        print('distances={} m, atco={}'.format(distances,(-np.log(atmos['A1'].tauR(distances))/distances)[0::stride].T))
+
+
+        # test loading of sensors
+        print('\n---------------------Sensors:')
+        sensors['S1'] = Sensor(ID='S1', fno=3.2, detarea=(10e-6)**2, inttime=0.01, 
+            wl=np.array([1,2,3]), tauOpt=.9, quantEff=.6, 
+            pfrac=0.4, desc='Sensor one')
+        spectral = np.loadtxt('data/MWIRsensor.txt')
+        spectrals['ID1S2'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        sensors['S2'] = Sensor(ID='S2', fno=4, detarea=(15e-6)**2, inttime=0.02, 
+            wl=np.array([1,2,3]), tauOpt=spectrals['ID1S2'], quantEff=spectrals['ID1S2'], 
+            desc='Sensor two')
+        for key in sensors:
+            print(sensors[key])
+        #     print(sensors[key].tauOpt())
+        #     print(sensors[key].QE())
+
+
+        # test loading of targets/sources
+        print('\n---------------------Sources:')
+        emisx = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR emissivity")
+        targets['T1'] = Target(ID='T1', emis=emisx, tmprt=300, refl=0, cosTarg=0.5,
+            taumed=.5, scale=1, desc='Source one')
+        targets['T2'] = Target(ID='T2', emis=0., tmprt=6000, refl=1,cosTarg=1,
+            scale=2.17e-5,taumed=0.5,desc='Source two')
+        for key in targets:
+            print(targets[key])
+
+
+
+    if doAll:
         p = ryplot.Plotter(1,1,1)
         vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=True)
         p.plot(1,wl,vlam,label=['{} equation'.format('CIE Photopic VM($\lambda$)')])
