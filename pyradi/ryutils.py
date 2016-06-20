@@ -63,6 +63,7 @@ from matplotlib.collections import PatchCollection
 import os
 import pkg_resources
 from StringIO import StringIO
+from numbers import Number
 
 ##############################################################################
 ##

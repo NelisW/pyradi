@@ -7,6 +7,7 @@ import os
 import pkg_resources
 from StringIO import StringIO
 import pyradi.ryfiles as ryfiles
+from numbers import Number
 
 
 ##############################################################################################
@@ -41,7 +42,6 @@ class Spectral(object):
 
         self.ID = ID
         self.desc = desc
-        self.value = value.reshape(-1,1)
 
         if wn is not None:
             self.wn =  wn.reshape(-1,1)
@@ -51,6 +51,11 @@ class Spectral(object):
             self.wn = 1e4 /  self.wl
         else:
             print('Spectral {} has both wn and wl as None'.format(ID))
+
+        if isinstance(value, Number):
+            self.value = value * np.ones(self.wn.shape)
+        elif isinstance(value, np.ndarray):
+            self.value = value.reshape(-1,1)
 
 
     ############################################################
@@ -99,16 +104,19 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
+
+        if isinstance(other, Number):
+            other = Spectral('--',value=other, wn=self.wn,desc="--")
+
+        if isinstance(other.value, Number):
+            other.value = other.value * np.ones(other.wn.shape).reshape(-1,1)
+
         # create new spectral in wn wider than either self or other.
         wnmin = min(np.min(self.wn),np.min(other.wn))
         wnmax = max(np.max(self.wn),np.max(other.wn))
         wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
         wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
         wl = 1e4 / self.wn
-        print(self.wn.shape)
-        print(self.value.shape)
-        print(other.value[:,0])
-        print(self.value[:,0])
 
         if np.mean(np.diff(self.wn)) > 0:
             s = np.interp(wn,self.wn[:,0], self.value[:,0])
@@ -116,10 +124,6 @@ class Spectral(object):
         else:
             s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
             o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
-
-        print(s)
-        print(o)
-
 
         return Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
              desc='{}*{}'.format(self.desc,other.desc))
@@ -140,6 +144,9 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
+        if isinstance(self.value, Number):
+            self.value = self.value * np.ones(self.wn.shape)
+
         return Spectral(ID='{}**{}'.format(self.ID,power), value=self.value ** power, 
             wl=self.wl, wn=self.wn,
          desc='{}**{}'.format(self.desc,power))
@@ -206,10 +213,11 @@ if __name__ == '__main__':
         # test loading of spectrals
         print('\n---------------------Spectrals:')
         spectral = np.loadtxt('data/MWIRsensor.txt')
-        spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
+        spectrals['ID1'] = Spectral('ID1',value=.3,wl=spectral[:,0],desc="MWIR transmittance")
         spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
         spectrals['ID3'] = spectrals['ID1'] * spectrals['ID2']
-        spectrals['ID4'] = spectrals['ID1'] ** 3
+        # spectrals['ID4'] = spectrals['ID1'] ** 3
+        # spectrals['ID5'] = spectrals['ID2'] * 1.67
 
         for key in spectrals:
             print(spectrals[key])
