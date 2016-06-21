@@ -11,6 +11,8 @@ from numbers import Number
 
 
 ##############################################################################################
+##############################################################################################
+##############################################################################################
 class Spectral(object):
     """Generic spectral can be used for any spectral vector
     """
@@ -43,6 +45,8 @@ class Spectral(object):
         self.ID = ID
         self.desc = desc
 
+        self.wn = wn
+        self.wl = wl
         if wn is not None:
             self.wn =  wn.reshape(-1,1)
             self.wl = 1e4 /  self.wn
@@ -50,10 +54,13 @@ class Spectral(object):
             self.wl =  wl.reshape(-1,1)
             self.wn = 1e4 /  self.wl
         else:
-            print('Spectral {} has both wn and wl as None'.format(ID))
+            pass
 
         if isinstance(value, Number):
-            self.value = value * np.ones(self.wn.shape)
+            if wn is not None:
+                self.value = value * np.ones(self.wn.shape)
+            else:
+                self.value = value 
         elif isinstance(value, np.ndarray):
             self.value = value.reshape(-1,1)
 
@@ -72,18 +79,21 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
-        numpts = self.wn.shape[0]
-        stride = numpts / 3
-        strn = 'ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
- 
-        # for all numpy arrays, provide subset of values
+        if isinstance(self.wn, np.ndarray):
+            numpts = self.wn.shape[0]
+            stride = numpts / 3
+
+        strn = '{}\n'.format(self.ID)
+        strn += ' {}-desc: {}\n'.format(self.ID,self.desc)
+         # for all numpy arrays, provide subset of values
         for var in self.__dict__:
             # then see if it is an array
             if isinstance(eval('self.{}'.format(var)), np.ndarray):
                 svar = (np.vstack((eval('self.{}'.format(var))[0::stride], eval('self.{}'.format(var))[-1] ))).T
-                strn += '{} (subsampled.T): {}\n'.format(var, svar)
-
+                strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
+            elif isinstance(eval('self.{}'.format(var)), Number):
+                svar = eval('self.{}'.format(var))
+                strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
 
         return strn
 
@@ -105,28 +115,51 @@ class Spectral(object):
                 | No exception is raised.
         """
 
-        if isinstance(other, Number):
-            other = Spectral('{}'.format(other),value=other, wn=self.wn,desc='{}'.format(other))
+        # if isinstance(other, Number):
+        #     if isinstance(self.wn, np.ndarray):
+        #         other = Spectral('{}'.format(other),value=other, wn=self.wn,desc='{}'.format(other))
+        #     else:
+        #         other = Spectral('{}'.format(other),value=other, desc='{}'.format(other))
 
-        if isinstance(other.value, Number):
-            other.value = other.value * np.ones(other.wn.shape).reshape(-1,1)
+        if isinstance(other, Spectral):
+            if self.wn is not None and other.wn is not None:
+                # create new spectral in wn wider than either self or other.
+                wnmin = min(np.min(self.wn),np.min(other.wn))
+                wnmax = max(np.max(self.wn),np.max(other.wn))
+                wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
+                wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
+                wl = 1e4 / self.wn
+                if np.mean(np.diff(self.wn,axis=0)) > 0:
+                    s = np.interp(wn,self.wn[:,0], self.value[:,0])
+                    o = np.interp(wn,other.wn[:,0], other.value[:,0])
+                else:
+                    s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
+                    o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+            elif self.wn is     None and other.wn is not None:
+                o = other.value
+                s = self.value
+                wl = other.wl    
+                wn = other.wn    
 
-        # create new spectral in wn wider than either self or other.
-        wnmin = min(np.min(self.wn),np.min(other.wn))
-        wnmax = max(np.max(self.wn),np.max(other.wn))
-        wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
-        wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
-        wl = 1e4 / self.wn
+            elif self.wn is not None and other.wn is     None:
+                o = other.value
+                s = self.value
+                wl = self.wl    
+                wn = self.wn    
 
-        if np.mean(np.diff(self.wn)) > 0:
-            s = np.interp(wn,self.wn[:,0], self.value[:,0])
-            o = np.interp(wn,other.wn[:,0], other.value[:,0])
+            else:
+                o = other.value
+                s = self.value
+                wl = None    
+                wn = None    
+            rtnVal = Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
+                    desc='{}*{}'.format(self.desc,other.desc))
         else:
-            s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
-            o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+            rtnVal = Spectral(ID='{}*{}'.format(self.ID,other), value=self.value * other, wl=self.wl, 
+                wn=self.wn,desc='{}*{}'.format(self.desc,other))
 
-        return Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
-             desc='{}*{}'.format(self.desc,other.desc))
+        return rtnVal
+
 
     ############################################################
     ##
@@ -144,12 +177,8 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
-        if isinstance(self.value, Number):
-            self.value = self.value * np.ones(self.wn.shape)
-
         return Spectral(ID='{}**{}'.format(self.ID,power), value=self.value ** power, 
-            wl=self.wl, wn=self.wn,
-         desc='{}**{}'.format(self.desc,power))
+            wl=self.wl, wn=self.wn,desc='{}**{}'.format(self.desc,power))
 
     ############################################################
     ##
@@ -171,12 +200,20 @@ class Spectral(object):
         p = ryplot.Plotter(1,2,1,figsize=(8,5))
 
         if isinstance(self.value, np.ndarray):
-            p.plot(1,self.wl,self.value,heading,'Wavelength $\mu$m',
-                ytitle)
-            p.plot(2,self.wn,self.value,heading,'Wavenumber cm$^{-1}$',
-                ytitle)
+            xvall = self.wl
+            xvaln = self.wn
+            yval = self.value
+        else:
+            xvall = np.array([1,10])
+            xvaln = 1e4 / xvall
+            yval = np.array([self.value,self.value])
+
+        p.plot(1,xvall,yval,heading,'Wavelength $\mu$m', ytitle)
+        p.plot(2,xvaln,yval,heading,'Wavenumber cm$^{-1}$', ytitle)
 
         p.saveFig(ryfiles.cleanFilename(filename))
+
+
 
 
 ################################################################
@@ -208,11 +245,19 @@ if __name__ == '__main__':
         # test loading of spectrals
         print('\n---------------------Spectrals:')
         spectral = np.loadtxt('data/MWIRsensor.txt')
-        spectrals['ID1'] = Spectral('ID1',value=.3,wl=spectral[:,0],desc="MWIR transmittance")
-        spectrals['ID2'] = Spectral('ID2',value=1-spectral[:,1],wl=spectral[:,0],desc="MWIR absorption")
-        spectrals['ID3'] = spectrals['ID1'] * spectrals['ID2']
-        spectrals['ID4'] = spectrals['ID1'] ** 3
-        spectrals['ID5'] = spectrals['ID2'] * 1.67
+        spectrals['ID0'] = Spectral('ID1',value=.3,desc="const value")
+        spectrals['ID1'] = Spectral('ID1',value=spectral[:,1],wl=spectral[:,0],desc="spec value")
+
+        spectrals['IDp00'] = spectrals['ID0'] * spectrals['ID0']
+        spectrals['IDp01'] = spectrals['ID0'] * spectrals['ID1']
+        spectrals['IDp10'] = spectrals['ID1'] * spectrals['ID0']
+        spectrals['IDp11'] = spectrals['ID1'] * spectrals['ID1']
+
+        spectrals['ID0pow'] = spectrals['ID0'] ** 3
+        spectrals['ID1pow'] = spectrals['ID1'] ** 3
+
+        spectrals['ID0mul'] = spectrals['ID0'] * 1.67
+        spectrals['ID1mul'] = spectrals['ID1'] * 1.67
 
         for key in spectrals:
             print(spectrals[key])
