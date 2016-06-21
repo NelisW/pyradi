@@ -1925,7 +1925,7 @@ class Target(Spectral):
         strn += 'scale: {}\n'.format(self.scale)
         strn += '{}\n'.format(self.emisVal)
         strn += '{}\n'.format(self.reflVal)
-        strn += '{}\n'.format(self.taumedVal))
+        strn += '{}\n'.format(self.taumedVal)
 
         return strn
 
@@ -2522,7 +2522,7 @@ if __name__ == '__main__':
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_circ.png']) as p:
-                p.mesh3D(1, x, y, z, ptitle='tool_circ',
+                p.mesh3D(1, x, y, z, ptitle='tool-circ',
                  xlabel='x', ylabel='y', zlabel='z',
                  maxNX=3, maxNY=3, maxNZ=4, alpha=0.5);
 
@@ -2544,7 +2544,7 @@ if __name__ == '__main__':
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_rect.png']) as p:
-                p.mesh3D(1, x, y, z, ptitle='tool_rect',
+                p.mesh3D(1, x, y, z, ptitle='tool-rect',
                  xlabel='x', ylabel='y', zlabel='z',
                  maxNX=3, maxNY=3, maxNZ=4, alpha=0.5);
 
