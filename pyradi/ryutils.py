@@ -1488,6 +1488,55 @@ class Spectral(object):
 
         return strn
 
+    ############################################################
+    ##
+    def vecalign(self, other):
+        """returns two spectral values properly interpolated and aligned to same base
+
+        it is not intended that the function will be called directly by the user
+
+            Args:
+                | other (Spectral): the other Spectral to be used in addition
+
+            Returns:
+                | wl, wn, s, o
+
+            Raises:
+                | No exception is raised.
+        """
+
+        if self.wn is not None and other.wn is not None:
+            # create new spectral in wn wider than either self or other.
+            wnmin = min(np.min(self.wn),np.min(other.wn))
+            wnmax = max(np.max(self.wn),np.max(other.wn))
+            wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
+            wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
+            wl = 1e4 / self.wn
+            if np.mean(np.diff(self.wn,axis=0)) > 0:
+                s = np.interp(wn,self.wn[:,0], self.value[:,0])
+                o = np.interp(wn,other.wn[:,0], other.value[:,0])
+            else:
+                s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
+                o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+        elif self.wn is     None and other.wn is not None:
+            o = other.value
+            s = self.value
+            wl = other.wl    
+            wn = other.wn    
+
+        elif self.wn is not None and other.wn is     None:
+            o = other.value
+            s = self.value
+            wl = self.wl    
+            wn = self.wn    
+
+        else:
+            o = other.value
+            s = self.value
+            wl = None    
+            wn = None    
+
+        return wl, wn, s, o
 
     ############################################################
     ##
@@ -1506,43 +1555,8 @@ class Spectral(object):
                 | No exception is raised.
         """
 
-        # if isinstance(other, Number):
-        #     if isinstance(self.wn, np.ndarray):
-        #         other = Spectral('{}'.format(other),value=other, wn=self.wn,desc='{}'.format(other))
-        #     else:
-        #         other = Spectral('{}'.format(other),value=other, desc='{}'.format(other))
-
         if isinstance(other, Spectral):
-            if self.wn is not None and other.wn is not None:
-                # create new spectral in wn wider than either self or other.
-                wnmin = min(np.min(self.wn),np.min(other.wn))
-                wnmax = max(np.max(self.wn),np.max(other.wn))
-                wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
-                wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
-                wl = 1e4 / self.wn
-                if np.mean(np.diff(self.wn,axis=0)) > 0:
-                    s = np.interp(wn,self.wn[:,0], self.value[:,0])
-                    o = np.interp(wn,other.wn[:,0], other.value[:,0])
-                else:
-                    s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
-                    o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
-            elif self.wn is     None and other.wn is not None:
-                o = other.value
-                s = self.value
-                wl = other.wl    
-                wn = other.wn    
-
-            elif self.wn is not None and other.wn is     None:
-                o = other.value
-                s = self.value
-                wl = self.wl    
-                wn = self.wn    
-
-            else:
-                o = other.value
-                s = self.value
-                wl = None    
-                wn = None    
+            wl, wn, s, o = self.vecalign(other)
             rtnVal = Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
                     desc='{}*{}'.format(self.desc,other.desc))
         else:
@@ -1550,6 +1564,65 @@ class Spectral(object):
                 wn=self.wn,desc='{}*{}'.format(self.desc,other))
 
         return rtnVal
+
+
+    ############################################################
+    ##
+    def __add__(self, other):
+        """Returns a spectral product
+
+        it is not intended that the function will be called directly by the user
+
+            Args:
+                | other (Spectral): the other Spectral to be used in addition
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+
+        if isinstance(other, Spectral):
+            wl, wn, s, o = self.vecalign(other)
+            rtnVal = Spectral(ID='{}+{}'.format(self.ID,other.ID), value=s + o, wl=wl, wn=wn,
+                    desc='{}+{}'.format(self.desc,other.desc))
+        else:
+            rtnVal = Spectral(ID='{}+{}'.format(self.ID,other), value=self.value + other, wl=self.wl, 
+                wn=self.wn,desc='{}+{}'.format(self.desc,other))
+
+        return rtnVal
+
+
+    ############################################################
+    ##
+    def __sub__(self, other):
+        """Returns a spectral product
+
+        it is not intended that the function will be called directly by the user
+
+            Args:
+                | other (Spectral): the other Spectral to be used in subtraction
+
+            Returns:
+                | str
+
+            Raises:
+                | No exception is raised.
+        """
+
+        if isinstance(other, Spectral):
+            wl, wn, s, o = self.vecalign(other)
+
+            rtnVal = Spectral(ID='{}-{}'.format(self.ID,other.ID), value=s - o, wl=wl, wn=wn,
+                    desc='{}-{}'.format(self.desc,other.desc))
+        else:
+            rtnVal = Spectral(ID='{}-{}'.format(self.ID,other), value=self.value - other, wl=self.wl, 
+                wn=self.wn,desc='{}-{}'.format(self.desc,other))
+
+        return rtnVal
+
+
 
 
     ############################################################
@@ -2183,6 +2256,9 @@ if __name__ == '__main__':
         for key in targets:
             print(targets[key])
             targets[key].radiance('el').plot(ytitle='Radiance')
+
+        ssens = targets['Rad-MWIR'].radiance('el') + targets['refl-MWIR'].radiance('el')
+        ssens.plot(ytitle='Radiance')
 
 
     if doAll:
