@@ -53,53 +53,98 @@ import pyradi.rymodtran as rymodtran
 
 from numbers import Number
 
-##############################################################################################
-##############################################################################################
-##############################################################################################
-class EOSystem:
-    """ 
 
-
+################################################################
+##
+# to calculate the scene electron count from the low light table
+def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg, 
+             inttime, pfrac, detarea, fno, scenario, specBand, dfPhotRates):
+    """ Calculate the number of electrons in a detector
+    All values in base SI units
+    rhoTarg is the target diffuse reflectance
+    cosTarg the cosine of the sun incidence angle
+    scenario must be one of the dfPhotRates index values
+    specBand must be one of the dfPhotRates column values
     """
+    
+    L =  quantEff * tauOpt * tauFilt *  tauAtmo * \
+            rhoTarg * dfPhotRates.ix[scenario][specBand]
+    n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
+    return n
+    
+    
+################################################################
+##
+# to calculate the electron count in the detector from a thermal source only
+def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+    """ Calculate the number of electrons in a detector
+    All values in base SI units
+    """
+    
+    L = emis * tauAtmo * tauFilt * tauOpt * quantEff * \
+            ryplanck.planck(wl, tmptr, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+    return n
+    
 
-    ############################################################
-    ##
-    def __init__(self):
-        """Class constructor
-
-        The constructor defines the 
-
-            Args:
-                | fignumber (int): the plt figure number, must be supplied
-
-            Returns:
-                | Nothing. Sets up the class for use
-
-            Raises:
-                | No exception is raised.
-        """
-
-        __all__ = ['__init__', 'lllPhotonrates','nElecCntReflSun']
-
-
-
-    ############################################################
-    ##
-    def lllPhotonrates(self, specranges=None ):
-        """
-
-            Args:
-                | specranges (dictionary): User-supplied dictionary defining the spectral
-                |   responses. See the dictionary format above and an example in the code.
-
-            Returns:
-                | Pandas dataframe with radiance in the specified spectral bands.
-
-            Raises:
-                | No exception is raised.
-        """
+################################################################
+##
+# to calculate the electron count in the detector from a thermal source only
+def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+    """ Calculate the number of electrons in a detector
+    All values in base SI units
+    """
+    
+    L = tauFilt * (1.0 - tauOpt) * quantEff * \
+            ryplanck.planck(wl, tmptrOpt, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+    return n    
 
 
+############################################################
+##
+def nElecCntReflSun(self, wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1, 
+    rhoTarg=1, cosTarg=1, inttime=1, pfrac=1, detarea=1, fno=0.8862269255, emissun=1.0, tmprt=6000.):
+    """ Calculate the number of electrons in a detector or photon radiance for reflected sunlight
+
+        All values in base SI units.
+
+        By using the default values when calling the function the radiance at the 
+        source can be calculated.
+
+        Args:
+            | wl (np.array (N,) or (N,1)): wavelength 
+            | tauAtmo (np.array (N,) or (N,1)): transmittance between the scene and sensor 
+            | tauSun (np.array (N,) or (N,1)): transmittance between the scene and sun 
+            | tauFilt (np.array (N,) or (N,1)): sensor filter transmittance 
+            | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
+            | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
+            | rhoTarg (np.array (N,) or (N,1)): target diffuse surface reflectance 
+            | cosTarg (scalar): cosine between surface normal and sun/moon direction
+            | inttime (scalar): detector integration time
+            | pfrac (scalar):  fraction of optics clear aperture
+            | detarea (scalar): detector area
+            | fno (scalar): optics fnumber
+            | emissun (scalar): sun surface emissivity
+            | tmprt (scalar): sun surface temperature
+
+        Returns:
+            | n (scalar): number of electrons accumulated during integration time
+
+        Raises:
+            | No exception is raised.
+    """
+    
+    L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
+            rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
+
+    return n
+
+        
 ################################################################
 ################################################################
 ##
@@ -134,87 +179,5 @@ if __name__ == '__main__':
 
 
 
-# # to calculate the scene electron count from the low light table
-# def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg, 
-#              inttime, pfrac, detarea, fno, scenario, specBand, dfPhotRates):
-#     """ Calculate the number of electrons in a detector
-#     All values in base SI units
-#     rhoTarg is the target diffuse reflectance
-#     cosTarg the cosine of the sun incidence angle
-#     scenario must be one of the dfPhotRates index values
-#     specBand must be one of the dfPhotRates column values
-#     """
-    
-#     L =  quantEff * tauOpt * tauFilt *  tauAtmo * \
-#             rhoTarg * dfPhotRates.ix[scenario][specBand]
-#     n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
-#     return n
-    
-    
-# # to calculate the electron count in the detector from a thermal source only
-# def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
-#     """ Calculate the number of electrons in a detector
-#     All values in base SI units
-#     """
-    
-#     L = emis * tauAtmo * tauFilt * tauOpt * quantEff * \
-#             ryplanck.planck(wl, tmptr, type='ql')/np.pi
-#     L = np.trapz( L, x=wl,axis=0)
-#     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
-#     return n
-    
-
-# # to calculate the electron count in the detector from a thermal source only
-# def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
-#     """ Calculate the number of electrons in a detector
-#     All values in base SI units
-#     """
-    
-#     L = tauFilt * (1.0 - tauOpt) * quantEff * \
-#             ryplanck.planck(wl, tmptrOpt, type='ql')/np.pi
-#     L = np.trapz( L, x=wl,axis=0)
-#     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
-#     return n    
 
 
-
-    # ############################################################
-    # ##
-    # def nElecCntReflSun(self, wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1, 
-    #     rhoTarg=1, cosTarg=1, inttime=1, pfrac=1, detarea=1, fno=0.8862269255, emissun=1.0, tmprt=6000.):
-    #     """ Calculate the number of electrons in a detector or photon radiance for reflected sunlight
-
-    #         All values in base SI units.
-
-    #         By using the default values when calling the function the radiance at the 
-    #         source can be calculated.
-
-    #         Args:
-    #             | wl (np.array (N,) or (N,1)): wavelength 
-    #             | tauAtmo (np.array (N,) or (N,1)): transmittance between the scene and sensor 
-    #             | tauSun (np.array (N,) or (N,1)): transmittance between the scene and sun 
-    #             | tauFilt (np.array (N,) or (N,1)): sensor filter transmittance 
-    #             | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
-    #             | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
-    #             | rhoTarg (np.array (N,) or (N,1)): target diffuse surface reflectance 
-    #             | cosTarg (scalar): cosine between surface normal and sun/moon direction
-    #             | inttime (scalar): detector integration time
-    #             | pfrac (scalar):  fraction of optics clear aperture
-    #             | detarea (scalar): detector area
-    #             | fno (scalar): optics fnumber
-    #             | emissun (scalar): sun surface emissivity
-    #             | tmprt (scalar): sun surface temperature
-
-    #         Returns:
-    #             | n (scalar): number of electrons accumulated during integration time
-
-    #         Raises:
-    #             | No exception is raised.
-    #     """
-        
-    #     L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
-    #             rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
-    #     L = np.trapz( L, x=wl,axis=0)
-    #     n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
-
-    #     return n
