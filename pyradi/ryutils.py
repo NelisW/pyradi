@@ -559,11 +559,10 @@ def sfilter(spectral,center, width, exponent=6, taupass=1.0,  \
         | If negative spectral is specified, return None.
     """
 
-    maxexp = np.log(sys.float_info.max)/np.log(np.max(2*(spectral-center)/width))
+    maxexp = np.log(sys.float_info.max)/np.log(np.max(2*np.abs(spectral-center)/width))
     # minexp = np.log(sys.float_info.min)/np.log(np.min(2*(spectral-center)/width))
     exponent = maxexp if exponent > maxexp else exponent
     # exponent = minexp if exponent < minexp else exponent
-
     tau = taustop+(taupass-taustop)*np.exp(-(2*np.abs(spectral-center)/width)**exponent)
     maxtau=np.max(tau)
     if filtertype == 'bandpass':
@@ -1574,7 +1573,7 @@ class Spectral(object):
 
     ############################################################
     ##
-    def plot(self, filename, heading, ytitle=''):
+    def plot(self, filename=None, heading=None, ytitle=''):
         """Do a simple plot of spectral variable(s)
 
             Args:
@@ -1588,6 +1587,12 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
+
+        if filename == None:
+            filename = '{}-{}'.format(self.ID,self.desc)
+
+        if heading == None:
+            heading = self.desc
 
         if 'value' in self.__dict__:
             import pyradi.ryplot as ryplot
@@ -1856,18 +1861,28 @@ class Target(Spectral):
     """
     ############################################################
     ##
-    def __init__(self, ID, emis, tmprt, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
+    def __init__(self, ID, tmprt, emis, refl=1, cosTarg=1, taumed=1, scale=1, desc=''):
         """Source characteristics
 
-            Target transmittance = 1 - emis - refl.
+            This function supports two alternative models:
+
+            1.  If it is a thermally radiating source,
+                use temperature and emissivity only leave all other at unity.
+
+            2.  If it is reflected light (i.e., sunlight), set temperature and
+                emissivity to the illuminating source (6000 K, 1, if sun) and use
+                refl, cosTarg, taumed and scale for reflected light on the ground.
+
+            emis must always be a spectral, refl and taumed may be scalars or spectrals.
+            The emis wavelength/number vector serves as the base spectral vector.
 
             see http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/09b-StaringArrayDetectors.ipynb#Electron-count--for-various-sources
 
             Args:
                 | ID (str): identification string
-                | emis (scalar or Spectral): surface emissivity
+                | emis (Spectral):  radiance source surface emissivity 
                 | tmprt (scalar): surface temperature
-                | refl (scalar or Spectral): surface reflectance
+                | refl (scalar or Spectral): surface reflectance if reflecting
                 | cosTarg (scalar): cosine between surface normal and illumintor direction
                 | taumed (scalar or Spectral): transmittance between the surface and illumintor 
                 | scale (scalar): surface radiance scale factor, sun: 2.17e-5, otherwise 1.
@@ -1883,15 +1898,19 @@ class Target(Spectral):
         __all__ = ['__init__', ]
 
         self.ID = ID
-        self.tmprt = tmprt
+        if isinstance(tmprt, Number):
+            self.tmprt = np.array([tmprt]).reshape(1,-1)
+        else:
+            self.tmprt = tmprt.reshape(1,-1)
         self.cosTarg = cosTarg
         self.scale = scale
         self.desc = desc
 
-        if isinstance(emis, Number):
-            self.emisVal = Spectral(ID='{}-emis'.format(self.ID), value=emis, desc='{}-emis'.format(self.desc))
-        else:
+        if isinstance(emis, Spectral):
             self.emisVal = emis
+        else:
+            print('Target {} emis must be of type Spectral'.format(self.ID))
+            self.emisVal = None
 
         if isinstance(refl, Number):
             self.reflVal = Spectral(ID='{}-refl'.format(self.ID), value=refl, desc='{}-refl'.format(self.desc))
@@ -2001,7 +2020,13 @@ class Target(Spectral):
     ############################################################
     ##
     def radiance(self, units='el'):
-        """Returns scaler or np.array for atmospheric transmittance to illuminating source
+        """Returns radiance spectral for target
+
+        The type of spectral is one of the following:
+           type='el  [W/(m$^2$.$\mu$m)]
+           type='ql'  [q/(s.m$^2$.$\mu$m)]
+           type='en'  [W/(m$^2$.cm$^{-1}$)]
+           type='qn'  [q/(s.m$^2$.cm$^{-1}$)]
 
             Args:
                 | None
@@ -2013,21 +2038,19 @@ class Target(Spectral):
                 | No exception is raised.
         """
 
-        # if units[1] == 'l':
-        #     svar = 
-        vscale =  self.emis * self.refl * self.taumed * self.scale * self.cosTarg
-        rtnVal = vscale * ryplanck.planck(svar, self.tmprt, type=units)
+        specprod = self.emisVal * self.reflVal * self.taumedVal
+        vscale =  specprod.value * self.scale * self.cosTarg
 
+        if units[1] == 'l':
+            radiance =  vscale * ryplanck.planck(specprod.wl,self.tmprt, type=units).reshape(-1,self.tmprt.shape[1])
+            rtnVal = Spectral(ID='{}-{}-radiance'.format(self.ID,self.tmprt), value=radiance, wl=specprod.wl, desc='{}'.format(self.desc))
+        elif units[1] == 'n':
+            radiance =  vscale * ryplanck.planck(specprod.wn,self.tmprt, type=units).reshape(-1,self.tmprt.shape[1])
+            rtnVal = Spectral(ID='{}-{}-radiance'.format(self.ID,self.tmprt), value=radiance, wn=specprod.wn, desc='{}'.format(self.desc))
+        else:
+            radiance = None
 
         return rtnVal
-# emis
-# refl
-# taumed
-        # Mel = planck(wl, np.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m)]
-        # Mql = planck(wl, np.asarray(temperature).reshape(-1,1), type='ql') # [q/(s.m$^2$.$\mu$m)]
-        # Men = planck(n, np.asarray(temperature).reshape(-1,1), type='en')  # [W/(m$^2$.cm$^{-1}$)]
-        # Mqn = planck(n, np.asarray(temperature).reshape(-1,1), type='qn')  # [q/(s.m$^2$.cm$^{-1}$)]
-
 
 
 ################################################################
@@ -2054,7 +2077,7 @@ if __name__ == '__main__':
     sensors = {}
     targets = {}
 
-    doAll = True
+    doAll = False
 
     if doAll:
 
@@ -2142,17 +2165,24 @@ if __name__ == '__main__':
             # print(sensors[key].QE())
 
 
-    if doAll:
+    if True:
         # test loading of targets/sources
         print('\n---------------------Sources:')
-        spectral = np.loadtxt('data/MWIRsensor.txt')
-        emisx = Spectral('emis',value=spectral[:,1],wl=spectral[:,0],desc="MWIR emissivity")
-        targets['T1'] = Target(ID='T1', emis=emisx, tmprt=300, refl=0, cosTarg=0.5,
-            taumed=.5, scale=1, desc='Source one')
-        targets['T2'] = Target(ID='T2', emis=0., tmprt=6000, refl=1,cosTarg=1,
-            scale=2.17e-5,taumed=0.5,desc='Source two')
+        ID = 'Rad-MWIR'
+        desc = 'selfemit'
+        wl = np.linspace(3,6,100)
+        wn = 1e4 / wl
+        emisx = Spectral('{}-emis'.format(ID),value=np.ones(wl.shape),wl=wl,desc='{}-emis'.format(desc))
+        targets[ID] = Target(ID=ID, emis=emisx, tmprt=300, desc='Self emitted')
+
+        ID = 'refl-MWIR'
+        desc = 'reflsun'
+        emisr = Spectral('{}-emis'.format(ID),value=np.ones(wn.shape),wn=wn,desc='{}-emis'.format(desc))
+        targets[ID] = Target(ID=ID, emis=emisr, tmprt=6000, refl=.4,cosTarg=1.,
+            scale=2.17e-5,taumed=0.5,desc='Reflected sunlight')
         for key in targets:
             print(targets[key])
+            targets[key].radiance('el').plot(ytitle='Radiance')
 
 
     if doAll:
@@ -2202,10 +2232,11 @@ if __name__ == '__main__':
     if  doAll:
         #demonstrate the range equation solver
         #create a range table and its associated transmittance table
-        rangeTab = np.linspace(0, 10000, 1000)
+        print('The first case should give an incorrect warning:')
+        rangeTab = np.linspace(0, 20000, 10000)
         tauTab = np.exp(- 0.00015 * rangeTab)
         Intensity=200
-        Irradiancetab=[10e-100, 10e-6, 10e-1]
+        Irradiancetab=[1e-100, 1e-7, 10e-6, 10e-1]
         for Irradiance in Irradiancetab:
             r = rangeEquation(Intensity = Intensity, Irradiance = Irradiance, rangeTab = rangeTab,
                   tauTab = tauTab, rangeGuess = 1, n = 2)
@@ -2225,8 +2256,8 @@ if __name__ == '__main__':
 
             irrad = Intensity * tauTable(rr) / rr ** 2
 
-            print('Range equation solver: at range {0} the irradiance is {1}, error is {2}. {3}'.format(
-                r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
+            print('\nE={0}: Range equation solver: at range {1} the irradiance is {2}, error is {3}. {4}'.format(
+                Irradiance,r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
         print(' ')
 
     #########################################################################################
