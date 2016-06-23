@@ -58,12 +58,6 @@ import pyradi.ryplot as ryplot
 import pyradi.ryprob as ryprob
 
 
-
-
-
-
-
-
 ######################################################################################
 def photosensor(strh5):
     """This routine simulates the behaviour of a CCD/CMOS sensor, performing the conversion 
@@ -1556,6 +1550,202 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
 
 
     return noiseout
+
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+
+
+# ################################################################
+# ##
+# # to calculate the scene electron count from the low light table
+# def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg, 
+#              inttime, pfrac, detarea, fno, scenario, specBand, dfPhotRates):
+#     """ Calculate the number of electrons in a detector
+#     All values in base SI units
+#     rhoTarg is the target diffuse reflectance
+#     cosTarg the cosine of the sun incidence angle
+#     scenario must be one of the dfPhotRates index values
+#     specBand must be one of the dfPhotRates column values
+
+#     Args:
+#         | (): 
+ 
+#     Returns:
+#         | 
+
+#     Raises:
+#         | No exception is raised.
+
+#     Author: CJ Willers
+#     """
+    
+#     L =  quantEff * tauOpt * tauFilt *  tauAtmo * \
+#             rhoTarg * dfPhotRates.ix[scenario][specBand]
+#     n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
+#     return n
+    
+################################################################
+##
+# to calculate the scene electron count from the low light table
+def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg, 
+             inttime, pfrac, detarea, fno, photRates):
+    """ Calculate the number of electrons in a detector
+    All values in base SI units
+    rhoTarg is the target diffuse reflectance
+    cosTarg the cosine of the sun incidence angle
+    scenario must be one of the dfPhotRates index values
+    specBand must be one of the dfPhotRates column values
+
+    Args:
+        | tauAtmo (): 
+        | tauFilt (): 
+        | tauOpt (): 
+        | quantEff (): 
+        | rhoTarg (): 
+        | cosTarg (): 
+        | inttime (): 
+        | pfrac (): 
+        | detarea (): 
+        | fno (): 
+        | photRates (): 
+ 
+ 
+    Returns:
+        | 
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    
+    L =  quantEff * tauOpt * tauFilt *  tauAtmo * rhoTarg * photRates
+    n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
+    return n
+    
+    
+################################################################
+##
+# to calculate the electron count in the detector from a thermal source only
+def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+    """ Calculate the number of electrons in a detector from a thermal source
+    All values in base SI units
+
+    Args:
+        | (): 
+ 
+    Returns:
+        | 
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+    
+    L = emis * tauAtmo * tauFilt * tauOpt * quantEff * \
+            ryplanck.planck(wl, tmptr, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+    return n
+    
+
+################################################################
+##
+# to calculate the electron count in the detector from a thermal source only
+def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
+    """ Calculate the number of electrons in a detector from hot optics
+    All values in base SI units
+    """
+    
+    L = tauFilt * (1.0 - tauOpt) * quantEff * \
+            ryplanck.planck(wl, tmptrOpt, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
+    return n    
+
+
+############################################################
+##
+def nElecCntReflSun(self, wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1, 
+    rhoTarg=1, cosTarg=1, inttime=1, pfrac=1, detarea=1, fno=0.8862269255, emissun=1.0, tmprt=6000.):
+    """ Calculate the number of electrons in a detector or photon radiance for reflected sunlight
+
+        All values in base SI units.
+
+        By using the default values when calling the function the radiance at the 
+        source can be calculated.
+
+        Args:
+            | wl (np.array (N,) or (N,1)): wavelength 
+            | tauAtmo (np.array (N,) or (N,1)): transmittance between the scene and sensor 
+            | tauSun (np.array (N,) or (N,1)): transmittance between the scene and sun 
+            | tauFilt (np.array (N,) or (N,1)): sensor filter transmittance 
+            | tauOpt (np.array (N,) or (N,1)): sensor optics transmittance 
+            | quantEff (np.array (N,) or (N,1)): detector quantum efficiency 
+            | rhoTarg (np.array (N,) or (N,1)): target diffuse surface reflectance 
+            | cosTarg (scalar): cosine between surface normal and sun/moon direction
+            | inttime (scalar): detector integration time
+            | pfrac (scalar):  fraction of optics clear aperture
+            | detarea (scalar): detector area
+            | fno (scalar): optics fnumber
+            | emissun (scalar): sun surface emissivity
+            | tmprt (scalar): sun surface temperature
+
+        Returns:
+            | n (scalar): number of electrons accumulated during integration time
+
+        Raises:
+            | No exception is raised.
+    """
+    
+    L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
+            rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
+    L = np.trapz( L, x=wl,axis=0)
+    n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
+
+    return n
+
+
+
+
+
+
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
+######################################################################################
 
 ######################################################################################
 def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, fracblurr=0, 
