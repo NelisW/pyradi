@@ -7,11 +7,11 @@ Plotting utility
 Overview
 ----------
 
-.. automodule:: pyradi.rydecount
+.. automodule:: pyradi.rysasensor
 
 Module classes
 ------------------
 
-.. autoclass:: pyradi.rydecount.FluxCalc
+.. autoclass:: pyradi.rysasensor.FluxCalc
 	:members:
 	
