@@ -77,7 +77,7 @@ def nEcntLLight(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg,
 ##
 # to calculate the electron count in the detector from a thermal source only
 def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
-    """ Calculate the number of electrons in a detector
+    """ Calculate the number of electrons in a detector from a thermal source
     All values in base SI units
     """
     
@@ -92,7 +92,7 @@ def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, in
 ##
 # to calculate the electron count in the detector from a thermal source only
 def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, detarea, fno):
-    """ Calculate the number of electrons in a detector
+    """ Calculate the number of electrons in a detector from hot optics
     All values in base SI units
     """
     

@@ -449,22 +449,6 @@ Module functions
 
 .. autofunction:: pyradi.rystare.limitzero
 
-.. autofunction:: pyradi.rystare.distribution_exp
-
-.. autofunction:: pyradi.rystare.distribution_lognormal
-
-.. autofunction:: pyradi.rystare.distribution_inversegauss
-
-.. autofunction:: pyradi.rystare.distribution_logistic
-
-.. autofunction:: pyradi.rystare.distribution_wald
-
-.. autofunction:: pyradi.rystare.distributions_generator
-
-.. autofunction:: pyradi.rystare.validateParam
-
-.. autofunction:: pyradi.rystare.checkParamsNum
-
 .. autofunction:: pyradi.rystare.run_example
 
 .. autofunction:: pyradi.rystare.get_summary_stats
