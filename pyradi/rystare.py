@@ -1766,6 +1766,93 @@ def nElecCntReflSun(wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1,
 
 
 
+############################################################
+##
+# calculate the dark current noise   
+def darkcurrentnoise(inttime, detarea,temptr, Egap, DFM=0.5e-5):
+    """Calculate the dark current noise given detector parameters
+
+        Args:
+            | inttime (scalar): integration time in seconds
+            | detarea (scalar): detector area in m2
+            | temptr (scalar): temperature in K
+            | Egap (scalar):  bandgap in eV
+            | DFM (scalar): in units of nA/m2
+ 
+ 
+        Returns:
+            | n (scalar): dark current noise as number of electrons 
+
+        Raises:
+            | No exception is raised.
+    """
+
+    keV = const.physical_constants['Boltzmann constant in eV/K'][0]
+    ndarkcur = inttime * 2.55e15 * detarea * DFM * (temptr ** 1.5) * np.exp(-Egap/(2 * keV * temptr) )
+    
+    return np.sqrt(ndarkcur)
+
+############################################################
+##
+def kTCnoiseCsn(temptr, sensecapacity):
+    """
+
+        Args:
+            | temptr (scalar): temperature in K
+            | sensecapacity (): sense node capacitance F
+ 
+        Returns:
+            | n (scalar): noise as number of electrons 
+
+        Raises:
+            | No exception is raised.
+    """
+    return np.sqrt(const.k * temptr * sensecapacity) / const.e
+
+############################################################
+##
+def kTCnoiseGv(temptr, gv):
+    """
+
+        Args:
+            | temptr (scalar): temperature in K
+            | gv (scalar): sense node gain V/e
+ 
+ 
+        Returns:
+            | n (scalar): noise as number of electrons 
+
+        Raises:
+            | No exception is raised.
+    """
+    return np.sqrt(const.k * temptr / (const.e * gv))
+
+############################################################
+##
+#def 
+    """
+
+        Args:
+            | (): 
+            | (): 
+            | (): 
+            | (): 
+            | (): 
+            | (): 
+            | (): 
+ 
+        Returns:
+            | n (scalar): noise as number of electrons 
+
+        Raises:
+            | No exception is raised.
+    """
+
+
+
+
+
+
 ######################################################################################
 ######################################################################################
 ######################################################################################
