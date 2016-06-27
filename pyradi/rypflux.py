@@ -105,6 +105,14 @@ class PFlux:
             }
         self.llluxCols = ['Irradiance-lm/m2','ColourTemp','FracPhotop']
 
+        numpts = 300
+        self.specranges = {
+        'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        }
 
 
 
@@ -140,7 +148,9 @@ class PFlux:
             4.  Use Planck radiation at the appropriate colour temperature to calculate the radiance
                 in any spectral band, but then scale the value with the factor k.
 
-            The specranges format is as follows::
+            The specranges format is a dictionary where the key is the spectral band, and the
+            entry against each key is a list containing two items: the spectral vector and the 
+            associated spectral band definition.  One simple example definition is as follows:
 
                 numpts = 300
                 specranges = {
@@ -195,20 +205,16 @@ class PFlux:
                         (1-self.dfPhotRates['FracPhotop']) * 1700 * np.trapz(scotLumEff.reshape(-1,1) * \
                                     ryplanck.planckel(wl, self.dfPhotRates['ColourTemp']),wl, axis=0))                           \
 
-        if specranges is None:
-            numpts = 300
-            specranges = {
-            'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-            'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-            'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-            'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-            'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-            }
+        if specranges is not None:
+            self.specranges = specranges
+            for key in self.specranges:
+                for idx in [0,1]:
+                    self.specranges[key][idx] = self.specranges[key][idx].reshape(-1,1)
 
-        for specrange in specranges.keys():
-            wlsr = specranges[specrange][0]
+        for specrange in self.specranges.keys():
+            wlsr = self.specranges[specrange][0]
             self.dfPhotRates['Radiance-q/(s.m2.sr)-{}'.format(specrange)] = (self.dfPhotRates['k'] /np.pi ) * \
-                np.trapz(specranges[specrange][1] * ryplanck.planck(wlsr, self.dfPhotRates['ColourTemp'],'ql'),wlsr, axis=0)
+                np.trapz(self.specranges[specrange][1] * ryplanck.planck(wlsr, self.dfPhotRates['ColourTemp'],'ql'),wlsr, axis=0)
 
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
 
