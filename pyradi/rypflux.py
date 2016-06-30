@@ -168,7 +168,7 @@ class PFlux:
             If specranges is None, the predefined values are used, as shown above.
 
             The function returns scene radiance in a Pandas datatable with the 
-            following columns::
+            following columns containing the spectrally weighted integrated radiance:
 
                 u'Irradiance-lm/m2', u'ColourTemp', u'FracPhotop', u'k',
                 u'Radiance-q/(s.m2.sr)-NIR', u'Radiance-q/(s.m2.sr)-VIS',
@@ -181,12 +181,14 @@ class PFlux:
                 u'Deep twilight', u'Twilight', u'Very dark day', u'Overcast day',
                 u'Full sky light', u'Sun light'
 
+
             Args:
                 | specranges (dictionary): User-supplied dictionary defining the spectral
                 |   responses. See the dictionary format above and an example in the code.
 
             Returns:
                 | Pandas dataframe with radiance in the specified spectral bands.
+                | The dataframe contains integrated and spectral radiance.
 
             Raises:
                 | No exception is raised.
@@ -219,8 +221,17 @@ class PFlux:
 
             if 'wl' in self.specranges[specrange][2]:
                 stype = 'ql'
+                swid = 'um'
             else:
                 stype = 'qn'
+                swid = 'cm-1'
+
+            # print((self.dfPhotRates['k'] /np.pi ).shape )
+            # print(ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype).shape)
+
+            # # self.dfPhotRates['Radiance-q/(s.m2.sr.{})-{}'.format(swid, specrange)] = [(self.dfPhotRates['k'] /np.pi ) * \
+            # #     ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype).reshape(-1,1)]
+
 
             self.dfPhotRates['Radiance-q/(s.m2.sr)-{}'.format(specrange)] = (self.dfPhotRates['k'] /np.pi ) * \
                 np.trapz(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
