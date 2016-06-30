@@ -107,11 +107,11 @@ class PFlux:
 
         numpts = 300
         self.specranges = {
-        'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-        'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-        'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-        'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-        'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+        'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+        'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+        'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+        'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+        'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
         }
 
 
@@ -120,7 +120,7 @@ class PFlux:
 
     ############################################################
     ##
-    def lllPhotonrates(self, specranges=None ):
+    def lllPhotonrates(self, specranges=None):
         """Calculate the approximate photon rate radiance for low light conditions
 
             The colour temperature of various sources are used to predict the 
@@ -150,16 +150,19 @@ class PFlux:
 
             The specranges format is a dictionary where the key is the spectral band, and the
             entry against each key is a list containing two items: the spectral vector and the 
-            associated spectral band definition.  One simple example definition is as follows:
+            associated spectral band definition.  The third entry in the list must be 
+            'wn' (=wavenumber) or 
+            'wl' (=wavelength) to signify the type of spectral variable
+            One simple example definition is as follows:
 
                 numpts = 300
                 specranges = {
                     key: [wavelength vector, response vector ], 
-                    'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-                    'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-                    'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-                    'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
-                    'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)) ], 
+                    'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
                     }
 
             If specranges is None, the predefined values are used, as shown above.
@@ -194,8 +197,8 @@ class PFlux:
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
 
         wl = np.linspace(0.3, 0.8, 100)
-        photLumEff,wl = ryutils.luminousEfficiency(vlamtype='photopic', wavelen=wl)
-        scotLumEff,wl = ryutils.luminousEfficiency(vlamtype='scotopic', wavelen=wl)
+        photLumEff,wl = ryutils.luminousEfficiency(vlamtype='photopic', wavelen=wl,eqnapprox=False)
+        scotLumEff,wl = ryutils.luminousEfficiency(vlamtype='scotopic', wavelen=wl,eqnapprox=False)
 
 
         self.dfPhotRates['k'] = (self.dfPhotRates['Irradiance-lm/m2']) / (\
@@ -212,9 +215,15 @@ class PFlux:
                     self.specranges[key][idx] = self.specranges[key][idx].reshape(-1,1)
 
         for specrange in self.specranges.keys():
-            wlsr = self.specranges[specrange][0]
+            spec = self.specranges[specrange][0]
+
+            if 'wl' in self.specranges[specrange][2]:
+                stype = 'ql'
+            else:
+                stype = 'qn'
+
             self.dfPhotRates['Radiance-q/(s.m2.sr)-{}'.format(specrange)] = (self.dfPhotRates['k'] /np.pi ) * \
-                np.trapz(self.specranges[specrange][1] * ryplanck.planck(wlsr, self.dfPhotRates['ColourTemp'],'ql'),wlsr, axis=0)
+                np.trapz(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
 
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
 
