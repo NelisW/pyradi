@@ -157,7 +157,8 @@ def loadtape7(filename, colspec = []):
     the most part the differences are hidden in the details.  
     The various column headers used in the tape7 file are as follows:
 
-    IEMSCT = 0 has two column header lines.  In order to select the column, you
+    IEMSCT = 0 has two column header lines.  Different versions of modtran
+    has different numbers of columns. In order to select the column, you
     must concatenate the two column headers with an underscore in between. All
     columns are available with the following column names: ['FREQ_CM-1',
     'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS',
@@ -167,7 +168,8 @@ def loadtape7(filename, colspec = []):
     'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS',
     'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS',
     'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS',
-    'CCL4_TRANS', 'N2O5_TRANS']
+    'CCL4_TRANS', 'N2O5_TRANS','H2-H2_TRANS','H2-HE_TRANS','H2-CH4_TRANS',
+    'CH4-CH4_TRANS']
 
     IEMSCT = 1 has single line column headers. A number of columns have
     headers, but with no column numeric data.  In the following list the
@@ -233,6 +235,9 @@ def loadtape7(filename, colspec = []):
     line1 = line1.replace('DRCT RFLT','DRCT_RFLT')
     line1 = line1.replace('TOTAL RAD','TOTAL_RAD')
     line1 = line1.replace('REF SOL','REF_SOL')
+
+    #modtran5 has extra columns in transittance mode, col headings touch
+    line1 = line1.replace('H2-CH4CH4-CH4','H2-CH4 CH4-CH4')
 
     colHead1st = line1.split()
     colHead2nd = line2.split()
@@ -302,6 +307,9 @@ if __name__ == '__main__':
     tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
     np.savetxt('tape7-01a.txt', tape7,fmt=str('%.6e'))
 
+    tape7= loadtape7("data/tape7-01b", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
+    np.savetxt('tape7-01b.txt', tape7, fmt=str('%.6e'))
+
     tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS', 'N2_CONT', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'HNO3_TRANS', 'AER+CLD_abTRNS', '-LOG_COMBIN', 'CO2_TRANS', 'CO_TRANS', 'CH4_TRANS', 'N2O_TRANS', 'O2_TRANS', 'NH3_TRANS', 'NO_TRANS', 'NO2_TRANS', 'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS', 'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS', 'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS', 'CCL4_TRANS', 'N2O5_TRANS'] )
     np.savetxt('tape7-01.txt', tape7,fmt=str('%.6e'))
 
@@ -313,6 +321,14 @@ if __name__ == '__main__':
 
     tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
     np.savetxt('tape7-04.txt', tape7,fmt=str('%.6e'))
+
+    tape7= loadtape7("data/tape7-05", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
+    np.savetxt('tape7-05.txt', tape7,fmt=str('%.6e'))
+
+    tape7= loadtape7("data/tape7-05b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
+    np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
+
+
 
     colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
           'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
