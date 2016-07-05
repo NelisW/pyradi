@@ -291,9 +291,16 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname):
     """
     Look for input files in directories, run modtran and copy results to dir.
 
+    Finds all files below the root directory that matches the 
+    regex pattern in research. Then runs modtran on these files
+    and write the tape5/6/7/8 back to where the input file was.
+
+    Each input file must be in a separate directory, because the results are
+    all written to files with the names 'tape5', etc.
+
     Args:
-        | root ([string]): path to root dir containing all subdirs.
-        | research ([string]): regex to use when searching for input files.
+        | root ([string]): path to root dir containing the dirs with modtran input files.
+        | research ([string]): regex to use when searching for input files ('.*.ltn' or 'tape5')
         | pathToModtranBin ([string]): path to modtran executable directory.
         | execname ([string]): modtran executable filename.
 
