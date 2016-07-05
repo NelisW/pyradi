@@ -60,6 +60,7 @@ from string import maketrans
 # import io
 import StringIO
 
+
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
 def fixHeaders(instr):
@@ -284,6 +285,57 @@ def loadtape7(filename, colspec = []):
 
     return coldata
 
+##############################################################################
+##
+def runModtranAndCopy(root, research, pathToModtranBin,execname):
+    """
+    Look for input files in directories, run modtran and copy results to dir.
+
+    Args:
+        | root ([string]): path to root dir containing all subdirs.
+        | research ([string]): regex to use when searching for input files.
+        | pathToModtranBin ([string]): path to modtran executable directory.
+        | execname ([string]): modtran executable filename.
+
+    Returns:
+        | List of all the files processed.
+
+    Raises:
+        | No exception is raised.
+    """
+    import os
+    import shutil
+    import subprocess
+    import time
+    import pyradi.ryfiles as ryfiles
+
+    filepaths = ryfiles.listFiles(root, patterns=research, recurse=1, return_folders=0, useRegex=True)
+
+    # print(len(filenames))
+    # print(filenames)
+
+    for filepath in filepaths:
+        filename = os.path.basename(filepath)
+        dirname = os.path.dirname(filepath)
+        print(filename)
+
+        tape5path = os.path.join(pathToModtranBin, 'tape5')
+        shutil.copy2(filepath, tape5path)
+
+        #run modtran on the tape5 file in its bin directory
+        if os.path.exists(tape5path):
+
+            p = subprocess.Popen(os.path.join(pathToModtranBin, execname), 
+                    shell=True, stdout=None, stderr=None, cwd=pathToModtranBin)
+            while  p.poll() == None:
+                time.sleep(0.5)
+
+            # #copy the tape5/6/7 files back to appropriate directory
+            for outname in ['tape5', 'tape6', 'tape7','tape8']:
+                    outpath = os.path.join(pathToModtranBin,outname)
+                    if os.path.exists(outpath):
+                        shutil.copy2(outpath, dirname)
+
 
 ################################################################
 ##
@@ -300,126 +352,135 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryutils as ryutils
 
-    figtype = ".png"  # eps, jpg, png
-    #figtype = ".eps"  # eps, jpg, png
 
-    ## ----------------------- -----------------------------------------
-    tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
-    np.savetxt('tape7-01a.txt', tape7,fmt=str('%.6e'))
+    if False:
+        pathToModtranBin = r'C:\PcModWin5\bin'
+        research = '.*.ltn'
+        root = r'D:\work\ISP\SWIR-tradeoff\data\atmo\TropicalRural\slant'
+        execname = 'OntarMod5_3_2.exe'
+        runModtranAndCopy(root=root, research=research, pathToModtranBin=pathToModtranBin, execname=execname)
 
-    tape7= loadtape7("data/tape7-01b", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
-    np.savetxt('tape7-01b.txt', tape7, fmt=str('%.6e'))
+    if True:
+        figtype = ".png"  # eps, jpg, png
+        #figtype = ".eps"  # eps, jpg, png
 
-    tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS', 'N2_CONT', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'HNO3_TRANS', 'AER+CLD_abTRNS', '-LOG_COMBIN', 'CO2_TRANS', 'CO_TRANS', 'CH4_TRANS', 'N2O_TRANS', 'O2_TRANS', 'NH3_TRANS', 'NO_TRANS', 'NO2_TRANS', 'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS', 'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS', 'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS', 'CCL4_TRANS', 'N2O5_TRANS'] )
-    np.savetxt('tape7-01.txt', tape7,fmt=str('%.6e'))
+        ## ----------------------- -----------------------------------------
+        tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
+        np.savetxt('tape7-01a.txt', tape7,fmt=str('%.6e'))
 
-    tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
-    np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+        tape7= loadtape7("data/tape7-01b", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
+        np.savetxt('tape7-01b.txt', tape7, fmt=str('%.6e'))
 
-    tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
-    np.savetxt('tape7-03.txt', tape7,fmt=str('%.6e'))
+        tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS', 'N2_CONT', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'HNO3_TRANS', 'AER+CLD_abTRNS', '-LOG_COMBIN', 'CO2_TRANS', 'CO_TRANS', 'CH4_TRANS', 'N2O_TRANS', 'O2_TRANS', 'NH3_TRANS', 'NO_TRANS', 'NO2_TRANS', 'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS', 'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS', 'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS', 'CCL4_TRANS', 'N2O5_TRANS'] )
+        np.savetxt('tape7-01.txt', tape7,fmt=str('%.6e'))
 
-    tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
-    np.savetxt('tape7-04.txt', tape7,fmt=str('%.6e'))
+        tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
+        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
 
-    tape7= loadtape7("data/tape7-05", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
-    np.savetxt('tape7-05.txt', tape7,fmt=str('%.6e'))
+        tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
+        np.savetxt('tape7-03.txt', tape7,fmt=str('%.6e'))
 
-    tape7= loadtape7("data/tape7-05b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
-    np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
+        tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
+        np.savetxt('tape7-04.txt', tape7,fmt=str('%.6e'))
 
+        tape7= loadtape7("data/tape7-05", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
+        np.savetxt('tape7-05.txt', tape7,fmt=str('%.6e'))
 
-
-    colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
-          'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
-    tape7= loadtape7("data/tape7VISNIR5kmTrop23Vis", colSelect )
-    wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
-    mT = ryplot.Plotter(1, 1, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
-                       + ", 5 km Path Length",figsize=(12,6))
-    mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\mu$m]", "Transmittance",
-           label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.saveFig('ModtranPlot.png')
-    #mT.saveFig('ModtranPlot.eps')
-
-    # this example plots the individual transmittance components
-    colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
-       'O3_TRANS', 'O2_TRANS', 'N2O_TRANS', 'AER+CLD_TRANS', 'SO2_TRANS']
-    tape7= loadtape7("data/horizon5kmtropical.fl7", colSelect )
-    wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
-    mT = ryplot.Plotter(1, 9, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
-                       + ", 5 km Path Length",figsize=(6,12))
-    mT.semilogX(1, wavelen, tape7[:,1], '','', '',
-           label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(2, wavelen, tape7[:,2], '','', '',
-           label=colSelect[2:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(3, wavelen, tape7[:,10], '','', '',
-           label=colSelect[10:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(4, wavelen, tape7[:,4] , '','', '',
-           label=colSelect[4:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-
-    mT.semilogX(5, wavelen, tape7[:,5] , '','', '',
-           label=colSelect[5:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-
-    mT.semilogX(6, wavelen, tape7[:,3]  , '','', '',
-           label=colSelect[3:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(7, wavelen, tape7[:,6]  , '','', '',
-           label=colSelect[6:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(8, wavelen, tape7[:,7] * tape7[:,8] , '','', '',
-           label=colSelect[7:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-    mT.semilogX(9, wavelen, tape7[:,9]  , '','', '',
-           label=colSelect[9:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
-           maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        tape7= loadtape7("data/tape7-05b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
+        np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
 
 
-    mT.saveFig('ModtranSpec.png')
-    mT.saveFig('ModtranSpec.eps')
 
-    # calculate the total path radiance over a spectral band
-    #read the tape7 file with path radiance components, plot and integrate.
-    colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
-    skyrad= loadtape7("data/NIRscat.fl7", colSelect )
-    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,8))
-    # plot the components separately
-    for i in [1,2,3,4]:
-      Lpath = 1.0e4 * skyrad[:,i]
-      sr.plot(i,  skyrad[:,0], Lpath, "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr.cm$^{-1}$)]",
-             label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
-             maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
+              'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
+        tape7= loadtape7("data/tape7VISNIR5kmTrop23Vis", colSelect )
+        wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
+        mT = ryplot.Plotter(1, 1, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
+                           + ", 5 km Path Length",figsize=(12,6))
+        mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\mu$m]", "Transmittance",
+               label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.saveFig('ModtranPlot.png')
+        #mT.saveFig('ModtranPlot.eps')
 
-      #convert from /cm^2 to /m2 and integrate using the wavenumber vector
-      #normally you would multiply with a sensor spectral response before integration
-      #this calculation is over the whole band, equally weighted.
-      totinband = np.trapz(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
-      print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
-    sr.saveFig('NIRPathradiance.png')
-    print('Note that multiple scatter contributes significantly to the total path radiance')
+        # this example plots the individual transmittance components
+        colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
+           'O3_TRANS', 'O2_TRANS', 'N2O_TRANS', 'AER+CLD_TRANS', 'SO2_TRANS']
+        tape7= loadtape7("data/horizon5kmtropical.fl7", colSelect )
+        wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
+        mT = ryplot.Plotter(1, 9, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
+                           + ", 5 km Path Length",figsize=(6,12))
+        mT.semilogX(1, wavelen, tape7[:,1], '','', '',
+               label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(2, wavelen, tape7[:,2], '','', '',
+               label=colSelect[2:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(3, wavelen, tape7[:,10], '','', '',
+               label=colSelect[10:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(4, wavelen, tape7[:,4] , '','', '',
+               label=colSelect[4:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
-    #repeat the same calculation, but this time do in wavelength domain
-    colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
-    skyrad= loadtape7("data/NIRscat.fl7", colSelect )
-    sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",
-                        figsize=(12,8))
-    # plot the components separately
-    for i in [1,2,3,4]:
-      wl, Lpath = ryutils.convertSpectralDensity(skyrad[:,0], skyrad[:,i],'nl')
-      Lpath *= 1.0e4
-      sr.plot(i,  wl, Lpath, "","Wavelength [$\mu$m]","L [W/(m$^2$.sr.$\mu$m)]",
-             label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
-             maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-      totinband = - np.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
-      print('{0} integral is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+        mT.semilogX(5, wavelen, tape7[:,5] , '','', '',
+               label=colSelect[5:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
-    sr.saveFig('NIRPathradiancewl.png')
-    print('Note that multiple scatter contributes significantly to total path radiance')
+        mT.semilogX(6, wavelen, tape7[:,3]  , '','', '',
+               label=colSelect[3:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(7, wavelen, tape7[:,6]  , '','', '',
+               label=colSelect[6:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(8, wavelen, tape7[:,7] * tape7[:,8] , '','', '',
+               label=colSelect[7:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+        mT.semilogX(9, wavelen, tape7[:,9]  , '','', '',
+               label=colSelect[9:],legendAlpha=0.5, pltaxis=[0.2,15, 0, 1],
+               maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+
+
+        mT.saveFig('ModtranSpec.png')
+        mT.saveFig('ModtranSpec.eps')
+
+        # calculate the total path radiance over a spectral band
+        #read the tape7 file with path radiance components, plot and integrate.
+        colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
+        skyrad= loadtape7("data/NIRscat.fl7", colSelect )
+        sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",figsize=(12,8))
+        # plot the components separately
+        for i in [1,2,3,4]:
+          Lpath = 1.0e4 * skyrad[:,i]
+          sr.plot(i,  skyrad[:,0], Lpath, "","Wavenumber [cm$^{-1}$]", "L [W/(m$^2$.sr.cm$^{-1}$)]",
+                 label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
+                 maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+
+          #convert from /cm^2 to /m2 and integrate using the wavenumber vector
+          #normally you would multiply with a sensor spectral response before integration
+          #this calculation is over the whole band, equally weighted.
+          totinband = np.trapz(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
+          print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+        sr.saveFig('NIRPathradiance.png')
+        print('Note that multiple scatter contributes significantly to the total path radiance')
+
+        #repeat the same calculation, but this time do in wavelength domain
+        colSelect =  ['FREQ', 'PTH_THRML','SOL_SCAT','SING_SCAT', 'TOTAL_RAD']
+        skyrad= loadtape7("data/NIRscat.fl7", colSelect )
+        sr = ryplot.Plotter(1, 4,1,"Path Radiance in NIR, Path to Space from 3 km",
+                            figsize=(12,8))
+        # plot the components separately
+        for i in [1,2,3,4]:
+          wl, Lpath = ryutils.convertSpectralDensity(skyrad[:,0], skyrad[:,i],'nl')
+          Lpath *= 1.0e4
+          sr.plot(i,  wl, Lpath, "","Wavelength [$\mu$m]","L [W/(m$^2$.sr.$\mu$m)]",
+                 label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
+                 maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
+          totinband = - np.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
+          print('{0} integral is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+
+        sr.saveFig('NIRPathradiancewl.png')
+        print('Note that multiple scatter contributes significantly to total path radiance')
 
 
     print('Done!')
