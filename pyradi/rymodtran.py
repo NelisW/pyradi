@@ -59,7 +59,7 @@ import numpy as np
 from string import maketrans
 # import io
 import StringIO
-
+import re
 
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
@@ -224,6 +224,11 @@ def loadtape7(filename, colspec = []):
     # find out what the case is for this file and concatenate if necessary
     line1 = lines[headline]
     line2 = lines[headline+1]
+    p = re.compile('[a-df-zA-DF-Z]+')
+    line2found = True if p.search(line2) is not None else False
+    print(line2found)
+    # print(line2)
+    
 
     #modtran 4 does not use underscores
     line1 = line1.replace('TOT TRANS','TOT_TRANS')
@@ -261,6 +266,7 @@ def loadtape7(filename, colspec = []):
 
     if IEMSCT == 3:
         colHead = ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH']
+
 
     # build a new data set with appropriate column header and numeric data
     #change all - and +  to alpha to enable table lookup
@@ -384,6 +390,12 @@ if __name__ == '__main__':
         tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
         np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
 
+        tape7= loadtape7("data/tape7-02b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
+        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+
+        tape7= loadtape7("data/tape7-02c", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
+        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+
         tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
         np.savetxt('tape7-03.txt', tape7,fmt=str('%.6e'))
 
@@ -397,6 +409,7 @@ if __name__ == '__main__':
         np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
 
 
+    if False:
 
         colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
               'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
