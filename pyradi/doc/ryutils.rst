@@ -79,4 +79,6 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.luminousEfficiency
 
+.. autofunction:: pyradi.ryutils.calcMTFwavefrontError
+
 

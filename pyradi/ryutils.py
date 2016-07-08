@@ -46,7 +46,8 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'detectFARThresholdToNoisepulseWidth', 'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
          'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence',
-         'extractGraph','luminousEfficiency','Spectral','Atmo','Sensor','Target'
+         'extractGraph','luminousEfficiency','Spectral','Atmo','Sensor','Target',
+         'calcMTFwavefrontError'
          ]
 
 import sys
@@ -1399,6 +1400,161 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
     return vlam, wavelen
 
 
+##############################################################################################
+##############################################################################################
+##############################################################################################
+# to calculate the MTF degradation from the pupil function
+def calcMTFwavefrontError(sample, wfdisplmnt, xg, yg, specdef,
+                     samplingStride = 1,clear='Clear'):
+    """Given a mirror figure error, calculate MTF degradation from ideal
+    
+    An aperture has an MTF determined by its shape.  A clear aperture has
+    zero phase delay and the MTF is determined only by the aperture shape.
+    Any phase delay/error in the wavefront in the aperture will result in a 
+    lower MTF than the clear aperture diffraction MTF.
+    
+    This function calculates the MTF degradation attributable to a wavefront
+    error, relative to the ideal aperture MTF.
+    
+    The optical transfer function is the Fourier transform of the point spread 
+    function, and the point spread function is the square absolute of the inverse 
+    Fourier transformed pupil function. The optical transfer function can also 
+    be calculated directly from the pupil function. From the convolution theorem 
+    it can be seen that the optical transfer function is  the autocorrelation of 
+    the pupil function <https://en.wikipedia.org/wiki/Optical_transfer_function>.  
+
+    The pupil function comprises a masking shape (the binary shape of the pupil) 
+    and a transmittance and spatial phase delay inside the mask. A perfect aperture 
+    has unity transmittance and zero phase delay in the mask. Some pupils have 
+    irregular pupil functions/shapes and hence the diffraction MTF has to be 
+    calculated numerically using images (masks) of the pupil function.   
+
+    From the OSA Handbook of Optics, Vol II, p 32.4:  
+    For an incoherent optical system, the OTF is proportional to the two-dimensional 
+    autocorrelation of the exit pupil. This calculation can account for any phase 
+    factors across the pupil, such as those arising from aberrations or defocus. 
+    A change of variables is required for the identification of an autocorrelation 
+    (a function of position in the pupil) as a transfer function (a function of
+    image-plane spatial frequency). The change of variables is
+
+
+    xi = {x}/{lambda d_i}
+ 
+    where $x$ is the autocorrelation shift distance in the pupil, $\lambda$ is 
+    the wavelength, and $d_i$ is the distance from the exit pupil to the image. 
+    A system with an exit pupil of full width $D$ has an image-space cutoff 
+    frequency (at infinite conjugates)  of
+
+    xi_{cutoff} ={D}/{lambda f}
+
+    In this analysis we assume that 
+    1. the sensor is operating at infinite conjugates. 
+    2. the mask falls in the entrance pupil shape.
+
+    The MTF is calculated as follows:
+
+    1. Read in the pupil function mask and create an image of the mask.
+    2. Calculate the two-dimensional autocorrelation function of the binary 
+       image (using the SciPy two-dimensional correlation function `signal.correlate2d`).
+    3. Scale the magnitude and $(x,y)$ dimensions according to the dimensions of 
+       the physical pupil.
+       
+    The the array containing the wavefront displacement in the pupil must have np.nan 
+    values outside the pupil. The np.nan values are ignored and not included in the 
+    calculation. Obscurations can be modelled by placing np.nan in the obscuration.
+    
+    The specdef dictionary has a string key to identify (name) the band, with a
+    single float contents which is the wavelength associated with this band.
+
+    Args:
+        | sample (string): an identifier string to be used in the plots
+        | wfdisplmnt (nd.array[M,N]): wavefront displacement in m
+        | xg (nd.array[M,N]): x values from meshgrid, for wfdisplmnt
+        | yg (nd.array[M,N]): y values from meshgrid, for wfdisplmnt
+        | specdef (dict): dictionary defining spectral wavelengths
+        | samplingStride (number): sampling stride to limit size and processing
+        | clear (string): defines the dict key for clear aperture reference
+
+    Returns:
+        | dictionaries below have entries for all keys in specdef.
+        | wfdev (dict): subsampled wavefront error in m
+        | phase (dict): subsampled wavefront error in rad
+        | pupfn (dict): subsampled complex pupil function
+        | MTF2D (dict): 2D MTF in (x,y) format
+        | MTFpol (dict):  2D MTF in (r,theta) format
+        | specdef (): specdef dictionary as passed plus clear entry
+        | MTFmean (dict): mean MTF across all rotation angles
+        | rho (nd.array[M,]): spatial frequency scale in cy/mrad
+        | fcrit (float): cutoff or critical spatial frequency cy/mrad
+        | clear (string): key used to signify the clear aperture case.
+
+    Raises:
+        | No exception is raised.
+    
+    """
+
+    from scipy import signal
+    import pyradi.ryplot as ryplot
+
+    error = {}
+    wfdev = {}
+    phase = {}
+    pupfn = {}
+    pupfnz = {}
+    MTF2D = {}
+    MTFpol = {}
+    MTFmean = {}
+    freqfsm = {}
+    rho = {}
+    fcrit = {}
+
+    pim = ryplot.ProcessImage()
+ 
+    # make the clear case zero error
+    wfdev[clear] = np.where(np.isnan(wfdisplmnt),np.nan,0)
+    specdef[clear] = 1e300
+    
+    # three cases, clear is done for near infinite wavelength (=zero phase)
+    for specband in specdef:
+        
+        # the physical deviation/error from the ideal mirror figure
+        # force nan outside of valid mirror surface
+        if clear not in specband:
+            wfdev[specband] = np.where(np.isnan(wfdisplmnt),np.nan,wfdisplmnt)
+
+        # resample with stride to reduce processing load
+        wfdev[specband] = wfdev[specband][::samplingStride,0:wfdev[specband].shape[0]:samplingStride] 
+        
+        # one wavelength error is 2pi rad phase shift
+        # use physical displacement and wavelength to normalise to # of wavelengths 
+        phase[specband] = np.where(np.isnan(wfdev[specband]), np.nan, 2*np.pi*(wfdev[specband]/specdef[specband]))
+
+        # phase into complex pupil function
+        pupfn[specband] = np.exp(-1j * phase[specband])
+        # correlation fn does not work if nan in data set, force nan to zero
+        pupfnz[specband] = np.where(np.isnan(pupfn[specband]),0,pupfn[specband])
+        # correlation to get optical transfer function
+        corr = signal.correlate2d(pupfnz[specband], np.conj(pupfnz[specband]), boundary='fill', mode='full')
+        # normalise and get abs value to get MTF
+        MTF2D[specband] = np.abs(corr / np.max(corr))
+        
+        polar_c, _, _ = pim.reprojectImageIntoPolar( 
+                            MTF2D[specband].reshape(MTF2D[specband].shape[0],MTF2D[specband].shape[1],1), 
+                            None, False,cval=0.)
+        MTFpol[specband] = polar_c[:,:,0]
+       
+        MTFmean[specband] = MTFpol[specband].mean(axis=1)
+
+        #calculate the aperture diameter, geometric mean along x and y
+        pdia = np.sqrt(np.abs(np.nanmax(xg)-np.nanmin(xg)) * np.abs(np.nanmax(yg)-np.nanmin(yg)))
+        freqfsm[specband] = np.sqrt(2.) * pdia  / (specdef[specband] * 1000.)
+        rho[specband] = np.linspace(0,freqfsm[specband],MTFpol[specband].shape[0]) 
+        fcrit[specband] = freqfsm[specband]/np.sqrt(2.)
+        
+    return  wfdev, phase, pupfn, MTF2D, MTFpol, specdef, MTFmean, rho, fcrit, clear
+
+
+
 
 ##############################################################################################
 ##############################################################################################
@@ -2238,7 +2394,7 @@ if __name__ == '__main__':
             # print(sensors[key].QE())
 
 
-    if True:
+    if doAll:
         # test loading of targets/sources
         print('\n---------------------Sources:')
         ID = 'Rad-MWIR'
@@ -2665,6 +2821,79 @@ if __name__ == '__main__':
 
             print('lam={} mean={} var={} err-mean={} err-var={}'.format(lam,
                np.mean(out),np.var(out), (lam-np.mean(out))/lam, (lam-np.var(out))/lam))
+
+
+    ############################################################
+    # test the mtf from wavefront code
+    if True:
+
+        sample = u'Mirror-001 at large stride'
+        # load the data imgVal is the deviation from the ideal shape, in the direction of the axis
+        b = np.load('data/mirrorerror.npz')    
+        figerror = b['figerror']
+        xg = b['xg']
+        yg = b['yg']
+        specdef = {'Visible':0.5e-6,'Infrared':4e-6}
+        #this calc takes a while for small stride values, made rough here to test concept
+        # wavefront displacement is twice the mirror figure error
+        wfdev, phase, pupfn, MTF2D, MTFpol, specdef, MTFmean, rho, fcrit, clear = \
+            calcMTFwavefrontError(sample, 2 * figerror, xg, yg, specdef,samplingStride=10);
+
+        #avoid divide by zero error
+        MTF2D[clear] = np.where(MTF2D[clear]==0,1e-100,MTF2D[clear])
+        MTFmean[clear] = np.where(MTFmean[clear]==0,1e-100,MTFmean[clear])
+
+        #  plot the wavefront error
+        I1 = ryplot.Plotter(1,2,len(specdef.keys()),'sample {} '.format(sample), figsize=(14,10));
+        for i,specband in enumerate(wfdev.keys()):
+            I1.showImage(i+1, wfdev[specband], ptitle='{} wavefront displacement in m'.format(specband), 
+                         cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
+            I1.showImage(i+4, phase[specband], ptitle='{} wavefront displacement in rad'.format(specband), 
+                         cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
+        I1.saveFig('mirrorerror-WFerror.png')
+
+        # plot the 2D MTF
+        I1 = ryplot.Plotter(1,1,len(specdef.keys()),'Degraded MTF: sample {} '.format(sample),
+                            figsize=(14,5));
+        for i,specband in enumerate(MTF2D.keys()):
+            I1.showImage(i+1, MTF2D[specband], ptitle='{} MTF'.format(specband), cmap=ryplot.cubehelixcmap(), 
+                         titlefsize=10, cbarshow=True);
+        I1.saveFig('mirrorerror-2D-MTF.png')
+
+        #  plot the 2D MTF degradation
+        I1 = ryplot.Plotter(2,1,len(specdef.keys()),'Degraded MTF/MTFdiffraction: sample {} '.format(sample),
+                            figsize=(14,5));
+        for i,specband in enumerate(MTF2D.keys()):
+            I1.showImage(i+1, MTF2D[specband]/MTF2D[clear], ptitle='{} MTF'.format(specband), 
+                         cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
+        I1.saveFig('mirrorerror-2D-MTF-ratio.png')
+
+        # plot the rotational MTF
+        I1 = ryplot.Plotter(3,1,len(specdef.keys())-1,figsize=(8*(len(specdef.keys())-1),5));
+        j = 0
+        for specband in MTFpol.keys():
+            if clear not in specband:
+                for i in range(0,MTFpol[specband].shape[1]):
+                    I1.plot(j+1,rho[specband],MTFpol[specband][:,i],'Sample {} {}'.format(sample,specband),
+                           'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1])
+                j += 1
+        I1.saveFig('mirrorerror-rotational-MTF.png')
+
+        # plot the mean MTF
+        I1 = ryplot.Plotter(4,len(specdef.keys())-1,2,figsize=(12,4*(len(specdef.keys())-1)),
+                figuretitle='Mean MTF relative to diffraction limit: sample {}'.format(sample));
+        j = 0
+        for specband in MTFmean.keys():
+            if clear not in specband:
+                I1.plot(j*2+1,rho[specband],MTFmean[specband],'',
+                       'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1],label=[specband])
+                I1.plot(j*2+2,rho[specband],MTFmean[specband]/MTFmean[clear],'','Frequency cy/mrad',
+                        'MTF/MTFdiffraction',pltaxis=[0,fcrit[specband],0,1],label=[specband])
+                I1.plot(j*2+1,rho[specband],MTFmean[clear],'',
+                       'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1],label=[clear])
+                j += 1
+        I1.saveFig('mirrorerror-mean-MTF.png')
+
 
 
     print('\n\nmodule ryutils done!')
