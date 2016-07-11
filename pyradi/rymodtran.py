@@ -195,6 +195,25 @@ def loadtape7(filename, colspec = []):
     tape7.scn files.  If you need a tape7.scn file with all the columns populated
     you would have to use the regular tape7 file and convolve this to lower resolution.
 
+    UPDATE:
+    Different versions of Modtran have different columns present in the tape7 file, 
+    also not all the columns are necessarily filled, some have headings but no data.
+    To further complicate matters, the headings are not always separated by spaces,
+    sometime (not often) heading text runs into each other with no separator.
+
+    It seems that the column headings are right aligned with the column data itself,
+    so if we locate the right most position of the column data, we can locate the
+    headings with valid data - even in cases with connected headings.  
+
+    The algorithm used is as follows:
+
+    1. step down to a data line beyond the heading lines (i.e., the data)
+    2. locate the position of the last character of every discrete colummn
+    3. From the last column of the previous col, find start of next col
+    4. move up into the header again and isolate the header column text for each column
+
+    In sptite of all the attempts to isolate special cases, reading of tape7 files
+    remain a challange and may fail in newer versions of Modtran, until fixed.
     """
 
     infile = open(filename, 'r')
@@ -222,13 +241,15 @@ def loadtape7(filename, colspec = []):
 
     #some files has only a single text column head, while others have two
     # find out what the case is for this file and concatenate if necessary
-    line1 = lines[headline]
-    line2 = lines[headline+1]
+    line1 = lines[headline] # alway header 1
+    line2 = lines[headline+1] # maybe data, maybe header 2
+    line3 = lines[headline+2] # definately data
+
+    #see if there is a second header line
     p = re.compile('[a-df-zA-DF-Z]+')
     line2found = True if p.search(line2) is not None else False
-    print(line2found)
+    # print(line2found)
     # print(line2)
-    
 
     #modtran 4 does not use underscores
     line1 = line1.replace('TOT TRANS','TOT_TRANS')
@@ -242,18 +263,45 @@ def loadtape7(filename, colspec = []):
     line1 = line1.replace('TOTAL RAD','TOTAL_RAD')
     line1 = line1.replace('REF SOL','REF_SOL')
 
-    #modtran5 has extra columns in transittance mode, col headings touch
-    line1 = line1.replace('H2-CH4CH4-CH4','H2-CH4 CH4-CH4')
 
-    colHead1st = line1.split()
-    colHead2nd = line2.split()
 
-    if colHead2nd[0].find('CM') >= 0:
+    colcount = 0
+    colEnd = []
+    #strip newline from the data line
+    linet = line3.rstrip()
+
+    idx = 0
+    while idx < len(linet):
+        while linet[idx].isspace():
+            idx += 1
+            if idx == len(linet):
+                break
+        while not linet[idx].isspace():
+            idx += 1
+            if idx == len(linet):
+                break
+        colEnd.append(idx+1)
+
+    colSrt = [0] + [v-1 for v in colEnd[:-1]]
+    collim = zip(colSrt,colEnd)
+    # iemsct=3 has a completely messed up header, replace with this
+    if IEMSCT == 3:
+        colHead1st = ' '.join(['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'])
+    else:
+        # each entry in collim defines the slicing start and end for each col, including leading whitepace
+        # missing columns may have headers that came through as single long string, 
+        # now remove by splitting on space and taking the last one
+        colHead1st = [line1[lim[0]:lim[1]-1].split()[-1].strip() for lim in collim]
+    colHead2nd = [line2[lim[0]:lim[1]-1].split()[-1].strip() for lim in collim]
+
+    # if colHead2nd[0].find('CM') >= 0:
+    if line2found:
         colHead = [h1+'_'+h2 for (h1,h2) in zip(colHead1st,colHead2nd)]
         deltaHead = 1
     else:
         colHead = colHead1st
         deltaHead = 0
+
 
     #different IEMSCT values have different column formats
     # some cols have headers and some are empty.
@@ -266,7 +314,6 @@ def loadtape7(filename, colspec = []):
 
     if IEMSCT == 3:
         colHead = ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH']
-
 
     # build a new data set with appropriate column header and numeric data
     #change all - and +  to alpha to enable table lookup
@@ -390,10 +437,10 @@ if __name__ == '__main__':
         tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
         np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
 
-        tape7= loadtape7("data/tape7-02b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
+        tape7= loadtape7("data/tape7-02b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
         np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
 
-        tape7= loadtape7("data/tape7-02c", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
+        tape7= loadtape7("data/tape7-02c", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
         np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
@@ -409,7 +456,7 @@ if __name__ == '__main__':
         np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
 
 
-    if False:
+    if True:
 
         colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
               'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']
@@ -503,4 +550,4 @@ if __name__ == '__main__':
         print('Note that multiple scatter contributes significantly to total path radiance')
 
 
-    print('Done!')
+    print('\n\nrymodtran is done!')
