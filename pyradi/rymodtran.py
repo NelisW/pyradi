@@ -377,8 +377,14 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname):
     for filepath in filepaths:
         filename = os.path.basename(filepath)
         dirname = os.path.dirname(filepath)
-        print(filename)
 
+        #get rid of clutter to make sure that our tape5 will be used
+        for rfile in ['tape5','modin','modin.ontplt','mod5root.in','.ezl20ck']:
+            rpath = os.path.join(pathToModtranBin, rfile)
+            if os.path.exists(rpath):
+                os.remove(rpath)
+
+        #copy our tape5 across
         tape5path = os.path.join(pathToModtranBin, 'tape5')
         shutil.copy2(filepath, tape5path)
 
