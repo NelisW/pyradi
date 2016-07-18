@@ -1354,7 +1354,7 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
         | eqnapprox (bool): if False read tables, if True use equation
 
     Returns:
-        | wavelen (np.array[]): wavelength in um
+        | luminousEfficiency (np.array[]): luminous efficiency 
         | wavelen (np.array[]): wavelength in um
 
     Raises:
@@ -1387,6 +1387,7 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
         else:
             return None, None
 
+        #load data file from the pyradi directories, not local dir
         resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
         resource_path = os.path.join('data', 'photometry',vlamname)
         dat = pkg_resources.resource_string(resource_package, resource_path)
