@@ -91,6 +91,7 @@ def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
     return [x[0], y[0], Y[0]]
 
 
+
 ##############################################################################
 ##
 def loadCIEbar(specvec, stype):
@@ -148,6 +149,41 @@ def loadCIEbar(specvec, stype):
         
     return ciebar
 
+##############################################################################
+##
+def CIErgbCIExy(rgb):
+    """ Convert from CIE RGB coordinates to CIE (x,y) coordinates
+
+    The CIE RGB colour space is one of many colour spaces, using three monochromatic 
+    primary colours at standardized wavelengths of 700 nm (red), 546.1 nm (green) 
+    and 435.8 nm (blue). Other RGB colour spaces uses different primary colours.
+
+    This function converts from RGB coordinates (assumed CIE RGB) to CIE xy colour.
+    The rgb array can have any number N of datasets in np.array[N,3].
+
+    https://en.wikipedia.org/wiki/CIE_1931_color_space
+    https://en.wikipedia.org/wiki/RGB_color_space
+
+    Args:
+        | rgb (np.array[N,3]): CIE red/green/blue colour space component, N sets
+
+    Returns:
+        | xy (np.array[N,2]): color coordinates x, y.
+
+    Raises:
+        | No exception is raised.
+    """
+
+    # exact values for this conversion is specified in the CIE standard
+    matr = np.asarray([[0.49,0.31,0.20],[0.17697,0.81240,0.01063],[0.00,0.01,0.99]])
+
+    rgb = rgb.reshape(-1,3)
+
+    XYZ = 5.6507 * matr.dot(rgb.T)
+    x = XYZ[0,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
+    y = XYZ[1,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
+    return np.hstack((x.reshape(-1,1),y.reshape(-1,1)))
+
 
 ################################################################
 ##
@@ -164,8 +200,11 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
+    xy = CIErgbCIExy(np.asarray([[220,12,160],[2550,0,0],[0,255,0],[0,0,255]]))
+    print(xy)
 
-    doAll = True
+
+    doAll = False
 
 
     figtype = ".png"  # eps, jpg, png
@@ -177,28 +216,28 @@ if __name__ == '__main__':
     wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
     wavenum=np.linspace(13333, 27000, 350).reshape(-1, 1)
 
-
-    ## ----------------------load ciebar -----------------------------------
-
-    ciebarwl = loadCIEbar(wavelength, stype='wl')
-    ciebarwn = loadCIEbar(wavenum, stype='wn')
-    cietriplt = ryplot.Plotter(1, 2, 2, figsize=(12,6))
-    cietriplt.plot(1, wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
-            r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
-            label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
-    cietriplt.plot(2, 1e4/wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
-            r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
-            label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
-    cietriplt.plot(3, 1e4/wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
-            r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
-            label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
-    cietriplt.plot(4, wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
-            r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
-            label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
-    cietriplt.saveFig('cieBAR'+figtype)
-
-
     if doAll:
+
+        ## ----------------------load ciebar -----------------------------------
+
+        ciebarwl = loadCIEbar(wavelength, stype='wl')
+        ciebarwn = loadCIEbar(wavenum, stype='wn')
+        cietriplt = ryplot.Plotter(1, 2, 2, figsize=(12,6))
+        cietriplt.plot(1, wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
+                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
+        cietriplt.plot(2, 1e4/wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
+                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
+        cietriplt.plot(3, 1e4/wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
+                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
+        cietriplt.plot(4, wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
+                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
+        cietriplt.saveFig('cieBAR'+figtype)
+
+
 
         ## ----------------------- colour tristimulus ---------------------------------
         # read csv file with wavelength in nm, x, y, z cie tristimulus values (x,y,z).
