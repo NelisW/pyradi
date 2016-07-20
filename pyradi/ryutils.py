@@ -45,9 +45,9 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'detectProbabilityThresholdToNoiseSignalToNoise',
          'detectFARThresholdToNoisepulseWidth', 'upMu',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
-         'rect', 'circ','poissonarray','draw_siemens_star','makemotionsequence',
-         'extractGraph','luminousEfficiency','Spectral','Atmo','Sensor','Target',
-         'calcMTFwavefrontError'
+         'rect', 'circ','poissonarray','draw_siemens_star','drawCheckerboard',
+         'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
+         'Atmo','Sensor','Target','calcMTFwavefrontError'
          ]
 
 import sys
@@ -1045,6 +1045,61 @@ def gen_siemens_star(origin, radius, n):
     for c in centres:
         patches.append(Wedge(origin, radius, c-step, c+step))
     return PatchCollection(patches, facecolors='k', edgecolors='none')
+
+
+######################################################################################################
+def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, imageReturnType='image'):
+    """Draw checkerboard with 8-bit pixels 
+    
+   From http://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy
+   
+   Args:
+        | rows           : number or rows in checkerboard
+        | cols           : number of columns in checkerboard 
+        | numPixInBlock  : number of pixels to be used in one block of the checkerboard
+        | imageMode      : PIL image mode [e.g. L (8-bit pixels, black and white), RGB (3x8-bit pixels, true color)]
+        | colour1        : colour 1 specified according to the imageMode
+        | colour2        : colour 2 specified according to the imageMode
+        | imageReturnType: 'image' for PIL image, 'nparray' for numpy array
+   
+    Returns:
+        | img          : checkerboard numpy array or PIL image (see imageReturnType) 
+    
+    Raises:
+        | No exception is raised.
+        
+    Example Usage:
+    
+        rows = 5
+        cols = 7
+        pixInBlock = 4
+
+        color1 = 0       
+        color2 = 255      
+        img = drawCheckerboard(rows,cols,pixInBlock,'L',color1,color2,'nparray')
+        pilImg = Img.fromarray(img, 'L')
+        pilImg.save('{0}.png'.format('checkerboardL'))
+
+
+        color1 = (0,0,0)          
+        color2 = (255,255,255)      
+        pilImage = drawCheckerboard(rows,cols,pixInBlock,'RGB',color1,color2,'image')
+        pilImage.save('{0}.png'.format('checkerboardRGB'))
+        
+    """
+    width = numPixInBlock * cols
+    height = numPixInBlock * rows
+    coords = np.ogrid[0:height, 0:width]
+    idx = (coords[0] // numPixInBlock + coords[1] // numPixInBlock) % 2
+    vals = np.array([colour1, colour2], dtype=np.uint8)
+    img = vals[idx]
+    
+    if (imageReturnType == 'nparray'):
+        return img
+    else:
+        from PIL import Image as Img
+        pilImage = Img.fromarray(img, imageMode)
+        return pilImage
 
 
 ######################################################################################################
@@ -2307,6 +2362,10 @@ if __name__ == '__main__':
     sensors = {}
     targets = {}
 
+
+
+
+
     doAll = False
 
     if doAll:
@@ -2823,10 +2882,28 @@ if __name__ == '__main__':
             print('lam={} mean={} var={} err-mean={} err-var={}'.format(lam,
                np.mean(out),np.var(out), (lam-np.mean(out))/lam, (lam-np.var(out))/lam))
 
+    # ----------------test checkerboard texture------------------------
+    if doAll:
+        from PIL import Image as Img
+        rows = 5
+        cols = 7
+        pixInBlock = 4
+
+        color1 = 0       
+        color2 = 255      
+        img = drawCheckerboard(rows,cols,pixInBlock,'L',color1,color2,'nparray')
+        pilImg = Img.fromarray(img, 'L')
+        pilImg.save('{0}.png'.format('checkerboardL'))
+
+
+        color1 = (0,0,0)          
+        color2 = (255,255,255)      
+        pilImage = drawCheckerboard(rows,cols,pixInBlock,'RGB',color1,color2,'image')
+        pilImage.save('{0}.png'.format('checkerboardRGB'))
 
     ############################################################
     # test the mtf from wavefront code
-    if True:
+    if doAll:
 
         sample = u'Mirror-001 at large stride'
         # load the data imgVal is the deviation from the ideal shape, in the direction of the axis
