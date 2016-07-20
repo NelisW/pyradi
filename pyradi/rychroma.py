@@ -182,6 +182,7 @@ def CIErgbCIExy(rgb):
     XYZ = 5.6507 * matr.dot(rgb.T)
     x = XYZ[0,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
     y = XYZ[1,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
+
     return np.hstack((x.reshape(-1,1),y.reshape(-1,1)))
 
 
