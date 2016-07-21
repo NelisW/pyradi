@@ -19,7 +19,7 @@ outside of the main pyradi directory. To set up this directory
 
 1. Building the documentation requires the sphinx documentation toolset.
 
-1. clone the `gh-pages` branch from `https://github.com/NelisW/pyradi-docs/tree/gh-pages`, 
+1. Be careful to clone the <font color="red"> `gh-pages` branch </font> from `https://github.com/NelisW/pyradi-docs/tree/gh-pages`, 
 to be on the same level as the main pyradi directory:  
 		+-pyradi
 		  +-.git
@@ -40,3 +40,8 @@ files in `pyradi/doc/_build/latex`.
 
 1. Commit all files to the `gh-pages` branch.
 
+## References
+
+<https://help.github.com/articles/creating-project-pages-manually/>  
+<https://help.github.com/articles/creating-pages-with-the-automatic-generator/>  
+<https://help.github.com/articles/user-organization-and-project-pages/>  

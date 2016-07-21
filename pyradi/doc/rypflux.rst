@@ -18,8 +18,4 @@ Module classes
 	:members:
 	
 
-Module functions
-------------------
-
-.. autofunction:: pyradi.ryplot.lllPhotonrates	
 

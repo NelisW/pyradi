@@ -123,63 +123,70 @@ class PFlux:
     def lllPhotonrates(self, specranges=None):
         """Calculate the approximate photon rate radiance for low light conditions
 
-        The colour temperature of various sources are used to predict the 
-        photon flux.  The calculation uses the colour temperature of the source and
-        the ratio of real low light luminance to the luminance of a Planck radiator 
-        at the same temperature as the source colour temperature.
+            The colour temperature of various sources are used to predict the 
+            photon flux.  The calculation uses the colour temperature of the source and
+            the ratio of real low light luminance to the luminance of a Planck radiator 
+            at the same temperature as the source colour temperature.
 
-        This procedure critically depends on the sources' spectral radiance in the
-        various different spectral bands.  For this calculation the approach is taken 
-        that for natural scenes the spectral shape can be modelled by a Planck curve 
-        at the appropriate colour temperature.
+            This procedure critically depends on the sources' spectral radiance in the
+            various different spectral bands.  For this calculation the approach is taken 
+            that for natural scenes the spectral shape can be modelled by a Planck curve 
+            at the appropriate colour temperature.
 
-        The steps followed are as follows:
+            The steps followed are as follows:
 
-        1.  Calculate the photon rate for the scene at the appropriate colour temperature,
-            spectrally weighted by the eye's luminous efficiency response.  Do this for
-            photopic and scotopic vision.
+            1.  Calculate the photon rate for the scene at the appropriate colour temperature,
+                spectrally weighted by the eye's luminous efficiency response.  Do this for
+                photopic and scotopic vision.
 
-        2.  Weigh the photopic and scotopic photon rates according to illumination level
+            2.  Weigh the photopic and scotopic photon rates according to illumination level
 
-        3.  Determine the ratio k of low light level scene illumination to photon irradiance.
-            This factor k is calculated in the visual band, but then applied to scale the
-            other spectral bands by the same scale.
+            3.  Determine the ratio k of low light level scene illumination to photon irradiance.
+                This factor k is calculated in the visual band, but then applied to scale the
+                other spectral bands by the same scale.
 
-        4.  Use Planck radiation at the appropriate colour temperature to calculate the radiance
-            in any spectral band, but then scale the value with the factor k.
+            4.  Use Planck radiation at the appropriate colour temperature to calculate the radiance
+                in any spectral band, but then scale the value with the factor k.
 
-        The specranges format is a dictionary where the key is the spectral band, and the
-        entry against each key is a list containing two items: the spectral vector and the 
-        associated spectral band definition.  The third entry in the list must be 
-        'wn' (=wavenumber) or 
-        'wl' (=wavelength) to signify the type of spectral variable
-        One simple example definition is as follows:
+            The specranges format is a dictionary where the key is the spectral band, and the
+            entry against each key is a list containing two items: the spectral vector and the 
+            associated spectral band definition.  The third entry in the list must be 
+            'wn' (=wavenumber) or 
+            'wl' (=wavelength) to signify the type of spectral variable
+            One simple example definition is as follows:
 
-        numpts = 300
-        specranges = {
-            key: [wavelength vector, response vector ], 
-            'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
-            'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
-            'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
-            'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
-            'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
-            }
+            .. code-block:: python  
 
-        If specranges is None, the predefined values are used, as shown above.
+                numpts = 300
+                specranges = {
+                    key: [wavelength vector, response vector ], 
+                    'VIS': [np.linspace(0.43,0.69,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'NIR': [np.linspace(0.7, 0.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'SWIR': [np.linspace(1.0, 1.7,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
+                    }
 
-        The function returns scene radiance in a Pandas datatable with the 
-        following columns containing the spectrally weighted integrated radiance:
+            If specranges is None, the predefined values are used, as shown above.
 
-        u'Irradiance-lm/m2', u'ColourTemp', u'FracPhotop', u'k',
-        u'Radiance-q/(s.m2.sr)-NIR', u'Radiance-q/(s.m2.sr)-VIS',
-        u'Radiance-q/(s.m2.sr)-MWIR', u'Radiance-q/(s.m2.sr)-LWIR',
-        u'Radiance-q/(s.m2.sr)-SWIR'
+            The function returns scene radiance in a Pandas datatable with the 
+            following columns containing the spectrally weighted integrated radiance:
+            
+            .. code-block:: python  
 
-        and rows with the following index::
+                u'Irradiance-lm/m2', u'ColourTemp', u'FracPhotop', u'k',
+                u'Radiance-q/(s.m2.sr)-NIR', u'Radiance-q/(s.m2.sr)-VIS',
+                u'Radiance-q/(s.m2.sr)-MWIR', u'Radiance-q/(s.m2.sr)-LWIR',
+                u'Radiance-q/(s.m2.sr)-SWIR'
 
-        u'Overcast night', u'Star light', u'Quarter moon', u'Full moon',
-        u'Deep twilight', u'Twilight', u'Very dark day', u'Overcast day',
-        u'Full sky light', u'Sun light'
+            and rows with the following index:
+
+            .. code-block:: python  
+
+                u'Overcast night', u'Star light', u'Quarter moon', u'Full moon',
+                u'Deep twilight', u'Twilight', u'Very dark day', u'Overcast day',
+                u'Full sky light', u'Sun light'
+
 
         Args:
             | specranges (dictionary): User-supplied dictionary defining the spectral

@@ -27,8 +27,6 @@ Module classes
 Module functions
 ------------------
 
-.. autofunction:: pyradi.ryutils.abshumidity
-
 .. autofunction:: pyradi.ryutils.sfilter
 
 .. autofunction:: pyradi.ryutils.responsivity
@@ -41,13 +39,23 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.convolve
 
+.. autofunction:: pyradi.ryutils.savitzkyGolay1D
+
+.. autofunction:: pyradi.ryutils.abshumidity
+
 .. autofunction:: pyradi.ryutils.rangeEquation
 
 .. autofunction:: pyradi.ryutils._rangeEquationCalc
 
-.. autofunction:: pyradi.ryutils.detectThresholdToNoise
+.. autofunction:: pyradi.ryutils.detectThresholdToNoiseTpFAR
 
-.. autofunction:: pyradi.ryutils.detectSignalToNoise
+.. autofunction:: pyradi.ryutils.detectSignalToNoiseThresholdToNoisePd
+
+.. autofunction:: pyradi.ryutils.detectThresholdToNoiseSignalToNoisepD
+
+.. autofunction:: pyradi.ryutils.detectProbabilityThresholdToNoiseSignalToNoise
+
+.. autofunction:: pyradi.ryutils.detectFARThresholdToNoisepulseWidth
 
 .. autofunction:: pyradi.ryutils.upMu
 
@@ -61,8 +69,6 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.framesLast
 
-.. autofunction:: pyradi.ryutils.savitzkyGolay1D
-
 .. autofunction:: pyradi.ryutils.rect
 
 .. autofunction:: pyradi.ryutils.circ
@@ -75,9 +81,9 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.drawCheckerboard
 
-.. autofunction:: pyradi.ryutils.extractGraph
-
 .. autofunction:: pyradi.ryutils.makemotionsequence
+
+.. autofunction:: pyradi.ryutils.extractGraph
 
 .. autofunction:: pyradi.ryutils.luminousEfficiency
 
