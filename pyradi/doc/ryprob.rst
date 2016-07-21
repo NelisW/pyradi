@@ -1,27 +1,12 @@
-Staring Array Module (rystare)
+Probability tools (ryprob)
 *******************************
 .. include global.rst
 
 Overview
 ----------
-
-The code in this module is based on extracts of code originally written in Matlab and used 
-for the Adaptive Optics simulation models, 
-but can be used for many other applications involving light registration on CCD/CMOS
-photosensors.  The original files are available at:
-
-- Paper: http://arxiv.org/pdf/1412.4031.pdf
-- Matlab code: https://bitbucket.org/aorta/highlevelsensorsim
-
-The original Matlab code was ported to Python and extended
-in a number of ways.  
-
-In the documentation for the Matlab code Konnik expressed the hope "that this 
-model will be useful for somebody, or at least save someone's time.
-The model can be (and should be) criticized."  Indeed it has, thanks Mikhail!
-Konnik quotes George E. P. Box, the famous statistician, and who said that 
-"essentially, all models are wrong, but some are useful".
-
+The functions in this module is used in the staring array model. It was
+originally used in Konnik's staring array model (he sourced it from somewhere else).
+Credits for the original source are included in each of the functions.
 
 
 Code Overview
