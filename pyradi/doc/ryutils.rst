@@ -73,6 +73,8 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.gen_siemens_star
 
+.. autofunction:: pyradi.ryutils.drawCheckerboard
+
 .. autofunction:: pyradi.ryutils.extractGraph
 
 .. autofunction:: pyradi.ryutils.makemotionsequence

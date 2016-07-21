@@ -12,6 +12,12 @@ Overview
 Module classes
 ------------------
 
-.. autoclass:: pyradi.rypflux.FluxCalc
+.. autoclass:: pyradi.rypflux.PFlux
 	:members:
 	
+
+Module functions
+------------------
+
+.. autofunction:: pyradi.ryplot.lllPhotonrates	
+

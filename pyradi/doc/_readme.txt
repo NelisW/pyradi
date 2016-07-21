@@ -5,6 +5,9 @@ in the /Lib/site-packages directory.  The file must contain a path to the locati
 where the module files are kept, such that the module directory name must not be 
 in the specified path, i.e., enter a path one level higher than the module directory.
 
+The present version of pyradi requires Python 2.7 to build the documentation, because
+the code only runs under Python 2.7.
+
 
 The build directory is currently set up to build in an external directory
 outside of the main pyradi directory. To set up this directory, clone the 
@@ -13,7 +16,7 @@ To be on the same level as the main pyradi directory:
 
     +-pyradi
       +-.git
-      |-setup.py (this file)
+      |-setup.py 
       | ...
       +-pyradi
         + ... all the pyradi files
