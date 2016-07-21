@@ -16,7 +16,7 @@ CCD/CMOS photosensor signal chain model. The model is described in the article
 review and tutorial' by Mikhail Konnik and James Welsh, arXiv:1412.4031v1 [astro-ph.IM]. 
 The code was originally written in Matlab and used for the Adaptive Optics 
 simulations and study of noise propagation in wavefront sensors, but can be 
-used for many other applications involving light registration on CCD/CMOS
+used for many other applications involving CCD/CMOS
 photosensors.  The original files are available at:
 
 - Paper: http://arxiv.org/pdf/1412.4031.pdf
@@ -28,22 +28,24 @@ as implemented in the Matlab code.  The  Python code was validated
 against results obtained with the Matlab code, up to a point 
 and then substantially reworked and refactored.  During the refactoring
 due diligence was applied with regression testing, checking the new
-results against the previous results.
+results against the previous results.  The results were communicated and
+confirmed with Konnik.  A number of corrections were also made to Konnik's
+original code, some with his cooperation and some without his involvement.
+
 
 The documentation in the code was copied from Konnik's Matlab code, so 
-he deserves all credit for the very detailed documentation.  His documentation 
+he deserves the credit for the very detailed documentation.  His documentation 
 was extracted from the paper quoted above.
 
-The sample code in the repository models two different cases (from Konnik's code)
+The sample Python code (derived from Konnik's code) in the repository models two different cases 
 
 - a simple model: which is completely linear (no non-linearities), 
-  where all noise are basically Gaussian, and without 
-  source follower noise, 
+  where all noise are Gaussian, and without source follower noise, 
 - an advanced model: which has V/V and V/e non-linearities, 
   Wald or lognormal noise, source follower and sense node noise 
   sources and even ADC non-linearities.
 
-The code supports enabling/disabling of key components by using flags.
+The Python code supports enabling/disabling of key components by using flags.
 
 In the documentation for the Matlab code Konnik expressed the hope "that this 
 model will be useful for somebody, or at least save someone's time.
@@ -57,7 +59,7 @@ Signal Flow
 
 The process from incident photons to the digital numbers appearing in the 
 image is outlined in the picture below. 
-First the input image is provided in photon rate irradiance, 
+The input image must be provided in photon rate irradiance units [q/(s.m:sup:`2`)], 
 with photon noise already present in the image.  The count of photons 
 captured in the detector is determined from the irradiance by accounting 
 for the detector area and integration time.
@@ -67,11 +69,11 @@ are modelled to derive at a realistic image model.
 Finally, the ADC converts the voltage signal into digital numbers. 
 The whole process is depicted in the figure below.
  
-.. image:: _images/camerascheme_horiz.png
+.. image:: _images/camerascheme_horiz-labelled.png
     :width: 812px
     :align: center
     :height: 244px
-    :alt: camerascheme_horiz.png
+    :alt: camerascheme_horiz-labelled.png
     :scale: 100 %
 
 Many noise sources contribute to the resulting noise image that is produced by

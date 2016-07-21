@@ -47,7 +47,7 @@ from __future__ import print_function
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['fixHeaders', 'loadtape7','fixHeadersList']
+__all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy']
 
 import sys
 if sys.version_info[0] > 2:

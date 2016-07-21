@@ -38,7 +38,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['chromaticityforSpectralL']
+__all__= ['chromaticityforSpectralL','loadCIEbar','CIErgbCIExy']
 
 import sys
 if sys.version_info[0] > 2:
