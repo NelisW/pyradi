@@ -70,11 +70,11 @@ def photosensor(strh5):
     described.  Finally, the ADC converts the voltage signal into digital numbers. 
     The whole process is depicted on Figure below.
      
-    .. image:: _images/camerascheme_horiz.png
+    .. image:: _images/camerascheme_horiz-labelled.png
      :width: 812px
      :align: center
      :height: 244px
-     :alt: camerascheme_horiz.png
+     :alt: camerascheme_horiz-labelled.png
      :scale: 100 %
 
     Many noise sources contribute to the resulting noise image that is produced by
@@ -880,15 +880,16 @@ def dark_current_and_dark_noises(strh5):
 
     :math:`I_{dc.e^-} = t_I\cdot D_R,`
 
-    where :math:`D_R` is the average dark current: 
+    where :math:`D_R` is the average dark current (originally derived for silicon): 
 
     :math:`D_R = 2.55\cdot10^{15}P_A D_{FM} T^{1.5} \exp\left[-\frac{E_{gap}}{2\cdot k\cdot T}\right],` 
 
     where:
-    :math:`D_R` is in units of [e$^{-1}$/s],
-    :math:`P_A` is the pixel's area [:math:`cm^2`];
-    :math:`D_{FM}` is the dark current figure-of-merit in units of [nA/:math:`cm^2`] at 300K, 
-    varies significantly with sensor manufacturer, and used in this simulations as 0.5 nA/:math:`cm^2`;
+    :math:`D_R` is in units of [e\ :sup:`-1`\ /s],
+    :math:`P_A` is the pixel's area [cm\ :sup:`2`\ ];
+    :math:`D_{FM}` is the dark current figure-of-merit in units of [nA/cm\ :sup:`2`\ ] at 300K, 
+    varies significantly with detector material and  sensor manufacturer, and used in this simulations 
+    as 0.5 nA/cm\ :sup:`2` for silicon;
     :math:`E_{gap}` is the bandgap energy of the semiconductor which also varies with temperature;
     :math:`k` is Boltzman's constant that is :math:`8.617\cdot10^{-5} [eV/K].`
 
@@ -902,9 +903,16 @@ def dark_current_and_dark_noises(strh5):
     increases due to the increased thermal energy. This effect is quantified by the linear expansion 
     coefficient of a material.
 
-    For the Silicon: :math:`E_{gap}(0) = 1.1557 [eV]`, :math:`\alpha = 7.021*10^{-4}` [eV/K], and :math:`\beta = 1108` [K].
+    For the Silicon: :math:`E_{gap}(0) = 1.1557 [eV]`, :math:`\alpha = 7.021*10^{-4}` [eV/K], and
+     :math:`\beta = 1108` [K].
 
-    It appears that fill factor does not apply to dark noise (Janesick book p168 and Konnik's code does not show this).
+    It appears that fill factor does not apply to dark noise (Janesick book p168 and Konnik's code
+     does not show this).
+
+
+    According to Janesick's Photon transfer book p169 the dark current FPN standard deviation is around 
+    10% (CCD) and 40% (CMOS) of the dark current. Note that 'dark' FPN (DN) is much greater than 'light' 
+    FPN (PN) by approximately 10 to 40 times.
 
 
      Args:
