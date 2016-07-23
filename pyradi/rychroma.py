@@ -53,6 +53,18 @@ from numbers import Number
 import numpy as np
 from scipy.interpolate import  interp1d
 
+# convert from CIE RGB to XYZ coordinates
+mRGBtoXYZ = 5.6507 * np.asarray([
+    [0.49,0.31,0.20],
+    [0.17697,0.81240,0.01063],
+    [0.00,0.01,0.99]])
+
+# convert from CIE xy to CIE RGB coordinates
+mXYZtoRGB = np.asarray([
+    [0.41847, -0.15866, -0.082835],
+    [-0.091169, 0.25243, 0.015708],
+    [0.00092090, -0.0025498, 0.17860]])
+
 ##############################################################################
 ##
 def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
@@ -160,6 +172,7 @@ def CIErgbCIExy(rgb):
 
     This function converts from RGB coordinates (assumed CIE RGB) to CIE xy colour.
     The rgb array can have any number N of datasets in np.array[N,3].
+    r, g, and b and in the first, second and third columns.
 
     https://en.wikipedia.org/wiki/CIE_1931_color_space
     https://en.wikipedia.org/wiki/RGB_color_space
@@ -175,15 +188,61 @@ def CIErgbCIExy(rgb):
     """
 
     # exact values for this conversion is specified in the CIE standard
-    matr = np.asarray([[0.49,0.31,0.20],[0.17697,0.81240,0.01063],[0.00,0.01,0.99]])
-
+ 
     rgb = rgb.reshape(-1,3)
 
-    XYZ = 5.6507 * matr.dot(rgb.T)
-    x = XYZ[0,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
-    y = XYZ[1,:] / ( XYZ[0,:] + XYZ[1,:] + XYZ[2,:] )
-
+    XYZ = mRGBtoXYZ.dot(rgb.T)
+    XYZ = XYZ.T
+    x = XYZ[:,0] / ( XYZ[:,0] + XYZ[:,1] + XYZ[:,2] )
+    y = XYZ[:,1] / ( XYZ[:,0] + XYZ[:,1] + XYZ[:,2] )
     return np.hstack((x.reshape(-1,1),y.reshape(-1,1)))
+
+
+
+##############################################################################
+##
+def CIExyCIErgb(xy):
+    """ Convert from CIE RGB coordinates to CIE (x,y) coordinates
+
+    The CIE RGB colour space is one of many colour spaces, using three monochromatic 
+    primary colours at standardized wavelengths of 700 nm (red), 546.1 nm (green) 
+    and 435.8 nm (blue). Other RGB colour spaces uses different primary colours.
+
+    This function converts from CIE xy colour to RGB coordinates (assumed CIE RGB).
+    The xy array can have any number N of datasets in np.array[N,2]. 
+    x is in the first column and y in the second column
+
+    The rgb values are scaled such that the maximum value of any one
+    component is 1, calculated separately per row. In other words,
+    each rgb coordinate is normalised to 255 in one colour.
+
+    https://en.wikipedia.org/wiki/CIE_1931_color_space
+    https://en.wikipedia.org/wiki/RGB_color_space
+
+    Args:
+        | xy (np.array[N,2]): color coordinates x, y.
+
+    Returns:
+        | rgb (np.array[N,3]): CIE red/green/blue colour space component, N sets
+
+    Raises:
+        | No exception is raised.
+    """
+
+    # exact values for this conversion is specified in the CIE standard
+
+
+    xy = xy.reshape(-1,2)
+    Y = np.ones(xy[:,0].shape).reshape(-1,1)
+    X = Y * (xy[:,0] / xy[:,1]).reshape(-1,1)
+    Z = Y * (1 - (xy[:,0] + xy[:,1]).reshape(-1,1)) / xy[:,1].reshape(-1,1)
+    XYZ = np.hstack((X,Y,Z))
+
+    rgb =  (mXYZtoRGB.dot(XYZ.T)).T
+
+    rgb /= np.max(rgb,axis=1).reshape(-1,1)
+
+    return rgb
 
 
 ################################################################
@@ -201,12 +260,8 @@ if __name__ == '__main__':
     import pyradi.ryplot as ryplot
     import pyradi.ryfiles as ryfiles
 
-    xy = CIErgbCIExy(np.asarray([[220,12,160],[2550,0,0],[0,255,0],[0,0,255]]))
-    print(xy)
-
 
     doAll = False
-
 
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
@@ -218,6 +273,27 @@ if __name__ == '__main__':
     wavenum=np.linspace(13333, 27000, 350).reshape(-1, 1)
 
     if doAll:
+
+        ## -----------------------  test rgb to/from xy conversions---------------------
+
+        print('mRGBtoXYZ:')
+        print(mRGBtoXYZ)
+        print('mXYZtoRGB:')
+        print(mXYZtoRGB)
+        print('mXYZtoRGB.dot(mRGBtoXYZ):')
+        print(mXYZtoRGB.dot(mRGBtoXYZ))
+        print(' ')
+        rgb = np.asarray([[255,12,160],[255,0,0],[0,255,0],[0,0,255]])
+        xy = CIErgbCIExy(rgb)
+        print('RGB values:')
+        print(rgb)
+        print('xy values:')
+        print(xy)
+        rgbn = CIExyCIErgb(xy) * np.max(rgb)
+        print('RGB values (recomputed from xy):')
+        print(rgbn)
+
+
 
         ## ----------------------load ciebar -----------------------------------
 
