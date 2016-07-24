@@ -14,7 +14,15 @@ Module functions
 
 .. autofunction:: pyradi.rychroma.chromaticityforSpectralL
 
+.. autofunction:: pyradi.rychroma.XYZforSpectralL
+
 .. autofunction:: pyradi.rychroma.loadCIEbar
 
 .. autofunction:: pyradi.rychroma.CIErgbCIExy
+
+.. autofunction:: pyradi.rychroma.CIExyCIErgb
+
+
+
+
 

@@ -38,7 +38,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['chromaticityforSpectralL','loadCIEbar','CIErgbCIExy']
+__all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','CIErgbCIExy','CIExyCIErgb']
 
 import sys
 if sys.version_info[0] > 2:
@@ -106,6 +106,43 @@ def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
 
 ##############################################################################
 ##
+def XYZforSpectralL(spectral,radiance,xbar,ybar,zbar):
+    """ Calculate the CIE chromaticity coordinates for an arbitrary spectrum.
+
+    Given a spectral radiance vector and CIE tristimulus curves,
+    calculate the XYZ chromaticity coordinates. It is assumed that the
+    radiance spectral density is given in the same units as the spectral
+    vector (i.e. [1/um] or [1/cm-1], corresponding to [um] or [cm-1] respectively.
+    It is furthermore accepted that the tristimulus curves are also sampled at
+    the same spectral intervals as the radiance. See
+    http://en.wikipedia.org/wiki/CIE_1931_color_space
+    for more information on CIE tristimulus spectral curves.
+
+    Args:
+        | spectral (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].
+        | radiance (np.array[N,] or [N,1]): the spectral radiance (any units), (sampled at spectral).
+        | xbar (np.array[N,] or [N,1]): CIE x tristimulus spectral curve (sampled at spectral values).
+        | ybar (np.array[N,] or [N,1]): CIE y tristimulus spectral curve (sampled at spectral values).
+        | zbar (np.array[N,] or [N,1]): CIE z tristimulus spectral curve (sampled at spectral values).
+
+    Returns:
+        | [X,Y,Z]: color coordinates X,Y,Z.
+
+    Raises:
+        | No exception is raised.
+    """
+
+    X=np.trapz(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
+    Y=np.trapz(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
+    Z=np.trapz(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
+
+
+    return [X[0], Y[0], Z[0]]
+
+
+
+##############################################################################
+##
 def loadCIEbar(specvec, stype):
     """ 
 
@@ -132,8 +169,9 @@ def loadCIEbar(specvec, stype):
     #input vectors must be sorted either ascending or descending
     # this can also work: np.all(a[1:] >= a[:-1]) 
     wldescending = False
+
     if not wl.shape == ():
-        wldiff = np.diff(wl)
+        wldiff = np.diff(wl,axis=0)
         if not (np.all(wldiff<=0) or np.all(wldiff>=0)):
             print('Function loadCIEbar(): spectral vector not sorted')
             return None, None
@@ -142,6 +180,7 @@ def loadCIEbar(specvec, stype):
         # because the calling function sorts  ascending
         if np.all(wldiff<=0):
             wl = np.flipud(wl)
+            ciebar = np.flipud(ciebar)
             wldescending = True
 
     #load data file from the pyradi directories, not local dir
@@ -272,6 +311,28 @@ if __name__ == '__main__':
     wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
     wavenum=np.linspace(13333, 27000, 350).reshape(-1, 1)
 
+    if True:
+        ## ----------------------load ciebar -----------------------------------
+
+        ciebarwl = loadCIEbar(wavelength, stype='wl')
+        ciebarwn = loadCIEbar(wavenum, stype='wn')
+        cietriplt = ryplot.Plotter(1, 2, 2, figsize=(12,6))
+        cietriplt.plot(1, ciebarwl[:,0], ciebarwl[:,1:4], "CIE tristimulus values, wl input",
+                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
+        cietriplt.plot(2, 1e4/ciebarwl[:,0], ciebarwl[:,1:4], "CIE tristimulus values, wl input",
+                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
+        cietriplt.plot(3, 1e4/ciebarwn[:,0], ciebarwn[:,1:4], "CIE tristimulus values, wn input",
+                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
+        cietriplt.plot(4, ciebarwn[:,0], ciebarwn[:,1:4], "CIE tristimulus values, wn input",
+                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
+                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
+        cietriplt.saveFig('cieBAR'+figtype)
+
+
+
     if doAll:
 
         ## -----------------------  test rgb to/from xy conversions---------------------
@@ -295,24 +356,6 @@ if __name__ == '__main__':
 
 
 
-        ## ----------------------load ciebar -----------------------------------
-
-        ciebarwl = loadCIEbar(wavelength, stype='wl')
-        ciebarwn = loadCIEbar(wavenum, stype='wn')
-        cietriplt = ryplot.Plotter(1, 2, 2, figsize=(12,6))
-        cietriplt.plot(1, wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
-                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
-                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
-        cietriplt.plot(2, 1e4/wavelength, ciebarwl[:,1:4], "CIE tristimulus values, wl input",
-                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
-                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
-        cietriplt.plot(3, 1e4/wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
-                r'Wavelength $\mu$m', r'Response', plotCol = ['r','g','b'],
-                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5);
-        cietriplt.plot(4, wavenum, ciebarwn[:,1:4], "CIE tristimulus values, wn input",
-                r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
-                label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
-        cietriplt.saveFig('cieBAR'+figtype)
 
 
 
