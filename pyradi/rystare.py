@@ -875,6 +875,9 @@ def sense_node_reset_noise(strh5):
 def dark_current_and_dark_noises(strh5):
     r"""This routine for adding dark current signals and noise, including dark FPN and dark shot noise.
 
+    This model is taken from Janesick's 'Photon Transfer' book, page 168, which in turn is taken from
+    Janesick's 'Scientific Charge-Coupled Devices' book, page 622.
+
     The dark signal is calculated for all pixels in the model. It is implemented using `ones` function in 
     MATLAB as a matrix of the same size as the simulated photosensor. For each :math:`(i,j)`-th pixel we have:
 
