@@ -2437,7 +2437,7 @@ def get_summary_stats(hdffilename):
         print('Dark current figure-merit   : {} '.format(strh5['rystare/darkfiguremerit'].value))
         print('Quantum external efficiency : {} '.format(strh5['rystare/externalquantumeff'].value))
         print('Quantum yield               : {} '.format(strh5['rystare/quantumyield'].value))
-        print('Sense node gain             : {} w/e'.format(strh5['rystare/sensenode/gain'].value))
+        print('Sense node gain             : {} v/e'.format(strh5['rystare/sensenode/gain'].value))
         print('Sense reset Vref            : {} v'.format(strh5['rystare/sensenode/vrefreset'].value))
         print('Source follower gain        : {} '.format(strh5['rystare/sourcefollower/gain'].value))
         print('k1 constant                 : {} '.format(strh5['rystare/constants/k1'].value))
