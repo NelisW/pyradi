@@ -997,7 +997,7 @@ def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
         his, bin = np.histogram(arr,bins=bins)
         filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
         with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
-            p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin')
+            p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin',maxNX=5)
 
 
 ################################################################

@@ -421,9 +421,13 @@ Module functions
 
 .. autofunction:: pyradi.rystare.source_follower	
 
+.. autofunction:: pyradi.rystare.fixed_pattern_offset	
+
 .. autofunction:: pyradi.rystare.cds
 
 .. autofunction:: pyradi.rystare.adc
+
+.. autofunction:: pyradi.rystare.charge_to_voltage
 
 .. autofunction:: pyradi.rystare.sense_node_reset_noise
 
@@ -444,6 +448,22 @@ Module functions
 .. autofunction:: pyradi.rystare.responsivity_FPN_dark
 
 .. autofunction:: pyradi.rystare.FPN_models
+
+.. autofunction:: pyradi.rystare.nEcntLLightDF
+
+.. autofunction:: pyradi.rystare.nEcntLLightPhotL
+
+.. autofunction:: pyradi.rystare.nElecCntThermalScene
+
+.. autofunction:: pyradi.rystare.nEcntThermalOptics
+
+.. autofunction:: pyradi.rystare.nElecCntReflSun
+
+.. autofunction:: pyradi.rystare.darkcurrentnoise
+
+.. autofunction:: pyradi.rystare.kTCnoiseCsn
+
+.. autofunction:: pyradi.rystare.kTCnoiseGv
 
 .. autofunction:: pyradi.rystare.create_HDF5_image
 
