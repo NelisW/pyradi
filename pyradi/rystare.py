@@ -70,11 +70,11 @@ def photosensor(strh5):
     described.  Finally, the ADC converts the voltage signal into digital numbers. 
     The whole process is depicted on Figure below.
      
-    .. image:: _images/camerascheme_horiz-labelled.png
+    .. image:: _images/camerascheme-horiz.png
      :width: 812px
      :align: center
      :height: 244px
-     :alt: camerascheme_horiz-labelled.png
+     :alt: camerascheme-horiz.png
      :scale: 100 %
 
     Many noise sources contribute to the resulting noise image that is produced by
