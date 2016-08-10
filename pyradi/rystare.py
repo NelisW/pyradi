@@ -253,9 +253,6 @@ def set_photosensor_constants(strh5):
     strh5['rystare/constants/Boltzman-Constant-JK'] = const.physical_constants['Boltzmann constant'][0] #Boltzman constant, [J/K].
     strh5['rystare/constants/q'] = const.e # charge of an electron [C], coulomb
 
-    #other constants
-    strh5['rystare/constants/k1'] = 1.090900000e-14 #a constant;
-
     return strh5
 
 ######################################################################################
@@ -700,7 +697,7 @@ def charge_to_voltage(strh5):
      :align: center
      :scale: 50 %
 
-    Sense node is the final collecting point at the end of the horizontal
+    The sense node is the final collecting point at the end of the horizontal
     register of the CCD sensor. The CCD pixels are made with MOS devices used as
     reverse biased capacitors. The charge is readout by a MOSFET based charge to
     voltage amplifier. The output voltage is inversely proportional to the sense
@@ -739,15 +736,15 @@ def charge_to_voltage(strh5):
     distribution, however this is a minor effect. The V/:math:`e^-` non-linearity can
     also be thought as a sense node capacitor non-linearity: when a small signal is
     measured, :math:`C_{SN}` is fixed or changes negligible; on the other hand,
-    :math:`C_SN` changes significantly and that can affect the signal being
+    :math:`C_{SN}` changes significantly and that can affect the signal being
     measured.
 
     For the simulation purpose, the V/:math:`e^-` non-linearity can be expressed as: 
 
-    :math:`V_{SN} = V_{REF} - S(V_{SN}) = V_{REF}\exp\left[ - \frac{\alpha\cdot S[e^-]\cdot q }{k1} \right]`
+    :math:`V_{SN} = V_{REF} - S(V_{SN}) = V_{REF}\exp\left[ - \frac{\cdot S[e^-]\cdot q }{k1} \right]`
 
-    where :math:`k1=10.909*10^{-15}` and :math:`q` is the charge of an electron, and :math:`\alpha` is the coefficient of 
-    non-linearity strength.  The capacitance is given by C =  k1/V
+    where :math:`k1=10.909*10^{-15}` and :math:`q` is the charge of an electron.  
+    The nonlinear capacitance is given by C =  k1/V
 
     Args:
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
@@ -796,8 +793,8 @@ def charge_to_voltage(strh5):
         
     if strh5['rystare/sensenode/nonlinear/flag'].value:
         strh5['rystare/signal/voltage'][...] = strh5['rystare/noise/sn_reset/vrefresetpluskTC'].value * \
-                   (np.exp(- strh5['rystare/sensenode/nonlinear/alpha'].value * strh5['rystare/constants/q'].value * \
-                    strh5['rystare/signal/electronsWell'].value / strh5['rystare/constants/k1'].value))
+                   (np.exp(- strh5['rystare/constants/q'].value * \
+                    strh5['rystare/signal/electronsWell'].value / strh5['rystare/sensenode/k1'].value))
     else:
         strh5['rystare/signal/voltage'][...] = strh5['rystare/noise/sn_reset/vrefresetpluskTC'].value -\
               									strh5['rystare/signal/sensenodevoltageLinear'].value
@@ -2289,13 +2286,13 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
     #sense node charge to voltage
     strh5['rystare/sensenode/nonlinear/flag'] = False
-    strh5['rystare/sensenode/nonlinear/alpha'] = 0.05 #how many times should A_SF be increased due to non-linearity?    
     strh5['rystare/sensenode/gain'] = 5e-6 # Sense node gain, A_SN [V/e]
     strh5['rystare/sensenode/resetnoise/flag'] = True
     strh5['rystare/sensenode/resetnoise/factor'] = 0.8 # the compensation factor of the Sense Node Reset Noise: 
                                            # 1 - no compensation from CDS for Sense node reset noise.
                                            # 0 - fully compensated SN reset noise by CDS.
     strh5['rystare/sensenode/vrefreset'] = 3.1 # Reference voltage to reset the sense node. [V] typically 3-10 V.
+    strh5['rystare/sensenode/k1'] = 1.090900000e-14 # nonlinear capacitance is given by C =  k1/V
 
     #source follower
     strh5['rystare/sourcefollower/gain'] = 1. # Source follower gain, [V/V], lower means amplify the noise.
@@ -2463,7 +2460,6 @@ def get_summary_stats(hdffilename):
         print('Sense node gain             : {} v/e'.format(strh5['rystare/sensenode/gain'].value))
         print('Sense reset Vref            : {} v'.format(strh5['rystare/sensenode/vrefreset'].value))
         print('Source follower gain        : {} '.format(strh5['rystare/sourcefollower/gain'].value))
-        print('k1 constant                 : {} '.format(strh5['rystare/constants/k1'].value))
         if strh5['rystare/darkoffset/NU/flag'].value:
             print('Dark offset model           : {}'.format(strh5['rystare/darkoffset/NU/model'].value))
             print('Dark offset spread          : {} e'.format(strh5['rystare/darkoffset/NU/spread'].value))
@@ -2482,6 +2478,7 @@ def get_summary_stats(hdffilename):
         print('Sense node reset noise factr: {}  '.format(strh5['rystare/sensenode/resetnoise/factor'].value))
         print('Sense node reset kTC sigma  : {} v'.format(strh5['rystare/sensenode/ResetKTC-sigma'].value))
         print('Sense node capacitance      : {} fF'.format(1e15 * strh5['rystare/sensenode/capacitance'].value))
+        print('k1 constant, Csn =  k1/V    : {} '.format(strh5['rystare/sensenode/k1'].value))
         print('Sense node signal full well : {} V'.format(strh5['rystare/sensenode/volt-fullwell'].value))
         print('Sense node signal minimum   : {} V'.format(strh5['rystare/sensenode/volt-min'].value))
         print('Sense node reset noise      : {} '.format(strh5['rystare/sensenode/resetnoise/flag'].value))
