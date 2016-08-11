@@ -400,15 +400,22 @@ def source_follower(strh5):
 
     # calculating Source Follower VV non-linearity
     if strh5['rystare/sourcefollower/nonlinearity/flag'].value:
-        nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
-              (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
 
-    	# diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
-        strh5['rystare/sourcefollower/gainA'][...] = sones * nonlinearity_alpha * \
-                ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
-                (strh5['rystare/sensenode/vrefreset'].value)) + \
-                (strh5['rystare/sourcefollower/gain'].value)
+     #    nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
+     #          (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
+    	# # diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
+     #    strh5['rystare/sourcefollower/gainA'][...] = sones * nonlinearity_alpha * \
+     #            ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
+     #            (strh5['rystare/sensenode/vrefreset'].value)) + \
+     #            (strh5['rystare/sourcefollower/gain'].value)
                        
+    	# diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
+        nonlinearity_alpha = sones * (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1.) 
+        strh5['rystare/sourcefollower/gainA'][...] =  strh5['rystare/sourcefollower/gain'].value * \
+        	(sones - nonlinearity_alpha * \
+                (strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
+                   (strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/sensenode/volt-fullwell'].value) )
+
 
     # #Source Follower signal
     #     strh5['rystare/signal/voltage'][...] = (strh5['rystare/signal/voltage'].value) * strh5['rystare/sourcefollower/gainA'].value
@@ -768,9 +775,6 @@ def charge_to_voltage(strh5):
     # Sense node capacitance, parameter, [F] Farad
     strh5['rystare/sensenode/capacitance'][...] = strh5['rystare/constants/q'].value / strh5['rystare/sensenode/gain'].value
 
-    #voltage on the Full Well
-    strh5['rystare/sensenode/volt-fullwell'][...] = strh5['rystare/sensenode/gain'].value * strh5['rystare/fullwellelectrons'].value
-    strh5['rystare/sensenode/volt-min'][...] =      strh5['rystare/sensenode/gain'].value * 1.0
 
     #no Sense Node Reset Noise, ony vref for CCD, later overwritten for CMOS
     # this is the zero level voltage, typically 3 V
@@ -790,6 +794,14 @@ def charge_to_voltage(strh5):
             # diagram node 15b reset voltage with kTC noise stored in 'rystare/noise/sn_reset/vrefresetpluskTC'
             strh5['rystare/noise/sn_reset/vrefresetpluskTC'][...] = strh5['rystare/sensenode/vrefreset'].value + \
                     strh5['rystare/sensenode/resetnoise/factor'].value * strh5['rystare/noise/sn_reset/resetnoise'].value
+        #voltage on the Full Well
+        strh5['rystare/sensenode/volt-fullwell'][...] = strh5['rystare/sensenode/gain'].value * strh5['rystare/fullwellelectrons'].value
+        strh5['rystare/sensenode/volt-min'][...] =      strh5['rystare/sensenode/gain'].value * 1.0
+
+    else: # CCD
+        #voltage on the Full Well
+        strh5['rystare/sensenode/volt-fullwell'][...] = strh5['rystare/sensenode/gain'].value * strh5['rystare/fullwellelectrons'].value
+        strh5['rystare/sensenode/volt-min'][...] =      strh5['rystare/sensenode/gain'].value * 1.0
         
     if strh5['rystare/sensenode/nonlinear/flag'].value:
         strh5['rystare/signal/voltage'][...] = strh5['rystare/noise/sn_reset/vrefresetpluskTC'].value * \
@@ -2240,7 +2252,6 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/integrationtime'] = 0.01 # Exposure/Integration time, [sec].
     strh5['rystare/externalquantumeff'] = 0.8  # external quantum efficiency, fraction not reflected.
     strh5['rystare/quantumyield'] = 1. # number of electrons absorbed per one photon into material bulk
-    strh5['rystare/fullwellelectrons'] = 2e4 # full well of the pixel (how many electrons can be stored in one pixel), [e]
 
     # Light Noise parameters
     strh5['rystare/flag/photonshotnoise'] = True #photon shot noise.
@@ -2292,6 +2303,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
                                            # 1 - no compensation from CDS for Sense node reset noise.
                                            # 0 - fully compensated SN reset noise by CDS.
     strh5['rystare/sensenode/vrefreset'] = 3.1 # Reference voltage to reset the sense node. [V] typically 3-10 V.
+    strh5['rystare/sensenode/vsnmin'] = 0.5 # Minimum voltage on sense node, max well charge [V] typically < 1 V.
     strh5['rystare/sensenode/k1'] = 1.090900000e-14 # nonlinear capacitance is given by C =  k1/V
 
     #source follower
@@ -2336,6 +2348,15 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/flag/plots/doPlots'] = False
     strh5['rystare/flag/plots/plotLogs'] = False
 
+    if strh5['rystare/sensortype'].value in ['CMOS']: 
+        #if CMOS calculate full well capacitance from nonlinear capacitance eq
+        strh5['rystare/fullwellelectrons'] = -(strh5['rystare/sensenode/k1'].value/const.e) * \
+            np.log(strh5['rystare/sensenode/vsnmin'].value/strh5['rystare/sensenode/vrefreset'].value)
+    else:
+        #if CCD ignore nonlinear capacitance
+        strh5['rystare/fullwellelectrons'] = 2e4 # full well of the pixel (how many electrons can be stored in one pixel), [e]
+
+
     #For testing and measurements only:
     strh5['rystare/flag/darkframe'] = False # True if no signal, only dark
 
@@ -2378,8 +2399,8 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalElectrons',np.mean(strh5['rystare/signal/electrons'].value), np.var(strh5['rystare/signal/electrons'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeSF',np.mean(strh5['rystare/signal/voltagebeforeSF'].value), np.var(strh5['rystare/signal/voltagebeforeSF'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforecds',np.mean(strh5['rystare/signal/voltagebeforecds'].value), np.var(strh5['rystare/signal/voltagebeforecds'].value)))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeadc',np.mean(strh5['rystare/signal/voltagebeforeadc'].value), np.var(strh5['rystare/signal/voltage'].value)))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltagebeforeadc'].value)))
+        # fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeadc',np.mean(strh5['rystare/signal/voltagebeforeadc'].value), np.var(strh5['rystare/signal/voltage'].value)))
+        # fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltagebeforeadc'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/signal/DN'].value), np.var(strh5['rystare/signal/DN'].value)))
 
     if doPlots:
