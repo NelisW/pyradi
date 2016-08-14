@@ -514,7 +514,8 @@ def cds(strh5):
     
                      
     # diagram node 23 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltageaftercds'
-    strh5['rystare/signal/voltageaftercds'][...] = strh5['rystare/signal/voltagebeforecds'].value * strh5['rystare/CDS/gain']
+    strh5['rystare/signal/voltageaftercds'][...] = \
+         strh5['rystare/signal/voltagebeforecds'].value * strh5['rystare/CDS/gain']
 
 
     return strh5
