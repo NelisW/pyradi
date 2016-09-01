@@ -47,7 +47,8 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'cart2polar', 'polar2cart','index_coords','framesFirst','framesLast',
          'rect', 'circ','poissonarray','draw_siemens_star','drawCheckerboard',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
-         'Atmo','Sensor','Target','calcMTFwavefrontError'
+         'Atmo','Sensor','Target','calcMTFwavefrontError',
+         'polar2cartesian','warpPolarImageToCartesianImage'
          ]
 
 import sys
@@ -1611,6 +1612,83 @@ def calcMTFwavefrontError(sample, wfdisplmnt, xg, yg, specdef,
 
 
 
+##############################################################################################
+# to map an cartesian (r,theta) image to cartesian (x,y)
+def polar2cartesian(xycoords, inputshape, origin):
+    """Converting polar (r,theta) array indices to Cartesian (x,y) array indices. 
+
+    This function is called from scipy.ndimage.geometric_transform which calls this function 
+    as follows:
+    polar2cartesian: A callable object that accepts a tuple of length equal to the output 
+    array rank, and returns the corresponding input coordinates as a tuple of length equal 
+    to the input array rank.
+    
+    theta goes from 0 to 2pi.  the x,y coords maps from -r to +r.
+
+    For an example application, see the function warpPolarImageToCartesianImage below
+    
+    http://stackoverflow.com/questions/2164570/reprojecting-polar-to-cartesian-grid 
+    note that we changed the code from the original  
+
+    Args:
+        | xycoords (tuple): x,y values for which r,theta coords must be found
+        | inputshape (tuple):  shape of the polar input array
+        | origin (tuple):  x and y indices of where the origin should be in the output array
+
+    Returns:
+         | r,theta_index (tuple) : indices into the the r,theta array corresponding to xycoords
+
+    Raises:
+        | No exception is raised.
+    
+    """
+
+    xindex, yindex = xycoords
+    x0, y0 = origin
+    x = xindex - x0
+    y = yindex - y0
+
+    r = np.sqrt(x**2 + y**2)
+    theta = np.arctan2(y, x)
+    theta_index = np.round((theta + np.pi) * (inputshape[1]-1.) / (2 * np.pi))
+
+    return (r,theta_index)
+
+##############################################################################################
+def warpPolarImageToCartesianImage(mesh):
+    """Convert an image in (r,theta) format to (x,y) format
+    
+    The 0th and 1st axes correspond to r and theta, respectively.
+    theta goes from 0 to 2pi, and r's units are just its indices.
+    output image is twice the size of r length in both x and y
+    
+    http://stackoverflow.com/questions/2164570/reprojecting-polar-to-cartesian-grid  
+    
+    Example code:
+    size = 100
+    dset = np.random.random((size,size))
+    mesh_cart = warpPolarImageToCartesianImage(dset)
+    p = ryplot.Plotter(1,1,2);
+    p.showImage(1, dset);
+    p.showImage(2, mesh_cart);
+
+    Args:
+         | mesh (np.array) : array in r,theta coordinates
+
+    Returns:
+         | mesh_cart (np.array) : array in x,y coordinates
+
+    Raises:
+        | No exception is raised.
+    """
+    import scipy as sp
+    from scipy import ndimage
+
+    output_shape=(mesh.shape[0] * 2, mesh.shape[0] * 2)
+    mesh_cart = sp.ndimage.geometric_transform(mesh, polar2cartesian,
+                order=0,output_shape=output_shape, 
+            extra_keywords={'inputshape':mesh.shape,'origin':(mesh.shape[0], mesh.shape[0])})
+    return mesh_cart
 
 ##############################################################################################
 ##############################################################################################
@@ -2364,9 +2442,18 @@ if __name__ == '__main__':
 
 
 
-
-
     doAll = False
+
+    if doAll:
+        # test warpPolarImageToCartesianImage
+        size = 100
+        dset = np.random.random((size,size))
+        mesh_cart = warpPolarImageToCartesianImage(dset)
+        p = ryplot.Plotter(1,1,2);
+        p.showImage(1, dset);
+        p.showImage(2, mesh_cart);
+        p.saveFig('warpPolarImageToCartesianImage.png')
+
 
     if doAll:
 
