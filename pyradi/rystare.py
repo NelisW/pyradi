@@ -57,6 +57,7 @@ import scipy as sp
 import scipy.signal as signal
 import scipy.stats as stats
 import scipy.constants as const
+from scipy import interpolate
 import re
 
 import pyradi.ryfiles as ryfiles
@@ -252,8 +253,9 @@ def set_photosensor_constants(strh5):
     strh5['rystare/material/beta'] = 1108. #Si material parameter, [K].
 
     # band gap energy, [eV], Varshni equation
-    strh5['rystare/material/Eg-eV'][...] = strh5['rystare/material/Eg-eV-0'].value - (strh5['rystare/material/alpha'].value * \
-        (strh5['rystare/operatingtemperature'].value ** 2)) / (strh5['rystare/material/beta'].value + strh5['rystare/operatingtemperature'].value)
+    strh5['rystare/material/Eg-eV'][...] = strh5['rystare/material/Eg-eV-0'].value - \
+        (strh5['rystare/material/alpha'].value * (strh5['rystare/photondetector/operatingtemperature'].value ** 2)) /\
+         (strh5['rystare/material/beta'].value + strh5['rystare/photondetector/operatingtemperature'].value)
 
     #Fundamental constants
     strh5['rystare/constants/Boltzman-Constant-eV'] = const.physical_constants['Boltzmann constant in eV/K'][0] #Boltzman constant, [eV/K].
@@ -293,6 +295,7 @@ def check_create_datasets(strh5):
     strh5['rystare/signal/electrons'] = np.zeros(sensor_size)
     strh5['rystare/signal/electronsWell'] = np.zeros(sensor_size)
     strh5['rystare/signal/darkcurrentelectrons'] = np.zeros(sensor_size)
+    strh5['rystare/signal/darkcurrentelectronsnoDFPN'] = np.zeros(sensor_size)
     # strh5['rystare/signal/light'] = np.zeros(sensor_size)
     strh5['rystare/signal/lightelectrons'] = np.zeros(sensor_size)
     strh5['rystare/signal/sensenodevoltageLinear'] = np.zeros(sensor_size)
@@ -893,7 +896,8 @@ def sense_node_reset_noise(strh5):
     #in [V], see Janesick, Photon Transfer, page 166.
     strh5['rystare/sensenode/ResetKTC-sigma'][...] = \
         np.sqrt((strh5['rystare/constants/Boltzman-Constant-JK'].value) * \
-            (strh5['rystare/operatingtemperature'].value) / (strh5['rystare/sensenode/capacitance'].value))
+            (strh5['rystare/photondetector/operatingtemperature'].value) / \
+            (strh5['rystare/sensenode/capacitance'].value))
 
     # #randomising the state of the noise generators
     #If seed is omitted or None, current system time is used
@@ -962,7 +966,7 @@ def dark_current_and_dark_noises(strh5):
         | strh5 (hdf5 file): hdf5 file that defines all simulation parameters
  
     Returns:
-        | in strh5: (hdf5 file) updated data fields, current in nA
+        | in strh5: (hdf5 file) updated data fields, dark current in electrons
 
     Raises:
         | No exception is raised.
@@ -974,24 +978,31 @@ def dark_current_and_dark_noises(strh5):
 
     #Dark current generation, caused over full detector pitch area, not active area only
     # translating the size to square centimeters, as in Janesick book.
-    detareacm2 = strh5['rystare/pixelPitch'].value[0] * strh5['rystare/pixelPitch'].value[0] * 1e4
+    detarea = strh5['rystare/pixelPitch'].value[0] * strh5['rystare/pixelPitch'].value[0] 
     
 
     #average quantity of dark current that is thermally generated [e]  !!! This is Janesick equations 11.15 and 11.16  
     # diagram node 8 dc average dark current stored in 'rystare/darkcurrentelectronsnonoise' in nA
+    # parameters must be adjusted for the detector material as applicable
     strh5['rystare/darkcurrentelectronsnonoise'][...] = \
-                strh5['rystare/integrationtime'].value * 2.55e15 * \
-                detareacm2 * strh5['rystare/darkfiguremerit'].value * (strh5['rystare/operatingtemperature'].value ** 1.5) * \
-                np.exp(- strh5['rystare/material/Eg-eV'].value / (2 * strh5['rystare/constants/Boltzman-Constant-eV'].value * \
-                strh5['rystare/operatingtemperature'].value))
+                strh5['rystare/photondetector/integrationtime'].value * (strh5['rystare/darkcurrent/ca'].value / const.e) * \
+                detarea * strh5['rystare/darkcurrent/densityAm2'].value * \
+                (strh5['rystare/photondetector/operatingtemperature'].value ** 1.5) * \
+                np.exp(- strh5['rystare/material/Eg-eV'].value / \
+                    (strh5['rystare/darkcurrent/ed'].value * \
+                        strh5['rystare/constants/Boltzman-Constant-eV'].value * \
+                strh5['rystare/photondetector/operatingtemperature'].value))
 
     #creating an image with the dark current value
-    strh5['rystare/signal/darkcurrentelectrons'][...] = strh5['rystare/darkcurrentelectronsnonoise'].value * np.ones(strh5['rystare/signal/electrons'].value.shape)
+    strh5['rystare/signal/darkcurrentelectrons'][...] = strh5['rystare/darkcurrentelectronsnonoise'].value * \
+                                np.ones(strh5['rystare/signal/electrons'].value.shape)
 
     # add shot noise, based on average value
     # diagram node 9 dc dark current with noise image stored in 'rystare/darkcurrentelectrons' in nA
     if strh5['rystare/flag/DarkCurrent-DShot'].value:
         strh5['rystare/signal/darkcurrentelectrons'][...] = shotnoise(strh5['rystare/signal/darkcurrentelectrons'].value)
+    
+    strh5['rystare/signal/darkcurrentelectronsnoDFPN'][...] = strh5['rystare/signal/darkcurrentelectrons'].value
 
     # multiply with dark current FPN 
     if strh5['rystare/darkresponse/NU/flag'].value:
@@ -1209,7 +1220,7 @@ def multiply_integration_time(strh5):
     """
 
     #the number of electrons accumulated during the integration time  (rounded).
-    strh5['rystare/signal/lightelectrons'][...] = np.round(strh5['rystare/signal/electronRate'].value * strh5['rystare/integrationtime'].value)
+    strh5['rystare/signal/lightelectrons'][...] = np.round(strh5['rystare/signal/electronRate'].value * strh5['rystare/photondetector/integrationtime'].value)
 
     return strh5
 
@@ -1926,7 +1937,7 @@ def kTCnoiseGv(temptr, gv):
 
 ######################################################################################
 def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, fracblurr=0, 
-                   irrad_scale=1, irrad_min=0, wavelength=0.55e-6, steps=10):
+                   irrad_scale=1, irrad_min=0, wavelength=0.55e-6, steps=10,fintp=None):
     r"""This routine performs makes a simple illuminated circle with blurred boundaries.
 
     Then the  sensor's radiant irradiance in units [W/m2] are converted to  
@@ -1964,6 +1975,7 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         | irrad_min (float): additive minimum value in the image
         | wavelength (float): wavelength where photon rate calcs are done in [m]
         | steps (int): number of steps in the stairs image
+        | fintp (): interpolation function to map irradiance to lux/temperature
 
     Returns:
         | nothing: as a side effect an image file is written
@@ -2038,7 +2050,7 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
         dset[...] = shotnoise(Ein) 
         
-    elif imtype in ['stairslin','stairslog']:
+    elif imtype in ['stairslin','stairslog','stairslinIRQ','stairslogIRQ']:
         #this section creates a stair-case signal increasing from irrad_min to irrad_scale+irrad_min
         imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
         imghd5['image/imageFilename'] = hdffilename
@@ -2048,66 +2060,28 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
 
         size = imghd5['image/imageSizePixels'].value[1]
 
-        if imtype in ['stairslin']:
+        if imtype in ['stairslin','stairslinIRQ']:
             varx = np.linspace(0,size-1,size)
         else:
             varx = np.logspace(-1,np.log10(size-1),size)
         varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
         varx = varx / np.max(varx) 
 
-        vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
+        vary = np.linspace( - imghd5['image/imageSizeRows'].value/2, 
+                                imghd5['image/imageSizeRows'].value/2,
+                                imghd5['image/imageSizePixels'].value[0])
 
         x, y = np.meshgrid(varx,vary)
 
         Ein = x * np.ones(x.shape) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value 
         Ein *= np.where(y<-imghd5['image/imageSizeRows'].value/3.,0, 1)
         Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
+        Ein = np.where(Ein==0,imghd5['image/irrad_min'].value,Ein)
 
         #photon rate irradiance lux, with no  noise
         dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
-        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
-
-        #Power in a single photon, in [Joule = Watt*s]
-        P_photon = const.h * const.c / wavelength
-
-        #convert to photon rate irradiance
-        Ein = Ein / P_photon
-        
-        #photon rate irradiance in the image ph/(m2.s), with no photon noise
-        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
-        dset[...] = Ein
-        #photon rate irradiance in the image ph/(m2.s), adding photon noise
-        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
-        dset[...] = shotnoise(Ein) 
-
-    elif imtype in ['stairslinIRQ','stairslogIRQ']:
-        #this section creates a stair-case signal increasing from irrad_min to irrad_scale+irrad_min
-        imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
-        imghd5['image/imageFilename'] = hdffilename
-        imghd5['image/irrad_scale'] = irrad_scale 
-        imghd5['image/irrad_min'] = irrad_min 
-        imghd5['image/steps'] = steps 
-
-        size = imghd5['image/imageSizePixels'].value[1]
-
-        if imtype in ['stairslin']:
-            varx = np.linspace(0,size-1,size)
-        else:
-            varx = np.logspace(-1,np.log10(size-1),size)
-        varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
-        varx = varx / np.max(varx) 
-
-        vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
-
-        x, y = np.meshgrid(varx,vary)
-
-        Ein = x * np.ones(x.shape) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value 
-        Ein *= np.where(y<-imghd5['image/imageSizeRows'].value/3.,0, 1)
-        Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
-
-        #photon rate irradiance lux, with no  noise
-        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
-        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
+        #dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
+        dset[...] = fintp(Ein)
 
         #Power in a single photon, in [Joule = Watt*s]
         P_photon = const.h * const.c / wavelength
@@ -2257,7 +2231,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     else:
         strh5['rystare/fillfactor'] = 1.0 # Pixel Fill Factor for full-frame CCD photo sensors.
 
-    strh5['rystare/integrationtime'] = 0.01 # Exposure/Integration time, [sec].
+    strh5['rystare/photondetector/integrationtime'] = 0.01 # Exposure/Integration time, [sec].
     strh5['rystare/externalquantumeff'] = 0.8  # external quantum efficiency, fraction not reflected.
     strh5['rystare/quantumyield'] = 1. # number of electrons absorbed per one photon into material bulk
 
@@ -2272,8 +2246,10 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
     # Dark Current Noise parameters
     strh5['rystare/flag/darkcurrent'] = True
-    strh5['rystare/operatingtemperature'] = 300. # operating temperature, [K]
-    strh5['rystare/darkfiguremerit'] = 1. # dark current figure of merit, [nA/cm2].  For very poor sensors, add DFM
+    strh5['rystare/photondetector/operatingtemperature'] = 300. # operating temperature, [K]
+    strh5['rystare/darkcurrent/ca'] = 4.31e5 # for density in m2
+    strh5['rystare/darkcurrent/ed'] = 2. 
+    strh5['rystare/darkcurrent/densityAm2'] = 1. # dark current figure of merit, [nA/cm2].  For very poor sensors, add DFM
     #  Increasing the DFM more than 10 results to (with the same exposure time of 10^-6):
     #  Hence the DFM increases the standard deviation and does not affect the mean value.
 
@@ -2467,9 +2443,9 @@ def get_summary_stats(hdffilename):
         print('Image size pixels           : {} '.format(strh5['rystare/imageSizePixels'].value))
         print('Fill factor                 : {}'.format(strh5['rystare/fillfactor'].value))
         print('Full well electrons         : {} e'.format(strh5['rystare/fullwellelectrons'].value))
-        print('Integration time            : {} s'.format(strh5['rystare/integrationtime'].value))
+        print('Integration time            : {} s'.format(strh5['rystare/photondetector/integrationtime'].value))
         print('Wavelength                  : {} m'.format(strh5['rystare/wavelength'].value))
-        print('Operating temperature       : {} K'.format(strh5['rystare/operatingtemperature'].value))
+        print('Operating temperature       : {} K'.format(strh5['rystare/photondetector/operatingtemperature'].value))
         print('Max image irradiance         : {} lux'.format(np.max(strh5['rystare/irradianceLux'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateIrradianceNoNoise',np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'].value), np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonRateIrradiance',np.mean(strh5['rystare/signal/photonRateIrradiance'].value), np.var(strh5['rystare/signal/photonRateIrradiance'].value)))
@@ -2483,7 +2459,10 @@ def get_summary_stats(hdffilename):
         print('{:28}: DN mean={:.5e}, var={:.5e}'.format('SignalDN',np.mean(strh5['rystare/signal/DN'].value), np.var(strh5['rystare/signal/DN'].value)))
         print('{:28}: DN mean={:.5e}, var={:.5e}'.format('ADC gain',np.mean(strh5['rystare/ADC/gain'].value), np.var(strh5['rystare/ADC/gain'].value)))
         print('ADC                         : DN/v bits={} offset={} DN'.format(strh5['rystare/ADC/num-bits'].value,strh5['rystare/ADC/offset'].value ))
-        print('Dark current figure-merit   : {} '.format(strh5['rystare/darkfiguremerit'].value))
+        print('Dark current density        : {}  A/m2'.format(strh5['rystare/darkcurrent/densityAm2'].value))
+        print('Dark current coeff ca       : {}  (A)'.format(strh5['rystare/darkcurrent/ca'].value))
+        print('Dark current coeff ed       : {}  (A)'.format(strh5['rystare/darkcurrent/ed'].value))
+
         print('Quantum external efficiency : {} '.format(strh5['rystare/externalquantumeff'].value))
         print('Quantum yield               : {} '.format(strh5['rystare/quantumyield'].value))
         print('Sense node gain             : {} v/e'.format(strh5['rystare/sensenode/gain'].value))
@@ -2551,6 +2530,10 @@ if __name__ == '__main__':
 
     doAll = True
 
+
+
+
+
     #----------  create test images ---------------------
     if doAll:
         pass
@@ -2565,13 +2548,40 @@ if __name__ == '__main__':
         create_HDF5_image(imageName='Disk', imtype='disk', pixelPitch=pixelPitch,
                 numPixels=numPixels, fracdiameter=0.7, fracblurr=0.2, irrad_scale=0.1)
 
+        wavelength=0.55e-6
+        irrad_min = 74.08e-6
+        irrad_scale = 37.04e-3
+        irrad = np.linspace(irrad_min, irrad_min+irrad_scale, 100)
+        lux = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * irrad
+        fintp = interpolate.interp1d(irrad.reshape(-1), lux.reshape(-1))
+
         #create an image with linear stairs
         create_HDF5_image(imageName='Stairslin-10', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
-                numPixels=[250, 250], irrad_scale=37.04e-3, irrad_min=74.08e-6)
+               numPixels=[250, 250], irrad_scale=irrad_scale, irrad_min=irrad_min,wavelength=wavelength,
+                fintp=fintp)
 
-        #create an image with log stairs
+        #create an image with lin stairs
         create_HDF5_image(imageName='Stairslin-40', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
-                numPixels=[100,520], irrad_scale=37.04e-3, irrad_min=74.08e-6, steps=40)
+                numPixels=[100,520], irrad_scale=irrad_scale, irrad_min=irrad_min, wavelength=wavelength,
+                steps=40,fintp=fintp)
+
+        #create an infrared image with lin stairs
+        tmin = 293 # 20 deg C at minimum level
+        tmax = 313 # 4- deg C at maximum level
+        # do all calcs at this wavelength, normally this would be a wideband spectral integral
+        wavelength = 4.0e-6
+        fno = 3.2
+        omega = np.pi / ((2. * fno)**2.)
+        irrad_min = omega * ryplanck.planck(wavelength*1e6, tmin, type='el') / np.pi
+        irrad_max = omega * ryplanck.planck(wavelength*1e6, tmax, type='el') / np.pi
+        irrad_scale = irrad_max - irrad_min
+        tser = np.linspace(tmin, tmax, 100).reshape(-1)
+        irrad = ryplanck.planck(wavelength*1e6, tser, type='el').reshape(-1) * (omega / np.pi)
+        fintp = interpolate.interp1d(irrad, tser)
+
+        create_HDF5_image(imageName='StairslinIR-40', imtype='stairslin', pixelPitch=[12e-6, 12e-6],
+                numPixels=[100,520], irrad_scale=irrad_scale, irrad_min=irrad_min, steps=40,
+                wavelength=wavelength,fintp=fintp)
 
 
     #----------  test the limitzero function ---------------------
