@@ -112,7 +112,7 @@ def photosensor(strh5):
 
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
-
+ 
     if not strh5['rystare/sensortype'].value in ['CCD', 'CMOS']:
         print('Sensor Simulator::: please select the sensor: CMOS or CCD!')
         exit(-1)
@@ -123,18 +123,23 @@ def photosensor(strh5):
     #create the various data arrays
     strh5 = check_create_datasets(strh5)
 
-    # diagram node 1 signal stored in rystare/signal/photonRateIrradianceNoNoise
-
-    # add photon noise and calculate electron counts
-    # diagram node 2 signal stored in 'rystare/signal/photonRateIrradiance'
-    # the image file is created with the noise present
 
 
-    if strh5['rystare/flag/darkframe'].value:  
-        # if this is  complete darkness, photon signal already set to zero
-        pass
+    if strh5['rystare/darkframe'].value:  
+        # complete darkness, photon signal already set to zero
+        strh5['rystare/signal/photonRateIrradianceNoNoise'] = np.zeros(imghd5['image/PhotonRateIrradianceNoNoise'].value.shape)
+        strh5['rystare/signal/photonRateIrradiance'] = np.zeros(imghd5['image/PhotonRateIrradiance'].value.shape)
     else:  
         # there is light on the sensor
+        # values already loaded by the time we get here
+        # diagram node 1 signal stored in rystare/signal/photonRateIrradianceNoNoise
+
+        # add photon noise and calculate electron counts
+        # diagram node 2 signal stored in 'rystare/signal/photonRateIrradiance'
+
+        #if shot noise not required, overwrite the noisy image with the no noise image
+        if not strh5['rystare/photonshotnoise/activate']:
+            strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/photonRateIrradianceNoNoise'].value
 
         # adjust 'rystare/signal/photonRateIrradiance' with responsivity non-uniformity (PRNU)
         # diagram node 3 PRNU stored in 'rystare/signal/photonRateIrradianceNU
@@ -159,7 +164,6 @@ def photosensor(strh5):
 
 
     # no dark current or dark current effects added yet
-
     # add dark current noise
     # diagram node 8 dc average dark current stored in 'rystare/darkcurrentelectronsnonoise' in nA
     # diagram node 9 dc dark current with noise image stored in 'rystare/darkcurrentelectrons' in nA
@@ -201,7 +205,7 @@ def photosensor(strh5):
 
     # calculate the source follower noise in volts.  
     # diagram node 19 source follower noise volts stored in 'rystare/sourcefollower/source_follower_noise'
-    if strh5['rystare/sourcefollower/noise/flag'].value:
+    if strh5['rystare/sourcefollower/noise/activate'].value:
         strh5 = source_follower_noise(strh5) 
 
 
@@ -211,11 +215,11 @@ def photosensor(strh5):
          strh5['rystare/sourcefollower/source_follower_noise']
 
 
-    # diagram node 21 fixed pattern offset in volts stored in 'rystare/darkoffset/NU/value'
+    # diagram node 21 fixed pattern offset in volts stored in 'rystare/sourcefollower/fpoffset/value'
     strh5 = fixed_pattern_offset(strh5)
 
     # diagram node 22 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltagebeforecds'
-    strh5['rystare/signal/voltagebeforecds'] = strh5['rystare/signal/voltage'].value + strh5['rystare/darkoffset/NU/value'].value
+    strh5['rystare/signal/voltagebeforecds'] = strh5['rystare/signal/voltage'].value + strh5['rystare/sourcefollower/fpoffset/value'].value
 
     # signal's amplification and de-noising by Correlated Double Sampling
     # diagram node 23 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltageaftercds'
@@ -313,7 +317,7 @@ def check_create_datasets(strh5):
     strh5['rystare/noise/sn_reset/vrefreset'] = np.zeros(sensor_size) 
     strh5['rystare/noise/sn_reset/vrefresetpluskTC'] = np.zeros(sensor_size) 
     strh5['rystare/sourcefollower/source_follower_noise'] = np.zeros(sensor_size)
-    strh5['rystare/darkoffset/NU/value'] = np.ones(sensor_size) 
+    strh5['rystare/sourcefollower/fpoffset/value'] = np.ones(sensor_size) 
     strh5['rystare/signal/voltagebeforeSF'] = np.zeros(sensor_size)
 
     strh5['rystare/ADC/gain'] = np.ones(sensor_size)
@@ -409,7 +413,7 @@ def source_follower(strh5):
     strh5['rystare/sourcefollower/gainA'] = strh5['rystare/sourcefollower/gain'].value * sones
 
     # calculating Source Follower VV non-linearity
-    if strh5['rystare/sourcefollower/nonlinearity/flag'].value:
+    if strh5['rystare/sourcefollower/nonlinearity/activate'].value:
 
      #    nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
      #          (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
@@ -455,21 +459,21 @@ def fixed_pattern_offset(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-    strh5['rystare/darkoffset/NU/value'][...] = np.zeros(tuple(strh5['rystare/imageSizePixels'].value))
+    strh5['rystare/sourcefollower/fpoffset/value'][...] = np.zeros(tuple(strh5['rystare/imageSizePixels'].value))
     if strh5['rystare/sensortype'].value in 'CMOS':  
         #If the sensor is CMOS and the darkoffset/NU is on 
-        if strh5['rystare/darkoffset/NU/flag'].value: 
+        if strh5['rystare/sourcefollower/fpoffset/activate'].value: 
 
             # add dark fixed pattern offset
             sigma = strh5['rystare/sensenode/volt-fullwell'].value * \
-                    strh5['rystare/darkoffset/NU/spread'].value
+                    strh5['rystare/sourcefollower/fpoffset/sigma'].value
 
             noisematrix = FPN_models(strh5['rystare/imageSizePixels'].value[0],
                 strh5['rystare/imageSizePixels'].value[1], 'column', 
-                strh5['rystare/darkoffset/NU/model'].value, sigma)
+                strh5['rystare/sourcefollower/fpoffset/model'].value, sigma)
 
-            strh5['rystare/darkoffset/NU/value'][...] = noisematrix
-    # diagram node 21 fixed pattern offset in volts stored in 'rystare/darkoffset/NU/value'
+            strh5['rystare/sourcefollower/fpoffset/value'][...] = noisematrix
+    # diagram node 21 fixed pattern offset in volts stored in 'rystare/sourcefollower/fpoffset/value'
 
     return strh5
 
@@ -518,7 +522,7 @@ def cds(strh5):
                      
     # diagram node 23 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltageaftercds'
     strh5['rystare/signal/voltageaftercds'][...] = \
-         strh5['rystare/signal/voltagebeforecds'].value * strh5['rystare/CDS/gain']
+         strh5['rystare/signal/voltagebeforecds'].value * strh5['rystare/sourcefollower/CDS/gain']
 
 
     return strh5
@@ -670,7 +674,7 @@ def adc(strh5):
     # Removing the reference Voltage  
     signal = strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltageaftercds'].value   
 
-    if strh5['rystare/ADC/nonlinearity/flag'].value:   
+    if strh5['rystare/ADC/nonlinearity/activate'].value:   
         # account for non-linearity
         numerator = strh5['rystare/ADC/nonlinearity/ratio'].value * adc_gain
         nonlinearity_alpha = (np.log(numerator) / np.log(adc_gain) - 1) \
@@ -1112,7 +1116,7 @@ def source_follower_noise(strh5):
     """
 
     # this is the CDS dominant time constant usually set as :math:`\tau_D = 0.5t_s` [sec].
-    tau_D = 0.5 * (strh5['rystare/CDS/sampletosamplingtime'].value)
+    tau_D = 0.5 * (strh5['rystare/sourcefollower/CDS/sampletosamplingtime'].value)
     tau_RTN = 0.1 * tau_D
 
     #frequency, with delta_f as a spacing.
@@ -1121,19 +1125,19 @@ def source_follower_noise(strh5):
     strh5['rystare/sourcefollower/noise/spectralfreq'] = f
 
     #CDS transfer function
-    H_CDS = (2. - 2. * np.cos(2. * np.pi * strh5['rystare/CDS/sampletosamplingtime'].value * f)) / (1. + (2. * np.pi * tau_D * f) ** 2) 
+    H_CDS = (2. - 2. * np.cos(2. * np.pi * strh5['rystare/sourcefollower/CDS/sampletosamplingtime'].value * f)) / (1. + (2. * np.pi * tau_D * f) ** 2) 
     strh5['rystare/sourcefollower/noise/cdsgain'] = H_CDS
 
     # RTN noise only in CMOS photosensors
     S_RTN = np.zeros(f.shape)
     if strh5['rystare/sensortype'].value in ['CMOS']:  
-        S_RTN = (2. * ((strh5['rystare/sourcefollower/deltaindmodulation'].value) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
+        S_RTN = (2. * ((strh5['rystare/sourcefollower/noise/deltaindmodulation'].value) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
     strh5['rystare/sourcefollower/noise/spectrumRTN'] = S_RTN
 
 
 
     # white and 1/f noise
-    W_SF = (strh5['rystare/sourcefollower/whitenoisedensity'].value ** 2) * (1. + strh5['rystare/sourcefollower/flickerCornerHz'].value / f) 
+    W_SF = (strh5['rystare/sourcefollower/noise/whitenoisedensity'].value ** 2) * (1. + strh5['rystare/sourcefollower/noise/flickerCornerHz'].value / f) 
     strh5['rystare/sourcefollower/noise/spectrumwhiteflicker'] = W_SF
 
     #total noise
@@ -1142,7 +1146,7 @@ def source_follower_noise(strh5):
 
     #Calculating the std of SF noise:
     nomin = np.sqrt(strh5['rystare/sourcefollower/freqsamplingdelta'].value * np.dot(S_SF, H_CDS.T))
-    denomin =     (1 - np.exp(- (strh5['rystare/CDS/sampletosamplingtime'].value) / tau_D)).reshape(-1,1)  #\
+    denomin =     (1 - np.exp(- (strh5['rystare/sourcefollower/CDS/sampletosamplingtime'].value) / tau_D)).reshape(-1,1)  #\
 
     #the resulting source follower std noise
     strh5['rystare/sourcefollower/sigma'][...] = nomin / denomin
@@ -2011,21 +2015,19 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         dset[...] = np.zeros((x1.shape))
         
     elif imtype in ['disk']:
-
-        minSize = np.min(imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeRows'].value)
+        minSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
         imghd5['image/imageName'] = imageName
         imghd5['image/imageFilename'] = hdffilename
         imghd5['image/disk_diameter'] = fracdiameter * minSize
         imghd5['image/blurr'] = fracblurr * minSize
         imghd5['image/irrad_scale'] = irrad_scale 
         imghd5['image/irrad_min'] = irrad_min 
-
+ 
         delta_x = varx[1] - varx[0]
         delta_y = vary[1] - vary[0]
-
         Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value
 
-        dia = max(1, 2 * round(imghd5['image/blurr'].value / np.max(delta_x,delta_y)))
+        dia = np.max((1, 2 * round(imghd5['image/blurr'].value / np.max((delta_x,delta_y)))))
         varx = np.linspace(-dia, dia, 2 * dia)
         vary = np.linspace(-dia, dia, 2 * dia)
         x, y = np.meshgrid(varx, vary)
@@ -2222,7 +2224,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5 = ryfiles.open_HDF(hdffilename)
 
     # Light Noise parameters
-    strh5['rystare/flag/photonshotnoise'] = True #photon shot noise.
+    strh5['rystare/photonshotnoise/activate'] = True #photon shot noise.
 
     #sensor parameters
     strh5['rystare/sensortype'] = 'CCD' # CCD / CMOS must be in capitals
@@ -2311,37 +2313,38 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
 
     #source follower
-    strh5['rystare/sourcefollower/nonlinearity/flag'] = True # VV non-linearity
+    strh5['rystare/sourcefollower/nonlinearity/activate'] = True # VV non-linearity
     strh5['rystare/sourcefollower/nonlinearity/ratio'] = 1.05 # > 1 for lower signal, < 1 for higher signal
-    strh5['rystare/sourcefollower/flickerCornerHz'] = 1e6 #flicker noise corner frequency $f_c$ in [Hz], where power spectrum of white and flicker noise are equal [Hz].
-    strh5['rystare/sourcefollower/whitenoisedensity'] = 15e-9 #thermal white noise [\f$V/Hz^{1/2}\f$, typically \f$15 nV/Hz^{1/2}\f$ ]
-    strh5['rystare/sourcefollower/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
+    strh5['rystare/sourcefollower/noise/flickerCornerHz'] = 1e6 #flicker noise corner frequency $f_c$ in [Hz], where power spectrum of white and flicker noise are equal [Hz].
+    strh5['rystare/sourcefollower/noise/whitenoisedensity'] = 15e-9 #thermal white noise [\f$V/Hz^{1/2}\f$, typically \f$15 nV/Hz^{1/2}\f$ ]
+    strh5['rystare/sourcefollower/noise/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
     strh5['rystare/sourcefollower/dataclockspeed'] = 20e6 #MHz data rate clocking speed.
     strh5['rystare/sourcefollower/freqsamplingdelta'] = 10000. #sampling spacing for the frequencies (e.g., sample every 10kHz);
     if doTest in ['Simple']:
-        strh5['rystare/sourcefollower/noise/flag'] = False
+        strh5['rystare/sourcefollower/noise/activate'] = False
     elif  doTest in ['Advanced']:
-        strh5['rystare/sourcefollower/noise/flag'] = True
+        strh5['rystare/sourcefollower/noise/activate'] = True
 
     #dark current Offset Fixed Pattern Noise 
-    strh5['rystare/darkoffset/NU/flag'] = True
-    strh5['rystare/darkoffset/NU/model'] = 'Janesick-Gaussian'
-    strh5['rystare/darkoffset/NU/spread'] = 0.0005 # percentage of (V_REF - V_SN)
+    strh5['rystare/sourcefollower/fpoffset/activate'] = True
+    strh5['rystare/sourcefollower/fpoffset/model'] = 'Janesick-Gaussian'
+    strh5['rystare/sourcefollower/fpoffset/sigma'] = 0.0005 # percentage of (V_REF - V_SN)
+    strh5['rystare/sourcefollower/fpoffset/seed'] = 362436042
 
 
     # Correlated Double Sampling (CDS)
     if doTest in ['Simple']:
-        strh5['rystare/CDS/sampletosamplingtime'] = 0 #not used
+        strh5['rystare/sourcefollower/CDS/sampletosamplingtime'] = 0 #not used
     elif  doTest in ['Advanced']:
-        strh5['rystare/CDS/sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
+        strh5['rystare/sourcefollower/CDS/sampletosamplingtime'] = 1e-6 #CDS sample-to-sampling time [sec].
     else:
         pass
-    strh5['rystare/CDS/gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
+    strh5['rystare/sourcefollower/CDS/gain'] = 1. # CDS gain, [V/V], lower means amplify the noise.
 
     # Analogue-to-Digital Converter (ADC)
     strh5['rystare/ADC/num-bits'] = 12. # noise is more apparent on high Bits
     strh5['rystare/ADC/offset'] = 0. # Offset of the ADC, in DN
-    strh5['rystare/ADC/nonlinearity/flag'] = False
+    strh5['rystare/ADC/nonlinearity/activate'] = False
     strh5['rystare/ADC/nonlinearity/ratio'] = 1.1
 
     #Sensor noises and signal visualisation
@@ -2351,11 +2354,11 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
 
     #For testing and measurements only:
-    strh5['rystare/flag/darkframe'] = False # True if no signal, only dark
+    strh5['rystare/darkframe'] = False # True if no signal, only dark
 
     #=============================================================================
 
-    if strh5['rystare/flag/darkframe'].value:  # we have zero light illumination    
+    if strh5['rystare/darkframe'].value:  # we have zero light illumination    
         imagehdffilename = 'data/image-Zero-256-256.hdf5'
     else:   # load an image, nonzero illumination
         imagehdffilename = 'data/image-Disk-256-256.hdf5'
@@ -2477,9 +2480,9 @@ def get_summary_stats(hdffilename):
         print('Sense node gain             : {} v/e'.format(strh5['rystare/sensenode/gain'].value))
         print('Sense reset Vref            : {} v'.format(strh5['rystare/sensenode/vrefreset'].value))
         print('Source follower gain        : {} '.format(strh5['rystare/sourcefollower/gain'].value))
-        if strh5['rystare/darkoffset/NU/flag'].value:
-            print('Dark offset model           : {}'.format(strh5['rystare/darkoffset/NU/model'].value))
-            print('Dark offset spread          : {} e'.format(strh5['rystare/darkoffset/NU/spread'].value))
+        if strh5['rystare/sourcefollower/fpoffset/activate'].value:
+            print('Dark offset model           : {}'.format(strh5['rystare/sourcefollower/fpoffset/model'].value))
+            print('Dark offset spread          : {} e'.format(strh5['rystare/sourcefollower/fpoffset/sigma'].value))
         print('Dark response model         : {}'.format(strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/model'].value))
         print('Dark response seed          : {}'.format(strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/seed'].value))
         print('Dark response spread        : {} '.format(strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/sigma'].value))
@@ -2499,13 +2502,13 @@ def get_summary_stats(hdffilename):
         print('Sense node signal full well : {} V'.format(strh5['rystare/sensenode/volt-fullwell'].value))
         print('Sense node signal minimum   : {} V'.format(strh5['rystare/sensenode/volt-min'].value))
         print('Sense node reset noise      : {} '.format(strh5['rystare/sensenode/resetnoise/activate'].value))
-        print('CDS gain                    : {} '.format(strh5['rystare/CDS/gain'].value))
-        print('CDS sample-to-sampling time : {} s'.format(strh5['rystare/CDS/sampletosamplingtime'].value))
-        print('Delta induced modulation    : {} '.format(strh5['rystare/sourcefollower/deltaindmodulation'].value))
+        print('CDS gain                    : {} '.format(strh5['rystare/sourcefollower/CDS/gain'].value))
+        print('CDS sample-to-sampling time : {} s'.format(strh5['rystare/sourcefollower/CDS/sampletosamplingtime'].value))
+        print('Delta induced modulation    : {} '.format(strh5['rystare/sourcefollower/noise/deltaindmodulation'].value))
         print('Data clock speed            : {} Hz'.format(strh5['rystare/sourcefollower/dataclockspeed'].value))
         print('Frequency sampling delta    : {} Hz'.format(strh5['rystare/sourcefollower/freqsamplingdelta'].value))
-        print('White noise density         : {} V/rtHz'.format(strh5['rystare/sourcefollower/whitenoisedensity'].value))
-        print('Flicker corner              : {} Hz'.format(strh5['rystare/sourcefollower/flickerCornerHz'].value))
+        print('White noise density         : {} V/rtHz'.format(strh5['rystare/sourcefollower/noise/whitenoisedensity'].value))
+        print('Flicker corner              : {} Hz'.format(strh5['rystare/sourcefollower/noise/flickerCornerHz'].value))
         print('{:28}: v mean={:.5e}, var={:.5e}'.format('Source follower sigma',np.mean(strh5['rystare/sourcefollower/sigma'].value), np.var(strh5['rystare/sourcefollower/sigma'].value)))
         
         strh5.flush()
