@@ -2006,8 +2006,6 @@ inPhotonrate=False,
     imghd5['image/imageSizeDiagonal'] = np.sqrt((pixelPitch[0] * numPixels[0]) ** 2. + (pixelPitch[1] * numPixels[1]) ** 2)
     imghd5['image/imageFilename'] = hdffilename
     imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
-    imghd5['image/irrad_dynrange'] = irrad_dynrange 
-    imghd5['image/irrad_min'] = irrad_min 
     imghd5['image/steps'] = steps 
     imghd5['image/equivalentSignalUnit'] = equivalentSignalUnit
     imghd5['image/equivalentSignalType'] = equivalentSignalType
@@ -2064,7 +2062,28 @@ inPhotonrate=False,
         NormEin = y * x  * np.ones(x.shape)  
 
     else:
-        print('Unknown image type {}\n no image file created'.format(imtype))
+        # come here if the data is in a file
+        nfr,img = ryfiles.readRawFrames(imtype, rows=numPixels[0], cols=numPixels[1],
+                                vartype=np.float64, loadFrames=[0])
+        if nfr > 0:
+            irrad_min = np.min(img)
+            irrad_dynrange = np.max(img)- np.min(img)
+            fintp = interpolate.interp1d(np.asarray([irrad_min,irrad_min+irrad_dynrange]), 
+                np.asarray([irrad_min,irrad_min+irrad_dynrange]))
+            NormEin = (img - irrad_min) / irrad_dynrange
+        else:
+            print('Unknown image type or file not successully read: {}\n no image file created'.format(imtype))
+            return
+
+        # create_HDF5_image(imageName='E-W-m2-detector-100-256', imtype='E-W-m2-detector-100-256.double', 
+        #     pixelPitch=[12e-6, 12e-6],
+        #         numPixels=[100,256], wavelength=wavelength,
+        #         irrad_dynrange=0., irrad_min=0., 
+        #         equivalentSignalType='Irradiance',
+        #         equivalentSignalUnit='W/m2',EinUnits='W/m2 on detector plane')
+
+    imghd5['image/irrad_dynrange'] = irrad_dynrange 
+    imghd5['image/irrad_min'] = irrad_min 
 
     # create the irradiance image from min to min+dynamic range, with no noise
     Ein = imghd5['image/irrad_min'].value  + NormEin * imghd5['image/irrad_dynrange'].value 
@@ -2581,7 +2600,7 @@ if __name__ == '__main__':
 
         #create an infrared image with lin stairs
         tmin = 293 # 20 deg C at minimum level
-        tmax = 313 # 4- deg C at maximum level
+        tmax = 313 # 40 deg C at maximum level
         # do all calcs at this wavelength, normally this would be a wideband spectral integral
         wavelength = 4.0e-6
         fno = 3.2
@@ -2602,6 +2621,13 @@ if __name__ == '__main__':
 
         # todo write code to read an external binary file 
         # this file is irradiance on detector E-W-m2-detector-100-256.double
+        wavelength = 4.5e-6
+        create_HDF5_image(imageName='E-W-m2-detector-100-256', imtype='data/E-W-m2-detector-100-256.double', 
+            pixelPitch=[12e-6, 12e-6],
+                numPixels=[100,256], wavelength=wavelength,
+                irrad_dynrange=0., irrad_min=0., 
+                equivalentSignalType='Irradiance',
+                equivalentSignalUnit='W/m2',EinUnits='W/m2 on detector plane')
  
     #----------  test the limitzero function ---------------------
     if doAll:
