@@ -896,7 +896,7 @@ def get_HDF_branches(hdf5File):
     return hdf5File.visit(get_HDF_branches)
 
 ######################################################################################
-def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
+def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
     """Plot arrays in the HFD5 as scaled bitmap images.
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
@@ -907,7 +907,7 @@ def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
     Args:
         | hfd5f (H5py file): the file to be opened
         | prefix (string): prefix to be prepended to filename
-        | format (string): type of file to be created png/jpeg
+        | pformat (string): type of file to be created png/jpeg
         | lstimgs ([string]): list of paths to image in the HFD5 file
 
     Returns:
@@ -922,13 +922,17 @@ def plotHDF5Bitmaps(hfd5f, prefix, format='png', lstimgs=None):
 
     for lstimg in lstimgs:
         arr = hfd5f['{}'.format(lstimg)].value
-        if np.max(arr) != 0.:
-            arr = 255 * arr/np.max(arr)
-            imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),format), arr.astype(np.uint8))
+        if debug:
+            print('data set {} has shape {} '.format(lstimg,arr.shape))
+
+    	if arr.shape is not ():
+            if np.max(arr) != 0.:
+                arr = 255 * arr/np.max(arr)
+                imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),pformat), arr.astype(np.uint8))
 
 
 ######################################################################################
-def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False):
+def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False, debug=False):
     """Plot images contained in hfd5f with colour map to show magnitude.
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
@@ -956,14 +960,19 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
 
     for lstimg in lstimgs:
         arr = hfd5f['{}'.format(lstimg)].value
-        if logscale:
-            filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
-            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-                p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
-        else:
-            filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
-            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-                p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+
+    	if debug:
+            print('data set {} has shape {} '.format(lstimg,arr.shape))
+
+    	if arr.shape is not ():
+	        if logscale:
+	            filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
+	            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+	                p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+	        else:
+	            filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
+	            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+	                p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
 
 
 ######################################################################################

@@ -1940,10 +1940,12 @@ def kTCnoiseGv(temptr, gv):
 ######################################################################################
 
 ######################################################################################
-def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, fracblurr=0, 
-                   irrad_scale=1, irrad_min=0, wavelength=0.55e-6, steps=10,fintp=None):
+def create_HDF5_image(imageName, imtype, pixelPitch, numPixels,wavelength, 
+    irrad_min, irrad_dynrange=0, fracdiameter=0, fracblurr=0, steps=1,fintp=None,
+    equivalentSignalType='',equivalentSignalUnit='',
+    EinUnits=''):
     r"""This routine performs makes a simple illuminated circle with blurred boundaries.
-
+inPhotonrate=False,
     Then the  sensor's radiant irradiance in units [W/m2] are converted to  
     photon rate irradiance in units [q/m2.s)] by relating one photon's energy
     to power at the stated wavelength by :math:`Q_p=\frac{h\cdot c}{\lambda}`,
@@ -1964,22 +1966,26 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
         | ``'image/imageSizeRows'`` (int):  the number of image rows
         | ``'image/imageSizeCols'`` (int):  the number of image cols
         | ``'image/imageSizeDiagonal'`` (float):  the FPA diagonal size in mm 
-        | ``'image/irradianceLux'`` (float):  the maximum luminous exitance in the image lux (optional)
-        | ``'image/irradianceWatts'`` (float):  the maximum exitance in the image W/m2 (optional)
+        | ``'image/equivalentSignal'`` (float):  the equivalent input signal, e.g. temperaure or lux (optional)
+        | ``'image/irradianceWatts'`` (float):  the exitance in the image W/m2 (optional)
         | ``'image/temperature'`` (float):  the maximum target temperature in the image K (optional)
 
     Args:
         | imageName (string): the image name, used to form the filename
-        | imtype (string): string to define the type if image to be created ['zeros','disk','stairslin','stairslog']
+        | imtype (string): string to define the type if image to be created ['uniform','disk','stairslin','stairslog']
         | pixelPitch ([float, float]):  detector pitch in m [row,col]
         | numPixels ([int, int]): number of pixels [row,col]
         | fracdiameter (float):  diameter of the disk as fraction of minimum image size
         | fracblurr (float):   blurr of the disk as fraction of minimum image size
-        | irrad_scale (float): multiplicative scale factor (max value)
+        | irrad_dynrange (float): multiplicative scale factor (max value)
         | irrad_min (float): additive minimum value in the image
         | wavelength (float): wavelength where photon rate calcs are done in [m]
         | steps (int): number of steps in the stairs image
         | fintp (): interpolation function to map irradiance to lux/temperature
+        | equivalentSignalType (str): type of the equivalent input scale (e.g., irradiance, temperature)
+        | equivalentSignalUnit (str): units of the equivalent input scale (e.g., W/m2, K)
+        | EinUnits (str): Ein units and definition separated with : (e.g., 'W/m2 : on detector', 'q/(s.m2) : on detector')
+
 
     Returns:
         | nothing: as a side effect an image file is written
@@ -1998,110 +2004,84 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels, fracdiameter=0, 
     imghd5['image/imageSizeRows'] = pixelPitch[0] * numPixels[0]
     imghd5['image/imageSizeCols'] = pixelPitch[0] * numPixels[0]
     imghd5['image/imageSizeDiagonal'] = np.sqrt((pixelPitch[0] * numPixels[0]) ** 2. + (pixelPitch[1] * numPixels[1]) ** 2)
+    imghd5['image/imageFilename'] = hdffilename
+    imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
+    imghd5['image/irrad_dynrange'] = irrad_dynrange 
+    imghd5['image/irrad_min'] = irrad_min 
+    imghd5['image/steps'] = steps 
+    imghd5['image/equivalentSignalUnit'] = equivalentSignalUnit
+    imghd5['image/equivalentSignalType'] = equivalentSignalType
+    imghd5['image/EinUnits'] = EinUnits
+
 
     varx = np.linspace(-imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizePixels'].value[1])
     vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
     x1, y1 = np.meshgrid(varx, vary)
 
-    if imtype in ['zeros']:
-        imghd5['image/imageName'] = imageName
-        imghd5['image/imageFilename'] = hdffilename
+    dset = imghd5.create_dataset('image/equivalentSignal', numPixels, compression="gzip")
+    dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
+    dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
 
-        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
-        dset[...] = np.zeros((x1.shape))
-        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
-        dset[...] = np.zeros((x1.shape))
-        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
-        dset[...] = np.zeros((x1.shape))
-        
+    #Power in a single photon, in [Joule = Watt*s]
+    P_photon = const.h * const.c / wavelength if 'W/' in EinUnits[:3] else 1.0
+
+    if imtype in ['uniform']:
+        NormEin = np.zeros((x1.shape))
+        fintp = interpolate.interp1d(np.asarray([0.,1.]), np.asarray([0.,1.]))
+
+
     elif imtype in ['disk']:
         minSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
-        imghd5['image/imageName'] = imageName
-        imghd5['image/imageFilename'] = hdffilename
         imghd5['image/disk_diameter'] = fracdiameter * minSize
         imghd5['image/blurr'] = fracblurr * minSize
-        imghd5['image/irrad_scale'] = irrad_scale 
-        imghd5['image/irrad_min'] = irrad_min 
  
         delta_x = varx[1] - varx[0]
         delta_y = vary[1] - vary[0]
-        Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value
+        Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) 
 
         dia = np.max((1, 2 * round(imghd5['image/blurr'].value / np.max((delta_x,delta_y)))))
         varx = np.linspace(-dia, dia, 2 * dia)
         vary = np.linspace(-dia, dia, 2 * dia)
         x, y = np.meshgrid(varx, vary)
         H = ryutils.circ(x, y, dia)
-        Ein = (np.abs(signal.convolve2d(Uin, H, mode='same'))/np.sum(H))  ** 2
-
-        #photon rate irradiance lux, with no  noise
-        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
-        dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
-
-        #Power in a single photon, in [Joule = Watt*s]
-        P_photon = const.h * const.c / wavelength
-
-        #convert to photon rate irradiance
-        Ein = Ein / P_photon
-        
-        #photon rate irradiance in the image ph/(m2.s), with no photon noise
-        # diagram node 1
-        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
-        dset[...] = Ein
-        #photon rate irradiance in the image ph/(m2.s), adding photon noise
-        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
-        dset[...] = shotnoise(Ein) 
-        
+        NormEin = (np.abs(signal.convolve2d(Uin, H, mode='same'))/np.sum(H))  ** 2
+                
     elif imtype in ['stairslin','stairslog','stairslinIRQ','stairslogIRQ']:
-        #this section creates a stair-case signal increasing from irrad_min to irrad_scale+irrad_min
-        imghd5['image/imageName'] = '{}-{}'.format(imageName,steps)
-        imghd5['image/imageFilename'] = hdffilename
-        imghd5['image/irrad_scale'] = irrad_scale 
-        imghd5['image/irrad_min'] = irrad_min 
-        imghd5['image/steps'] = steps 
-
+        #Create the stairs spatial definition
         size = imghd5['image/imageSizePixels'].value[1]
-
         if imtype in ['stairslin','stairslinIRQ']:
             varx = np.linspace(0,size-1,size)
         else:
             varx = np.logspace(-1,np.log10(size-1),size)
         varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
         varx = varx / np.max(varx) 
-
         vary = np.linspace( - imghd5['image/imageSizeRows'].value/2, 
                                 imghd5['image/imageSizeRows'].value/2,
                                 imghd5['image/imageSizePixels'].value[0])
+        vary = np.where(np.abs(vary)<imghd5['image/imageSizeRows'].value/3.,1.,0.)
 
         x, y = np.meshgrid(varx,vary)
-
-        Ein = x * np.ones(x.shape) * imghd5['image/irrad_scale'].value + imghd5['image/irrad_min'].value 
-        Ein *= np.where(y<-imghd5['image/imageSizeRows'].value/3.,0, 1)
-        Ein *= np.where(y>imghd5['image/imageSizeRows'].value/3.,0, 1)
-        Ein = np.where(Ein==0,imghd5['image/irrad_min'].value,Ein)
-
-        #photon rate irradiance lux, with no  noise
-        dset = imghd5.create_dataset('image/irradianceLux', numPixels, compression="gzip")
-        #dset[...] = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * Ein
-        dset[...] = fintp(Ein)
-
-        #Power in a single photon, in [Joule = Watt*s]
-        P_photon = const.h * const.c / wavelength
-
-        #convert to photon rate irradiance
-        Ein = Ein / P_photon
-        
-        #photon rate irradiance in the image ph/(m2.s), with no photon noise
-        dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
-        dset[...] = Ein
-        #photon rate irradiance in the image ph/(m2.s), adding photon noise
-        dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
-        dset[...] = shotnoise(Ein) 
-
-
+        NormEin = y * x  * np.ones(x.shape)  
 
     else:
         print('Unknown image type {}\n no image file created'.format(imtype))
+
+    # create the irradiance image from min to min+dynamic range, with no noise
+    Ein = imghd5['image/irrad_min'].value  + NormEin * imghd5['image/irrad_dynrange'].value 
+    #convert to photon rate irradiance
+    Einphoton = Ein / P_photon
+    #equivalent signal
+    EinEquivalent =  fintp(Ein)
+        
+    #photon rate irradiance in the image ph/(m2.s), with no photon noise diagram node 1
+    imghd5['image/PhotonRateIrradianceNoNoise'][...] = Einphoton
+    #photon rate irradiance in the image ph/(m2.s), adding photon noise diagram node 2
+    imghd5['image/PhotonRateIrradiance'][...] = shotnoise(Einphoton) 
+    # save the equivalent inout signal as well (e.g., temperature or lux), by interpolation
+    imghd5['image/equivalentSignal'][...] =EinEquivalent
+
+
+
 
     imghd5.flush()
     imghd5.close()
@@ -2369,7 +2349,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     imghd5 = ryfiles.open_HDF(pathtoimage)
 
     #images must be in photon rate irradiance units q/(m2.s)
-    strh5['rystare/irradianceLux'] = imghd5['image/irradianceLux'].value
+    strh5['rystare/equivalentSignal'] = imghd5['image/equivalentSignal'].value
     strh5['rystare/signal/photonRateIrradianceNoNoise'] = imghd5['image/PhotonRateIrradianceNoNoise'].value
     strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/PhotonRateIrradiance'].value
     strh5['rystare/pixelPitch'] = imghd5['image/pixelPitch'].value
@@ -2380,6 +2360,11 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/imageSizeRows'] = imghd5['image/imageSizeRows'].value
     strh5['rystare/imageSizeCols'] = imghd5['image/imageSizeCols'].value
     strh5['rystare/imageSizeDiagonal'] = imghd5['image/imageSizeDiagonal'].value
+    strh5['rystare/equivalentSignalUnit'] = imghd5['image/equivalentSignalUnit'].value
+    strh5['rystare/equivalentSignalType'] = imghd5['image/equivalentSignalType'].value
+    strh5['rystare/EinUnits'] = imghd5['image/EinUnits'].value
+
+
 
     #calculate the noise and final images
     strh5 = photosensor(strh5) # here the Photon-to-electron conversion occurred.
@@ -2399,24 +2384,30 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         # fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'].value), np.var(strh5['rystare/signal/voltagebeforeadc'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/signal/DN'].value), np.var(strh5['rystare/signal/DN'].value)))
 
+    lstimgs = ['rystare/signal/photonRateIrradianceNoNoise', 'rystare/quantumEfficiency',
+         'rystare/signal/photonRateIrradiance','rystare/photondetector/lightPRNU/value',
+         'rystare/signal/photonRateIrradianceNU','rystare/signal/electronRateIrradiance',
+         'rystare/signal/electronRate', 'rystare/signal/lightelectrons',
+         'rystare/darkcurrentelectronsnonoise', 'rystare/signal/darkcurrentelectrons',
+         'rystare/photondetector/darkcurrent/fixedPatternNoise/value',
+         'rystare/signal/darkcurrentelectrons',
+         'rystare/signal/electrons','rystare/signal/electronsWell',
+         'rystare/signal/sensenodevoltageLinear','rystare/noise/sn_reset/resetnoise',
+         'rystare/noise/sn_reset/vrefresetpluskTC','rystare/sensenode/vrefreset',
+         'rystare/signal/voltage','rystare/sourcefollower/gainA','rystare/signal/voltageAfterSF',
+         'rystare/sourcefollower/source_follower_noise','rystare/signal/voltageAfterSFnoise',
+         'rystare/sourcefollower/fpoffset/value','rystare/signal/voltagebeforecds',
+         'rystare/signal/voltageaftercds','rystare/ADC/gainILE','rystare/ADC/gain','rystare/signal/DN']
+
     if doPlots:
-        lstimgs = ['rystare/signal/photonRateIrradiance','rystare/signal/photons','rystare/signal/electrons','rystare/signal/voltage',
-                   'rystare/signal/DN','rystare/signal/light','rystare/signal/darkcurrentelectrons', 'rystare/photondetector/lightPRNU/value',
-                   'rystare/photondetector/darkcurrent/fixedPatternNoise/value','rystare/quantumEfficiency']
-        # ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.gray,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
-        ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, logscale=strh5['rystare/flag/plots/plotLogs'].value) 
+        ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, 
+            logscale=strh5['rystare/flag/plots/plotLogs'].value, debug=False) 
 
     if doHisto:
-        lstimgs = ['rystare/signal/photonRateIrradiance','rystare/signal/photons','rystare/signal/electrons','rystare/signal/voltage',
-                   'rystare/signal/DN','rystare/signal/light','rystare/signal/darkcurrentelectrons',
-                   'rystare/photondetector/lightPRNU/value','rystare/photondetector/darkcurrent/fixedPatternNoise/value','rystare/quantumEfficiency']
         ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
     if doImages:
-        lstimgs = ['rystare/signal/photonRateIrradiance','rystare/signal/photonRate', 'rystare/signal/photons','rystare/signal/electrons','rystare/signal/voltage',
-                    'rystare/signal/DN','rystare/signal/light','rystare/signal/darkcurrentelectrons', 'rystare/noise/sn_reset/resetnoise','rystare/sourcefollower/source_follower_noise',
-                    'rystare/photondetector/lightPRNU/value','rystare/photondetector/darkcurrent/fixedPatternNoise/value','rystare/quantumEfficiency']
-        ryfiles.plotHDF5Bitmaps(strh5, prefix, format='png', lstimgs=lstimgs)
+        ryfiles.plotHDF5Bitmaps(strh5, prefix, pformat='png', lstimgs=lstimgs,debug=False)
 
     strh5.flush()
     strh5.close()
@@ -2449,6 +2440,7 @@ def get_summary_stats(hdffilename):
 
         print('Image file name             : {}'.format(strh5['rystare/imageFilename'].value))
         print('Image name                  : {}'.format(strh5['rystare/imageName'].value))
+        print('Input image type            : {}'.format(strh5['rystare/EinUnits'].value))
         print('Sensor type                 : {} '.format(strh5['rystare/sensortype'].value))
         print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'].value))
         print('Image size diagonal         : {} m'.format(strh5['rystare/imageSizeDiagonal'].value))
@@ -2458,7 +2450,9 @@ def get_summary_stats(hdffilename):
         print('Integration time            : {} s'.format(strh5['rystare/photondetector/integrationtime'].value))
         print('Wavelength                  : {} m'.format(strh5['rystare/wavelength'].value))
         print('Operating temperature       : {} K'.format(strh5['rystare/photondetector/operatingtemperature'].value))
-        print('Max image irradiance         : {} lux'.format(np.max(strh5['rystare/irradianceLux'].value)))
+        print('Max equivalent input signal : {} {}'.format(np.max(strh5['rystare/equivalentSignal'].value),strh5['rystare/equivalentSignalUnit'].value))
+        print('Min equivalent input signal : {} {}'.format(np.min(strh5['rystare/equivalentSignal'].value),strh5['rystare/equivalentSignalUnit'].value))
+        print('EquivalentSignal type       : {} {}'.format(strh5['rystare/equivalentSignalType'].value,strh5['rystare/equivalentSignalUnit'].value))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateIrradianceNoNoise',np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'].value), np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonRateIrradiance',np.mean(strh5['rystare/signal/photonRateIrradiance'].value), np.var(strh5['rystare/signal/photonRateIrradiance'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonsNU',np.mean(strh5['rystare/signal/photonRateIrradianceNU'].value), np.var(strh5['rystare/signal/photonRateIrradianceNU'].value)))
@@ -2542,10 +2536,6 @@ if __name__ == '__main__':
 
     doAll = True
 
-
-
-
-
     #----------  create test images ---------------------
     if doAll:
         pass
@@ -2553,29 +2543,41 @@ if __name__ == '__main__':
         numPixels = [256, 256]  # [ROW, COLUMN] size
         pixelPitch = [5e-6, 5e-6] # pixels pitch, in [m], [ROW, COLUMN] 
 
+
         #create image with all pixels set to zero
-        create_HDF5_image(imageName='Zero', imtype='zeros', pixelPitch=pixelPitch, numPixels=numPixels)
+        create_HDF5_image(imageName='Zero', imtype='uniform', pixelPitch=pixelPitch, numPixels=numPixels,
+            wavelength=0.55e-6, irrad_min=0., irrad_dynrange=0.,equivalentSignalType='Arbitrary units',
+            equivalentSignalUnit='',EinUnits='Arbitrary units')
 
         #create an image with a blurred disk
-        create_HDF5_image(imageName='Disk', imtype='disk', pixelPitch=pixelPitch,
-                numPixels=numPixels, fracdiameter=0.7, fracblurr=0.2, irrad_scale=0.1)
-
+        irrad_min=0.
+        irrad_dynrange=0.1
         wavelength=0.55e-6
+        fintp = interpolate.interp1d(np.asarray([irrad_min, irrad_dynrange]), np.asarray([irrad_min, irrad_dynrange]))
+        create_HDF5_image(imageName='Disk', imtype='disk', pixelPitch=pixelPitch,numPixels=numPixels,
+            wavelength=wavelength,irrad_min=irrad_min, irrad_dynrange=irrad_dynrange,
+            fracdiameter=0.7, fracblurr=0.2, fintp=fintp,equivalentSignalType='Arbitrary units',
+            equivalentSignalUnit='',EinUnits='Arbitrary units')
+
         irrad_min = 74.08e-6
-        irrad_scale = 37.04e-3
-        irrad = np.linspace(irrad_min, irrad_min+irrad_scale, 100)
+        irrad_dynrange = 37.04e-3
+        irrad = np.linspace(irrad_min, irrad_min+irrad_dynrange, 100)
         lux = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * irrad
         fintp = interpolate.interp1d(irrad.reshape(-1), lux.reshape(-1))
 
         #create an image with linear stairs
         create_HDF5_image(imageName='Stairslin-10', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
-               numPixels=[250, 250], irrad_scale=irrad_scale, irrad_min=irrad_min,wavelength=wavelength,
-                fintp=fintp)
+               numPixels=[250, 250], wavelength=wavelength,
+               irrad_min=irrad_min,irrad_dynrange=irrad_dynrange, 
+               steps=10, fintp=fintp,equivalentSignalType='Irradiance',
+               equivalentSignalUnit='lux',EinUnits='W/m2 on detector plane')
 
         #create an image with lin stairs
         create_HDF5_image(imageName='Stairslin-40', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
-                numPixels=[100,520], irrad_scale=irrad_scale, irrad_min=irrad_min, wavelength=wavelength,
-                steps=40,fintp=fintp)
+                numPixels=[100,520],wavelength=wavelength, 
+                irrad_dynrange=irrad_dynrange, irrad_min=irrad_min, 
+                steps=40,fintp=fintp,equivalentSignalType='Irradiance',
+                equivalentSignalUnit='lux',EinUnits='W/m2 on detector plane')
 
         #create an infrared image with lin stairs
         tmin = 293 # 20 deg C at minimum level
@@ -2584,18 +2586,23 @@ if __name__ == '__main__':
         wavelength = 4.0e-6
         fno = 3.2
         omega = np.pi / ((2. * fno)**2.)
-        irrad_min = omega * ryplanck.planck(wavelength*1e6, tmin, type='el') / np.pi
-        irrad_max = omega * ryplanck.planck(wavelength*1e6, tmax, type='el') / np.pi
-        irrad_scale = irrad_max - irrad_min
+        deltalambda = 4.9 - 3.5
+        irrad_min = deltalambda * omega * ryplanck.planck(wavelength*1e6, tmin, type='ql') / np.pi
+        irrad_max = deltalambda * omega * ryplanck.planck(wavelength*1e6, tmax, type='ql') / np.pi
+        irrad_dynrange = irrad_max - irrad_min
         tser = np.linspace(tmin, tmax, 100).reshape(-1)
-        irrad = ryplanck.planck(wavelength*1e6, tser, type='el').reshape(-1) * (omega / np.pi)
+        irrad = deltalambda * ryplanck.planck(wavelength*1e6, tser, type='ql').reshape(-1) * (omega / np.pi)
         fintp = interpolate.interp1d(irrad, tser)
 
         create_HDF5_image(imageName='StairslinIR-40', imtype='stairslin', pixelPitch=[12e-6, 12e-6],
-                numPixels=[100,520], irrad_scale=irrad_scale, irrad_min=irrad_min, steps=40,
-                wavelength=wavelength,fintp=fintp)
+                numPixels=[100,520], wavelength=wavelength,
+                irrad_dynrange=irrad_dynrange, irrad_min=irrad_min, 
+                steps=40,fintp=fintp,equivalentSignalType='Temperature',
+                equivalentSignalUnit='K',EinUnits='q/(s.m2) on detector plane')
 
-
+        # todo write code to read an external binary file 
+        # this file is irradiance on detector E-W-m2-detector-100-256.double
+ 
     #----------  test the limitzero function ---------------------
     if doAll:
         import numpy as np
@@ -2620,9 +2627,9 @@ if __name__ == '__main__':
 
 
     #----------  how to use example code ---------------------
-    if True:
-        hdffilename = run_example(doTest='Advanced')
+    if doAll:
+        hdffilename = run_example(doTest='Advanced',doPlots=False, doHisto=False, doImages=False)
         get_summary_stats(hdffilename)
         print(20*'- ')
-        hdffilename = run_example(doTest='Simple')
+        hdffilename = run_example(doTest='Simple',doPlots=False, doHisto=False, doImages=False)
         get_summary_stats(hdffilename)
