@@ -858,7 +858,7 @@ def sense_node_reset_noise(strh5):
     By the relationship Q=CV it can be shown that the kTC noise can be expressed 
     as electron count by
 
-    :math:`\sigma_{RESET}=\sqrt{\frac{k_B T C_{SN}}{q}}`
+    :math:`\sigma_{RESET}=\frac{\sqrt{k_B T C_{SN}}}{q} = \frac{k_B T}{q A_{SN}}`
 
     see also https://en.wikipedia.org/wiki/Johnson%E2%80%93Nyquist_noise
 
