@@ -38,7 +38,8 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','CIErgbCIExy','CIExyCIErgb']
+__all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','rgb2CIExy','CIExy2rgb',
+          ]
 
 import sys
 if sys.version_info[0] > 2:
@@ -54,16 +55,42 @@ import numpy as np
 from scipy.interpolate import  interp1d
 
 # convert from CIE RGB to XYZ coordinates
-mRGBtoXYZ = 5.6507 * np.asarray([
+mcieRGBtoXYZ = 5.6507 * np.asarray([
     [0.49,0.31,0.20],
     [0.17697,0.81240,0.01063],
     [0.00,0.01,0.99]])
 
+# convert from Adobe RGB to XYZ coordinates
+madobeRGBtoXYZ = 3.363153293 * np.asarray([
+    [0.57667,0.18556,0.18823],
+    [0.29734,0.62736,0.07529],
+    [0.02703,0.07069,0.99134]])
+
+# convert from sRGB to CIE xy coordinates - this is only the linear transformation, not gamma
+msRGBtoXYZ = 1. * np.asarray([
+    [0.4124,0.3576,0.1805],
+    [0.2126,0.7152,0.0722],
+    [0.0193,0.1192,0.9505]])
+
+
 # convert from CIE xy to CIE RGB coordinates
-mXYZtoRGB = np.asarray([
+mXYZtoCIERGB = np.asarray([
     [0.41847, -0.15866, -0.082835],
     [-0.091169, 0.25243, 0.015708],
     [0.00092090, -0.0025498, 0.17860]])
+
+# convert from CIE xy to Adobe RGB coordinates
+mXYZtoAdobeRGB = np.asarray([
+    [2.04159, -0.56501, -0.34473],
+    [-0.96924, 1.87597, 0.04156],
+    [0.01344, -0.11836, 1.01517]])
+
+# convert from CIE xy to sRGB coordinates - this is only the linear transformation, not gamma
+mXYZtosRGB = np.asarray([
+    [3.2406, -1.5372, -0.4986],
+    [-0.9689, 1.8758, 0.0415],
+    [0.0557, -0.2040, 1.057]])
+
 
 ##############################################################################
 ##
@@ -202,22 +229,26 @@ def loadCIEbar(specvec, stype):
 
 ##############################################################################
 ##
-def CIErgbCIExy(rgb):
-    """ Convert from CIE RGB coordinates to CIE (x,y) coordinates
+def rgb2CIExy(rgb,system='CIE RGB'):
+    """ Convert from RGB coordinates to CIE (x,y) coordinates
 
-    The CIE RGB colour space is one of many colour spaces, using three monochromatic 
-    primary colours at standardized wavelengths of 700 nm (red), 546.1 nm (green) 
-    and 435.8 nm (blue). Other RGB colour spaces uses different primary colours.
+    The CIE RGB/Adobe/sRGB colour spaces a few colour spaces, using three monochromatic 
+    primary colours at standardized colours to represent a subset of the CIE xy chromaticy
+    colour space.
 
-    This function converts from RGB coordinates (assumed CIE RGB) to CIE xy colour.
+    This function converts from RGB coordinates (default CIE RGB) to CIE xy colour.
     The rgb array can have any number N of datasets in np.array[N,3].
     r, g, and b and in the first, second and third columns.
 
     https://en.wikipedia.org/wiki/CIE_1931_color_space
     https://en.wikipedia.org/wiki/RGB_color_space
+    https://en.wikipedia.org/wiki/Adobe_RGB_color_space
+    https://en.wikipedia.org/wiki/SRGB
+
 
     Args:
         | rgb (np.array[N,3]): CIE red/green/blue colour space component, N sets
+        | system (string): 'CIE RGB','Adobe RGB','sRGB'
 
     Returns:
         | xy (np.array[N,2]): color coordinates x, y.
@@ -229,8 +260,23 @@ def CIErgbCIExy(rgb):
     # exact values for this conversion is specified in the CIE standard
  
     rgb = rgb.reshape(-1,3)
-
-    XYZ = mRGBtoXYZ.dot(rgb.T)
+    rgb = rgb.astype('float')
+    if system in 'CIE RGB':
+        XYZ = mcieRGBtoXYZ.dot(rgb.T)
+    elif system in 'Adobe RGB':
+        XYZ = madobeRGBtoXYZ.dot(rgb.T)
+    elif system in 'sRGB':
+        # print('kkkkkk')
+        # print(rgb)
+        rgb /= rgb.max(axis=1).reshape(-1,1)
+        rgb = np.where(rgb<=0.04045, rgb/12.92,((rgb+0.055)/1.055)**2.4)
+        # print('rgb')
+        # print(rgb)
+        # print('ppppppp')
+        XYZ =  (msRGBtoXYZ.dot(rgb.T))
+    else:
+        return None
+    
     XYZ = XYZ.T
     x = XYZ[:,0] / ( XYZ[:,0] + XYZ[:,1] + XYZ[:,2] )
     y = XYZ[:,1] / ( XYZ[:,0] + XYZ[:,1] + XYZ[:,2] )
@@ -238,28 +284,32 @@ def CIErgbCIExy(rgb):
 
 
 
+
 ##############################################################################
 ##
-def CIExyCIErgb(xy):
+def CIExy2rgb(xy,system='CIE RGB'):
     """ Convert from CIE RGB coordinates to CIE (x,y) coordinates
 
-    The CIE RGB colour space is one of many colour spaces, using three monochromatic 
-    primary colours at standardized wavelengths of 700 nm (red), 546.1 nm (green) 
-    and 435.8 nm (blue). Other RGB colour spaces uses different primary colours.
+    The CIE RGB/Adobe/sRGB colour spaces a few colour spaces, using three monochromatic 
+    primary colours at standardized colours to represent a subset of the CIE xy chromaticy
+    colour space.
 
-    This function converts from CIE xy colour to RGB coordinates (assumed CIE RGB).
+    This function converts from xy coordinates to  RGB (default CIE RGB).
     The xy array can have any number N of datasets in np.array[N,2]. 
     x is in the first column and y in the second column
+
+    https://en.wikipedia.org/wiki/CIE_1931_color_space
+    https://en.wikipedia.org/wiki/RGB_color_space
+    https://en.wikipedia.org/wiki/Adobe_RGB_color_space
+    https://en.wikipedia.org/wiki/SRGB
 
     The rgb values are scaled such that the maximum value of any one
     component is 1, calculated separately per row. In other words,
     each rgb coordinate is normalised to 255 in one colour.
 
-    https://en.wikipedia.org/wiki/CIE_1931_color_space
-    https://en.wikipedia.org/wiki/RGB_color_space
-
     Args:
         | xy (np.array[N,2]): color coordinates x, y.
+        | system (string): 'CIE RGB','Adobe RGB','sRGB'
 
     Returns:
         | rgb (np.array[N,3]): CIE red/green/blue colour space component, N sets
@@ -277,7 +327,18 @@ def CIExyCIErgb(xy):
     Z = Y * (1 - (xy[:,0] + xy[:,1]).reshape(-1,1)) / xy[:,1].reshape(-1,1)
     XYZ = np.hstack((X,Y,Z))
 
-    rgb =  (mXYZtoRGB.dot(XYZ.T)).T
+
+    if system in 'CIE RGB':
+        rgb =  (mXYZtoCIERGB.dot(XYZ.T)).T
+    elif system in 'Adobe RGB':
+        rgb =  (mXYZtoAdobeRGB.dot(XYZ.T)).T
+    elif system in 'sRGB':
+        rgb =  (mXYZtosRGB.dot(XYZ.T)).T
+        rgb = rgb / np.max(rgb,axis=1).reshape(-1,1)
+        rgb = np.where(rgb<0.,0.,rgb)
+        rgb = np.where(rgb<=0.0031308, 12.92*rgb, 1.055*rgb**(1./2.4)-0.055)
+    else:
+        return None
 
     rgb /= np.max(rgb,axis=1).reshape(-1,1)
 
@@ -300,7 +361,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
 
 
-    doAll = False
+    doAll = True
 
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
@@ -311,7 +372,95 @@ if __name__ == '__main__':
     wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
     wavenum=np.linspace(13333, 27000, 350).reshape(-1, 1)
 
-    if True:
+    if doAll:
+        ## -----------------------  test rgb to/from xy conversions---------------------
+
+        print('mcieRGBtoXYZ:')
+        print(mcieRGBtoXYZ)
+        print('inv(mcieRGBtoXYZ):')
+        print(np.matrix(mcieRGBtoXYZ).I)
+        print(10*'-')
+        print('mXYZtoCIERGB:')
+        print(mXYZtoCIERGB)
+        print('inv(mXYZtoCIERGB):')
+        print(np.matrix(mXYZtoCIERGB).I)
+        print(10*'-')
+        print('mXYZtoCIERGB.dot(mcieRGBtoXYZ):')
+        print(mXYZtoCIERGB.dot(mcieRGBtoXYZ))
+        print(60*'*')
+
+        print('madobeRGBtoXYZ:')
+        print(madobeRGBtoXYZ)
+        print('inv(madobeRGBtoXYZ):')
+        print(np.matrix(madobeRGBtoXYZ).I)
+        print(10*'-')
+        print('mXYZtoAdobeRGB:')
+        print(mXYZtoAdobeRGB)
+        print('int(mXYZtoAdobeRGB):')
+        print(np.matrix(mXYZtoAdobeRGB).I)
+        print(10*'-')
+        print('mXYZtoAdobeRGB.dot(madobeRGBtoXYZ):')
+        print(mXYZtoAdobeRGB.dot(madobeRGBtoXYZ))
+        print(60*'*')
+
+
+        print('msRGBtoXYZ:')
+        print(msRGBtoXYZ)
+        print('inv(msRGBtoXYZ):')
+        print(np.matrix(msRGBtoXYZ).I)
+        print(10*'-')
+        print('mXYZtosRGB:')
+        print(mXYZtosRGB)
+        print('int(mXYZtosRGB):')
+        print(np.matrix(mXYZtosRGB).I)
+        print(10*'-')
+        print('mXYZtosRGB.dot(msRGBtoXYZ):')
+        print(mXYZtosRGB.dot(msRGBtoXYZ))
+        print(60*'*')
+
+
+
+
+
+        rgb = np.asarray([[255,12,160],[255,0,0],[0,255,0],[0,0,255]])
+        print('Calculations in CIE RGB space')
+        xy = rgb2CIExy(rgb,system='CIE RGB')
+        print('CIE RGB values:')
+        print(rgb)
+        print('xy values from CIE RGB values:')
+        print(xy)
+        rgbn = CIExy2rgb(xy,system='CIE RGB') * np.max(rgb)
+        print('RGB values (recomputed from xy):')
+        print(rgbn.astype('int'))
+        print(60*'*')
+
+        rgb = np.asarray([[255,12,160],[255,0,0],[0,255,0],[0,0,255]])
+        print('Calculations in Adobe RGB space')
+        xy = rgb2CIExy(rgb,system='Adobe RGB')
+        print('Adobe RGB values:')
+        print(rgb)
+        print('xy values from Adobe RGB values:')
+        print(xy)
+        rgbn = CIExy2rgb(xy,system='Adobe RGB') * np.max(rgb)
+        print('RGB values (recomputed from xy):')
+        print(rgbn.astype('int'))
+        print(60*'*')
+
+        rgb = np.asarray([[255,12,160],[255,0,0],[0,255,0],[0,0,255],[255,0,160]])
+        print('Calculations in sRGB RGB space')
+        xy = rgb2CIExy(rgb,system='sRGB')
+        print('sRGB RGB values:')
+        print(rgb)
+        print('xy values from sRGB RGB values:')
+        print(xy)
+        rgbn = CIExy2rgb(xy,system='sRGB') * np.max(rgb)
+        print('RGB values (recomputed from xy):')
+        print(rgbn.astype('int'))
+        print(60*'*')
+
+
+
+    if doAll:
         ## ----------------------load ciebar -----------------------------------
 
         ciebarwl = loadCIEbar(wavelength, stype='wl')
@@ -333,26 +482,7 @@ if __name__ == '__main__':
 
 
 
-    if doAll:
 
-        ## -----------------------  test rgb to/from xy conversions---------------------
-
-        print('mRGBtoXYZ:')
-        print(mRGBtoXYZ)
-        print('mXYZtoRGB:')
-        print(mXYZtoRGB)
-        print('mXYZtoRGB.dot(mRGBtoXYZ):')
-        print(mXYZtoRGB.dot(mRGBtoXYZ))
-        print(' ')
-        rgb = np.asarray([[255,12,160],[255,0,0],[0,255,0],[0,0,255]])
-        xy = CIErgbCIExy(rgb)
-        print('RGB values:')
-        print(rgb)
-        print('xy values:')
-        print(xy)
-        rgbn = CIExyCIErgb(xy) * np.max(rgb)
-        print('RGB values (recomputed from xy):')
-        print(rgbn)
 
 
 
@@ -453,7 +583,7 @@ if __name__ == '__main__':
             ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y',
                     [styleSample[iSmpl]], label=[samplesTxt[iSmpl]],legendAlpha=0.5 )
         #plot source markers
-        styleSource=['bo', 'yo', 'ro', 'go']
+        styleSource=['b', 'y', 'r', 'g']
         for iSmpl in range(samples.shape[1]):
             for iSrc in range(sources.shape[1]):
                 if iSmpl==0:

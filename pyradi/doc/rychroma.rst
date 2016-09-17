@@ -18,9 +18,9 @@ Module functions
 
 .. autofunction:: pyradi.rychroma.loadCIEbar
 
-.. autofunction:: pyradi.rychroma.CIErgbCIExy
+.. autofunction:: pyradi.rychroma.rgb2CIExy
 
-.. autofunction:: pyradi.rychroma.CIExyCIErgb
+.. autofunction:: pyradi.rychroma.CIExy2rgb
 
 
 
