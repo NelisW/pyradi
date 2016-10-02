@@ -225,7 +225,7 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>*?"):
 
 
 ################################################################
-def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
+def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None, proxy=None):
     """Download and untar a compressed tar archive, and save all files to the specified directory.
 
     The tarfilename is used to open the tar file, extracting to the destinationDir specified.
@@ -238,6 +238,10 @@ def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
         | url (string): url where to look for the file (not including the filename)
         | destinationDir (string): to where the files must be extracted (optional)
         | tarFilename (string): downloaded tar filename (optional)
+        | proxy (string): path to proxy server (optional).
+
+        The proxy string is something like this
+        proxy = {'https':r'https://username:password@proxyname:portnumber'}	  
 
     Returns:
         | ([string]): list of filenames saved, or None if failed.
@@ -265,7 +269,7 @@ def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None):
     else:    
         urlfile = url+tgzFilename
         # print("Attempting to download the data file {}".format(urlfile))
-        if downloadFileUrl(urlfile) is None:
+        if downloadFileUrl(url = urlfile, proxy = proxy) is None:
             print('\ndownload failed, please check url or internet connection')
             tgzAvailable = False
         else:
@@ -374,7 +378,7 @@ def unzipGZipfile(zipfilename, saveFilename=None):
 
 
 ################################################################
-def downloadFileUrl(url,  saveFilename=None):
+def downloadFileUrl(url,  saveFilename=None, proxy=None):
     """Download a file, given a URL.
 
     The URL is used to download a file, to the saveFilename specified.
@@ -384,6 +388,11 @@ def downloadFileUrl(url,  saveFilename=None):
     Args:
         | url (string): the url to be accessed.
         | saveFilename (string): path to where the file must be saved (optional).
+        | proxy (string): path to proxy server (optional).
+
+        The proxy string is something like this
+        proxy = {'https':r'https://username:password@proxyname:portnumber'}
+        
 
     Returns:
         | (string): Filename saved, or None if failed.
@@ -404,13 +413,20 @@ def downloadFileUrl(url,  saveFilename=None):
         if sys.version_info[0] > 2:
             #python 3
             import urllib
-            from urllib import Request
+            from urllib import request
             import urllib.error 
             from urllib.error import HTTPError 
-
+            
             try:
+            
+                if (proxy != None):
+                    h_proxy = request.ProxyHandler(proxy)
+                    auth = request.HTTPBasicAuthHandler()
+                    opener = request.build_opener(h_proxy, auth, request.HTTPHandler)
+                    request.install_opener(opener)   
+                    
                 #get file handle
-                f = Request.urlopen(url)
+                f = request.urlopen(url)
                 # Open file for writing
                 with open(filename, "wb") as file:
                     file.write(f.read())
@@ -427,6 +443,12 @@ def downloadFileUrl(url,  saveFilename=None):
             from urllib2 import HTTPError
 
             try:
+                if (proxy != None):
+                    h_proxy = urllib2.ProxyHandler(proxy)
+                    auth = urllib2.HTTPBasicAuthHandler()
+                    opener = urllib2.build_opener(h_proxy, auth, urllib2.HTTPHandler)
+                    urllib2.install_opener(opener)   
+                    
                 #get file handle
                 f = urllib2.urlopen(url)
                 # Open file for writing
