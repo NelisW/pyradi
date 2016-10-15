@@ -1084,7 +1084,7 @@ if __name__ == '__main__':
         print('Time {}:{}:{} '.format(fheader.h_frameHour,
                 fheader.h_frameMinute,fheader.h_frameSecond))
 
-            #get the internal temperature from the header and use here
+        #get the internal temperature from the header and use here
         tempIm = calData.LU.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
         # print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
         # print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
