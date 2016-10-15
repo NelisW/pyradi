@@ -309,6 +309,9 @@ class PTWFrameInfo:
     self.h_frameHour = 0 #FrameHeader[81:82]
     self.h_frameSecond = 0 #h_second+(h_thousands+h_hundred)/1000.0
 
+    # detector / FPA temperature
+    self.h_detectorTemp = None #FrameHeader[228:232]
+    self.h_sensorTemp4 = None #FrameHeader[232:236]
 
 # End of header definition
 
@@ -579,6 +582,9 @@ def GetPTWFrameFromFile(header):
     h_second = ord(FrameHeader[83:84])
     h_thousands = ord(FrameHeader[160:161])
     header.h_frameSecond = h_second+(h_hundred+h_thousands)/1000.0
+	#detector FPA temperature
+    header.h_detectorTemp = myfloat(FrameHeader[228:232]) 
+    header.h_sensorTemp4 = myfloat(FrameHeader[232:236]) 
 
     # for debugging
     #print ('Start FrameData at',fid.tell())
@@ -649,12 +655,16 @@ def getPTWFrame (header, frameindex):
         print ('ReadJade Error: cannot load frame. Frameindex exceeds sequence length.')
         return errorresult
 
-    return header.data.conj().transpose()
+    return header.data.conj().transpose(), header
 
 
 ################################################################
 def getPTWFrames (header, loadFrames=[]):
     """Retrieve a number of PTW frames, given in a list of frameheader.
+    The function returns the image data as well as the file and image header 
+    data (time and FPA temperature) valid for the particular frame.
+    The frame header data is written in the same class as is the file
+    header, in order to keep all the information together for the frame.
 
     Args:
         | header (class object)
@@ -662,31 +672,39 @@ def getPTWFrames (header, loadFrames=[]):
 
     Returns:
         | data (np.ndarray): requested image frame DL values, dimensions (frames,rows,cols)
+        | fheaders (object): requested image frame header values
 
     Raises:
         | No exception is raised.
     """
+
+    fheaders = []
 
     # error checking on inputs
     errorresult = np.asarray([0])
     # Check if this is  a cedip file
     if header.h_format!='cedip':
         print('getPTWFrames Error: file format is not supported')
-        return errorresult
+        return errorresult,None
     #check for legal frame index values
     npFrames = np.asarray(loadFrames)
     if np.any( npFrames < 1 ) or np.any ( npFrames > header.h_lastframe ):
         print('getPTWFrames Error: at least one requested frame not in file')
         print('legal frames for this file are: {0} to {1}'.format(1,header.h_lastframe))
-        return errorresult
+        return errorresult, None
 
-    data = getPTWFrame (header, loadFrames[0])
+    data, headerx = getPTWFrame (header, loadFrames[0])
+    fheaders.append(headerx)
+
     for frame in loadFrames[1:]:
-        data = np.concatenate((data, getPTWFrame (header, frame)))
+        datax, headerx = getPTWFrame (header, frame)
+        data = np.concatenate((data, datax))
+        fheaders.append(headerx)
 
     rows = header.h_Rows
     cols = header.h_Cols
-    return data.reshape(len(loadFrames), rows ,cols)
+
+    return data.reshape(len(loadFrames), rows ,cols), fheaders
 
 
 ################################################################
@@ -750,6 +768,9 @@ def showHeader(Header):
     print ('Optic Focal Length', Header.h_OpticsFocalLength)
     print ('Housing Temp1', Header.h_HousingTemperature1, '(K)')
     print ('Housing Temp2', Header.h_HousingTemperature2, '(K)')
+    print ('Sensor Temp4', Header.h_sensorTemp4, '(K)')
+    print ('Detector/FPA Temp', Header.h_detectorTemp, '(K)')
+    
     print ('Camera Serial Number', Header.h_CameraSerialNumber)
     print ('Min Threshold', Header.h_MinimumLevelThreshold)
     print ('Max Threshold', Header.h_MaximumLevelThreshold)
@@ -971,21 +992,33 @@ if __name__ == '__main__':
     showHeader(header)
 
     #loading sequence of frames
+    print('\n{}\n'.format(30*'-'))
     framesToLoad = [3,4,10]
-    data = getPTWFrames (header, framesToLoad)
-    print(data.shape)
-
+    data, fheaders = getPTWFrames (header, framesToLoad)
+    print(ptwfile)
+    print('(1) Data shape={}'.format(data.shape))
+    ifrm = 0
+    print('Frame {} summary data:'.format(ifrm))
+    print('Image data:\n{}'.format(data[ifrm]))
+    print('Sensor Temperature4 {} K '.format(fheaders[ifrm].h_sensorTemp4))
+    print('FPA Temperature {} K '.format(fheaders[ifrm].h_detectorTemp))
+    print('Time {}:{}:{} '.format(fheaders[ifrm].h_frameHour,
+            fheaders[ifrm].h_frameMinute,fheaders[ifrm].h_frameSecond))
+    
+    print('\n{}\n'.format(30*'-'))
     #loading sequence of frames, with an error in request
     framesToLoad = [0,4,10]
-    data = getPTWFrames (header, framesToLoad)
+    data, fheaders = getPTWFrames (header, framesToLoad)
     print(data.shape)
-
+    print('(2) Data shape={}'.format(data.shape))
+    print('\n{}\n'.format(30*'-'))
+    
     #loading single frames
     framesToLoad = list(range(1, 101, 1))
     frames = len(framesToLoad)
-    data = getPTWFrame (header, framesToLoad[0])
+    data, fheaders = getPTWFrame (header, framesToLoad[0])
     for frame in framesToLoad[1:]:
-        f = (getPTWFrame (header, frame))
+        f, fheaders  = getPTWFrame (header, frame)
         data = np.concatenate((data, f))
 
     rows = header.h_Rows
@@ -1045,8 +1078,13 @@ if __name__ == '__main__':
     framesToLoad = [1]
 
     for frame in framesToLoad:
-        data = getPTWFrame (header, frame)
-        #get the internal temperature from the header and use here
+        data, fheader = getPTWFrame (header, frame)
+        print('Sensor Temperature4 {} K '.format(fheader.h_sensorTemp4))
+        print('FPA Temperature {} K '.format(fheader.h_detectorTemp))
+        print('Time {}:{}:{} '.format(fheader.h_frameHour,
+                fheader.h_frameMinute,fheader.h_frameSecond))
+
+            #get the internal temperature from the header and use here
         tempIm = calData.LU.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
         # print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
         # print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
