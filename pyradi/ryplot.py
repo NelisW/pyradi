@@ -2160,7 +2160,7 @@ class Plotter:
     def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None,
                   cmap=plt.cm.gray, titlefsize=12, cbarshow=False,
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
-                  labelfsize=10, xylabelfsize = 12,):
+                  labelfsize=10, xylabelfsize = 12,interpolation=None):
       """Creates a subplot and show the image using the colormap provided.
 
             Args:
@@ -2177,6 +2177,7 @@ class Plotter:
                 | cbarfontsize (int): font size for colour bar  (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
+                | interpolation (str):   ‘none’, ‘nearest’, ‘bilinear’, ‘bicubic’, ‘spline16’, ‘spline36’, ‘hanning’, ‘hamming’, ‘hermite’, ‘kaiser’, ‘quadric’, ‘catrom’, ‘gaussian’, ‘bessel’, ‘mitchell’, ‘sinc’, ‘lanczos’(optional, see pyplot.imshow)
 
             Returns:
                 | the axis object for the plot
@@ -2194,7 +2195,7 @@ class Plotter:
 
       ax = self.subplots[pkey]
 
-      cimage = ax.imshow(img, cmap)
+      cimage = ax.imshow(img, cmap,interpolation=interpolation)
 
       if xlabel is not None:
           ax.set_xlabel(xlabel, fontsize=xylabelfsize)
