@@ -2,20 +2,15 @@
 
 ## NB!
 
-To build the documentation the pyradi module files must be reachable via the `PYTHONPATH`.
-The easiest way to to this is to place a file with the module name and extension `.pth`
-in the `/Lib/site-packages` directory.  The `.pth` file must contain a path to the location 
-where the module files are kept, such that the module directory name must not be 
-in the specified path, i.e., enter a path one level higher than the module directory.
+To build the documentation the pyradi module files must be reachable via the `PYTHONPATH`. The easiest way to to this is to place a file with the module name and extension `.pth` in the `/Lib/site-packages` directory.  The `.pth` file must contain a path to the location 
+where the module files are kept, such that the module directory name must not be  in the specified path, i.e., enter a path one level higher than the module directory.
 
 
-The present version of pyradi requires Python 2.7 to build the documentation, because
-the code only runs under Python 2.7.
+The present version of pyradi requires Python 2.7 to build the documentation, because the code only runs under Python 2.7.  If your Python 2.7 is in an environment, activate the environment.
 
 ## Create the documentation
 
-The pyradi documentation build directory is currently set up to build in an external directory
-outside of the main pyradi directory. To set up this directory
+The pyradi documentation build directory is currently set up to build in an external directory outside of the main pyradi directory. To set up this directory
 
 1. Building the documentation requires the sphinx documentation toolset.
 

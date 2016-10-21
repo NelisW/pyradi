@@ -24,6 +24,9 @@ available at:
 
 - Paper available at: http://arxiv.org/pdf/1412.4031.pdf
 - Matlab code available at: https://bitbucket.org/aorta/highlevelsensorsim
+- The paper describing this Python model as published in SPIE Proc 10036 is available here https://github.com/NelisW/pyradi/blob/master/pyradi/documentation/SM200-30-staring-array-modeling.pdf
+
+
 
 See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.html 
 or pyradi/doc/rystare.rst  for more detail.
