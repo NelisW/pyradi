@@ -132,36 +132,39 @@ def photosensor(strh5):
     else:  
         # there is light on the sensor
         # values already loaded by the time we get here
-        # diagram node 1 signal stored in rystare/signal/photonRateIrradianceNoNoise
+        # signal stored in rystare/signal/photonRateIrradianceNoNoise
 
         # add photon noise and calculate electron counts
-        # diagram node 2 signal stored in 'rystare/signal/photonRateIrradiance'
+        # diagram node 1  signal stored in 'rystare/signal/photonRateIrradiance'
 
-        #if shot noise not required, overwrite the noisy image with the no noise image
-        if not strh5['rystare/photonshotnoise/activate']:
-            strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/photonRateIrradianceNoNoise'].value
+        #photon rate irradiance in the image ph/(m2.s) 
+        #if shot noise required, use the no noise image to create the noisy image, noise diagram node 1  
+        if strh5['rystare/photonshotnoise/activate']:
+            strh5['rystare/signal/photonRateIrradiance'][...] = shotnoise(strh5['rystare/signal/photonRateIrradianceNoNoise'].value)
 
         # adjust 'rystare/signal/photonRateIrradiance' with responsivity non-uniformity (PRNU)
-        # diagram node 3 PRNU stored in 'rystare/signal/photonRateIrradianceNU
-    	# diagram node 4 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
+        # diagram node 2  PRNU stored in 'rystare/signal/photonRateIrradianceNU
+    	# diagram node 3 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
         if strh5['rystare/photondetector/lightPRNU/activate'].value:
             strh5 = responsivity_FPN_light(strh5)
 
 
         # at this point the photon irradiance is converted to electrons, after all 
         # responsivity effects but excluding detector area and integration time.
-	    # diagram node 5 quantum efficiency stored in rystare/quantumEfficiency
-	    # diagram node 5 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
+	    # diagram node 4 quantum efficiency stored in rystare/quantumEfficiency
+	    # diagram node 4 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
         strh5 = convert_to_electrons(strh5) 
 
         # multiply with the detector area
-        # diagram node 6 signal stored in 'rystare/signal/electronRate'
+        # diagram node 5 signal stored in 'rystare/signal/electronRate'
         strh5 = multiply_detector_area(strh5) 
 
         # multiply with the integration time
-        # diagram node 7 signal stored in 'rystare/signal/lightelectrons'
+        # diagram node 6 signal stored in 'rystare/signal/lightelectronsnoshotnoise'
         strh5 = multiply_integration_time(strh5) 
 
+        #now add shot noise on the photoelectrons diagram node 7
+        strh5['rystare/signal/lightelectrons'][...] = shotnoise(strh5['rystare/signal/lightelectronsnoshotnoise'].value)
 
     # no dark current or dark current effects added yet
     # add dark current noise
@@ -301,6 +304,7 @@ def check_create_datasets(strh5):
     strh5['rystare/signal/darkcurrentelectrons'] = np.zeros(sensor_size)
     strh5['rystare/signal/darkcurrentelectronsnoDFPN'] = np.zeros(sensor_size)
     # strh5['rystare/signal/light'] = np.zeros(sensor_size)
+    strh5['rystare/signal/lightelectronsnoshotnoise'] = np.zeros(sensor_size)
     strh5['rystare/signal/lightelectrons'] = np.zeros(sensor_size)
     strh5['rystare/signal/sensenodevoltageLinear'] = np.zeros(sensor_size)
     strh5['rystare/signal/voltage'] = np.zeros(sensor_size)
@@ -1224,7 +1228,7 @@ def multiply_integration_time(strh5):
     """
 
     #the number of electrons accumulated during the integration time  (rounded).
-    strh5['rystare/signal/lightelectrons'][...] = np.round(strh5['rystare/signal/electronRate'].value * strh5['rystare/photondetector/integrationtime'].value)
+    strh5['rystare/signal/lightelectronsnoshotnoise'][...] = np.round(strh5['rystare/signal/electronRate'].value * strh5['rystare/photondetector/integrationtime'].value)
 
     return strh5
 
@@ -1248,12 +1252,12 @@ def convert_to_electrons(strh5):
 
     # Converting the signal from Photons to Electrons
     # Quantum Efficiency = Quantum Efficiency Interaction X Quantum Yield Gain.
-    # diagram node 5 quantum efficiency stored in rystare/quantumEfficiency
+    # diagram node 4 quantum efficiency stored in rystare/quantumEfficiency
     strh5['rystare/quantumEfficiency'][...] = strh5['rystare/photondetector/externalquantumeff'].value * strh5['rystare/photondetector/quantumyield'].value
 
     # number of electrons [e] generated in detector
     strh5['rystare/signal/electronRateIrradiance'][...] = strh5['rystare/signal/photonRateIrradianceNU'].value * strh5['rystare/quantumEfficiency'].value 
-    # diagram node 5 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
+    # diagram node 4 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
 
     return strh5
 
@@ -1341,12 +1345,12 @@ def responsivity_FPN_light(strh5):
         strh5['rystare/imageSizePixels'].value[0], strh5['rystare/imageSizePixels'].value[1],
         'pixel', strh5['rystare/photondetector/lightPRNU/model'].value, strh5['rystare/photondetector/lightPRNU/sigma'].value)
 
-    # diagram node 3 NU stored in 'rystare/photondetector/lightPRNU/value'
+    # diagram node 2  NU stored in 'rystare/photondetector/lightPRNU/value'
 
     #np.random.randn has mean=0, variance = 1, so we multiply with variance and add to mean
     strh5['rystare/photondetector/lightPRNU/value'][...] = (1 + normalisedVariation)
 
-    # diagram node 4 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
+    # diagram node 3 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
     #apply the PRNU noise to the light signal of the photosensor.
     strh5['rystare/signal/photonRateIrradianceNU'][...] = strh5['rystare/signal/photonRateIrradiance'].value * strh5['rystare/photondetector/lightPRNU/value'].value
         
@@ -2016,16 +2020,16 @@ inPhotonrate=False,
     vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
     x1, y1 = np.meshgrid(varx, vary)
 
-    dset = imghd5.create_dataset('image/equivalentSignal', numPixels, compression="gzip")
-    dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, compression="gzip")
-    dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, compression="gzip")
+    dset = imghd5.create_dataset('image/equivalentSignal', numPixels, dtype='float', compression="gzip")
+    dset = imghd5.create_dataset('image/PhotonRateIrradianceNoNoise', numPixels, dtype='float', compression="gzip")
+    dset = imghd5.create_dataset('image/PhotonRateIrradiance', numPixels, dtype='float', compression="gzip")
 
     #Power in a single photon, in [Joule = Watt*s]
     P_photon = const.h * const.c / wavelength if 'W/' in EinUnits[:3] else 1.0
 
     if imtype in ['uniform']:
-        NormEin = np.zeros((x1.shape))
-        fintp = interpolate.interp1d(np.asarray([0.,1.]), np.asarray([0.,1.]))
+        NormEin = np.ones((x1.shape))
+        fintp = fintp
 
 
     elif imtype in ['disk']:
@@ -2075,6 +2079,7 @@ inPhotonrate=False,
             print('Unknown image type or file not successully read: {}\n no image file created'.format(imtype))
             return
 
+
         # create_HDF5_image(imageName='E-W-m2-detector-100-256', imtype='E-W-m2-detector-100-256.double', 
         #     pixelPitch=[12e-6, 12e-6],
         #         numPixels=[100,256], wavelength=wavelength,
@@ -2091,16 +2096,15 @@ inPhotonrate=False,
     Einphoton = Ein / P_photon
     #equivalent signal
     EinEquivalent =  fintp(Ein)
-        
-    #photon rate irradiance in the image ph/(m2.s), with no photon noise diagram node 1
+
+    #photon rate irradiance in the image ph/(m2.s), with no photon noise 
     imghd5['image/PhotonRateIrradianceNoNoise'][...] = Einphoton
-    #photon rate irradiance in the image ph/(m2.s), adding photon noise diagram node 2
+    #photon rate irradiance in the image ph/(m2.s), adding photon noise  
+    # add photon noise (later in the staring array calcs this value is recalculated)
     imghd5['image/PhotonRateIrradiance'][...] = shotnoise(Einphoton) 
+
     # save the equivalent inout signal as well (e.g., temperature or lux), by interpolation
-    imghd5['image/equivalentSignal'][...] =EinEquivalent
-
-
-
+    imghd5['image/equivalentSignal'][...] = EinEquivalent
 
     imghd5.flush()
     imghd5.close()
@@ -2361,6 +2365,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         imagehdffilename = 'data/image-Zero-256-256.hdf5'
     else:   # load an image, nonzero illumination
         imagehdffilename = 'data/image-Disk-256-256.hdf5'
+        # imagehdffilename = 'data/image-Uniform-256-256.hdf5'
 
     if pathtoimage is None:
         pathtoimage = os.path.join(os.path.dirname(ryprob.__file__), imagehdffilename)
@@ -2393,6 +2398,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalphotonRateIrradianceNU',np.mean(strh5['rystare/signal/photonRateIrradianceNU'].value), np.var(strh5['rystare/signal/photonRateIrradianceNU'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalelectronRateIrradiance',np.mean(strh5['rystare/signal/electronRateIrradiance'].value), np.var(strh5['rystare/signal/electronRateIrradiance'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalelectronRate',np.mean(strh5['rystare/signal/electronRate'].value), np.var(strh5['rystare/signal/electronRate'].value)))
+        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signallightelectronsNoShotNoise',np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'].value), np.var(strh5['rystare/signal/lightelectronsnoshotnoise'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signallightelectrons',np.mean(strh5['rystare/signal/lightelectrons'].value), np.var(strh5['rystare/signal/lightelectrons'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalDark',np.mean(strh5['rystare/signal/darkcurrentelectrons'].value), np.var(strh5['rystare/signal/darkcurrentelectrons'].value)))
         fo.write('{:26}, {:.5e}, {:.5e}\n'.format('source_follower_noise',np.mean(strh5['rystare/sourcefollower/source_follower_noise'].value), np.var(strh5['rystare/sourcefollower/source_follower_noise'].value)))
@@ -2406,7 +2412,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     lstimgs = ['rystare/signal/photonRateIrradianceNoNoise', 'rystare/quantumEfficiency',
          'rystare/signal/photonRateIrradiance','rystare/photondetector/lightPRNU/value',
          'rystare/signal/photonRateIrradianceNU','rystare/signal/electronRateIrradiance',
-         'rystare/signal/electronRate', 'rystare/signal/lightelectrons',
+         'rystare/signal/electronRate', 'rystare/signal/lightelectronsnoshotnoise','rystare/signal/lightelectrons',
          'rystare/darkcurrentelectronsnonoise', 'rystare/signal/darkcurrentelectrons',
          'rystare/photondetector/darkcurrent/fixedPatternNoise/value',
          'rystare/signal/darkcurrentelectrons',
@@ -2475,6 +2481,7 @@ def get_summary_stats(hdffilename):
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateIrradianceNoNoise',np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'].value), np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonRateIrradiance',np.mean(strh5['rystare/signal/photonRateIrradiance'].value), np.var(strh5['rystare/signal/photonRateIrradiance'].value)))
         print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonsNU',np.mean(strh5['rystare/signal/photonRateIrradianceNU'].value), np.var(strh5['rystare/signal/photonRateIrradianceNU'].value)))
+        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalLightNoShotNoise',np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'].value), np.var(strh5['rystare/signal/lightelectronsnoshotnoise'].value)))
         print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalLight',np.mean(strh5['rystare/signal/lightelectrons'].value), np.var(strh5['rystare/signal/lightelectrons'].value)))
         print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDarkNoNoise',np.mean(strh5['rystare/darkcurrentelectronsnonoise'].value), np.var(strh5['rystare/darkcurrentelectronsnonoise'].value)))
         print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDark',np.mean(strh5['rystare/signal/darkcurrentelectrons'].value), np.var(strh5['rystare/signal/darkcurrentelectrons'].value)))
@@ -2563,14 +2570,19 @@ if __name__ == '__main__':
         pixelPitch = [5e-6, 5e-6] # pixels pitch, in [m], [ROW, COLUMN] 
 
 
-        #create image with all pixels set to zero
-        create_HDF5_image(imageName='Zero', imtype='uniform', pixelPitch=pixelPitch, numPixels=numPixels,
-            wavelength=0.55e-6, irrad_min=0., irrad_dynrange=0.,equivalentSignalType='Arbitrary units',
-            equivalentSignalUnit='',EinUnits='Arbitrary units')
+        # create image with all pixels set to irrad_dynrange
+        # create the image in photon units
+        irrad_min = 0.0
+        irrad_dynrange = 1e16
+        fintp = interpolate.interp1d(np.asarray([irrad_min, irrad_dynrange]), np.asarray([irrad_min, irrad_dynrange]))
+        create_HDF5_image(imageName='Uniform', imtype='uniform', pixelPitch=pixelPitch, numPixels=numPixels,
+            wavelength=0.55e-6, irrad_min=irrad_min, irrad_dynrange=irrad_dynrange,equivalentSignalType='Arbitrary units',
+            equivalentSignalUnit='',EinUnits='Arbitrary units',fintp=fintp)
 
         #create an image with a blurred disk
+        # create the image in photon units
         irrad_min=0.
-        irrad_dynrange=0.1
+        irrad_dynrange = 1e16
         wavelength=0.55e-6
         fintp = interpolate.interp1d(np.asarray([irrad_min, irrad_dynrange]), np.asarray([irrad_min, irrad_dynrange]))
         create_HDF5_image(imageName='Disk', imtype='disk', pixelPitch=pixelPitch,numPixels=numPixels,
@@ -2578,6 +2590,7 @@ if __name__ == '__main__':
             fracdiameter=0.7, fracblurr=0.2, fintp=fintp,equivalentSignalType='Arbitrary units',
             equivalentSignalUnit='',EinUnits='Arbitrary units')
 
+        # work in lux units
         irrad_min = 74.08e-6
         irrad_dynrange = 37.04e-3
         irrad = np.linspace(irrad_min, irrad_min+irrad_dynrange, 100)
@@ -2598,7 +2611,26 @@ if __name__ == '__main__':
                 steps=40,fintp=fintp,equivalentSignalType='Irradiance',
                 equivalentSignalUnit='lux',EinUnits='W/m2 on detector plane')
 
+        # work in lux units, do this one in low light level
+        irrad_min = 74.08e-8
+        irrad_dynrange = 37.04e-5
+        irrad = np.linspace(irrad_min, irrad_min+irrad_dynrange, 100)
+        lux = 683 * 1.019 * np.exp(-285.51 * (wavelength*1e6 - 0.5591)**2) * irrad
+        fintp = interpolate.interp1d(irrad.reshape(-1), lux.reshape(-1))
+
+        #create an image with lin stairs
+        create_HDF5_image(imageName='Stairslin-LowLight-40', imtype='stairslin', pixelPitch=[5e-6, 5e-6],
+                numPixels=[100,520],wavelength=wavelength, 
+                irrad_dynrange=irrad_dynrange, irrad_min=irrad_min, 
+                steps=40,fintp=fintp,equivalentSignalType='Irradiance',
+                equivalentSignalUnit='lux',EinUnits='W/m2 on detector plane')
+
+
+
+
+
         #create an infrared image with lin stairs
+        # work in temperature
         tmin = 293 # 20 deg C at minimum level
         tmax = 313 # 40 deg C at maximum level
         # do all calcs at this wavelength, normally this would be a wideband spectral integral
