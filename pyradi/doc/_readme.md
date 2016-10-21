@@ -2,7 +2,7 @@
 
 ## NB!
 
-To build the documentation the module files must be reachable via the `PYTHONPATH`.
+To build the documentation the pyradi module files must be reachable via the `PYTHONPATH`.
 The easiest way to to this is to place a file with the module name and extension `.pth`
 in the `/Lib/site-packages` directory.  The `.pth` file must contain a path to the location 
 where the module files are kept, such that the module directory name must not be 
@@ -21,6 +21,7 @@ outside of the main pyradi directory. To set up this directory
 
 1. Be careful to clone the <font color="red"> `gh-pages` branch </font> from `https://github.com/NelisW/pyradi-docs/tree/gh-pages`, 
 to be on the same level as the main pyradi directory:  
+
 		+-pyradi
 		  +-.git
 		  |-setup.py
@@ -31,12 +32,12 @@ to be on the same level as the main pyradi directory:
 		  +-.git
 		  +-_build
 
-1.  To build the html documentation open a command window in this directory
+1.  To build the html documentation open a command window in the `doc`  directory
 and execute the command `make html`.
 
-1. To build the pdf documentation open a command window in this directory
+1. To build the pdf documentation open a command window in the `doc` directory
 and execute the command `make latex`, and then build the pdf from the latex
-files in `pyradi/doc/_build/latex`.
+files in `pyradi-docs/_build/latex`.
 
 1. Commit all files to the `gh-pages` branch.
 
