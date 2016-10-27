@@ -23,6 +23,8 @@ Module functions
 .. autofunction:: pyradi.ryfiles.cleanFilename	
 
 .. autofunction:: pyradi.ryfiles.listFiles	
+
+.. autofunction:: pyradi.ryfiles.execOnFiles	
 	
 .. autofunction:: pyradi.ryfiles.readRawFrames	
 

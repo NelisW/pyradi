@@ -40,7 +40,7 @@ __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
          'cleanFilename', 'listFiles','readRawFrames','rawFrameToImageFile',
-         'arrayToLaTex','epsLaTexFigure',
+         'arrayToLaTex','epsLaTexFigure','execOnFiles',
          'read2DLookupTable', 
          'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
          'open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
@@ -466,6 +466,56 @@ def downloadFileUrl(url,  saveFilename=None, proxy=None):
 
 
 ################################################################
+def execOnFiles(cmdline, root, patterns='*', recurse=1, return_folders=0, useRegex=False, printTask=False):
+    """execute a program on a list of files/directories meeting specific requirement
+
+        Seek files recursively and then execute a program on those files. 
+        The program is defined as a command line string as would be types on
+        a terminal, except that a token is given in the place where the 
+        filename must be.  The token is  a string '{0}' (with the braces as shown).
+        During execution the token is replaced with the filename found in the recursive search.
+        This replacement is done with the standard string formatter, where the filename 
+        replaces all occurences of {0}:
+        task = cmdline.format(filename)
+
+        Example: cmdline = 'bmpp -l eps.object {0}'
+
+
+    Args:
+        | cmdline (str): string that defines the program to be executed
+        | root (string): directory root from where the search must take place
+        | patterns (string): glob/regex pattern for filename matching
+        | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
+        | return_folders (int): flag to indicate if folder names must also be returned (optional)
+        | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
+        | printTask (bool): flag to indicate if the commandline must be printed (optional)
+
+    Returns:
+        | A list with matching file/directory names
+
+    Raises:
+        | No exception is raised.
+    """
+    import subprocess
+    import time
+
+    if cmdline is  None:
+        return
+    else:
+        filenames = listFiles(root, patterns, recurse, return_folders, useRegex)
+        for filename in filenames:
+            filename = os.path.join(*filename.split('\\'))
+            task = cmdline.format(filename)
+            if printTask:
+                print(task)
+            # execute the run
+            p=subprocess.Popen(task)          
+            while  p.poll() == None:
+                time.sleep(0.5)
+
+
+
+################################################################
 #lists the files in a directory and subdirectories
 #this code is adapted from a recipe in the Python Cookbook
 def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
@@ -492,35 +542,58 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     """
     if useRegex:
         import re
-
+        
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
-    # Collect input and output arguments into one bunch
-    class Bunch:
-        def __init__(self, **kwds): self.__dict__.update(kwds)
-    arg = Bunch(recurse=recurse, pattern_list=pattern_list,
-        return_folders=return_folders, results=[])
+    filenames = []
+    filertn = []
 
-    def visit(arg, dirname, files):
-        # Append to arg.results all relevant files (and perhaps folders)
-        for name in files:
-            fullname = os.path.normpath(os.path.join(dirname, name))
-            if arg.return_folders or os.path.isfile(fullname):
-                for pattern in arg.pattern_list:
-                    if useRegex:
-                        regex = re.compile(pattern)
-                        #search returns None is pattern not found
-                        if regex.search(name):
-                            arg.results.append(fullname)
-                            break
-                    else:
-                        if fnmatch.fnmatch(name, pattern):
-                            arg.results.append(fullname)
-                            break
-        # Block recursion if recursion was disallowed
-        if not arg.recurse: files[:]=[]
-    os.path.walk(root, visit, arg)
-    return arg.results
+    if sys.version_info[0] < 3:
+
+        # Collect input and output arguments into one bunch
+        class Bunch(object):
+            def __init__(self, **kwds): self.__dict__.update(kwds)
+        arg = Bunch(recurse=recurse, pattern_list=pattern_list,
+            return_folders=return_folders, results=[])
+
+        def visit(arg, dirname, files):
+            # Append to arg.results all relevant files (and perhaps folders)
+            for name in files:
+                fullname = os.path.normpath(os.path.join(dirname, name))
+                if arg.return_folders or os.path.isfile(fullname):
+                    for pattern in arg.pattern_list:
+                        if useRegex:
+                            regex = re.compile(pattern)
+                            #search returns None is pattern not found
+                            if regex.search(name):
+                                arg.results.append(fullname)
+                                break
+                        else:
+                            if fnmatch.fnmatch(name, pattern):
+                                arg.results.append(fullname)
+                                break
+            # Block recursion if recursion was disallowed
+            if not arg.recurse: files[:]=[]
+        os.path.walk(root, visit, arg)
+        return arg.results
+
+    else:
+        for dirpath,dirnames,files in os.walk(root):
+            if dirpath==root or recurse:
+                for filen in files:
+                    filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                if return_folders:
+                    for dirn in dirnames:
+                        filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+        for name in filenames:
+            if return_folders or os.path.isfile(name):
+                for pattern in pattern_list:
+                    if fnmatch.fnmatch(name, pattern):
+                        filertn.append(name)
+                        break
+
+    return filertn
+
 
 ################################################################
 ##
@@ -1044,165 +1117,174 @@ if __name__ == '__main__':
     import ryplot
     import ryutils
 
-    # read two-dimensional lookup table
-    xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
-  
-    p = ryplot.Plotter(1)
-    for azim in [0,18,36]:
-        p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
-            ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu(False)),
-            label=['Azim={0:.0f} deg'.format(yVec[azim])])
-    p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
+    doAll = True
 
-    print ('Test writing latex format arrays:')
-    arr = np.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
-    arrayToLaTex('array.txt', arr)
-    arrayToLaTex('array.txt', arr, formatstring='%.1f')
-    headeronly = 'Col1 & Col2 & Col3'
-    arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f')
-    header = 'Col 1 & Col 2 & Col 3'
-    leftcol = ['XX','Row 1','Row 2','Row 3']
-    #with \usepackage{siunitx} you can even do this:
-    arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
+    if False:
 
-    print ('Test writing eps file figure latex fragments:')
-    epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
+        #this example requires the DKTools bmpp executable http://dktools.sourceforge.net/bmpp.html
+        execOnFiles(cmdline = 'bmpp -l eps.object {0}', root='./ref/', patterns='*.png', 
+            recurse=1, return_folders=0, useRegex=False, printTask=True)
 
-    print ('Test writing and reading numpy array to text file, with header:')
-    #create a two-dimensional array of 25 rows and 7 columns as an outer product
-    twodA=np.outer(np.arange(0, 5, .2),np.arange(1, 8))
-    #write this out as a test file
-    filename='ryfilestesttempfile.txt'
-    saveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
-                       delimiter=' ', comment='%')
+    if doAll:
+        # read two-dimensional lookup table
+        xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
+      
+        p = ryplot.Plotter(1)
+        for azim in [0,18,36]:
+            p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
+                ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu(False)),
+                label=['Azim={0:.0f} deg'.format(yVec[azim])])
+        p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
-    #create a new range to be used for interpolation
-    tim=np.arange(1, 3, .3).reshape(-1, 1)
-    #read the test file and interpolate the selected columns on the new range tim
-    # the comment parameter is superfluous, since there are no comments in this file
+        print ('Test writing latex format arrays:')
+        arr = np.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
+        arrayToLaTex('array.txt', arr)
+        arrayToLaTex('array.txt', arr, formatstring='%.1f')
+        headeronly = 'Col1 & Col2 & Col3'
+        arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f')
+        header = 'Col 1 & Col 2 & Col 3'
+        leftcol = ['XX','Row 1','Row 2','Row 3']
+        #with \usepackage{siunitx} you can even do this:
+        arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
 
-    print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
-    print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
-    os.remove(filename)
+        print ('Test writing eps file figure latex fragments:')
+        epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
 
-    ##------------------------- samples ----------------------------------------
-    # read space separated file containing wavelength in um, then samples.
-    # select the samples to be read in and then load all in one call!
-    # first line in file contains labels for columns.
-    wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
-    samplesSelect = [1,2,3,8,10,11]
-    samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength, \
-                loadCol=samplesSelect,  comment='%')
-    samplesTxt=loadHeaderTextFile('data/colourcoordinates/samples.txt',\
-                loadCol=samplesSelect, comment='%')
-    #print(samples)
-    print(samplesTxt)
-    print(samples.shape)
-    print(wavelength.shape)
+        print ('Test writing and reading numpy array to text file, with header:')
+        #create a two-dimensional array of 25 rows and 7 columns as an outer product
+        twodA=np.outer(np.arange(0, 5, .2),np.arange(1, 8))
+        #write this out as a test file
+        filename='ryfilestesttempfile.txt'
+        saveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
+                           delimiter=' ', comment='%')
 
-    ##------------------------- plot sample spectra ------------------------------
-    smpleplt = ryplot.Plotter(1, 1, 1)
-    smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
-                r'Reflectance', 
-                ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=samplesTxt,legendAlpha=0.5)
-    smpleplt.saveFig('SampleReflectance'+'.png')
+        #create a new range to be used for interpolation
+        tim=np.arange(1, 3, .3).reshape(-1, 1)
+        #read the test file and interpolate the selected columns on the new range tim
+        # the comment parameter is superfluous, since there are no comments in this file
 
-    ##===================================================
-    print ('\nTest CleanFilename function:')
-    inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-    print('{0}\n{1}'.format(inString,cleanFilename(inString) ))
-    inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-    print('{0}\n{1}'.format(inString,cleanFilename(inString, " ") ))
-    inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-    print('{0}\n{1}'.format(inString,cleanFilename(inString, "") ))
+        print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
+        print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
+        os.remove(filename)
 
-    print ('\nTest listFiles function - only python files in currect dir:')
-    print(listFiles('./', patterns='*.py', recurse=0, return_folders=1))
-    print ('\nTest listFiles function - only python files in nested dirs:')
-    print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
+        ##------------------------- samples ----------------------------------------
+        # read space separated file containing wavelength in um, then samples.
+        # select the samples to be read in and then load all in one call!
+        # first line in file contains labels for columns.
+        wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
+        samplesSelect = [1,2,3,8,10,11]
+        samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength, \
+                    loadCol=samplesSelect,  comment='%')
+        samplesTxt=loadHeaderTextFile('data/colourcoordinates/samples.txt',\
+                    loadCol=samplesSelect, comment='%')
+        #print(samples)
+        print(samplesTxt)
+        print(samples.shape)
+        print(wavelength.shape)
 
-    ##------------------------- load frames from binary & show ---------------------------
-    import matplotlib.pyplot as plt
+        ##------------------------- plot sample spectra ------------------------------
+        smpleplt = ryplot.Plotter(1, 1, 1)
+        smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
+                    r'Reflectance', 
+                    ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=samplesTxt,legendAlpha=0.5)
+        smpleplt.saveFig('SampleReflectance'+'.png')
 
-    imagefile = 'data/sample.ulong'
-    rows = 100
-    cols = 100
-    vartype = np.uint32
-    framesToLoad =  [1, 3, 5, 7]
-    frames, img = readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
+        ##===================================================
+        print ('\nTest CleanFilename function:')
+        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+        print('{0}\n{1}'.format(inString,cleanFilename(inString) ))
+        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+        print('{0}\n{1}'.format(inString,cleanFilename(inString, " ") ))
+        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+        print('{0}\n{1}'.format(inString,cleanFilename(inString, "") ))
 
-    if frames == len(framesToLoad):
+        print ('\nTest listFiles function - only python files in currect dir:')
+        print(listFiles('./', patterns='*.py', recurse=0, return_folders=1))
+        print ('\nTest listFiles function - only python files in nested dirs:')
+        print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
 
-        #first plot using ryplot, using matplotlib
-        P = ryplot.Plotter(1, 2, 2,'Sample frames from binary file', figsize=(4, 4))
-        P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
-        P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
-        P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm. bone)
-        P.showImage(4, img[3], 'frame {0}'.format(framesToLoad[3]), cmap=plt.cm.gist_rainbow)
-        P.getPlot().show()
-        P.saveFig('sample.png', dpi=300)
-        print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
-        img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
+        ##------------------------- load frames from binary & show ---------------------------
+        import matplotlib.pyplot as plt
 
-        #now write the raw frames to image files
-        type = ['png','png','png','png']
-        for i in range(frames):
-            # print(i)
-            filename = 'rawIm{0}.{1}'.format(i,type[i])
-            print('  saving image {} file to {}'.format(i,filename))
-            rawFrameToImageFile(img[i],filename)
+        imagefile = 'data/sample.ulong'
+        rows = 100
+        cols = 100
+        vartype = np.uint32
+        framesToLoad =  [1, 3, 5, 7]
+        frames, img = readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
 
-    else:
-        print('\nNot all frames read from file')
+        if frames == len(framesToLoad):
 
-    #######################################################################
-    print("Test the glob version of listFiles")
-    filelist = listFiles('.', patterns=r"ry*.py", recurse=0, return_folders=0)
-    for filename in filelist:
-        print('  {0}'.format(filename))
+            #first plot using ryplot, using matplotlib
+            P = ryplot.Plotter(1, 2, 2,'Sample frames from binary file', figsize=(4, 4))
+            P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
+            P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
+            P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm. bone)
+            P.showImage(4, img[3], 'frame {0}'.format(framesToLoad[3]), cmap=plt.cm.gist_rainbow)
+            P.getPlot().show()
+            P.saveFig('sample.png', dpi=300)
+            print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
+            img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
 
-    print("Test the regex version of listFiles")
-    filelist = listFiles('.', patterns=r"[a-z]*p[a-z]*\.py[c]*", \
-        recurse=0, return_folders=0, useRegex=True)
-    for filename in filelist:
-        print('  {0}'.format(filename))
+            #now write the raw frames to image files
+            type = ['png','png','png','png']
+            for i in range(frames):
+                # print(i)
+                filename = 'rawIm{0}.{1}'.format(i,type[i])
+                print('  saving image {} file to {}'.format(i,filename))
+                rawFrameToImageFile(img[i],filename)
 
+        else:
+            print('\nNot all frames read from file')
 
-    #######################################################################
-    print("Test downloading a file from internet given a URL")
-    url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
-          'data/colourcoordinates/samplesVis.txt'
-    if downloadFileUrl(url) is not None:
-       print('success')
-    else:
-       print('download failed')
+        #######################################################################
+        print("Test the glob version of listFiles")
+        filelist = listFiles('.', patterns=r"ry*.py", recurse=0, return_folders=0)
+        for filename in filelist:
+            print('  {0}'.format(filename))
 
-    #######################################################################
-    print("Test unzipping a gzip file, then untar the file")
-    if unzipGZipfile('./data/colourcoordinates/colourcoordinates.tgz','tar') is not None:
-        print('success')
-    else:
-        print('unzip failed')
-
-    print("Test untarring a tar file")
-    result = untarTarfile('tar','.')
-    if result is not None:
-        print(result)
-    else:
-        print('untarTarfile failed')
+        print("Test the regex version of listFiles")
+        filelist = listFiles('.', patterns=r"[a-z]*p[a-z]*\.py[c]*", \
+            recurse=0, return_folders=0, useRegex=True)
+        for filename in filelist:
+            print('  {0}'.format(filename))
 
 
-    tgzFilename = 'colourcoordinates.tgz'
-    destinationDir = '.'
-    tarFilename = 'colourcoordinates.tar'
-    url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
-                                        'data/colourcoordinates/'
-    names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
-    if names:
-        print('Files downloaded and untarred {}!'.format(tgzFilename))
-        print(names)
-    else:
-        print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
+        #######################################################################
+        print("Test downloading a file from internet given a URL")
+        url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+              'data/colourcoordinates/samplesVis.txt'
+        if downloadFileUrl(url) is not None:
+           print('success')
+        else:
+           print('download failed')
+
+        #######################################################################
+        print("Test unzipping a gzip file, then untar the file")
+        if unzipGZipfile('./data/colourcoordinates/colourcoordinates.tgz','tar') is not None:
+            print('success')
+        else:
+            print('unzip failed')
+
+        print("Test untarring a tar file")
+        result = untarTarfile('tar','.')
+        if result is not None:
+            print(result)
+        else:
+            print('untarTarfile failed')
+
+
+        tgzFilename = 'colourcoordinates.tgz'
+        destinationDir = '.'
+        tarFilename = 'colourcoordinates.tar'
+        url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+                                            'data/colourcoordinates/'
+        names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
+        if names:
+            print('Files downloaded and untarred {}!'.format(tgzFilename))
+            print(names)
+        else:
+            print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
 
 
     #######################################################################

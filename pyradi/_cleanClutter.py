@@ -6,9 +6,12 @@ import os.path, fnmatch
 import sys
 
 
-def listFiles(root, patterns='*', recurse=1, return_folders=0):
+def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     """lists the files in a directory and subdirectories (from Python Cookbook)
     """
+    if useRegex:
+        import re
+        
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
     filenames = []
@@ -28,9 +31,16 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
                 fullname = os.path.normpath(os.path.join(dirname, name))
                 if arg.return_folders or os.path.isfile(fullname):
                     for pattern in arg.pattern_list:
-                        if fnmatch.fnmatch(name, pattern):
-                            arg.results.append(fullname)
-                            break
+                        if useRegex:
+                            regex = re.compile(pattern)
+                            #search returns None is pattern not found
+                            if regex.search(name):
+                                arg.results.append(fullname)
+                                break
+                        else:
+                            if fnmatch.fnmatch(name, pattern):
+                                arg.results.append(fullname)
+                                break
             # Block recursion if recursion was disallowed
             if not arg.recurse: files[:]=[]
         os.path.walk(root, visit, arg)
