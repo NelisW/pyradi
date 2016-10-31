@@ -52,9 +52,9 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          ]
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 import numpy as np
@@ -64,8 +64,11 @@ from matplotlib.patches import Wedge
 from matplotlib.collections import PatchCollection
 import os
 import pkg_resources
-from StringIO import StringIO
 from numbers import Number
+if sys.version_info[0] > 2:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 ##############################################################################
 ##

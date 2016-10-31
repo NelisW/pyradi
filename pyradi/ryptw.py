@@ -71,9 +71,9 @@ __all__=['myint','mylong','myfloat','mybyte', 'mydouble', 'ReadPTWHeader',
 'ShowHeader', 'GetPTWFrame', 'GetPTWFrames']
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 import collections
 import os.path
@@ -112,7 +112,10 @@ def myint(x):
 
 def mylong(x):
     # four bytes length
-    ans = ord(x[0])+(ord(x[1])<<8)+(ord(x[2])<<16)+(ord(x[3])<<32)
+    if sys.version_info[0] > 2:
+        ans = x[0] + (x[1]<<8) + (x[2]<<16) + (x[3]<<32)
+    else:
+        ans = ord(x[0]) + (ord(x[1])<<8) + (ord(x[2])<<16) + (ord(x[3])<<32)
     return ans
 
 def myfloat(x):
@@ -310,8 +313,8 @@ class PTWFrameInfo:
     self.h_frameSecond = 0 #h_second+(h_thousands+h_hundred)/1000.0
 
     # detector / FPA temperature
-    self.h_detectorTemp = None #FrameHeader[228:232]
-    self.h_sensorTemp4 = None #FrameHeader[232:236]
+    self.h_detectorTemp = 0.0 #FrameHeader[228:232]
+    self.h_sensorTemp4 = 0.0 #FrameHeader[232:236]
 
 # End of header definition
 
@@ -350,14 +353,20 @@ def readPTWHeader(ptwfilename):
     fid = open(ptwfilename,'rb')
     headerinfo = fid.read(MainHeaderSize)
 
-    Header.h_Signature = headerinfo[0:3]
+    if sys.version_info[0] > 2:
+        Header.h_Signature = headerinfo[0:3].decode('utf-8')
+    else:
+        Header.h_Signature = headerinfo[0:3]
     if Header.h_Signature == 'AIO': #AGEMA
         Header.h_format = 'agema'
     elif Header.h_Signature == 'CED':
         Header.h_format = 'cedip'
         Header.h_unit = 'dl'
 
-    Header.h_Version = headerinfo[5:10]
+    if sys.version_info[0] > 2:
+        Header.h_Version = headerinfo[5:10].decode('utf-8')
+    else:
+        Header.h_Version = headerinfo[5:10]
     Header.h_MainHeaderSize = mylong(headerinfo[11:15])
     Header.h_FrameHeaderSize = mylong(headerinfo[15:19])
     Header.h_SizeOfOneFrameAndHeader = mylong(headerinfo[19:23])
@@ -379,10 +388,18 @@ def readPTWHeader(ptwfilename):
 
     Header.h_Millieme = ord(headerinfo[43:44])
 
-    Header.h_CameraName = terminateStrOnZero(headerinfo[44:64])
-    Header.h_LensName = terminateStrOnZero(headerinfo[64:84])
-    Header.h_FilterName = terminateStrOnZero(headerinfo[84:104])
-    Header.h_ApertureName = terminateStrOnZero(headerinfo[104:124])
+
+    if sys.version_info[0] > 2:
+        stripchar = terminateStrOnZero(headerinfo[44:64]).decode('utf-8')[-1]
+        Header.h_CameraName = terminateStrOnZero(headerinfo[44:64]).decode('utf-8').rstrip(stripchar)
+        Header.h_LensName = terminateStrOnZero(headerinfo[64:84]).decode('utf-8').rstrip(stripchar)
+        Header.h_FilterName = terminateStrOnZero(headerinfo[84:104]).decode('utf-8').rstrip(stripchar)
+        Header.h_ApertureName = terminateStrOnZero(headerinfo[104:124]).decode('utf-8').rstrip(stripchar)
+    else:
+        Header.h_CameraName = terminateStrOnZero(headerinfo[44:64])
+        Header.h_LensName = terminateStrOnZero(headerinfo[64:84])
+        Header.h_FilterName = terminateStrOnZero(headerinfo[84:104])
+        Header.h_ApertureName = terminateStrOnZero(headerinfo[104:124])
 
     Header.h_IRUSBilletSpeed = myfloat(headerinfo[124:128]) # IRUS
     Header.h_IRUSBilletDiameter = myfloat(headerinfo[128:132]) # IRUS
@@ -409,7 +426,11 @@ def readPTWHeader(ptwfilename):
     Header.h_OpticsFocalLength = myfloat(headerinfo[208:212])
     Header.h_HousingTemperature1 = myfloat(headerinfo[212:216])
     Header.h_HousingTemperature2 = myfloat(headerinfo[216:220])
-    Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231])
+    if sys.version_info[0] > 2:
+        stripchar = terminateStrOnZero(headerinfo[220:231]).decode('utf-8')[-1]
+        Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231]).decode('utf-8').rstrip(stripchar)
+    else:
+        Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231])
     Header.h_MinimumLevelThreshold = myint(headerinfo[245:247])
     Header.h_MaximumLevelThreshold = myint(headerinfo[247:249])
     Header.h_EchelleSpecial = myint(headerinfo[277:279])
@@ -445,7 +466,11 @@ def readPTWHeader(ptwfilename):
     Header.h_SATIRLocationLongitude = myfloat(headerinfo[385:389]) # SATIR
     Header.h_SATIRLocationLatitude = myfloat(headerinfo[389:393]) # SATIR South is negative
     Header.h_SATIRLocationAltitude = myfloat(headerinfo[393:397]) # SATIR
-    Header.h_ExternalSynch = ord(headerinfo[397]) # 1=External 0 = Internal
+    if sys.version_info[0] > 2:
+        Header.h_ExternalSynch = headerinfo[397] # 1=External 0 = Internal
+    else:
+        Header.h_ExternalSynch = ord(headerinfo[397]) # 1=External 0 = Internal
+
     Header.h_CEDIPAquisitionPeriod = myfloat(headerinfo[403:407]) # CEDIP seconds
     Header.h_CEDIPIntegrationTime = myfloat(headerinfo[407:411]) # CEDIP seconds
     Header.h_WOLFSubwindowCapability = myint(headerinfo[411:413]) # WOLF
@@ -453,18 +478,32 @@ def readPTWHeader(ptwfilename):
     Header.h_ORIONFilterNames = headerinfo[437:557] # ORION 6 fields of 20 chars each
     Header.h_NucTable = myint(headerinfo[557:559])
     Header.h_Reserve6 = headerinfo[559:563]
-    Header.h_Comment = terminateStrOnZero(headerinfo[563:1563])
-    Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[1563:1663])
-    Header.h_ToolsFileName = terminateStrOnZero(headerinfo[1663:1919])
+    if sys.version_info[0] > 2:
+        stripchar = terminateStrOnZero(headerinfo[563:1563]).decode('utf-8')[-1]
+        Header.h_Comment = terminateStrOnZero(headerinfo[563:1563]).decode('utf-8').rstrip(stripchar)
+        stripchar = terminateStrOnZero(headerinfo[1563:1663]).decode('utf-8')[-1]
+        Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[1563:1663]).decode('utf-8').rstrip(stripchar)
+        stripchar = terminateStrOnZero(headerinfo[1663:1919]).decode('utf-8')[-1]
+        Header.h_ToolsFileName = terminateStrOnZero(headerinfo[1663:1919]).decode('utf-8').rstrip(stripchar)
+    else:
+        Header.h_Comment = terminateStrOnZero(headerinfo[563:1563])
+        Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[1563:1663])
+        Header.h_ToolsFileName = terminateStrOnZero(headerinfo[1663:1919])
+
     Header.h_PaletteIndexValid = ord(headerinfo[1919:1920])
     Header.h_PaletteIndexCurrent = myint(headerinfo[1920:1922])
     Header.h_PaletteToggle = ord(headerinfo[1922:1923])
     Header.h_PaletteAGC = ord(headerinfo[1923:1924])
     Header.h_UnitIndexValid = ord(headerinfo[1924:1925])
     Header.h_CurrentUnitIndex = myint(headerinfo[1925:1927])
-    Header.h_ZoomPosition = terminateStrOnZero(headerinfo[1927:1935]) # unknown format POINT
+    if sys.version_info[0] > 2:
+        stripchar = terminateStrOnZero(headerinfo[1927:1935]).decode('utf-8')[-1]
+        Header.h_ZoomPosition = terminateStrOnZero(headerinfo[1927:1935]).decode('utf-8').rstrip(stripchar) # unknown format POINT
+        Header.h_KeyFramesInFilm = terminateStrOnZero(headerinfo[1936:2056]).decode('utf-8').rstrip(stripchar) # set of 30 frames
+    else:
+        Header.h_ZoomPosition = terminateStrOnZero(headerinfo[1927:1935]) # unknown format POINT
+        Header.h_KeyFramesInFilm = terminateStrOnZero(headerinfo[1936:2056]) # set of 30 frames
     Header.h_KeyFrameNumber = ord(headerinfo[1935:1936])
-    Header.h_KeyFramesInFilm = terminateStrOnZero(headerinfo[1936:2056]) # set of 30 frames
     Header.h_PlayerLocked =  ord(headerinfo[2056:2057])
     Header.h_FrameSelectionValid = ord(headerinfo[2057:2058])
     Header.h_FrameofROIStart = mylong(headerinfo[2058:2062])
@@ -505,7 +544,13 @@ def readPTWHeader(ptwfilename):
     Header.h_DistanceOffset = myfloat(headerinfo[2140:2144])
     Header.h_HistoEqualizationEnabled = ord(headerinfo[2144:2145])
     Header.h_HistoEqualizationPercent = myint(headerinfo[2145:2147])
-    Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[2147:2403])
+    if sys.version_info[0] > 2:
+        stripchar = terminateStrOnZero(headerinfo[2147:2403]).decode('utf-8')[-1]
+        Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[2147:2403]).decode('utf-8').rstrip(stripchar)
+    else:
+        Header.h_CalibrationFileName = terminateStrOnZero(headerinfo[2147:2403])
+
+
     Header.h_PTRTopFrameValid = ord(headerinfo[2403:2404])
     # Header.h_SubSampling = myint(headerinfo[2404:2408])
     Header.h_SubSampling = mylong(headerinfo[2404:2408])
@@ -585,6 +630,10 @@ def GetPTWFrameFromFile(header):
 	#detector FPA temperature
     header.h_detectorTemp = myfloat(FrameHeader[228:232]) 
     header.h_sensorTemp4 = myfloat(FrameHeader[232:236]) 
+    if header.h_sensorTemp4 is None:
+        header.h_sensorTemp4 = 0.0
+    if header.h_detectorTemp is None:
+        header.h_detectorTemp = 0.0
 
     # for debugging
     #print ('Start FrameData at',fid.tell())
@@ -721,155 +770,160 @@ def showHeader(Header):
         | No exception is raised.
     """
 
-    print (Header.h_Signature, 'version', Header.h_Version)
-    print ('Main Header Size',Header.h_MainHeaderSize)
-    print ('Frame Header Size',Header.h_FrameHeaderSize)
-    print ('Frame + Frame Header Size',Header.h_SizeOfOneFrameAndHeader)
-    print ('Frame Size',Header.h_SizeOfOneFrame)
-    print ('Number of Frames', Header.h_NumberOfFieldInFile)
+    print('{} version {}'.format(Header.h_Signature, Header.h_Version))
+    print('Main Header Size {}'.format(Header.h_MainHeaderSize))
+    print('Frame Header Size {}'.format(Header.h_FrameHeaderSize))
+    print('Frame + Frame Header Size {}'.format(Header.h_SizeOfOneFrameAndHeader))
+    print('Frame Size {}'.format(Header.h_SizeOfOneFrame))
+    print('Number of Frames {}'.format(Header.h_NumberOfFieldInFile))
     #print Header.h_CurrentFieldNumber
 
-    print ('Year',Header.h_FileSaveYear, 'Month',Header.h_FileSaveMonth, 'Day', Header.h_FileSaveDay,)
-    print ('(',str(Header.h_FileSaveYear).zfill(2), '/',str(Header.h_FileSaveMonth).zfill(2), '/', str(Header.h_FileSaveDay).zfill(2),')')
-
-    print ('Hour',Header.h_FileSaveHour, 'Minute',Header.h_FileSaveMinute, 'Second',Header.h_FileSaveSecond,)
-    print ('(',str(Header.h_FileSaveHour).zfill(2), ':',str(Header.h_FileSaveMinute).zfill(2), ':',str(Header.h_FileSaveSecond).zfill(2),')')
+    print('Year {} Month {} Day {}'.format(Header.h_FileSaveYear, Header.h_FileSaveMonth, 
+        Header.h_FileSaveDay))
+    print('( {} / {} / {} )'.format(str(Header.h_FileSaveYear).zfill(2), 
+        str(Header.h_FileSaveMonth).zfill(2), str(Header.h_FileSaveDay).zfill(2)))
+    print('Hour {} Minute {} Second {}'.format(Header.h_FileSaveHour,Header.h_FileSaveMinute,
+        Header.h_FileSaveSecond))
+    print('( {} : {} : {} )'.format(str(Header.h_FileSaveHour).zfill(2),
+        str(Header.h_FileSaveMinute).zfill(2),str(Header.h_FileSaveSecond).zfill(2)))
 
     #print Header.h_Millieme
-    print ('Camera Name',Header.h_CameraName)
-    print ('Lens',Header.h_LensName)
-    print ('Filter',Header.h_FilterName)
-    print ('Aperture Name', Header.h_ApertureName)
+    print ('Camera Name {}'.format(Header.h_CameraName))
+    print ('Lens {}'.format(Header.h_LensName))
+    print ('Filter {}'.format(Header.h_FilterName))
+    print ('Aperture Name {}'.format( Header.h_ApertureName))
     if Header.h_Signature == 'IRUS':
-        print (Header.h_IRUSBilletSpeed)
-        print (Header.h_IRUSBilletDiameter)
-        print (Header.h_IRUSBilletShape)
-    print ('Emissivity',Header.h_Emissivity)
-    print ('Ambient Temperature', Header.h_Ambiant,'(K)')
-    print ('Ambient Temperature', Header.h_Ambiant-273.15,'(degC)')
-    print ('Distance to target',Header.h_Distance)
+        print ('{}'.format(Header.h_IRUSBilletSpeed))
+        print ('{}'.format(Header.h_IRUSBilletDiameter))
+        print ('{}'.format(Header.h_IRUSBilletShape))
+    print ('Emissivity {:.6f}'.format(Header.h_Emissivity))
+    print ('Ambient Temperature {:.6f} (K)'.format(Header.h_Ambiant))
+    print ('Ambient Temperature {:.6f} (degC)'.format(Header.h_Ambiant-273.15))
+    print ('Distance to target {}'.format(Header.h_Distance))
     if Header.h_Signature == 'IRUS':
-        print (Header.h_IRUSInductorCoil)
-        print (Header.h_IRUSInductorPower)
-        print (Header.h_IRUSInductorVoltage)
-        print (Header.h_IRUSInductorFrequency)
-        print (Header.h_IRUSSynchronization)
-    print ('Atm Transmission', Header.h_AtmTransmission)
-    print ('Ext Coef',Header.h_ExtinctionCoeficient)
-    print ('Target', Header.h_Object)
-    print ('Optic',Header.h_Optic)
-    print ('Atmo',Header.h_Atmo)
-    print ('Atm Temp', Header.h_AtmosphereTemp)
-    print ('Cut on Wavelength', Header.h_CutOnWavelength)
-    print ('Cut off Wavelength', Header.h_CutOffWavelength)
-    print ('PixelSize', Header.h_PixelSize)
-    print ('PixelPitch', Header.h_PixelPitch)
-    print ('Detector Apperture', Header.h_DetectorApperture)
-    print ('Optic Focal Length', Header.h_OpticsFocalLength)
-    print ('Housing Temp1', Header.h_HousingTemperature1, '(K)')
-    print ('Housing Temp2', Header.h_HousingTemperature2, '(K)')
-    print ('Sensor Temp4', Header.h_sensorTemp4, '(K)')
-    print ('Detector/FPA Temp', Header.h_detectorTemp, '(K)')
+        print ('{}'.format(Header.h_IRUSInductorCoil))
+        print ('{}'.format(Header.h_IRUSInductorPower))
+        print ('{}'.format(Header.h_IRUSInductorVoltage))
+        print ('{}'.format(Header.h_IRUSInductorFrequency))
+        print ('{}'.format(Header.h_IRUSSynchronization))
+    print ('Atm Transmission {}'.format(Header.h_AtmTransmission))
+    print ('Ext Coef {}'.format(Header.h_ExtinctionCoeficient))
+    print ('Target {}'.format(Header.h_Object))
+    print ('Optic {}'.format(Header.h_Optic))
+    print ('Atmo {}'.format(Header.h_Atmo))
+    print ('Atm Temp {:.6f}'.format(Header.h_AtmosphereTemp))
+    print ('Cut on Wavelength {:.6f}'.format(Header.h_CutOnWavelength))
+    print ('Cut off Wavelength {:.6f}'.format(Header.h_CutOffWavelength))
+    print ('PixelSize {}'.format(Header.h_PixelSize))
+    print ('PixelPitch {}'.format(Header.h_PixelPitch))
+    print ('Detector Apperture {}'.format(Header.h_DetectorApperture))
+    print ('Optic Focal Length {}'.format(Header.h_OpticsFocalLength))
+    print ('Housing Temp1 {:.6f} (K)'.format(Header.h_HousingTemperature1))
+    print ('Housing Temp2 {:.6f} (K)'.format(Header.h_HousingTemperature2))
+
+    print ('Sensor Temp4 {:.6f} (K)'.format(Header.h_sensorTemp4))
+    print ('Detector/FPA Temp {:.6f} (K)'.format(Header.h_detectorTemp))
     
-    print ('Camera Serial Number', Header.h_CameraSerialNumber)
-    print ('Min Threshold', Header.h_MinimumLevelThreshold)
-    print ('Max Threshold', Header.h_MaximumLevelThreshold)
+    print ('Camera Serial Number {}'.format(Header.h_CameraSerialNumber))
+    print ('Min Threshold {}'.format(Header.h_MinimumLevelThreshold))
+    print ('Max Threshold {}'.format(Header.h_MaximumLevelThreshold))
     #print Header.h_EchelleSpecial
     #print Header.h_EchelleUnit
     #print Header.h_EchelleValue
-    print ('Gain', Header.h_LockinGain)
-    print ('Offset', Header.h_LockinOffset)
-    print ('HZoom', Header.h_HorizontalZoom)
-    print ('VZoom', Header.h_VerticalZoom)
-    print ('Field', Header.h_PixelsPerLine,'X',Header.h_LinesPerField)
-    print ('AD converter',Header.h_ADDynamic, 'bit')
+    print ('Gain {}'.format(Header.h_LockinGain))
+    print ('Offset {}'.format(Header.h_LockinOffset))
+    print ('HZoom {}'.format(Header.h_HorizontalZoom))
+    print ('VZoom {}'.format(Header.h_VerticalZoom))
+    print ('Field {}'.format(Header.h_PixelsPerLine,'X',Header.h_LinesPerField))
+    print ('AD converter {} bit'.format(Header.h_ADDynamic))
+
+
+
+
     if Header.h_Signature == 'SATIR':
-        print (Header.h_SATIRTemporalFrameDepth)
-        print (Header.h_SATIRLocationLongitude)
-        print (Header.h_SATIRLocationLatitude)
-        print (Header.h_SATIRLocationAltitude)
+        print ('{}'.format(Header.h_SATIRTemporalFrameDepth))
+        print ('{}'.format(Header.h_SATIRLocationLongitude))
+        print ('{}'.format(Header.h_SATIRLocationLatitude))
+        print ('{}'.format(Header.h_SATIRLocationAltitude))
     if Header.h_ExternalSynch:
         print ('Ext Sync ON')
     else:
         print ('Ext Sync OFF')
     print('Header.h_Signature = {}'.format(Header.h_Signature))
     if Header.h_Signature == 'CED':
-        print ('CEDIP Period', 1./Header.h_CEDIPAquisitionPeriod,'Hz')
-        print ('CEDIP Integration', Header.h_CEDIPIntegrationTime*1000,'msec')
+        print ('CEDIP Period {:.6f} Hz'.format(1./Header.h_CEDIPAquisitionPeriod))
+        print ('CEDIP Integration {:.6f} msec'.format(Header.h_CEDIPIntegrationTime*1000))
     if Header.h_Signature == 'WOLF':
-        print (Header.h_WOLFSubwindowCapability)
+        print ( '{}'.format(Header.h_WOLFSubwindowCapability))
     if Header.h_Signature == 'ORI':
-        print (Header.h_ORIONIntegrationTime)
-        print (Header.h_ORIONFilterNames)
-    print ('NUC ', Header.h_NucTable)
+        print ( '{}'.format(Header.h_ORIONIntegrationTime))
+        print ( '{}'.format(Header.h_ORIONFilterNames))
+    print ('NUC {}'.format(Header.h_NucTable))
     #print Header.h_Reserve6
-    print ('Comment', Header.h_Comment)
+    print ('Comment {}'.format(Header.h_Comment))
 
-    print ('Calibration File Name')
-    print (Header.h_CalibrationFileName)
+    print ('Calibration File Name {}'.format(Header.h_CalibrationFileName))
 
-    print ('Tools File Name')
-    print (Header.h_ToolsFileName)
+    print ('Tools File Name {}'.format(Header.h_ToolsFileName))
 
-    print ('Palette Index?', Header.h_PaletteIndexValid)
-    print ('Palette Current',Header.h_PaletteIndexCurrent)
-    print ('Palette Toggle', Header.h_PaletteToggle)
-    print ('Palette AGC', Header.h_PaletteAGC)
-    print ('Unit Index?', Header.h_UnitIndexValid)
-    print ('Current Unit Index', Header.h_CurrentUnitIndex)
-    print ('Zoom Pos', Header.h_ZoomPosition)
-    print ('Key Framenum', Header.h_KeyFrameNumber)
-    print ('Num Keyframes', Header.h_KeyFramesInFilm)
-    print ('Player lock', Header.h_PlayerLocked)
-    print ('Frame Select?', Header.h_FrameSelectionValid)
-    print ('ROI Start', Header.h_FrameofROIStart)
-    print ('ROI Stop', Header.h_FrameofROIEnd)
-    print ('Player inf loop?', Header.h_PlayerInfinitLoop)
-    print ('Player Init Frame', Header.h_PlayerInitFrame)
+    print ('Palette Index {}'.format(Header.h_PaletteIndexValid))
+    print ('Palette Current {}'.format(Header.h_PaletteIndexCurrent))
+    print ('Palette Toggle {}'.format(Header.h_PaletteToggle))
+    print ('Palette AGC {}'.format(Header.h_PaletteAGC))
+    print ('Unit Index {}'.format(Header.h_UnitIndexValid))
+    print ('Current Unit Index {}'.format(Header.h_CurrentUnitIndex))
+    print ('Zoom Pos {}'.format(Header.h_ZoomPosition))
+    print ('Key Framenum {}'.format(Header.h_KeyFrameNumber))
+    print ('Num Keyframes {}'.format(Header.h_KeyFramesInFilm))
+    print ('Player lock {}'.format(Header.h_PlayerLocked))
+    print ('Frame Select {}'.format(Header.h_FrameSelectionValid))
+    print ('ROI Start {}'.format(Header.h_FrameofROIStart))
+    print ('ROI Stop {}'.format(Header.h_FrameofROIEnd))
+    print ('Player inf loop {}'.format(Header.h_PlayerInfinitLoop))
+    print ('Player Init Frame {}'.format(Header.h_PlayerInitFrame))
 
-    print ('Isoterm0?', Header.h_Isoterm0Active)
-    print ('Isoterm0 DL Min', Header.h_Isoterm0DLMin)
-    print ('Isoterm0 DL Max', Header.h_Isoterm0DLMax)
-    print ('Isoterm0 Color', Header.h_Isoterm0Color)
+    print ('Isoterm0 {}'.format(Header.h_Isoterm0Active))
+    print ('Isoterm0 DL Min {}'.format(Header.h_Isoterm0DLMin))
+    print ('Isoterm0 DL Max {}'.format(Header.h_Isoterm0DLMax))
+    print ('Isoterm0 Color {}'.format(Header.h_Isoterm0Color))
 
-    print ('Isoterm1?', Header.h_Isoterm1Active)
-    print ('Isoterm1 DL Min', Header.h_Isoterm1DLMin)
-    print ('Isoterm1 DL Max', Header.h_Isoterm1DLMax)
-    print ('Isoterm1 Color', Header.h_Isoterm1Color)
+    print ('Isoterm1 {}'.format(Header.h_Isoterm1Active))
+    print ('Isoterm1 DL Min {}'.format(Header.h_Isoterm1DLMin))
+    print ('Isoterm1 DL Max {}'.format(Header.h_Isoterm1DLMax))
+    print ('Isoterm1 Color {}'.format(Header.h_Isoterm1Color))
 
-    print ('Isoterm2?', Header.h_Isoterm2Active)
-    print ('Isoterm2 DL Min', Header.h_Isoterm2DLMin)
-    print ('Isoterm2 DL Max', Header.h_Isoterm2DLMax)
-    print ('Isoterm2 Color', Header.h_Isoterm2Color)
+    print ('Isoterm2 {}'.format(Header.h_Isoterm2Active))
+    print ('Isoterm2 DL Min {}'.format(Header.h_Isoterm2DLMin))
+    print ('Isoterm2 DL Max {}'.format(Header.h_Isoterm2DLMax))
+    print ('Isoterm2 Color {}'.format(Header.h_Isoterm2Color))
 
-    print ('Zero?' ,Header.h_ZeroActive)
-    print ('Zero DL', Header.h_ZeroDL)
-    print ('Palette Width', Header.h_PaletteWidth)
-    print ('PaletteF Full', Header.h_PaletteFull)
-    print ('PTR Frame Buffer type', Header.h_PTRFrameBufferType)
-    print ('Thermoelasticity', Header.h_ThermoElasticity)
-    print ('Demodulation', Header.h_DemodulationFrequency)
-    print ('Coordinate Type', Header.h_CoordinatesType)
-    print ('X Origin',Header.h_CoordinatesXorigin)
-    print ('Y Origin', Header.h_CoordinatesYorigin)
-    print ('Coord Show Orig', Header.h_CoordinatesShowOrigin)
-    print ('Axe Colour', Header.h_AxeColor)
-    print ('Axe Size', Header.h_AxeSize)
-    print ('Axe Valid?',Header.h_AxeValid)
-    print ('Distance offset', Header.h_DistanceOffset)
-    print ('Histogram?', Header.h_HistoEqualizationEnabled)
-    print ('Histogram %', Header.h_HistoEqualizationPercent)
+    print ('Zero {}'.format(Header.h_ZeroActive))
+    print ('Zero DL {}'.format(Header.h_ZeroDL))
+    print ('Palette Width {}'.format(Header.h_PaletteWidth))
+    print ('PaletteF Full {}'.format(Header.h_PaletteFull))
+    print ('PTR Frame Buffer type {}'.format(Header.h_PTRFrameBufferType))
+    print ('Thermoelasticity {}'.format(Header.h_ThermoElasticity))
+    print ('Demodulation {}'.format(Header.h_DemodulationFrequency))
+    print ('Coordinate Type {}'.format(Header.h_CoordinatesType))
+    print ('X Origin {}'.format(Header.h_CoordinatesXorigin))
+    print ('Y Origin {}'.format(Header.h_CoordinatesYorigin))
+    print ('Coord Show Orig {}'.format(Header.h_CoordinatesShowOrigin))
+    print ('Axe Colour {}'.format(Header.h_AxeColor))
+    print ('Axe Size {}'.format(Header.h_AxeSize))
+    print ('Axe Valid {}'.format(Header.h_AxeValid))
+    print ('Distance offset {}'.format(Header.h_DistanceOffset))
+    print ('Histogram {}'.format(Header.h_HistoEqualizationEnabled))
+    print ('Histogram % {}'.format(Header.h_HistoEqualizationPercent))
 
-    print ('Calibration File Name')
-    print (Header.h_CalibrationFileName)
+    print ('Calibration File Name {}'.format(Header.h_CalibrationFileName))
 
-    print ('PTRFrame Valid?', Header.h_PTRTopFrameValid)
-    print ('Subsampling?', Header.h_SubSampling)
-    print ('Camera flip H', Header.h_CameraHFlip)
-    print ('Camera flip V', Header.h_CameraHVFlip)
-    print ('BB Temp',Header.h_BBTemp)
-    print ('Capture Wheel Index', Header.h_CaptureWheelIndex)
-    print ('Capture Wheel Focal Index', Header.h_CaptureFocalIndex)
+    print ('PTRFrame Valid {}'.format(Header.h_PTRTopFrameValid))
+    print ('Subsampling {}'.format(Header.h_SubSampling))
+    print ('Camera flip H {}'.format(Header.h_CameraHFlip))
+    print ('Camera flip V {}'.format(Header.h_CameraHVFlip))
+    print ('BB Temp {}'.format(Header.h_BBTemp))
+    print ('Capture Wheel Index {}'.format(Header.h_CaptureWheelIndex))
+    print ('Capture Wheel Focal Index {}'.format(Header.h_CaptureFocalIndex))
     #print Header.h_Reserved7
     #print Header.h_Reserved8
     #print Header.h_Framatone

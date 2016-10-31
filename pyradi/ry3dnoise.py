@@ -44,15 +44,13 @@ __all__=['oprDT', 'oprDV', 'oprDH', 'oprSDT', 'oprSDV','oprSDH', 'getS','getNT',
     'getNV', 'getNVH','getNTV','getNTH', 'getNTVH', 'getTotal']
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 import numpy as np
-from . import ryfiles
-from . import ryplot
-from . import ryptw
 
 
 ################################################################
@@ -382,10 +380,14 @@ def getTotal(imgSeq):
 
 if __name__ == '__main__':
 
+    import pyradi.ryfiles as ryfiles
+    import pyradi.ryplot as ryplot
+    import pyradi.ryptw as ryptw
+
     #--------------------- simulated sensor noise data from raw format ------------------------------------------------------------------------
 
-    rows      = 100
-    cols        = 100
+    rows = 100
+    cols = 100
 
     vartype   = np.uint16
     imagefile  = 'data/sensornoise.raw'
@@ -453,10 +455,9 @@ if __name__ == '__main__':
 
     framesToLoad = list(range(1, 101, 1))
     frames = len(framesToLoad)
-
-    data = ryptw.getPTWFrame (header, framesToLoad[0])
+    data,_ = ryptw.getPTWFrame (header, framesToLoad[0])
     for frame in framesToLoad[1:]:
-        f = (ryptw.getPTWFrame (header, frame))
+        f, _ = (ryptw.getPTWFrame (header, frame))
         data = np.concatenate((data, f))
 
     img = data.reshape(frames, rows ,cols)

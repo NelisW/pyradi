@@ -47,9 +47,9 @@ __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
          'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms']
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 from scipy.interpolate import interp1d
@@ -1020,7 +1020,7 @@ def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
         if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
 
-    	if arr.shape is not ():
+        if arr.shape is not ():
             if np.max(arr) != 0.:
                 arr = 255 * arr/np.max(arr)
                 imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),pformat), arr.astype(np.uint8))
@@ -1056,18 +1056,18 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
     for lstimg in lstimgs:
         arr = hfd5f['{}'.format(lstimg)].value
 
-    	if debug:
+        if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
 
-    	if arr.shape is not ():
-	        if logscale:
-	            filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
-	            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-	                p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
-	        else:
-	            filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
-	            with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-	                p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+        if arr.shape is not ():
+            if logscale:
+                filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
+                with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+                    p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
+            else:
+                filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
+                with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
+                    p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
 
 
 ######################################################################################
