@@ -134,6 +134,16 @@ def mybyte(x):
     ans = ord(x)
     return ans
 
+def myRGB(x):
+    # three bytes with RGB values 
+    # TODO need to write error catch routine
+    R = x[0] if sys.version_info[0] > 2 else ord(x[0])
+    G = x[1] if sys.version_info[0] > 2 else ord(x[1])
+    B = x[2] if sys.version_info[0] > 2 else ord(x[2])
+
+    ans = '#{:02x}{:02x}{:02x}'.format(R,G,B)
+    return ans
+
 def terminateStrOnZero (str):
     """Iterate through string and terminate on first zero
     """
@@ -515,17 +525,17 @@ def readPTWHeader(ptwfilename):
     Header.h_Isoterm0Active = ord(headerinfo[2072:2073])
     Header.h_Isoterm0DLMin = myint(headerinfo[2073:2075])
     Header.h_Isoterm0DLMax = myint(headerinfo[2075:2077])
-    Header.h_Isoterm0Color = headerinfo[2077:2081]
+    Header.h_Isoterm0Color = myRGB(headerinfo[2077:2081])
 
     Header.h_Isoterm1Active = ord(headerinfo[2081:2082])
     Header.h_Isoterm1DLMin = myint(headerinfo[2082:2084])
     Header.h_Isoterm1DLMax = myint(headerinfo[2084:2086])
-    Header.h_Isoterm1Color = headerinfo[2086:2090]
+    Header.h_Isoterm1Color = myRGB(headerinfo[2086:2090])
 
     Header.h_Isoterm2Active = ord(headerinfo[2090:2091])
     Header.h_Isoterm2DLMin = myint(headerinfo[2091:2093])
     Header.h_Isoterm2DLMax = myint(headerinfo[2093:2095])
-    Header.h_Isoterm2Color = headerinfo[2095:2099]
+    Header.h_Isoterm2Color = myRGB(headerinfo[2095:2099])
 
     Header.h_ZeroActive = ord(headerinfo[2099:2100])
     Header.h_ZeroDL = myint(headerinfo[2100:2102])
@@ -538,7 +548,7 @@ def readPTWHeader(ptwfilename):
     Header.h_CoordinatesXorigin = mylong(headerinfo[2122:2126])
     Header.h_CoordinatesYorigin = mylong(headerinfo[2126:2130])
     Header.h_CoordinatesShowOrigin = ord(headerinfo[2130:2131])
-    Header.h_AxeColor = headerinfo[2131:2135]
+    Header.h_AxeColor = myRGB(headerinfo[2131:2135])
     Header.h_AxeSize = mylong(headerinfo[2135:2139])
     Header.h_AxeValid = ord(headerinfo[2139:2140])
     Header.h_DistanceOffset = myfloat(headerinfo[2140:2144])
@@ -885,17 +895,17 @@ def showHeader(Header):
     print ('Isoterm0 {}'.format(Header.h_Isoterm0Active))
     print ('Isoterm0 DL Min {}'.format(Header.h_Isoterm0DLMin))
     print ('Isoterm0 DL Max {}'.format(Header.h_Isoterm0DLMax))
-    print ('Isoterm0 Color {}'.format(Header.h_Isoterm0Color))
+    print ('Isoterm0 Color RGB {}'.format(Header.h_Isoterm0Color))
 
     print ('Isoterm1 {}'.format(Header.h_Isoterm1Active))
     print ('Isoterm1 DL Min {}'.format(Header.h_Isoterm1DLMin))
     print ('Isoterm1 DL Max {}'.format(Header.h_Isoterm1DLMax))
-    print ('Isoterm1 Color {}'.format(Header.h_Isoterm1Color))
+    print ('Isoterm1 Color RGB {}'.format(Header.h_Isoterm1Color))
 
     print ('Isoterm2 {}'.format(Header.h_Isoterm2Active))
     print ('Isoterm2 DL Min {}'.format(Header.h_Isoterm2DLMin))
     print ('Isoterm2 DL Max {}'.format(Header.h_Isoterm2DLMax))
-    print ('Isoterm2 Color {}'.format(Header.h_Isoterm2Color))
+    print ('Isoterm2 Color RGB {}'.format(Header.h_Isoterm2Color))
 
     print ('Zero {}'.format(Header.h_ZeroActive))
     print ('Zero DL {}'.format(Header.h_ZeroDL))
@@ -908,7 +918,7 @@ def showHeader(Header):
     print ('X Origin {}'.format(Header.h_CoordinatesXorigin))
     print ('Y Origin {}'.format(Header.h_CoordinatesYorigin))
     print ('Coord Show Orig {}'.format(Header.h_CoordinatesShowOrigin))
-    print ('Axe Colour {}'.format(Header.h_AxeColor))
+    print ('Axe Colour RGB {}'.format(Header.h_AxeColor))
     print ('Axe Size {}'.format(Header.h_AxeSize))
     print ('Axe Valid {}'.format(Header.h_AxeValid))
     print ('Distance offset {}'.format(Header.h_DistanceOffset))
@@ -1054,8 +1064,8 @@ if __name__ == '__main__':
     ifrm = 0
     print('Frame {} summary data:'.format(ifrm))
     print('Image data:\n{}'.format(data[ifrm]))
-    print('Sensor Temperature4 {} K '.format(fheaders[ifrm].h_sensorTemp4))
-    print('FPA Temperature {} K '.format(fheaders[ifrm].h_detectorTemp))
+    print('Sensor Temperature4 {:.6f} K '.format(fheaders[ifrm].h_sensorTemp4))
+    print('FPA Temperature {:.6f} K '.format(fheaders[ifrm].h_detectorTemp))
     print('Time {}:{}:{} '.format(fheaders[ifrm].h_frameHour,
             fheaders[ifrm].h_frameMinute,fheaders[ifrm].h_frameSecond))
     
@@ -1133,17 +1143,17 @@ if __name__ == '__main__':
 
     for frame in framesToLoad:
         data, fheader = getPTWFrame (header, frame)
-        print('Sensor Temperature4 {} K '.format(fheader.h_sensorTemp4))
-        print('FPA Temperature {} K '.format(fheader.h_detectorTemp))
+        print('Sensor Temperature4 {:.6f} K '.format(fheader.h_sensorTemp4))
+        print('FPA Temperature {:.6f} K '.format(fheader.h_detectorTemp))
         print('Time {}:{}:{} '.format(fheader.h_frameHour,
                 fheader.h_frameMinute,fheader.h_frameSecond))
 
         #get the internal temperature from the header and use here
         tempIm = calData.LU.LookupDLTemp(data, header.h_HousingTemperature1-273.15)
-        # print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
-        # print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
-        print('Temperature at ({},{})={} C'.format(160,120,tempIm[160,120]-273.15))
-        print('Temperature at ({},{})={} C'.format(140,110,tempIm[140,110]-273.15))
+        # print('Temperature at ({},{})={:.6f} C'.format(160,120,tempIm[160,120]-273.15))
+        # print('Temperature at ({},{})={:.6f} C'.format(140,110,tempIm[140,110]-273.15))
+        print('Temperature at ({},{})={:.6f} C'.format(160,120,tempIm[160,120]-273.15))
+        print('Temperature at ({},{})={:.6f} C'.format(140,110,tempIm[140,110]-273.15))
         I = ryplot.Plotter(4, 1, 1,'', figsize=(8, 8))
         I.showImage(1, tempIm, ptitle='{}, frame {}, temperature in K'.format(ptwfile[:-4],frame), titlefsize=7, cbarshow=True, cbarfontsize=7)
         I.saveFig('{}-{}.png'.format(os.path.basename(ptwfile)[:-4],frame))
