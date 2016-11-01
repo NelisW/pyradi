@@ -82,12 +82,18 @@ def saveHeaderArrayTextFile(filename,dataArray, header=None,
         | No exception is raised.
     """
     #open required file
-    file=open(filename, 'wt')
+    if sys.version_info[0] > 2:
+        file=open(filename, 'wb')
+    else:
+        file=open(filename, 'wt')
 
     #write the header info to the output file
     if (header is not None):
         for line in header.split('\n'):
-            file.write(comment+line+'\n')
+            if sys.version_info[0] > 2:
+                file.write((comment+line+'\n').encode('utf-8'))
+            else:
+                file.write(comment+line+'\n')
 
     #then write the array, using the file handle (and not filename)
     np.savetxt(file, dataArray, delimiter=delimiter)
@@ -192,11 +198,17 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
         infile = filename
 
     line = infile.readline()
-    line = line.lstrip(' '+comment).split(',')
+    if sys.version_info[0] > 2:
+        line = line.lstrip((' '+comment).encode('utf-8')).split(','.encode('utf-8'))
+    else:
+        line = line.lstrip(' '+comment).split(',')
     #get rid of leading and trailing whitespace
     list=[x.strip() for x in line]
     #select only those column headers required
-    rtnList =[list[i] for i in loadCol ]
+    if sys.version_info[0] > 2:
+        rtnList =[list[i].decode('utf-8') for i in loadCol ]
+    else:
+        rtnList =[list[i] for i in loadCol ]
 
     return rtnList
 
@@ -548,6 +560,9 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     filenames = []
     filertn = []
 
+    if useRegex:
+        regex = re.compile(pattern)
+
     if sys.version_info[0] < 3:
 
         # Collect input and output arguments into one bunch
@@ -563,7 +578,6 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                 if arg.return_folders or os.path.isfile(fullname):
                     for pattern in arg.pattern_list:
                         if useRegex:
-                            regex = re.compile(pattern)
                             #search returns None is pattern not found
                             if regex.search(name):
                                 arg.results.append(fullname)
@@ -746,7 +760,7 @@ def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None, filemode
 
 ################################################################
 ##
-def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', filemode='wt'):
+def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e', filemode='wt'):
     """ Write a numpy array to latex table format in output file.
 
         The table can contain only the array data (no top header or
@@ -780,16 +794,29 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
     else:
         numcols = arr.shape[1] + 1
 
+    if sys.version_info[0] > 2:
+        formatstring = formatstring.decode('utf-8')
+        filemode = 'ab'
+
     file=open(filename, filemode)
-    file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|'))
+    if sys.version_info[0] > 2:
+        file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|').encode('utf-8'))
+    else:
+        file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|'))
 
     #write the header
     if header is not None:
         # first column for header
         if leftCol is not None:
-            file.write('{0} & '.format(leftCol[0]))
+            if sys.version_info[0] > 2:
+                file.write('{0} & '.format(leftCol[0]).encode('utf-8'))
+            else:
+                file.write('{0} & '.format(leftCol[0]))
         #rest of the header
-        file.write('{0}\\\\\hline\n'.format(header))
+        if sys.version_info[0] > 2:
+            file.write('{0}\\\\\hline\n'.format(header).encode('utf-8'))
+        else:
+            file.write('{0}\\\\\hline\n'.format(header))
 
     #write the array data
     if leftCol is None:
@@ -798,10 +825,16 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%1.4e', 
     else:
         # first write left col for each row, then array data for that row
         for i,entry in enumerate(leftCol[1:]):
-            file.write(entry+'&')
+            if sys.version_info[0] > 2:
+                file.write((entry+'&').encode('utf-8'))
+            else:
+                file.write(entry+'&')
             np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
 
-    file.write('\hline\n\end{tabular}\n\n')
+    if sys.version_info[0] > 2:
+        file.write('\hline\n\end{tabular}\n\n'.encode('utf-8'))
+    else:
+        file.write('\hline\n\end{tabular}\n\n')
     file.close()
 
 
@@ -1119,8 +1152,12 @@ if __name__ == '__main__':
 
     doAll = True
 
-    if False:
+    # x = y = z = np.arange(0.0,5.0,1.0)
+    # np.savetxt('test.out', x, delimiter=',')   # X is an array
+    # np.savetxt('test.out', (x,y,z))   # x,y,z equal sized 1D arrays
+    # np.savetxt('test.out', x, fmt='%1.4e')   # use exponential notation
 
+    if False:
         #this example requires the DKTools bmpp executable http://dktools.sourceforge.net/bmpp.html
         execOnFiles(cmdline = 'bmpp -l eps.object {0}', root='./ref/', patterns='*.png', 
             recurse=1, return_folders=0, useRegex=False, printTask=True)
@@ -1239,7 +1276,7 @@ if __name__ == '__main__':
 
         #######################################################################
         print("Test the glob version of listFiles")
-        filelist = listFiles('.', patterns=r"ry*.py", recurse=0, return_folders=0)
+        filelist = listFiles('.', patterns=r'*.py', recurse=0, return_folders=0)
         for filename in filelist:
             print('  {0}'.format(filename))
 

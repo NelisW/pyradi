@@ -42,14 +42,17 @@ __all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','rgb2CIExy',
           ]
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 import os
 import pkg_resources
-from StringIO import StringIO
 from numbers import Number
+if sys.version_info[0] > 2:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 import numpy as np
 from scipy.interpolate import  interp1d
@@ -214,7 +217,11 @@ def loadCIEbar(specvec, stype):
     resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
     resource_path = os.path.join('data', 'colourcoordinates','ciexyz31_1.txt')
     dat = pkg_resources.resource_string(resource_package, resource_path)
-    cie = np.genfromtxt(StringIO(dat),delimiter=",",skip_header=1)
+    if sys.version_info[0] > 2:
+        cie = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",",skiprows=1)
+    else:
+        cie = np.genfromtxt(StringIO(dat),delimiter=",",skip_header=1)
+    cie = cie.reshape(-1,4)
 
     #interpolate cie spectral data to samples wavelength range
     #first construct the interpolating function then call the function on data

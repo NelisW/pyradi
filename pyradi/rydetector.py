@@ -67,16 +67,15 @@ __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
         'EgVarshni', 'IXV', 'Noise','DstarSpectralFlatPhotonLim']
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 import scipy.constants as const
 import matplotlib.pyplot as plt
 import numpy as np
-from . import ryplanck
-import sys
+import pyradi.ryplanck as ryplanck
 
 ################################################################################
 #
@@ -636,8 +635,8 @@ if __name__ == '__main__':
     #######################################################################
     # bandgap at operating termperature
     Eg = EgVarshni(E0, VarshniA, VarshniB, tempDet)
-    print('Bandgap = {0}'.format(Eg))
-    print('Lambda_c= {0}'.format(1.24/Eg))
+    print('Bandgap = {0:.6f}'.format(Eg))
+    print('Lambda_c= {0:.6f}'.format(1.24/Eg))
 
     #calculate the spectral absorption, quantum efficiency and responsivity
     absorption = Absorption(wavelength / 1e6, Eg, tempDet, a0, a0p)
@@ -648,10 +647,10 @@ if __name__ == '__main__':
     print ("Source emissivity              = {0} ".format(emisSource))
     print ("Source distance                = {0} m".format(distance))
     print ("Source area                    = {0} m2".format(areaSource))
-    print ("Source solid angle             = {0} sr".format(solidAngSource))
+    print ("Source solid angle             = {0:.6f} sr".format(solidAngSource))
     print ("\nBackground temperature         = {0} K".format(tempBkg))
     print ("Background emissivity          = {0} ".format(emisBkg))
-    print ("Background solid angle         = {0} sr".format(solidAngBkg))
+    print ("Background solid angle         = {0:.6f} sr".format(solidAngBkg))
 
     #spectral irradiance for test setup, for both source and background
     # in units of photon rate q/(s.m2)
@@ -673,17 +672,17 @@ if __name__ == '__main__':
     iTotalE = iSourceE + iBkgE
     iTotalQ = iSourceQ + iBkgQ
 
-    print ("\nDetector current source        = {0} A {1} A".\
+    print ("\nDetector current source        = {0:.6f} A   {1:.6f} A".\
         format(iSourceQ,iSourceE))
-    print ("Detector current background    = {0} A {1} A".\
+    print ("Detector current background    = {0:.6f} A   {1:.6f} A".\
         format(iBkgQ,iBkgE))
-    print ("Detector current total         = {0} A {1} A".\
+    print ("Detector current total         = {0:.6f} A   {1:.6f} A".\
         format(iTotalQ,iTotalE))
 
     #saturation current from material and detector parameters
     Isat,ni = Isaturation(eMob, tauE, hMob, tauH, me, mh, na, nd, Eg, tempDet, areaDet)
-    print ("\nI0               = {0} [A] ".format(Isat))
-    print ("ni               = {0} [m-3] ".format(ni))
+    print ("\nI0               = {0:.6f} [A] ".format(Isat))
+    print ("ni               = {0:.6f} [m-3] ".format(ni))
 
     #calculate the current-voltage curve for dark, background only and total signal
     ixvDark = IXV(Vbias, IVbeta, tempDet, 0, Isat)
@@ -694,11 +693,11 @@ if __name__ == '__main__':
     iNoisePsd, R0, johnsonPsd, shotPsd = Noise(tempDet, IVbeta, Isat, iBkgE)
     iNoise = iNoisePsd * np.sqrt(deltaFreq)
 
-    print('R0=              = {0} Ohm'.format(R0))
-    print('NBW=             = {0} Hz'.format(deltaFreq))
-    print("iNoiseTotal      = {0} A".format(iNoise))
-    print("iNoise Johnson=  = {0} A".format(johnsonPsd * np.sqrt(deltaFreq)))
-    print("iNoise shot      = {0} A".format(shotPsd * np.sqrt(deltaFreq)))
+    print('R0=              = {0:.6e} Ohm'.format(R0))
+    print('NBW=             = {0:.6e} Hz'.format(deltaFreq))
+    print("iNoiseTotal      = {0:.6e} A".format(iNoise))
+    print("iNoise Johnson=  = {0:.6e} A".format(johnsonPsd * np.sqrt(deltaFreq)))
+    print("iNoise shot      = {0:.6e} A".format(shotPsd * np.sqrt(deltaFreq)))
 
     #calculate the spectral noise equivalent power
     NEPower, detectivity = NEP(iNoise, responsivity)
