@@ -560,8 +560,6 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     filenames = []
     filertn = []
 
-    if useRegex:
-        regex = re.compile(pattern)
 
     if sys.version_info[0] < 3:
 
@@ -569,7 +567,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         class Bunch(object):
             def __init__(self, **kwds): self.__dict__.update(kwds)
         arg = Bunch(recurse=recurse, pattern_list=pattern_list,
-            return_folders=return_folders, results=[])
+                                return_folders=return_folders, results=[])
 
         def visit(arg, dirname, files):
             # Append to arg.results all relevant files (and perhaps folders)
@@ -579,6 +577,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                     for pattern in arg.pattern_list:
                         if useRegex:
                             #search returns None is pattern not found
+                            regex = re.compile(pattern)
                             if regex.search(name):
                                 arg.results.append(fullname)
                                 break
@@ -591,14 +590,16 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         os.path.walk(root, visit, arg)
         return arg.results
 
-    else:
+    else: # python 3
         for dirpath,dirnames,files in os.walk(root):
             if dirpath==root or recurse:
                 for filen in files:
-                    filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                    # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                    filenames.append(os.path.relpath(os.path.join(dirpath,filen)))
                 if return_folders:
                     for dirn in dirnames:
-                        filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+                        # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+                        filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
         for name in filenames:
             if return_folders or os.path.isfile(name):
                 for pattern in pattern_list:
