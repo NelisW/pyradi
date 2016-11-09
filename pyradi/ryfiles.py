@@ -541,7 +541,8 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
 
     Args:
         | root (string): directory root from where the search must take place
-        | patterns (string): glob/regex pattern for filename matching
+        | patterns (string): glob/regex pattern for filename matching. Multiple pattens 
+          may be present, each one separated by ;
         | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
         | return_folders (int): flag to indicate if folder names must also be returned (optional)
         | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
@@ -603,10 +604,16 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         for name in filenames:
             if return_folders or os.path.isfile(name):
                 for pattern in pattern_list:
-                    if fnmatch.fnmatch(name, pattern):
-                        filertn.append(name)
-                        break
-
+                    if useRegex:
+                        #search returns None is pattern not found
+                        regex = re.compile(pattern)
+                        if regex.search(name):
+                            filertn.append(name)
+                            break
+                    else:
+                        if fnmatch.fnmatch(name, pattern):
+                            filertn.append(name)
+                            break
     return filertn
 
 
@@ -634,7 +641,11 @@ def rawFrameToImageFile(image, filename):
     #normalise input image (img) data to between 0 and 1
     from scipy import ndimage
 
-    image = (image - ndimage.minimum(image)) / (ndimage.maximum(image) - ndimage.minimum(image))
+    imin = image.min()
+    imax = image.max()
+    # print('{}   {}   {}'.format(image.mean(),imin, imax))
+    image = (image.astype('float') - imin ) / (imax - imin)
+    # print(image.mean())
 
     # http://scikit-image.org/docs/dev/api/skimage.io.html#imsave
     # import skimage.io as io
@@ -778,7 +789,8 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e',
         | header (string): column header in final latex format (optional)
         | leftCol ([string]): left column each row, in final latex format (optional)
         | formatstring (string): output format precision for array data (see np.savetxt) (optional)
-        | filemode (string): file open mode (a=append, w=new file) (optional)
+        | filemode (string): file open mode [a=append, w=new file][t=text, b=binary] 
+          use binary for Python 3 (optional)
 
     Returns:
         | None, writes a file to disk
@@ -787,7 +799,7 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e',
         | No exception is raised.
     """
 
-    #is seems that savetxt does not like unicode strings
+    # it seems that savetxt does not like unicode strings
     formatstring = formatstring.encode('ascii')
 
     if leftCol is None:
@@ -797,46 +809,56 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e',
 
     if sys.version_info[0] > 2:
         formatstring = formatstring.decode('utf-8')
-        filemode = 'ab'
+        if 't' in filemode:
+            filemode = filemode.replace('t','b') 
 
-    file=open(filename, filemode)
-    if sys.version_info[0] > 2:
+        file=open(filename, filemode)
         file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|').encode('utf-8'))
-    else:
+
+        #write the header
+        if header is not None:
+            # first column for header
+            if leftCol is not None:
+                file.write('{0} & '.format(leftCol[0]).encode('utf-8'))
+            #rest of the header
+            file.write('{0}\\\\\hline\n'.format(header).encode('utf-8'))
+
+        #write the array data
+        if leftCol is None:
+            #then write the array, using the file handle (and not filename)
+            np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
+        else:
+            # first write left col for each row, then array data for that row
+            for i,entry in enumerate(leftCol[1:]):
+                file.write((entry+'&').encode('utf-8'))
+                np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
+
+        file.write('\hline\n\end{tabular}\n\n'.encode('utf-8'))
+        file.close()
+    else: # python 2.7
+        file=open(filename, filemode)
         file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|'))
 
-    #write the header
-    if header is not None:
-        # first column for header
-        if leftCol is not None:
-            if sys.version_info[0] > 2:
-                file.write('{0} & '.format(leftCol[0]).encode('utf-8'))
-            else:
+        #write the header
+        if header is not None:
+            # first column for header
+            if leftCol is not None:
                 file.write('{0} & '.format(leftCol[0]))
-        #rest of the header
-        if sys.version_info[0] > 2:
-            file.write('{0}\\\\\hline\n'.format(header).encode('utf-8'))
-        else:
+            #rest of the header
             file.write('{0}\\\\\hline\n'.format(header))
 
-    #write the array data
-    if leftCol is None:
-        #then write the array, using the file handle (and not filename)
-        np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
-    else:
-        # first write left col for each row, then array data for that row
-        for i,entry in enumerate(leftCol[1:]):
-            if sys.version_info[0] > 2:
-                file.write((entry+'&').encode('utf-8'))
-            else:
+        #write the array data
+        if leftCol is None:
+            #then write the array, using the file handle (and not filename)
+            np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
+        else:
+            # first write left col for each row, then array data for that row
+            for i,entry in enumerate(leftCol[1:]):
                 file.write(entry+'&')
-            np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
+                np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
 
-    if sys.version_info[0] > 2:
-        file.write('\hline\n\end{tabular}\n\n'.encode('utf-8'))
-    else:
         file.write('\hline\n\end{tabular}\n\n')
-    file.close()
+        file.close()
 
 
 ################################################################
@@ -1175,15 +1197,15 @@ if __name__ == '__main__':
         p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
         print ('Test writing latex format arrays:')
-        arr = np.asarray([[1.0,2,3],[4,5,6],[7,8,9]])
-        arrayToLaTex('array.txt', arr)
-        arrayToLaTex('array.txt', arr, formatstring='%.1f')
+        arr = np.array([[1.0,2,3],[4,5,6],[7,8,9]])
+        arrayToLaTex('array.txt', arr,filemode='wt')
+        arrayToLaTex('array.txt', arr, formatstring='%.1f',filemode='at')
         headeronly = 'Col1 & Col2 & Col3'
-        arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f')
+        arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f',filemode='at')
         header = 'Col 1 & Col 2 & Col 3'
         leftcol = ['XX','Row 1','Row 2','Row 3']
         #with \usepackage{siunitx} you can even do this:
-        arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}')
+        arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}',filemode='at')
 
         print ('Test writing eps file figure latex fragments:')
         epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
@@ -1268,6 +1290,7 @@ if __name__ == '__main__':
             type = ['png','png','png','png']
             for i in range(frames):
                 # print(i)
+                # print(img[i].mean())
                 filename = 'rawIm{0}.{1}'.format(i,type[i])
                 print('  saving image {} file to {}'.format(i,filename))
                 rawFrameToImageFile(img[i],filename)
@@ -1276,13 +1299,28 @@ if __name__ == '__main__':
             print('\nNot all frames read from file')
 
         #######################################################################
-        print("Test the glob version of listFiles")
-        filelist = listFiles('.', patterns=r'*.py', recurse=0, return_folders=0)
+        patrn = r'*.py'
+        print("Test the glob version of listFiles: {}".format(patrn))
+        filelist = listFiles('.', patterns=patrn, recurse=0, return_folders=0)
         for filename in filelist:
             print('  {0}'.format(filename))
 
-        print("Test the regex version of listFiles")
-        filelist = listFiles('.', patterns=r"[a-z]*p[a-z]*\.py[c]*", \
+        patrn  =r'*.py;*.pyc'
+        print("Test the glob version of listFiles with two patterns: {}".format(patrn))
+        filelist = listFiles('.', patterns=patrn, recurse=0, return_folders=0)
+        for filename in filelist:
+            print('  {0}'.format(filename))
+
+        patrn = r"^[a-z]{2}p[a-z]*\.py[c]*"
+        print("Test the regex version of listFiles: {}".format(patrn))
+        filelist = listFiles('.', patterns=patrn, \
+            recurse=0, return_folders=0, useRegex=True)
+        for filename in filelist:
+            print('  {0}'.format(filename))
+
+        patrn = r"^[a-z]{2}p[a-z]*\.py;^[a-z]{2}p[a-z]*\.pyc"
+        print("Test the regex version of listFiles with two patterns: {}".format(patrn))
+        filelist = listFiles('.', patterns=patrn, \
             recurse=0, return_folders=0, useRegex=True)
         for filename in filelist:
             print('  {0}'.format(filename))
