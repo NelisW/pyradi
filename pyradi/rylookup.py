@@ -1029,7 +1029,7 @@ if __name__ == '__main__':
 
     print('-------------------------------------------------------')
     # first test is simple test with unity spectrals, no camera cal data
-    lut1 = RadLookup('lut1', nu, tmprMin,tmprMax,tmprInc)
+    lut1 = RadLookup('lut1', nu, tmprMin, tmprMax, tmprInc)
     print(lut1.Info())
     if doPlots:
         lut1.PlotSpectrals()
@@ -1101,13 +1101,25 @@ if __name__ == '__main__':
 
     Tlo = 17.1
     Thi = 34.4
-    dcCaldata = {Tlo: arrLo, Thi: arrHi}
-    dcPower = {Tlo: 10., Thi: 10}
-    diFloor = {Tlo: 3625, Thi: 4210}
+    if sys.version_info[0] > 2:
+        dicCaldata = {Tlo: arrLo, Thi: arrHi}
+        dicPower = {Tlo: 10., Thi: 10.}
+        dicFloor = {Tlo: 3625, Thi: 4210}
+    else:
+        dicCaldata = collections.OrderedDict()
+        dicCaldata[Tlo] = arrLo
+        dicCaldata[Thi] = arrHi
+        dicPower = collections.OrderedDict()
+        dicPower[Tlo] = 10.
+        dicPower[Thi] = 10.
+        dicFloor = collections.OrderedDict()
+        dicFloor[Tlo] = 3625
+        dicFloor[Thi] = 4210
 
-    print('dicPower = {}'.format(dcPower))
-    print('dicFloor = {}'.format(dcFloor))
-    print('dicCaldata = {}'.format(dcCaldata))
+
+    print('dicPower = {}'.format(dicPower))
+    print('dicFloor = {}'.format(dicFloor))
+    print('dicCaldata = {}'.format(dicCaldata))
 
     lut3 = RadLookup('lut3', nu, tmprMin,tmprMax,tmprInc,
          'data/LWIRsensor.txt', 'data/LW100mmLens.txt', 'data/LWND10.txt',
@@ -1135,12 +1147,12 @@ if __name__ == '__main__':
     print(lut3.LookupDLTemp(arrLo[:,1], Tlo) - 273.16)
     print(arrLo[:,0] - 273.16)
     print(' ')
-    print('Convert DL->Radiance->Temperature (at low instrunent temperature:')
+    print('Convert DL->Radiance->Temperature (at low instrument temperature:')
     calRad = lut3.LookupDLRad(arrLo[:,1], Tlo)
     print(calRad)
     print(lut3.LookupRadTemp(calRad) - 273.16)
     print(' ')
-    print('Convert DL->Radiance->Temperature (at high instrunent temperature:')
+    print('Convert DL->Radiance->Temperature (at high instrument temperature:')
     print(lut3.LookupDLTemp(arrHi[:,1], Thi) - 273.16)
     print(arrHi[:,0] - 273.16)
     calRad = lut3.LookupDLRad(arrHi[:,1], Thi)
