@@ -49,17 +49,22 @@ __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy']
 
+import re
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 import numpy as np
-from string import maketrans
-# import io
-import StringIO
-import re
+if sys.version_info[0] > 2:
+    # from io import StringIO
+    from io import BytesIO
+    # from str import maketrans
+else:
+    from string import maketrans
+    import StringIO
+
 
 ##############################################################################
 ##http://stackoverflow.com/questions/1324067/how-do-i-get-str-translate-to-work-with-unicode-strings
@@ -78,8 +83,8 @@ def fixHeaders(instr):
         | No exception is raised.
     """
 
-    intab = "+-[]@"
-    outtab = "pmbba"
+    # intab = "+-[]@"
+    # outtab = "pmbba"
 
     # if isinstance(instr, str):
     #     translate_table = dict((ord(char), str(outtab)) for char in intab)
@@ -89,16 +94,29 @@ def fixHeaders(instr):
     # print(instr, type(translate_table),translate_table )
     # return instr.translate(translate_table)
 
-    intab = u"+-[]@"
-    outtab = u"pmbba"
+    if sys.version_info[0] > 2:
+        intab = "+--[]@"
+        outtab = "pmmbba"
 
-    # print(instr)
-    if isinstance(instr, unicode):
-        translate_table = dict((ord(char), unicode(outtab)) for char in intab)
+        # print(instr)
+        # if isinstance(instr, unicode):
+        #     translate_table = dict((ord(char), unicode(outtab)) for char in intab)
+        # else:
+        #     assert isinstance(instr, str)
+        translate_table = str.maketrans(intab, outtab)
     else:
-        assert isinstance(instr, str)
-        translate_table = maketrans(intab, outtab)
-    return instr.translate(translate_table)
+        intab = u"+-[]@"
+        outtab = u"pmbba"
+
+        # print(instr)
+        if isinstance(instr, unicode):
+            translate_table = dict((ord(char), unicode(outtab)) for char in intab)
+        else:
+            assert isinstance(instr, str)
+            translate_table = maketrans(intab, outtab)
+
+    rtnstring = instr.translate(translate_table)
+    return rtnstring
 
 
 
@@ -118,8 +136,7 @@ def fixHeadersList(headcol):
     Raises:
         | No exception is raised.
     """
-
-    headcol = [fixHeaders(str) for str in headcol]
+    headcol = [fixHeaders(strn) for strn in headcol]
     return headcol
 
 ##############################################################################
@@ -218,6 +235,7 @@ def loadtape7(filename, colspec = []):
 
     infile = open(filename, 'r')
     idata = {}
+    colHead = []
     lines = infile.readlines()#.strip()
     infile.close()
 
@@ -248,8 +266,6 @@ def loadtape7(filename, colspec = []):
     #see if there is a second header line
     p = re.compile('[a-df-zA-DF-Z]+')
     line2found = True if p.search(line2) is not None else False
-    # print(line2found)
-    # print(line2)
 
     #modtran 4 does not use underscores
     line1 = line1.replace('TOT TRANS','TOT_TRANS')
@@ -262,8 +278,6 @@ def loadtape7(filename, colspec = []):
     line1 = line1.replace('DRCT RFLT','DRCT_RFLT')
     line1 = line1.replace('TOTAL RAD','TOTAL_RAD')
     line1 = line1.replace('REF SOL','REF_SOL')
-
-
 
     colcount = 0
     colEnd = []
@@ -283,7 +297,13 @@ def loadtape7(filename, colspec = []):
         colEnd.append(idx+1)
 
     colSrt = [0] + [v-1 for v in colEnd[:-1]]
-    collim = zip(colSrt,colEnd)
+    if sys.version_info[0] > 2:
+        # http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
+        # zip returns an iterator, not a list
+        collim = list(zip(colSrt,colEnd))
+    else:
+        collim = zip(colSrt,colEnd)
+
     # iemsct=3 has a completely messed up header, replace with this
     if IEMSCT == 3:
         colHead1st = ' '.join(['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'])
@@ -302,6 +322,7 @@ def loadtape7(filename, colspec = []):
         colHead = colHead1st
         deltaHead = 0
 
+    # print(colHead)
 
     #different IEMSCT values have different column formats
     # some cols have headers and some are empty.
@@ -325,12 +346,16 @@ def loadtape7(filename, colspec = []):
 
     #read the string in from a StringIO in-memory file
     # lines = np.ndfromtxt(io.StringIO(s), dtype=None,  names=True)
-    lines = np.ndfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
+    if sys.version_info[0] > 2:
+        # lines = np.ndfromtxt(StringIO(s), dtype=None,  names=True)
+        lines = np.ndfromtxt(BytesIO(s.encode('utf-8')), dtype=None,  names=True)
+    else:
+        lines = np.ndfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
 
     # print('lines=',lines)
 
     #extract the wavenumber col as the first column in the new table
-    # print(colspec, fixHeaders(colspec[0]))
+    # print(lines)
     coldata= lines[fixHeaders(colspec[0])].reshape(-1, 1)
     # then append the other required columns
     for colname in colspec[1:]:
@@ -550,7 +575,7 @@ if __name__ == '__main__':
                  label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
                  maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
           totinband = - np.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
-          print('{0} integral is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+          print('{0} integral is {1:.6e} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
 
         sr.saveFig('NIRPathradiancewl.png')
         print('Note that multiple scatter contributes significantly to total path radiance')
