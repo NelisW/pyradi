@@ -40,14 +40,15 @@ __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['PFlux','lllPhotonrates']
 
-import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# import sys
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 import numpy as np
 import math
 import sys
+import collections
 import itertools
 import pandas as pd
 import pyradi.ryutils as ryutils
@@ -92,17 +93,23 @@ class PFlux:
         # the fraction predicts the ratio between photopic and scotopic
         # this is used later to weigh spectrally
         # source: RCA/Burle electro-optics handbook
-        self.lllux = {'Sun light': [107527,5700,1.0], 
-              'Full sky light': [10752,12000,1.0],
-              'Overcast day':[1075,6000,1.0],
-              'Very dark day':[107,7000,1.0],
-              'Twilight': [10.8,10000,1.0],
-              'Deep twilight': [1.08,10000,0.8],
-              'Full moon': [0.108,4150,0.6],
-              'Quarter moon':[0.0108,4150,0.4],
-              'Star light': [0.0011,5000,0.2],
-              'Overcast night':[0.0001,5000, 0.],
-            }
+        if sys.version_info[0] > 2:
+            self.lllux = {}       
+        else:
+            self.lllux = collections.OrderedDict()   
+
+        self.lllux['Sun light'] =  [107527,5700,1.0]
+        self.lllux['Full sky light'] = [10752,12000,1.0]
+        self.lllux['Overcast day'] = [1075,6000,1.0]
+        self.lllux['Very dark day'] = [107,7000,1.0]
+        self.lllux['Twilight'] = [10.8,10000,1.0]
+        self.lllux['Deep twilight'] = [1.08,10000,0.8]
+        self.lllux['Full moon'] = [0.108,4150,0.6]
+        self.lllux['Quarter moon'] = [0.0108,4150,0.4]
+        self.lllux['Star light'] = [0.0011,5000,0.2]
+        self.lllux['Overcast night'] = [0.0001,5000, 0.]
+
+
         self.llluxCols = ['Irradiance-lm/m2','ColourTemp','FracPhotop']
 
         numpts = 300
@@ -243,6 +250,7 @@ class PFlux:
                 np.trapz(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
 
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
+        self.dfPhotRates = self.dfPhotRates.reindex_axis(sorted(self.dfPhotRates.columns), axis=1)
 
         return self.dfPhotRates
 

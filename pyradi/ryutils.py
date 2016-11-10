@@ -1450,7 +1450,11 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
         resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
         resource_path = os.path.join('data', 'photometry',vlamname)
         dat = pkg_resources.resource_string(resource_package, resource_path)
-        dat = np.genfromtxt(StringIO(dat),delimiter=",")
+        if sys.version_info[0] > 2:
+            dat = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",")
+        else:
+            dat = np.genfromtxt(StringIO(dat),delimiter=",")
+
         if wavelen is not None:
             vlam = np.interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
         else:
