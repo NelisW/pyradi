@@ -89,4 +89,6 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.calcMTFwavefrontError
 
+.. autofunction:: pyradi.ryutils.intify_tuple
+
 

@@ -842,6 +842,7 @@ if __name__ == '__main__':
     import ryutils
     doAll = True
 
+    rit = ryutils.intify_tuple
 
     if doAll:
         #--------------------------------------------------------------------------------------
@@ -854,40 +855,45 @@ if __name__ == '__main__':
         wavelen = np.linspace(1.0, 2.0, 100)
         #test for scalar temperature
         m = planckel(wavelen, 300) 
-        print('Array spectral {} & scalar temperature input, output shape is {}'.format(wavelen.shape, m.shape))
+        print('Array spectral {} & scalar temperature input, output shape is {}'.format(
+            rit(wavelen.shape), rit(m.shape)))
         #test for list of temperature values
         temp =  [300]
         m = planckel(wavelen,temp) 
-        print('Array spectral {} &  list with len()={} temperature input, output shape is {}'.format(wavelen.shape, len(temp), m.shape))
+        print('Array spectral {} &  list with len()={} temperature input, output shape is {}'.format(
+            rit(wavelen.shape), len(temp), rit(m.shape)))
         #test for list of temperature values
         temp =  [300, 350, 500]
         m = planckel(wavelen,temp) 
-        print('Array spectral {} & list with len()={} temperature input, output shape is {}'.format(wavelen.shape, len(temp), m.shape))
+        print('Array spectral {} & list with len()={} temperature input, output shape is {}'.format(
+            rit(wavelen.shape), len(temp), rit(m.shape)))
         #test for array of temperature values
         temp =  np.asarray([300, 350, 400, 450, 500])
         m = planckel(wavelen,temp) 
-        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
+        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(
+            rit(wavelen.shape), rit(temp.shape), rit(m.shape)))
         #test for array of temperature values
         temp =  np.asarray([300, 350, 400, 450, 500]).reshape(1,-1)
         m = planckel(wavelen,temp.T) 
-        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(wavelen.shape, temp.shape, m.shape))
+        print('Array spectral {} & array with shape={} temperature input, output shape is {}'.format(
+            rit(wavelen.shape), rit(temp.shape), rit(m.shape)))
 
         # test different input types for temperature but with spectral as scalar
         #test for scalar temperature
         m = planckel(wavelen[0], 300) 
-        print('Scalar spectral & scalar temperature input, output shape is {}'.format(m.shape))
+        print('Scalar spectral & scalar temperature input, output shape is {}'.format(rit(m.shape)))
         #test for list of temperature values
         temp =  [300]
         m = planckel(wavelen[0],temp) 
-        print('Scalar spectral & list temperature with len()={} input, output shape is {}'.format(len(temp), m.shape))
+        print('Scalar spectral & list temperature with len()={} input, output shape is {}'.format(len(temp), rit(m.shape)))
         #test for list of temperature values
         temp =  [300, 350, 500]
         m = planckel(wavelen[0],temp) 
-        print('Scalar spectral & list temperature with len()={} input, output shape is {}'.format(len(temp), m.shape))
+        print('Scalar spectral & list temperature with len()={} input, output shape is {}'.format(len(temp), rit(m.shape)))
         #test for list of temperature values
         temp =  np.asarray([300, 350, 400, 450, 500])
         m = planckel(wavelen[0],temp) 
-        print('Scalar spectral & array temperature with shape={}  input, output shape is {}'.format(temp.shape, m.shape))
+        print('Scalar spectral & array temperature with shape={}  input, output shape is {}'.format(rit(temp.shape), rit(m.shape)))
 
         print(' ')
 

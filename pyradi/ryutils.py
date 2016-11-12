@@ -48,7 +48,8 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'rect', 'circ','poissonarray','draw_siemens_star','drawCheckerboard',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
          'Atmo','Sensor','Target','calcMTFwavefrontError',
-         'polar2cartesian','warpPolarImageToCartesianImage'
+         'polar2cartesian','warpPolarImageToCartesianImage',
+         'intify_tuple'
          ]
 
 import sys
@@ -69,6 +70,19 @@ if sys.version_info[0] > 2:
     from io import StringIO
 else:
     from StringIO import StringIO
+
+
+
+##############################################################################
+##
+def intify_tuple(tup):
+    """Make tuple entries int type
+    """
+    tup_int = ()
+    for tup_ent in tup:
+        tup_int = tup_int + (int(tup_ent),)
+    return tup_int
+
 
 ##############################################################################
 ##

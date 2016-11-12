@@ -1173,6 +1173,8 @@ if __name__ == '__main__':
     import ryplot
     import ryutils
 
+    rit = ryutils.intify_tuple
+
     doAll = True
 
     # x = y = z = np.arange(0.0,5.0,1.0)
@@ -1223,7 +1225,8 @@ if __name__ == '__main__':
         #read the test file and interpolate the selected columns on the new range tim
         # the comment parameter is superfluous, since there are no comments in this file
 
-        print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%').shape)
+        tabl = loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%')
+        print(rit(tabl.shape))
         print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
         os.remove(filename)
 
@@ -1239,8 +1242,8 @@ if __name__ == '__main__':
                     loadCol=samplesSelect, comment='%')
         #print(samples)
         print(samplesTxt)
-        print(samples.shape)
-        print(wavelength.shape)
+        print(rit(samples.shape))
+        print(rit(wavelength.shape))
 
         ##------------------------- plot sample spectra ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1)
@@ -1328,7 +1331,7 @@ if __name__ == '__main__':
 
         #######################################################################
         print("Test downloading a file from internet given a URL")
-        url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+        url = 'https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/' + \
               'data/colourcoordinates/samplesVis.txt'
         if downloadFileUrl(url) is not None:
            print('success')
@@ -1353,7 +1356,7 @@ if __name__ == '__main__':
         tgzFilename = 'colourcoordinates.tgz'
         destinationDir = '.'
         tarFilename = 'colourcoordinates.tar'
-        url = 'https://pyradi.googlecode.com/svn/trunk/pyradi/' + \
+        url = 'https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/' + \
                                             'data/colourcoordinates/'
         names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
         if names:

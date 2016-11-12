@@ -1047,6 +1047,8 @@ if __name__ == '__init__':
 
 if __name__ == '__main__':
 
+    rit = ryutils.intify_tuple
+
     #--------------------------------------------------------------
     # first read the ptw file
     ptwfile  = 'data/PyradiSampleLWIR.ptw'
@@ -1060,7 +1062,7 @@ if __name__ == '__main__':
     framesToLoad = [3,4,10]
     data, fheaders = getPTWFrames (header, framesToLoad)
     print(ptwfile)
-    print('(1) Data shape={}'.format(data.shape))
+    print('(1) Data shape={}'.format(rit(data.shape)))
     ifrm = 0
     print('Frame {} summary data:'.format(ifrm))
     print('Image data:\n{}'.format(data[ifrm]))
@@ -1073,8 +1075,8 @@ if __name__ == '__main__':
     #loading sequence of frames, with an error in request
     framesToLoad = [0,4,10]
     data, fheaders = getPTWFrames (header, framesToLoad)
-    print(data.shape)
-    print('(2) Data shape={}'.format(data.shape))
+    print(rit(data.shape))
+    print('(2) Data shape={}'.format(rit(data.shape)))
     print('\n{}\n'.format(30*'-'))
     
     #loading single frames
@@ -1088,7 +1090,7 @@ if __name__ == '__main__':
     rows = header.h_Rows
     cols = header.h_Cols
     img = data.reshape(frames, rows ,cols)
-    print(img.shape)
+    print(rit(img.shape))
 
     #--------------------------------------------------------------
     # first read the calibration file file
