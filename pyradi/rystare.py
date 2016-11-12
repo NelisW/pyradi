@@ -32,12 +32,9 @@ See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.h
 or pyradi/doc/rystare.rst  for more detail.
 """
 
-if sys.version_info[0] > 2:
-    pass
-else:
-    from __future__ import division
-    from __future__ import print_function
-    from __future__ import unicode_literals
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 __version__= ""
 __author__='M Konnik and CJ Willers'
@@ -808,7 +805,7 @@ def charge_to_voltage(strh5):
             # Obtain the matrix for the Sense Node Reset Noise, saved in strh5['rystare/noise/sn_reset/resetnoise']
             # sigma is stored in 'rystare/sensenode/ResetKTC-sigma' 
             # diagram node 15 reset noise stored in 'rystare/noise/sn_reset/resetnoise'
-            strh5 = sense_node_reset_noise(strh5)
+            strh5 = sense_node_reset_noise(strh5,seed=strh5['rystare/sensenode/resetnoise/seed'].value)
 
             # diagram node 15b reset voltage with kTC noise stored in 'rystare/noise/sn_reset/vrefresetpluskTC'
             strh5['rystare/noise/sn_reset/vrefresetpluskTC'][...] = strh5['rystare/sensenode/vrefreset'].value + \
@@ -836,7 +833,7 @@ def charge_to_voltage(strh5):
 
 
 ######################################################################################
-def sense_node_reset_noise(strh5):
+def sense_node_reset_noise(strh5,seed=None):
     r"""This routine calculates the noise standard deviation for the sense node reset noise.
 
     Sense node Reset noise (kTC noise)
@@ -909,7 +906,7 @@ def sense_node_reset_noise(strh5):
 
     # #randomising the state of the noise generators
     #If seed is omitted or None, current system time is used
-    np.random.seed(None)
+    np.random.seed(seed)
 
     # Soft-Reset prob distribution for the CMOS noise
     # use the exp() to get log normal, then subtract 1 to move the mean value to zero.
@@ -1157,7 +1154,7 @@ def source_follower_noise(strh5):
 
     #randomising the state of the noise generators
     # diagram node 19 source follower noise stored in 'rystare/sourcefollower/source_follower_noise'
-    np.random.seed(None) #If seed is omitted or None, current system time is used
+    np.random.seed(strh5['rystare/sourcefollower/noise/seed'].value) #If seed is omitted or None, current system time is used
     strh5['rystare/sourcefollower/source_follower_noise'][...] =\
         strh5['rystare/sourcefollower/sigma'].value * np.random.randn(strh5['rystare/imageSizePixels'].value[0],strh5['rystare/imageSizePixels'].value[1])
 
@@ -1300,7 +1297,7 @@ def shotnoise(sensor_signal_in):
 
     # Since this is a shot noise, it must be random every time we apply it, unlike the Fixed Pattern Noise (PRNU or DSNU).
     # If seed is omitted or None, current system time is used
-    return ryutils.poissonarray(sensor_signal_in, seedval=None)
+    return ryutils.poissonarray(sensor_signal_in, seedval=0)
 
 ######################################################################################################
 def responsivity_FPN_light(strh5):
@@ -2323,6 +2320,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/sourcefollower/noise/deltaindmodulation'] = 1e-8 #[A] source follower current modulation induced by RTS [CMOS ONLY]
     strh5['rystare/sourcefollower/dataclockspeed'] = 20e6 #MHz data rate clocking speed.
     strh5['rystare/sourcefollower/freqsamplingdelta'] = 10000. #sampling spacing for the frequencies (e.g., sample every 10kHz);
+    strh5['rystare/sourcefollower/noise/seed'] = 2154069
     if doTest in ['Simple']:
         strh5['rystare/sourcefollower/noise/activate'] = False
     elif  doTest in ['Advanced']:
@@ -2455,9 +2453,13 @@ def get_summary_stats(hdffilename):
     Author: CJ Willers
 
      """
-    import StringIO
+    if sys.version_info[0] > 2:
+        from io import StringIO
+    else:
+        from StringIO import StringIO
+
+    output = StringIO()
     
-    output = StringIO.StringIO()
 
     if hdffilename is not None:
         strh5 = ryfiles.open_HDF(hdffilename)
@@ -2468,7 +2470,7 @@ def get_summary_stats(hdffilename):
         print('Input image type            : {}'.format(strh5['rystare/EinUnits'].value))
         print('Sensor type                 : {} '.format(strh5['rystare/sensortype'].value))
         print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'].value))
-        print('Image size diagonal         : {} m'.format(strh5['rystare/imageSizeDiagonal'].value))
+        print('Image size diagonal         : {:.3e} m'.format(strh5['rystare/imageSizeDiagonal'].value))
         print('Image size pixels           : {} '.format(strh5['rystare/imageSizePixels'].value))
         print('Fill factor                 : {}'.format(strh5['rystare/photondetector/geometry/fillfactor'].value))
         print('Full well electrons         : {} e'.format(strh5['rystare/sensenode/fullwellelectronselection/fullwellelectrons'].value))
@@ -2511,13 +2513,13 @@ def get_summary_stats(hdffilename):
             print('Detector response mode      : {}'.format(strh5['rystare/photondetector/lightPRNU/model'].value))
             print('Detector response seed      : {}'.format(strh5['rystare/photondetector/lightPRNU/seed'].value))
             print('Detector response spread    : {}'.format(strh5['rystare/photondetector/lightPRNU/sigma'].value))
-        print('Material Eg 0 K             : {} eV'.format(strh5['rystare/photondetector/varshni/Egap0'].value))
-        print('Material Eg                 : {} eV'.format(strh5['rystare/material/Eg-eV'].value))
+        print('Material Eg 0 K             : {:.5f} eV'.format(strh5['rystare/photondetector/varshni/Egap0'].value))
+        print('Material Eg                 : {:.5f} eV'.format(strh5['rystare/material/Eg-eV'].value))
         print('Material alpha              : {}  '.format(strh5['rystare/photondetector/varshni/varA'].value))
         print('Material beta               : {}  '.format(strh5['rystare/photondetector/varshni/varB'].value))
         print('Sense node reset noise factr: {}  '.format(strh5['rystare/sensenode/resetnoise/factor'].value))
         print('Sense node reset kTC sigma  : {} v'.format(strh5['rystare/sensenode/ResetKTC-sigma'].value))
-        print('Sense node capacitance      : {} fF'.format(1e15 * strh5['rystare/sensenode/capacitance'].value))
+        print('Sense node capacitance      : {:.5e} fF'.format(1e15 * strh5['rystare/sensenode/capacitance'].value))
         print('k1 constant, Csn =  k1/V    : {} '.format(strh5['rystare/sensenode/gainresponse/k1'].value))
         print('Sense node signal full well : {} V'.format(strh5['rystare/sensenode/volt-fullwell'].value))
         print('Sense node signal minimum   : {} V'.format(strh5['rystare/sensenode/volt-min'].value))
