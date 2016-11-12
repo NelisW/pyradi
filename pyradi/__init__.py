@@ -33,7 +33,6 @@ computational radiometry (flux flow) calculations.
 
 """
 __version__= "1.0.0"
-__versionSVN__= "svn $Revision$"
 __author__='pyradi team'
 
 

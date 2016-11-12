@@ -7,7 +7,27 @@ import sys
 
 
 def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
-    """lists the files in a directory and subdirectories (from Python Cookbook)
+    """Lists the files/directories meeting specific requirement
+
+        Returns a list of file paths to files in a file system, searching a 
+        directory structure along the specified path, looking for files 
+        that matches the glob pattern. If specified, the search will continue 
+        into sub-directories.  A list of matching names is returned. The 
+        function supports a local or network reachable filesystem, but not URLs.
+
+    Args:
+        | root (string): directory root from where the search must take place
+        | patterns (string): glob/regex pattern for filename matching. Multiple pattens 
+          may be present, each one separated by ;
+        | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
+        | return_folders (int): flag to indicate if folder names must also be returned (optional)
+        | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
+
+    Returns:
+        | A list with matching file/directory names
+
+    Raises:
+        | No exception is raised.
     """
     if useRegex:
         import re
@@ -16,6 +36,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     pattern_list = patterns.split(';')
     filenames = []
     filertn = []
+
 
     if sys.version_info[0] < 3:
 
@@ -32,8 +53,8 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                 if arg.return_folders or os.path.isfile(fullname):
                     for pattern in arg.pattern_list:
                         if useRegex:
-                            regex = re.compile(pattern)
                             #search returns None is pattern not found
+                            regex = re.compile(pattern)
                             if regex.search(name):
                                 arg.results.append(fullname)
                                 break
@@ -46,21 +67,29 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         os.path.walk(root, visit, arg)
         return arg.results
 
-    else:
+    else: #python 3
         for dirpath,dirnames,files in os.walk(root):
             if dirpath==root or recurse:
                 for filen in files:
-                    filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                    # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                    filenames.append(os.path.relpath(os.path.join(dirpath,filen)))
                 if return_folders:
                     for dirn in dirnames:
-                        filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+                        # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+                        filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
         for name in filenames:
             if return_folders or os.path.isfile(name):
                 for pattern in pattern_list:
-                    if fnmatch.fnmatch(name, pattern):
-                        filertn.append(name)
-                        break
-
+                    if useRegex:
+                        #search returns None is pattern not found
+                        regex = re.compile(pattern)
+                        if regex.search(name):
+                            filertn.append(name)
+                            break
+                    else:
+                        if fnmatch.fnmatch(name, pattern):
+                            filertn.append(name)
+                            break
     return filertn
 
 

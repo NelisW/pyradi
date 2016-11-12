@@ -29,12 +29,10 @@ See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.h
 or pyradi/doc/rystare.rst  for more detail.
 """
 
-if sys.version_info[0] > 2:
-    pass
-else:
-    from __future__ import division
-    from __future__ import print_function
-    from __future__ import unicode_literals
+
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 __version__= ""
 __author__='M Konnik and CJ Willers'
@@ -532,3 +530,19 @@ def checkParamsNum(funcName,distribName,runDistribName,distribParams,correctNum)
     # print(distribParams, correctNum, proceed)
 
     return proceed
+
+################################################################
+################################################################
+##
+## confirm the correctness of the functions
+
+if __name__ == '__main__':
+
+    import datetime as dt
+    import ryutils
+    rit = ryutils.intify_tuple
+
+    doAll = False
+
+    #no tests at this time
+

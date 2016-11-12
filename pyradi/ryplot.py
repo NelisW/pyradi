@@ -3582,7 +3582,7 @@ if __name__ == '__main__':
     ############################################################################
     #demonstrate multipage pdf output
     #reference for the multipage pdf code: http://blog.marmakoide.org/?p=94
-    if True:
+    if doAll:
 
         x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
         np.random.seed(0)

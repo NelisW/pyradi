@@ -34,12 +34,10 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-if sys.version_info[0] > 2:
-    pass
-else:
-    from __future__ import division
-    from __future__ import print_function
-    #from __future__ import unicode_literals
+
+from __future__ import division
+from __future__ import print_function
+#from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -435,14 +433,16 @@ if __name__ == '__main__':
     import pyradi.ryutils as ryutils
 
 
-    if False:
+    doAll = True
+    
+    if doAll:
         pathToModtranBin = r'C:\PcModWin5\bin'
         research = '.*.ltn'
         root = r'D:\work\ISP\SWIR-tradeoff\data\atmo\TropicalRural\slant'
         execname = 'OntarMod5_3_2.exe'
         runModtranAndCopy(root=root, research=research, pathToModtranBin=pathToModtranBin, execname=execname)
 
-    if True:
+    if doAll:
         figtype = ".png"  # eps, jpg, png
         #figtype = ".eps"  # eps, jpg, png
 
@@ -478,7 +478,7 @@ if __name__ == '__main__':
         np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
 
 
-    if True:
+    if doAll:
 
         colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', \
               'O3_TRANS', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS']

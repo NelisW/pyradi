@@ -897,8 +897,14 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
     winbins = winbins if winbins%2==1 else winbins+1
     windowfn=windowtype(winbins)
     #np.convolve is unfriendly towards unicode strings
+
+    if sys.version_info[0] > 2:
+        cmode='same'
+    else:
+        cmode='same'.encode('utf-8')
+
     outspectral = np.convolve(windowfn/(samplingresolution*windowfn.sum()),
-                        inspectral.reshape(-1, ),mode='same'.encode('utf-8'))
+                        inspectral.reshape(-1, ),mode=cmode)
     return outspectral,  windowfn
 
 ######################################################################################
@@ -986,6 +992,8 @@ def poissonarray(inp, seedval=None, tpoint=1000):
 
     :math:`F_\mathrm{Poisson}(x;\lambda)\approx\,F_\mathrm{normal}(x;\mu=\lambda,\sigma^2=\lambda)`
 
+    This function returns values of zero when the input is zero.
+
     Args:
         | inp (np.array[N,M]): array with mean value
         | seedval (int): seed for random number generator, None means use system time.
@@ -1011,6 +1019,7 @@ def poissonarray(inp, seedval=None, tpoint=1000):
     outp =  (inp<=tpoint) * np.random.poisson(inp * (inp<=tpoint) )\
                         + ((inp>tpoint) & (inp!=0)) * np.random.normal(loc=inp, scale=np.sqrt(inp+sdelta))
 
+    outp = np.where(inp==0, 0., outp)
     return outp
 
 
@@ -1777,7 +1786,7 @@ class Spectral(object):
         """
         if isinstance(self.wn, np.ndarray):
             numpts = self.wn.shape[0]
-            stride = numpts / 3
+            stride = int(numpts / 3)
 
         strn = '{}\n'.format(self.ID)
         strn += ' {}-desc: {}\n'.format(self.ID,self.desc)
@@ -2178,10 +2187,10 @@ class Sensor():
         """
         strn =  'Sensor ID: {}\n'.format(self.ID)
         strn += 'desc: {}\n'.format(self.desc)
-        strn += 'fno: {}\n'.format(self.fno)
-        strn += 'detarea: {}\n'.format(self.detarea)
-        strn += 'inttime: {}\n'.format(self.inttime)
-        strn += 'pfrac: {}\n'.format(self.pfrac)
+        strn += 'fno: {:.3f}\n'.format(self.fno)
+        strn += 'detarea: {:.3e}\n'.format(self.detarea)
+        strn += 'inttime: {:.6f}\n'.format(self.inttime)
+        strn += 'pfrac: {:.3f}\n'.format(self.pfrac)
         strn += '{}\n'.format(self.tauOptVal)
         strn += '{}\n'.format(self.quantEffVal)
 
@@ -2447,18 +2456,30 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
     import pyradi.rymodtran as rymodtran
     import os
+    import collections
+
+
+    rit = intify_tuple
 
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
 
-    spectrals = {}
-    atmos = {}
-    sensors = {}
-    targets = {}
+
+    if sys.version_info[0] > 2:
+        spectrals = {}
+        atmos = {}
+        sensors = {}
+        targets = {}
+    else:
+        spectrals = collections.OrderedDict()   
+        atmos = collections.OrderedDict()   
+        sensors = collections.OrderedDict()   
+        targets = collections.OrderedDict()   
 
 
 
-    doAll = False
+
+    doAll = True
 
     if doAll:
         # test warpPolarImageToCartesianImage
@@ -2520,7 +2541,7 @@ if __name__ == '__main__':
             atmos[key].atco.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
                 heading=atmos[key].desc,ytitle='Attenuation m$^{-1}$')
 
-        stride = atmos['A1'].atco.wn.shape[0] / 3
+        stride = int(atmos['A1'].atco.wn.shape[0] / 3)
         for distance in [1000,2000]:
             print('distance={} m, tran={}'.format(distance,atmos['A1'].tauR(distance)[0::stride].T))
             ID = 'Atau{:.0f}'.format(distance)
@@ -2532,7 +2553,7 @@ if __name__ == '__main__':
             spectrals[ID].plot(filename='{}-{}-prad'.format(key,spectrals[ID].desc),
                 heading=spectrals[ID].desc,ytitle='Lpath W/(sr.m2.cm-1)')
 
-        distances =np.array([1000,2000])
+        distances = np.array([1000,2000])
         print('distances={} m, tran={}'.format(distances,atmos['A1'].tauR(distances)[0::stride].T))
         print('distances={} m, atco={}'.format(distances,(-np.log(atmos['A1'].tauR(distances))/distances)[0::stride].T))
 
@@ -2618,9 +2639,9 @@ if __name__ == '__main__':
         probDetection = 0.999
         ThresholdToNoise = detectThresholdToNoiseTpFAR(pulsewidth,FAR)
         SignalToNoise = detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, probDetection)
-        print('For a laser pulse with width={0}, a FAR={1} and Pd={2},'.format(pulsewidth,FAR,probDetection))
-        print('the Threshold to Noise ratio must be {0}'.format(ThresholdToNoise))
-        print('and the Signal to Noise ratio must be {0}'.format(SignalToNoise))
+        print('For a laser pulse with width={0:.3e}, a FAR={1:.3e} and Pd={2:.3e},'.format(pulsewidth,FAR,probDetection))
+        print('the Threshold to Noise ratio must be {0:.3e}'.format(ThresholdToNoise))
+        print('and the Signal to Noise ratio must be {0:.3e}'.format(SignalToNoise))
         print(' ')
 
 
@@ -2651,7 +2672,12 @@ if __name__ == '__main__':
 
             irrad = Intensity * tauTable(rr) / rr ** 2
 
-            print('\nE={0}: Range equation solver: at range {1} the irradiance is {2}, error is {3}. {4}'.format(
+            # print(type(Irradiance))
+            # print(type(r[0]))
+            # print(type(irrad))
+            # print(type((irrad - Irradiance) / Irradiance))
+            # print(type(strError))
+            print('\nE={0:.3e}: Range equation solver: at range {1:.3e} the irradiance is {2:.3e}, error is {3:.3e} - {4}'.format(
                 Irradiance,r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
         print(' ')
 
@@ -2676,9 +2702,9 @@ if __name__ == '__main__':
         print(convertSpectralDomain(wavelenRef, 'lf')/frequenRef)
         print(convertSpectralDomain(wavenumRef, 'nf')/frequenRef)
         print('test illegal input type should have shape (0,0)')
-        print(convertSpectralDomain(wavenumRef, 'ng').shape)
-        print(convertSpectralDomain(wavenumRef, '').shape)
-        print(convertSpectralDomain(wavenumRef).shape)
+        print(rit(convertSpectralDomain(wavenumRef, 'ng').shape))
+        print(rit(convertSpectralDomain(wavenumRef, '').shape))
+        print(rit(convertSpectralDomain(wavenumRef).shape))
 
         # now test conversion of spectral density quantities
         #create planck spectral densities at the wavelength interval
@@ -2738,12 +2764,12 @@ if __name__ == '__main__':
         samplingresolution=0.5
         wavenum=np.linspace(0, 100, 100/samplingresolution)
         inspectral=np.zeros(wavenum.shape)
-        inspectral[10/samplingresolution] = 1
-        inspectral[11/samplingresolution] = 1
-        inspectral[45/samplingresolution] = 1
-        inspectral[55/samplingresolution] = 1
-        inspectral[70/samplingresolution] = 1
-        inspectral[75/samplingresolution] = 1
+        inspectral[int(10/samplingresolution)] = 1
+        inspectral[int(11/samplingresolution)] = 1
+        inspectral[int(45/samplingresolution)] = 1
+        inspectral[int(55/samplingresolution)] = 1
+        inspectral[int(70/samplingresolution)] = 1
+        inspectral[int(75/samplingresolution)] = 1
         inwinwidth=1
         outwinwidth=5
         outspectral,  windowfn = convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth)
@@ -2884,8 +2910,8 @@ if __name__ == '__main__':
         # do for each detector in the above example
         for i in range(responsivities.shape[1]):
             effRespo = effectiveValue(wavelength,  responsivities[:, i],  spectralBaseline)
-            print('Effective responsivity {0} of detector with parameters {1} '
-                 'and source temperature {2} K'.\
+            print('Effective responsivity {0:.3e} of detector with parameters {1} '
+                 'and source temperature {2:.3e} K'.\
                   format(effRespo, params[i], temperature))
 
         print(' ')
@@ -2922,9 +2948,9 @@ if __name__ == '__main__':
         p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
         p.saveFig('abshum.eps')
 
-        print('US-Std 15C 46 RH has {} g/m3'.format(0.46*abshumidity(15 + 273.15)))
+        print('US-Std 15C 46 RH has {:.3e} g/m3'.format(0.46*abshumidity(15 + 273.15)))
         #highest ever recorded absolute humidity was at dew point of 34C
-        print('Highest recorded absolute humidity was {0}, dew point {1} deg C'.\
+        print('Highest recorded absolute humidity was {0:.3e}, dew point {1:.3e} deg C'.\
             format(abshumidity(np.asarray([34 + 273.15]))[0],34))
 
         ###################################################
@@ -2944,7 +2970,7 @@ if __name__ == '__main__':
         z = circ(x, y, d)
 
         #calculate area two ways to confirm
-        print('Circ area is {}, should be {}'.format(np.sum(z)/(samples * a * samples * b), np.pi*(d/2)**2/(a * b)))
+        print('Circ area is {:.4e}, should be {:.4e}'.format(np.sum(z)/(samples * a * samples * b), np.pi*(d/2)**2/(a * b)))
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_circ.png']) as p:
@@ -2966,7 +2992,7 @@ if __name__ == '__main__':
         z = rect(x, y, sx, sy)
 
         #calculate area two ways to confirm
-        print('Rect area is {}, should be {}'.format(np.sum(z)/(samples * a * samples * b), sx*sy/(a * b)))
+        print('Rect area is {:.3e}, should be {:.3e}'.format(np.sum(z)/(samples * a * samples * b), sx*sy/(a * b)))
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_rect.png']) as p:
@@ -2978,12 +3004,16 @@ if __name__ == '__main__':
     if doAll:
         asize = 100000 # you need values of more than 10000000 to get really good stats
         tpoint = 1000
-        for lam in [0, 10, tpoint-5, tpoint-1, tpoint, tpoint+1, tpoint+5, 20000]:
+        print('Poisson for a mean value of zero is not defined and should give a zero')
+        for lam in [0,10, tpoint-5, tpoint-1, tpoint, tpoint+1, tpoint+5, 20000]:
             inp = lam * np.ones((asize,1))
-            out =  poissonarray(inp, tpoint=tpoint)
+            out =  poissonarray(inp, seedval=0,tpoint=tpoint)
 
-            print('lam={} mean={} var={} err-mean={} err-var={}'.format(lam,
-               np.mean(out),np.var(out), (lam-np.mean(out))/lam, (lam-np.var(out))/lam))
+            # print(lam)
+            errmean = np.nan if lam==0 else (lam-np.mean(out))/lam
+            errvar = np.nan if lam==0 else (lam-np.var(out))/lam
+            print('lam={:.3e} mean={:.3e} var={:.3e} err-mean={:.3e} err-var={:.3e}'.format(lam,
+               np.mean(out),np.var(out), errmean, errvar))
 
     # ----------------test checkerboard texture------------------------
     if doAll:
