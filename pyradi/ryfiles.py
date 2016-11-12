@@ -1,5 +1,5 @@
-#  $Id$
-#  $HeadURL$
+# -*- coding: utf-8 -*-
+
 
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
@@ -47,11 +47,6 @@ __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
          'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms']
 
 import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
-
 from scipy.interpolate import interp1d
 import numpy as np
 import os.path, fnmatch
@@ -423,7 +418,6 @@ def downloadFileUrl(url,  saveFilename=None, proxy=None):
     else:
 
         if sys.version_info[0] > 2:
-            #python 3
             import urllib
             from urllib import request
             import urllib.error 
@@ -450,7 +444,6 @@ def downloadFileUrl(url,  saveFilename=None, proxy=None):
                print('URL Error: {} for {}'.format(e.reason, url))
                return None
         else:
-            #python 2.7
             import urllib2
             from urllib2 import HTTPError
 
@@ -591,7 +584,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         os.path.walk(root, visit, arg)
         return arg.results
 
-    else: # python 3
+    else: #python 3
         for dirpath,dirnames,files in os.walk(root):
             if dirpath==root or recurse:
                 for filen in files:

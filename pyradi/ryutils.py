@@ -1,5 +1,5 @@
-#  $Id$
-#  $HeadURL$
+# -*- coding: utf-8 -*-
+
 
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
@@ -53,11 +53,6 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          ]
 
 import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
-
 import numpy as np
 from scipy import constants
 import matplotlib.pyplot as plt

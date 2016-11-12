@@ -1,5 +1,5 @@
-#  $Id$
-#  $HeadURL$
+# -*- coding: utf-8 -*-
+
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New)cense
 # you may not use this file except in
@@ -40,10 +40,6 @@ __version__ = "$Revision$"
 __author__ = 'pyradi team'
 __all__ = ['PFlux','lllPhotonrates']
 
-# import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
 
 import numpy as np
 import math

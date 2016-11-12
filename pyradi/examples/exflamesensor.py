@@ -48,10 +48,12 @@ transferred one must perform a spectral calculation taking these strong
 spectral variations into account.
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+if sys.version_info[0] > 2:
+    pass
+else:
+    from __future__ import division
+    from __future__ import print_function
+    from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__='CJ Willers'

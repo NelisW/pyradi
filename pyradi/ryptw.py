@@ -1,5 +1,4 @@
-#  $Id$
-#  $HeadURL$
+# -*- coding: utf-8 -*-
 
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
@@ -71,10 +70,6 @@ __all__=['myint','mylong','myfloat','mybyte', 'mydouble', 'ReadPTWHeader',
 'ShowHeader', 'GetPTWFrame', 'GetPTWFrames']
 
 import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
 import collections
 import os.path
 

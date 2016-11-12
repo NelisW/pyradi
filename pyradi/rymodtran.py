@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-#  $Id$
-#  $HeadURL$
 
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
@@ -36,14 +34,12 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-# from __future__ import unicode_literals
-
-# import string
-# from string import maketrans   # Required to call maketrans function.
-
+if sys.version_info[0] > 2:
+    pass
+else:
+    from __future__ import division
+    from __future__ import print_function
+    #from __future__ import unicode_literals
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
@@ -51,11 +47,6 @@ __all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy']
 
 import re
 import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
-
 import numpy as np
 if sys.version_info[0] > 2:
     # from io import StringIO

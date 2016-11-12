@@ -44,11 +44,6 @@ __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
             'savePlot']
 
-import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
 import numpy as np
 import math
 import sys
@@ -3023,10 +3018,12 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
 if __name__ == '__main__':
 
     import datetime as dt
+    import ryutils
+    rit = ryutils.intify_tuple
 
     doAll = False
 
-    if True:  # stacked plot
+    if doAll:  # stacked plot
         fnx = lambda : np.random.randint(5, 50, 10)
         y = np.row_stack((fnx(), fnx(), fnx()))
         x = np.arange(10)
@@ -3036,7 +3033,7 @@ if __name__ == '__main__':
         percent = y /  y.sum(axis=0).astype(float) * 100
         #data must vary along rows for single column  (row-major)
         percent = percent.T
-        print(percent.shape)
+        print(rit(percent.shape))
         sp = Plotter(1,1,1,figsize=(16,8))
         sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label',
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
@@ -3585,9 +3582,10 @@ if __name__ == '__main__':
     ############################################################################
     #demonstrate multipage pdf output
     #reference for the multipage pdf code: http://blog.marmakoide.org/?p=94
-    if doAll:
+    if True:
 
         x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
+        np.random.seed(0)
         y=1 + np.random.random(x.shape[0]).reshape(-1, 1)
 
         #create the pdf document

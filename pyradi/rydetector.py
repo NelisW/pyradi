@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#  $Id$
-#  $HeadURL$
-
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
@@ -67,11 +64,6 @@ __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
         'EgVarshni', 'IXV', 'Noise','DstarSpectralFlatPhotonLim']
 
 import sys
-# if sys.version_info[0] > 2:
-#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-#     exit(-1)
-
-
 import scipy.constants as const
 import matplotlib.pyplot as plt
 import numpy as np

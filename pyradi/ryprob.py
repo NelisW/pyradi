@@ -29,11 +29,12 @@ See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.h
 or pyradi/doc/rystare.rst  for more detail.
 """
 
-#prepare so long for Python 3
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+if sys.version_info[0] > 2:
+    pass
+else:
+    from __future__ import division
+    from __future__ import print_function
+    from __future__ import unicode_literals
 
 __version__= ""
 __author__='M Konnik and CJ Willers'
@@ -41,10 +42,6 @@ __all__=['distribution_exp','distribution_lognormal','distribution_inversegauss'
 'distribution_wald','distributions_generator','validateParam','checkParamsNum']
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
-
 import numpy as np
 import re
 
