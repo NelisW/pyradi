@@ -1790,8 +1790,9 @@ class Spectral(object):
 
         strn = '{}\n'.format(self.ID)
         strn += ' {}-desc: {}\n'.format(self.ID,self.desc)
-         # for all numpy arrays, provide subset of values
-        for var in self.__dict__:
+        # for all numpy arrays, provide subset of values
+        keys = sorted(list(self.__dict__.keys()))
+        for var in keys:
             # then see if it is an array
             if isinstance(eval('self.{}'.format(var)), np.ndarray):
                 # print(eval('self.{}'.format(var)).shape)
@@ -1799,7 +1800,8 @@ class Spectral(object):
                 strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
             elif isinstance(eval('self.{}'.format(var)), Number):
                 svar = eval('self.{}'.format(var))
-                strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
+                # print(type(svar),svar)
+                strn += ' {}-{} (subsampled.T): {:.4e}\n'.format(self.ID,var, svar)
 
         return strn
 
@@ -2511,9 +2513,11 @@ if __name__ == '__main__':
         spectrals['ID0mul'] = spectrals['ID0'] * 1.67
         spectrals['ID1mul'] = spectrals['ID1'] * 1.67
 
-        for key in spectrals:
+
+
+        for key in sorted(list(spectrals.keys())):
             print(spectrals[key])
-        for key in spectrals:
+        for key in sorted(list(spectrals.keys())):
             filename ='{}-{}'.format(key,spectrals[key].desc)
             spectrals[key].plot(filename=filename,heading=spectrals[key].desc,ytitle='Value')
 
@@ -2533,9 +2537,9 @@ if __name__ == '__main__':
             wl=1e4/tape72[:,0], wn=None, desc='tape7-02-2 normalised input')
         atmos['A4'] = Atmo(ID='tape7-02-2', atco=-np.log(tape72[:,1])/distance, prad=None,
             wl=1e4/tape72[:,0], wn=None, desc='tape7-02-2 normalised input')
-        for key in atmos:
+        for key in sorted(list(atmos.keys())):
             print(atmos[key])
-        for key in atmos:
+        for key in sorted(list(atmos.keys())):
             atmos[key].prad.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'prad'),
                 heading=atmos[key].desc,ytitle='Norm Lpath W/(sr.m2.cm-1)')
             atmos[key].atco.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
@@ -2572,7 +2576,7 @@ if __name__ == '__main__':
         spectrals[ID] = Spectral(ID,value=spectral[:,1],wl=spectral[:,0],desc="MWIR transmittance")
         sensors[ID] = Sensor(ID=ID, fno=4, detarea=(15e-6)**2, inttime=0.02, 
             tauOpt=spectrals[ID], quantEff=spectrals[ID],  desc='Sensor two')
-        for key in sensors:
+        for key in sorted(list(sensors.keys())):
             print(sensors[key])
             # print(sensors[key].tauOpt())
             # print(sensors[key].QE())
@@ -2593,13 +2597,12 @@ if __name__ == '__main__':
         emisr = Spectral('{}-emis'.format(ID),value=np.ones(wn.shape),wn=wn,desc='{}-emis'.format(desc))
         targets[ID] = Target(ID=ID, emis=emisr, tmprt=6000, refl=.4,cosTarg=1.,
             scale=2.17e-5,taumed=0.5,desc='Reflected sunlight')
-        for key in targets:
+        for key in sorted(list(targets.keys())):
             print(targets[key])
             targets[key].radiance('el').plot(ytitle='Radiance')
 
         ssens = targets['Rad-MWIR'].radiance('el') + targets['refl-MWIR'].radiance('el')
         ssens.plot(ytitle='Radiance')
-
 
     if doAll:
         p = ryplot.Plotter(1,1,1)

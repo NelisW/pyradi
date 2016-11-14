@@ -3021,7 +3021,7 @@ if __name__ == '__main__':
     import ryutils
     rit = ryutils.intify_tuple
 
-    doAll = False
+    doAll = True
 
     if doAll:  # stacked plot
         fnx = lambda : np.random.randint(5, 50, 10)
