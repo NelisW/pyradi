@@ -7,6 +7,11 @@ The test suite probably does not have 100% coverage.
 It might grow in coverage with time. For now, it tests basic operation.
 If you find some gaps in coverage please let me know.
 
+The following file types are not hash stable and are not used for comparison:
+svg, eps, pdf.
+The following files are too big are not used for comparison:
+hdf5.
+
 The procedure is as follows:
 1. Manually: activate conda environment containing the version you want to test with.
 2. Manually: remove all clutter files, old results, etc. (python _cleanClutter.py)
@@ -81,14 +86,21 @@ def runTask(task,sleeptime):
 passed = {}
 failed = {}
 missing = {}
+envis = []
 
 # find the current environment
 out = subprocess.check_output('conda info --envs')
 envi = ''
 for line in out.split(b'\r\n'):
-    if b'*' in line:
-        envi = line.split()[0].decode('utf-8')
-print('Currently working in environment {}'.format(envi))
+    if not b'#' in line and len(line)>2:
+        # print(line)
+        if b'*' in line:
+            cenvi = line.split()[0].decode('utf-8')
+        if not b'root' in line:
+            envis.append(line.split()[0].decode('utf-8'))
+
+print('Currently working in environment {}'.format(cenvi))
+print('All environments: {}'.format(envis))
 
 # get a list of all folders in regression set
 flist = ryfiles.listFiles('./regressiondata', patterns='*', recurse=0, return_folders=1)
@@ -101,51 +113,63 @@ for ryscript in ryscripts:
     # get the script name for this run
     script = ryscript.split(os.sep)[1] 
 
-    # if script in 'rypflux':
+    # if script in 'ry3dnoise':
     if True: 
 
         #build a commandline string to execute and write stdout to file
-        task = 'python {}.py >{}-{}.txt'.format(script,script,envi)
+        task = 'python {}.py >{}-{}.txt'.format(script,script,cenvi)
         print('\n{}'.format(task))
         out = subprocess.check_output(task)
-        with open('{}-{}.txt'.format(script,envi),'wb') as fout:
+        with open('{}-{}.txt'.format(script,cenvi),'wb') as fout:
             fout.write(out)
 
-        #get the list of files in the regression folder
-        targfolder = os.path.join(ryscript.split('.')[0],envi)
-        print('Regression result files in folder: {}'.format(targfolder))
-        rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
-        for fregres in rlist:
-            flocal = os.path.basename(fregres)
-
-            if os.path.isfile(flocal):
-                hflocal = hash_file(flocal)
-
-                if os.path.isfile(fregres):
-                    hfregres = hash_file(fregres)
-                
-                    if hflocal==hflocal:
-                        result = '+'
-                        passed[fregres] = 1
-                    else:
-                        result = '-'
-                        failed[fregres] = 1
+        for envi in envis:
+            if envi in cenvi: # replace with True to cross check
+                if envi in cenvi:
+                    strenvi = ''
                 else:
-                    result = '?'
-                    missing[fregres] = 1
+                    strenvi = ' in {}'.format(envi)
 
-            print('  {}  {} vs {}'.format(result,fregres,flocal))
+                #get the list of files in the regression folder
+                targfolder = os.path.join(ryscript.split('.')[0],envi)
+                print('Regression result files in folder: {}'.format(targfolder))
+
+                rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
+                for fregres in rlist:
+                    flocal = os.path.basename(fregres)
+
+                    if os.path.exists(flocal):
+                        hflocal = hash_file(flocal)
+
+                        if os.path.exists(fregres):
+                            hfregres = hash_file(fregres)
+                        
+                            if hflocal==hfregres:
+                                result = '+'
+                                passed['{}{}'.format(flocal,strenvi)] = 1
+                            else:
+                                result = '-'
+                                failed['{}{}'.format(flocal,strenvi)] = 1
+                        # else:
+                        #     result = '?'
+                        #     missing['{}{}'.format(flocal,strenvi)] = 1
+                    else:
+                        result = '?'
+                        missing['{}{}'.format(flocal,strenvi)] = 1
+
+                    print('  {}  {} vs {}'.format(result,fregres,flocal))
 
 # write the result file to disk
 if sys.version_info[0] > 2:
-    fout = open('regression-results-{}.regrtxt'.format(envi),'wt', encoding='utf-8') 
+    fout = open('regression-results-{}.regrtxt'.format(cenvi),'wt', encoding='utf-8') 
 else:
-    fout = open('regression-results-{}.regrtxt'.format(envi),'wt') 
+    fout = open('regression-results-{}.regrtxt'.format(cenvi),'wt') 
 
 now = time.strftime("%c")
-fout.write('Environment: {}\n'.format(envi))
+fout.write('Environment: {}\n'.format(cenvi))
 fout.write('Python: {}\n'.format(sys.version))
 fout.write('Current date & time {}\n'.format(time.strftime('%c')))
+fout.write('------------------------------------\n')
 
 fout.write('\n\nPassed:\n')
 for key in sorted(list(passed.keys())):
@@ -158,5 +182,8 @@ for key in sorted(list(failed.keys())):
 fout.write('\n\nMissing:\n')
 for key in sorted(list(missing.keys())):
     fout.write('   ? {}\n'.format(key))
+
+
+
 
 fout.close()

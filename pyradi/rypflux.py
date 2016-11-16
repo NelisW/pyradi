@@ -260,7 +260,9 @@ if __name__ == '__main__':
 
     if doAll:  
         pf = PFlux()
-        print(pf.lllux)
+        keys = sorted(list(pf.lllux.keys()))
+        for key in keys:
+            print('{}: {}'.format(key,pf.lllux[key]))
 
         dfPhotRates = pd.DataFrame(pf.lllux).transpose()
         dfPhotRates.columns = ['Irradiance-lm/m2','ColourTemp','FracPhotop']

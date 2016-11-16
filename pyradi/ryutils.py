@@ -2486,6 +2486,7 @@ if __name__ == '__main__':
     if doAll:
         # test warpPolarImageToCartesianImage
         size = 100
+        np.random.seed(1)
         dset = np.random.random((size,size))
         mesh_cart = warpPolarImageToCartesianImage(dset)
         p = ryplot.Plotter(1,1,2);

@@ -3024,6 +3024,7 @@ if __name__ == '__main__':
     doAll = True
 
     if doAll:  # stacked plot
+        np.random.seed(1)
         fnx = lambda : np.random.randint(5, 50, 10)
         y = np.row_stack((fnx(), fnx(), fnx()))
         x = np.arange(10)
@@ -3076,6 +3077,7 @@ if __name__ == '__main__':
 
         #create the random point samples on the sphere
         samples = 500
+        np.random.seed(1)
         np.random.RandomState(200)
         theta = 2 * np.pi * np.random.uniform(0, 1, size=samples)
         #biased sampling with higher density towards the poles
@@ -3385,6 +3387,8 @@ if __name__ == '__main__':
     ##create some data
     if doAll:
         xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
+        np.random.seed(1)
+
         yLinS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
         yLinSS=1.0e3 * np.random.random(xLinS.shape[0]).reshape(-1, 1)
 
@@ -3519,6 +3523,8 @@ if __name__ == '__main__':
         xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
         M= Plotter(1, 1, 1,'Multi-plots',figsize=(12,8))
         #it seems that all attempts to plot in same subplot space must use same ptitle.
+        np.random.seed(1)
+
         yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
         M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['b'], label=['A1'])
         yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
@@ -3585,7 +3591,7 @@ if __name__ == '__main__':
     if doAll:
 
         x=np.linspace(0, 2*np.pi, 50).reshape(-1, 1)
-        np.random.seed(0)
+        np.random.seed(1)
         y=1 + np.random.random(x.shape[0]).reshape(-1, 1)
 
         #create the pdf document
