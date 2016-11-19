@@ -3,44 +3,45 @@
 Overview
 ---------
 
-The PyRadi toolkit provides utilities for radiometry (flux flow) calculations, supporting electro-optical and infrared system design.
+The PyRadi toolkit is a Python toolkit to perform optical and infrared computational radiometry (flux flow) calculations.
 
-The toolkit is an extendable, integrated and coherent collection of basic functions, code modules, documentation, example templates, unit tests and resources, that can be applied towards diverse calculations in the electro-optics domain. The toolkit covers:
+The toolkit is an extendable, integrated and coherent collection of basic functions, code modules, documentation, example templates, unit tests and resources, that can be applied towards diverse calculations in the electro-optics domain. The toolkit covers
 
-* Models of physical radiators (e.g., Planck's Law) and conversion between values expressed in different units.
-  
-* Mathematical operations (e.g., spectral integrals, spatial integrals, spectral convolution)
-  
-* Data manipulation (e.g., file input/output, interpolation, spectral quantity conversions, reading Flir Inc PTW files)
-  
-* Detector modelling from physical parameters, including single element detectors and staring arrays
-  
-* 3-D noise analysis of image sequences
-  
-* Modtran tape7 read functions
-  
-* Graphical visualization(2-D and 3-D graphs) in compact format, including cartesian, polar, image and mesh plots. 
+  * Models of physical radiators (e.g., Planck's Law) and conversion between values expressed in different units.
 
-* Spectral variables are expressed in Numpy arrays to ease spectral operations and integrals.
-  
+  * Mathematical operations for radiometry (e.g., spectral integrals, spatial integrals, spectral convolution)
+
+  * Data manipulation (e.g., file input/output, interpolation, spectral quantity conversions, reading Flir Inc PTW files)
+
+  * Detector modelling from physical parameters: including single element detectors and staring arrays
+
+  * 3-D noise analysis of image sequences
+
+  * Modtran tape7 read functions
+
+  * Graphical visualization(2-D and 3-D graphs) in compact format, including cartesian, polar, image and mesh plots.
+
+  * Spectral variables are expressed in Numpy arrays to ease spectral operations and integrals.
+
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
+
 
    
 Prerequisites
 -------------
 
 This  toolkit requires (current versions in brackets)  
-Python (2.7.6),
+Python (2.7.12 or 3.5.2),
 Numpy (1.7 or later),
 SciPy (0.13 or later),
 Matplotlib (1.3 or later).
-Mayavi (4.1) is required only for one file to do three-dimensional rendering, the rest of the toolkit works fine without Mayavi.
+Mayavi (4.1) (only for Python 2.7) is required only for one file to do three-dimensional rendering, the rest of the toolkit works fine without Mayavi.
 
 
 Status
 ------
 
-This project is *very stable beta*. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. The current version is already quite useful in our labs and university lectures.
+This project is Production. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. 
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 

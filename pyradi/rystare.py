@@ -1948,7 +1948,6 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels,wavelength,
     equivalentSignalType='',equivalentSignalUnit='',
     EinUnits=''):
     r"""This routine performs makes a simple illuminated circle with blurred boundaries.
-inPhotonrate=False,
     Then the  sensor's radiant irradiance in units [W/m2] are converted to  
     photon rate irradiance in units [q/m2.s)] by relating one photon's energy
     to power at the stated wavelength by :math:`Q_p=\frac{h\cdot c}{\lambda}`,

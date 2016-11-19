@@ -1,0 +1,208 @@
+Environment: py35
+Python: 3.5.2 |Anaconda 4.2.0 (64-bit)| (default, Jul  5 2016, 11:41:13) [MSC v.1900 64 bit (AMD64)]
+Current date & time Sat Nov 19 18:18:10 2016
+------------------------------------
+
+
+Passed:
+   + A1-tape7-02-1rawdatainput-atco.png
+   + A1-tape7-02-1rawdatainput-prad.png
+   + A2-tape7-02-2normalisedinput-atco.png
+   + A2-tape7-02-2normalisedinput-prad.png
+   + A3-tape7-02-2normalisedinput-prad.png
+   + A4-MWIRpathradianceAprad1000-prad.png
+   + A4-MWIRpathradianceAprad2000-prad.png
+   + A4-MWIRtransmittanceAtau1000-tau.png
+   + A4-MWIRtransmittanceAtau2000-tau.png
+   + A4-tape7-02-2normalisedinput-atco.png
+   + ID0-constvalue.png
+   + ID0mul-constvalue167.png
+   + ID0pow-constvalue3.png
+   + ID1-specvalue.png
+   + ID1mul-specvalue167.png
+   + ID1pow-specvalue3.png
+   + IDp00-constvalueconstvalue.png
+   + IDp01-constvaluespecvalue.png
+   + IDp10-specvalueconstvalue.png
+   + IDp11-specvaluespecvalue.png
+   + Rad-MWIR-300-radiance+refl-MWIR-6000-radiance-Selfemitted+Reflectedsunlight.png
+   + Rad-MWIR-300-radiance-Selfemitted.png
+   + bunsenPlt01.png
+   + checkerboardL.png
+   + checkerboardRGB.png
+   + convplot01.png
+   + convplot02.png
+   + densconvert.png
+   + filtrespVar.png
+   + makemotionsequence.png
+   + mirrorerror-2D-MTF-ratio.png
+   + mirrorerror-2D-MTF.png
+   + mirrorerror-WFerror.png
+   + mirrorerror-mean-MTF.png
+   + mirrorerror-rotational-MTF.png
+   + refl-MWIR-6000-radiance-Reflectedsunlight.png
+   + responsivityVar.png
+   + ryutils-py35.txt
+   + sfilterVar.png
+   + sfilterVar2.png
+   + tool_circ.png
+   + tool_rect.png
+   + vlam.png
+   + warpPolarImageToCartesianImage.png
+
+
+Failed:
+
+
+Missing:
+
+
+Hash the same in both environments:
+   + ry3dnoise/PyradiSampleMWIR.txt
+   + ry3dnoise/ptwframe0.png
+   + ry3dnoise/ptwnoise.png
+   + ry3dnoise/rawframe0.png
+   + ry3dnoise/sensornoise.txt
+   + ry3dnoise/simnoise.png
+   + rychroma/SampleReflectance.png
+   + rychroma/SourceRadiance.png
+   + rychroma/chromaticity.png
+   + rychroma/cieBAR.png
+   + rychroma/tristimulus.png
+   + ryfiles/SampleReflectance.png
+   + ryfiles/array.txt
+   + ryfiles/eps.txt
+   + ryfiles/rawIm0.png
+   + ryfiles/rawIm1.png
+   + ryfiles/rawIm2.png
+   + ryfiles/rawIm3.png
+   + ryfiles/sample.png
+   + ryfiles/tar
+   + rylookup/lut1-TempRadiance-NoF.png
+   + rylookup/lut1-TempRadiance-WiF.png
+   + rylookup/lut2-TempRadiance-NoF.png
+   + rylookup/lut2-TempRadiance-WiF.png
+   + rylookup/lut3-CalDLTemp.png
+   + rylookup/lut3-CalInternal.png
+   + rylookup/lut3-CalTempRadiance.png
+   + rylookup/lut3-CaldlRadiance.png
+   + rylookup/lut3-TempRadiance-NoF.png
+   + rylookup/lut3-TempRadiance-WiF.png
+   + rymodtran/ModtranSpec.png
+   + rymodtran/NIRPathradiance.png
+   + rymodtran/NIRPathradiancewl.png
+   + rymodtran/tape7-01.txt
+   + rymodtran/tape7-01a.txt
+   + rymodtran/tape7-01b.txt
+   + rymodtran/tape7-02.txt
+   + rymodtran/tape7-03.txt
+   + rymodtran/tape7-04.txt
+   + rymodtran/tape7-05.txt
+   + rymodtran/tape7-05b.txt
+   + ryplot/3D.png
+   + ryplot/3DwithLabel.png
+   + ryplot/3DwithLabelRepeat.png
+   + ryplot/3dsphere.png
+   + ryplot/AA.png
+   + ryplot/HistoEq.png
+   + ryplot/I.png
+   + ryplot/II.png
+   + ryplot/M3D.png
+   + ryplot/P.png
+   + ryplot/S.png
+   + ryplot/SS.png
+   + ryplot/cmaps.png
+   + ryplot/ma.png
+   + ryplot/mb.png
+   + ryplot/mc.png
+   + ryplot/p3D.png
+   + ryplot/p3D2.png
+   + ryplot/plotdateX.png
+   + ryplot/plotxTick.png
+   + ryplot/pmesh.png
+   + ryplot/testaxis.png
+   + ryplot/testwith.png
+   + ryptw/LWIR-BBref-150C-150us-1.png
+   + ryptw/lwir100mm0150us10ND20090910-CalDLTemp.png
+   + ryptw/lwir100mm0150us10ND20090910-CalInternal.png
+   + ryptw/lwir100mm0150us10ND20090910-CaldlRadiance.png
+   + ryptw/lwir100mm0150us10ND20090910-TempRadiance-NoF.png
+   + rystare/PAOutput.txt
+   + rystare/PSOutput.txt
+   + rystare/limitzero01.png
+   + rystare/limitzero02.png
+   + ryutils/A1-tape7-02-1rawdatainput-atco.png
+   + ryutils/A1-tape7-02-1rawdatainput-prad.png
+   + ryutils/A2-tape7-02-2normalisedinput-atco.png
+   + ryutils/A2-tape7-02-2normalisedinput-prad.png
+   + ryutils/A3-tape7-02-2normalisedinput-prad.png
+   + ryutils/A4-MWIRpathradianceAprad1000-prad.png
+   + ryutils/A4-MWIRpathradianceAprad2000-prad.png
+   + ryutils/A4-tape7-02-2normalisedinput-atco.png
+   + ryutils/ID1-specvalue.png
+   + ryutils/ID1mul-specvalue167.png
+   + ryutils/IDp01-constvaluespecvalue.png
+   + ryutils/IDp10-specvalueconstvalue.png
+   + ryutils/IDp11-specvaluespecvalue.png
+   + ryutils/Rad-MWIR-300-radiance+refl-MWIR-6000-radiance-Selfemitted+Reflectedsunlight.png
+   + ryutils/checkerboardL.png
+   + ryutils/checkerboardRGB.png
+   + ryutils/convplot02.png
+   + ryutils/densconvert.png
+   + ryutils/makemotionsequence.png
+   + ryutils/mirrorerror-2D-MTF.png
+   + ryutils/mirrorerror-WFerror.png
+   + ryutils/mirrorerror-mean-MTF.png
+   + ryutils/mirrorerror-rotational-MTF.png
+   + ryutils/refl-MWIR-6000-radiance-Reflectedsunlight.png
+   + ryutils/responsivityVar.png
+   + ryutils/sfilterVar.png
+   + ryutils/sfilterVar2.png
+   + ryutils/vlam.png
+   + ryutils/warpPolarImageToCartesianImage.png
+
+
+Text the same in both environments:
+
+
+Images are similar in both environments with normalised error less than 0.005:
+   + ryfiles/OTBMLSNavMar15Nov4_10-C1E.png   0.00018
+   + rylookup/lut1-spectrals.png   0.00019
+   + rylookup/lut2-spectrals.png   0.00049
+   + rylookup/lut3-CalRadiance.png   0.00065
+   + rylookup/lut3-spectrals.png   0.00049
+   + rymodtran/ModtranPlot.png   0.00072
+   + ryplanck/dplanck.png   0.00045
+   + ryplanck/planck.png   0.00045
+   + ryplot/3Dlaunch.png   0.00026
+   + ryplot/A.png   0.00030
+   + ryplot/ArrayPlot01.png   0.00008
+   + ryplot/ArrayPlot02.png   0.00010
+   + ryplot/ArrayPlot03.png   0.00010
+   + ryplot/M.png   0.00006
+   + ryplot/PN.png   0.00067
+   + ryplot/PP.png   0.00078
+   + ryplot/S3D.png   0.00019
+   + ryplot/mesh3d01.png   0.00000
+   + ryplot/meshContour.png   0.00052
+   + ryplot/pmeshrad.png   0.00101
+   + ryplot/stackplot.png   0.00009
+   + ryptw/lwir100mm0150us10ND20090910-CalRadiance.png   0.00153
+   + ryptw/lwir100mm0150us10ND20090910-spectrals.png   0.00049
+   + ryutils/A4-MWIRtransmittanceAtau1000-tau.png   0.00206
+   + ryutils/A4-MWIRtransmittanceAtau2000-tau.png   0.00213
+   + ryutils/ID0-constvalue.png   0.00075
+   + ryutils/ID0mul-constvalue167.png   0.00109
+   + ryutils/ID0pow-constvalue3.png   0.00099
+   + ryutils/ID1pow-specvalue3.png   0.00251
+   + ryutils/IDp00-constvalueconstvalue.png   0.00156
+   + ryutils/Rad-MWIR-300-radiance-Selfemitted.png   0.00088
+   + ryutils/bunsenPlt01.png   0.00144
+   + ryutils/convplot01.png   0.00018
+   + ryutils/filtrespVar.png   0.00007
+   + ryutils/mirrorerror-2D-MTF-ratio.png   0.00257
+   + ryutils/tool_circ.png   0.00000
+   + ryutils/tool_rect.png   0.00000
+
+
+Different between environments:

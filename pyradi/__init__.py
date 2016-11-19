@@ -31,8 +31,10 @@ computational radiometry (flux flow) calculations.
     | IPython notebooks demonstrating the use of pyradi is available at  
     | https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 
+    | Tested against Python 2.7.12 and Python 3.5.2
+
 """
-__version__= "1.0.0"
+__version__= "1.1.0"
 __author__='pyradi team'
 
 

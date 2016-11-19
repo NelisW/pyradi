@@ -255,7 +255,7 @@ setup(
     keywords='radiometry, electro-optical infrared planck',
 #    install_requires=['matplotlib', 'numpy', 'scipy', 'scikit-image'],
     classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
           'Environment :: Other Environment',
           'Intended Audience :: Education',
@@ -263,7 +263,8 @@ setup(
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2.7 :: Only',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.5',
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Physics',
           'Topic :: Scientific/Engineering :: Visualization',

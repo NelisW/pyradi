@@ -9,7 +9,7 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
 
   * Models of physical radiators (e.g., Planck's Law) and conversion between values expressed in different units.
 
-  * Mathematical operations (e.g., spectral integrals, spatial integrals, spectral convolution)
+  * Mathematical operations for radiometry (e.g., spectral integrals, spatial integrals, spectral convolution)
 
   * Data manipulation (e.g., file input/output, interpolation, spectral quantity conversions, reading Flir Inc PTW files)
 
@@ -28,10 +28,10 @@ The individual scripts in the toolkit is supported by examples, test cases and d
 
 ##Prerequisites
 
-If you install the [Anaconda](https://store.continuum.io/cshop/anaconda/) distribution (based on Python 2.7) from  you can ignore the rest of this paragraph.  It works well, is easy to do and, unless you have conflicting requirements, just download Anaconda and focus on the work.
+If you install the [Anaconda](https://store.continuum.io/cshop/anaconda/) distribution (based on Python 2.7 oe 3.5)  you can ignore the rest of this paragraph.  It works well, is easy to do and, unless you have conflicting requirements, just download Anaconda and focus on the work.
 
-This specific toolkit is implemented (current versions in brackets) in
-[Python (2.7)](http://www.python.org/) and its associated modules
+This specific toolkit is implemented in
+[Python (2.7 or 3.5)](http://www.python.org/) and its associated modules
 [Numpy](https://www.scipy.org/),
 [SciPy](https://www.scipy.org/),
 [Matplotlib](http://matplotlib.sourceforge.net/), and
@@ -75,7 +75,7 @@ A very good introduction to Python for scientific work are the
 
 
 ##Status
-This project is *stable beta*. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. The current version is already quite useful in our labs and lectures.
+This project has Production status. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. 
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 
