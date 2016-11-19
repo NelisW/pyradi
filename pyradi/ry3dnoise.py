@@ -377,6 +377,7 @@ if __name__ == '__main__':
     import pyradi.ryfiles as ryfiles
     import pyradi.ryplot as ryplot
     import pyradi.ryptw as ryptw
+    import pyradi.ryutils as ryutils
 
     #--------------------- simulated sensor noise data from raw format ------------------------------------------------------------------------
 
@@ -424,15 +425,15 @@ if __name__ == '__main__':
     NT = getNT(img)[1].reshape(frames).reshape(frames,1)
 
     P = ryplot.Plotter(1, 3, 3,'Simulated Image Sequence 3-D Noise Components', figsize=(12, 12))
-    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(NH.shape), titlefsize=10)
-    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(NTH.shape), titlefsize=10)
-    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(NV.shape), titlefsize=10)
-    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(NTV.shape), titlefsize=10)
-    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(NVH.shape), titlefsize=10)
-    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(NTVH.shape), titlefsize=10)
-    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(NT.shape), titlefsize=10)
-    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(img[0,:,:].shape), titlefsize=10)
-    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(img[-1,:,:].shape), titlefsize=10)
+    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(ryutils.intify_tuple(NH.shape)), titlefsize=10)
+    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(ryutils.intify_tuple(NTH.shape)), titlefsize=10)
+    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(ryutils.intify_tuple(NV.shape)), titlefsize=10)
+    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(ryutils.intify_tuple(NTV.shape)), titlefsize=10)
+    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(ryutils.intify_tuple(NVH.shape)), titlefsize=10)
+    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(ryutils.intify_tuple(NTVH.shape)), titlefsize=10)
+    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(ryutils.intify_tuple(NT.shape)), titlefsize=10)
+    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(ryutils.intify_tuple(img[0,:,:].shape)), titlefsize=10)
+    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(ryutils.intify_tuple(img[-1,:,:].shape)), titlefsize=10)
     P.getPlot().show()
     P.saveFig('simnoise.png')
 
@@ -489,15 +490,15 @@ if __name__ == '__main__':
 
 
     P = ryplot.Plotter(1, 3, 3,'PTW Image Sequence 3-D Noise Components', figsize=(12, 12))
-    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(NH.shape), titlefsize=10)
-    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(NTH.shape), titlefsize=10)
-    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(NV.shape), titlefsize=10)
-    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(NTV.shape), titlefsize=10)
-    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(NVH.shape), titlefsize=10)
-    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(NTVH.shape), titlefsize=10)
-    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(NT.shape), titlefsize=10)
-    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(img[0,:,:].shape), titlefsize=10)
-    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(img[-1,:,:].shape), titlefsize=10)
+    P.showImage(1, NH, ptitle='Nh: Fixed Column: Avg(vt) {}'.format(ryutils.intify_tuple(NH.shape)), titlefsize=10)
+    P.showImage(2, NTH, ptitle='Nth: Temporal Column: Avg(v) {}'.format(ryutils.intify_tuple(NTH.shape)), titlefsize=10)
+    P.showImage(4, NV, ptitle='Nv: Fixed Row: Avg(ht) {}'.format(ryutils.intify_tuple(NV.shape)), titlefsize=10)
+    P.showImage(5, NTV, ptitle='Ntv: Temporal Row: Avg(h) {}'.format(ryutils.intify_tuple(NTV.shape)), titlefsize=10)
+    P.showImage(8, NVH, ptitle='Nvh: Fixed Pixel: Avg(t)\nPixel Non-uniformity {}'.format(ryutils.intify_tuple(NVH.shape)), titlefsize=10)
+    P.showImage(9, NTVH, ptitle='Ntvh: Temporal: Avg()\nRandom noise {}'.format(ryutils.intify_tuple(NTVH.shape)), titlefsize=10)
+    P.showImage(7, NT, ptitle='Nt: Temporal Frame: Avg(hv) {}'.format(ryutils.intify_tuple(NT.shape)), titlefsize=10)
+    P.showImage(3, img[0,:,:], ptitle='First Frame {}'.format(ryutils.intify_tuple(img[0,:,:].shape)), titlefsize=10)
+    P.showImage(6, img[-1,:,:], ptitle='Last Frame {}'.format(ryutils.intify_tuple(img[-1,:,:].shape)), titlefsize=10)
     P.getPlot().show()
 
     P.saveFig('ptwnoise.png')

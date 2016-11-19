@@ -237,7 +237,8 @@ class RadLookup:
 
         if self.dicCaldata:
             str += 'Calibration data set'
-            for i,tmprInstr in enumerate(sorted(self.dicCaldata)):
+            keys = sorted(list(self.dicCaldata.keys()))
+            for i,tmprInstr in enumerate(keys):
                 str += '\n\nInstrument temperature = {} C\n'.format(tmprInstr)
                 str += 'DL floor               = {}\n'.format(self.dicFloor[tmprInstr])
                 str += 'DL power               = {}\n'.format(self.dicPower[tmprInstr])
@@ -411,7 +412,8 @@ class RadLookup:
 
 
                 #step through all instrument temperatures
-                for tmprInstr in self.dicCaldata:
+                keys = sorted(list(self.dicCaldata.keys()))
+                for tmprInstr in keys:
                     #temperature is in 0'th column of dicCaldata[tmprInstr]
                     #digital level is in 1'st column of dicCaldata[tmprInstr]
                     #radiance is in 2'nd column of dicCaldata[tmprInstr]
@@ -706,7 +708,8 @@ class RadLookup:
             numsubplots = len(list(self.dicCaldata.keys()))
 
             p = ryplot.Plotter(1,numsubplots,1, figsize=(10,10))
-            for j,tmprInstr in enumerate(self.dicCaldata):
+            keys = sorted(list(self.dicCaldata.keys()))
+            for j,tmprInstr in enumerate(keys):
                 #print(tmprInstr,j)
 
                 # build temperature labels
@@ -753,7 +756,9 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            for j,tmprInstr in enumerate(self.dicCaldata):
+            keys = sorted(list(self.dicCaldata.keys()))
+
+            for j,tmprInstr in enumerate(keys):
               if j == 0:
                 plotColB = ['r']
                 plotColM = ['b--']
@@ -852,7 +857,8 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            for j,tmprInstr in enumerate(self.dicCaldata):
+            keys = sorted(list(self.dicCaldata.keys()))
+            for j,tmprInstr in enumerate(keys):
                 p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,2],
                     label=['Tint {} $^\circ$C'.format(tmprInstr)])
                 currentP = p.getSubPlot(1)
@@ -929,7 +935,9 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            for j,tmprInstr in enumerate(self.dicCaldata):
+
+            keys = sorted(list(self.dicCaldata.keys()))
+            for j,tmprInstr in enumerate(keys):
                 DL = self.dicTableDLRad[tmprInstr][:,0]
                 temp = self.LookupDLTemp(DL, tmprInstr)
                 if j == 0:
@@ -976,7 +984,9 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            for j,tmprInstr in enumerate(self.dicCaldata):
+            keys = sorted(list(self.dicCaldata.keys()))
+
+            for j,tmprInstr in enumerate(keys):
                 DL = self.dicTableDLRad[tmprInstr][:,0]
                 temp = self.LookupDLTemp(DL, tmprInstr)
                 if j == 0:

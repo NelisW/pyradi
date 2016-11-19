@@ -43,7 +43,8 @@ Notes:
    ? missing: there is no local file to match a regression reference file.
 5. The regression set is built on Windows 7.
 
-
+image comparison taken from here:
+http://stackoverflow.com/questions/189943/how-can-i-quantify-difference-between-two-images
 
 """
 
@@ -55,111 +56,312 @@ import pyradi.ryfiles as ryfiles
 import sys
 import hashlib
 
-BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+import sys
+import scipy
+from scipy.misc import imread
+from scipy.linalg import norm
+from scipy import sum, average
 
+#################################################################################
+# to detect text files:
+# http://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python
+textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
+is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
+
+#################################################################################
 def hash_file(filename):
-   """"This function returns the SHA-1 hash
-   of the file contents for the filename passed into it
-   """
+    """"This function returns the SHA-1 hash
+    of the file contents for the filename passed into it
+    """
 
-   # make a hash object
-   h = hashlib.sha1()
+    BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
 
-   # open file for reading in binary mode
-   with open(filename,'rb') as file:
+    # make a hash object
+    h = hashlib.sha1()
 
-       # loop till the end of the file
-       chunk = 0
-       while chunk != b'':
-           # read only BUF_SIZE bytes at a time
-           chunk = file.read(BUF_SIZE)
-           h.update(chunk)
+    # open file for reading in binary mode
+    with open(filename,'rb') as file:
 
-   # return the hex representation of digest
-   return h.hexdigest()
+        # loop till the end of the file
+        chunk = 0
+        while chunk != b'':
+            # read only BUF_SIZE bytes at a time
+            chunk = file.read(BUF_SIZE)
+            h.update(chunk)
 
+    # return the hex representation of digest
+    return h.hexdigest()
+
+
+#################################################################################
 def runTask(task,sleeptime):
     p=subprocess.Popen(task)          
     while  p.poll() == None:
         time.sleep(sleeptime)
 
-passed = {}
-failed = {}
-missing = {}
-envis = []
 
-# find the current environment
-out = subprocess.check_output('conda info --envs')
-envi = ''
-for line in out.split(b'\r\n'):
-    if not b'#' in line and len(line)>2:
-        # print(line)
-        if b'*' in line:
-            cenvi = line.split()[0].decode('utf-8')
-        if not b'root' in line:
-            envis.append(line.split()[0].decode('utf-8'))
+#################################################################################
+def getcondaenvis():
+    envis = []
 
+    # find the current environment
+    out = subprocess.check_output('conda info --envs')
+    envi = ''
+    for line in out.split(b'\r\n'):
+        if not b'#' in line and len(line)>2:
+            # print(line)
+            if b'*' in line:
+                cenvi = line.split()[0].decode('utf-8')
+            if not b'root' in line:
+                envis.append(line.split()[0].decode('utf-8'))
+    return envis,cenvi
+
+
+#################################################################################
+def getscriptnamesregression():
+    # get a list of all folders in regression set
+    flist = ryfiles.listFiles('./regressiondata', patterns='*', recurse=0, return_folders=1)
+    ryscripts = []
+    for fli in flist:
+        if not os.path.isfile(fli):
+            ryscripts.append(fli)
+    return ryscripts
+
+#################################################################################
+# http://stackoverflow.com/questions/189943/how-can-i-quantify-difference-between-two-images
+def normalize(arr):
+    rng = arr.max()-arr.min()
+    amin = arr.min()
+    return (arr-amin)*255/rng
+
+#################################################################################
+# http://stackoverflow.com/questions/189943/how-can-i-quantify-difference-between-two-images
+def to_grayscale(arr):
+    """If arr is a color image (3D array), convert it to grayscale (2D array).
+    """
+    if len(arr.shape) == 3:
+        return average(arr, -1)  # average over the last axis (color channels)
+    else:
+        return arr
+
+#################################################################################
+# http://stackoverflow.com/questions/189943/how-can-i-quantify-difference-between-two-images
+def imagedifference(file1, file2):
+    # read images as 2D arrays (convert to grayscale for simplicity)
+    img1 = to_grayscale(imread(file1).astype(float))
+    img2 = to_grayscale(imread(file2).astype(float))
+    if not img1.shape == img2.shape:
+        # resize
+        img2 = scipy.misc.imresize(img2,img1.shape)
+    # compare
+    inorm = compare_images(img1, img2)
+
+    return inorm 
+
+#################################################################################
+# http://stackoverflow.com/questions/189943/how-can-i-quantify-difference-between-two-images
+def compare_images(img1, img2, method='zeronorm'):
+    # normalize to compensate for exposure difference, this may be unnecessary
+    # consider disabling it
+    img1 = normalize(img1)
+    img2 = normalize(img2)
+    # calculate the difference and its norms
+    diff = img1 - img2  # elementwise for scipy arrays
+    if method in 'zeronorm':
+        inorm = norm(diff.ravel(), 0)  # Zero norm
+    else:
+        inorm = sum(abs(diff))  # Manhattan norm
+    #normalise by image size
+    inorm /= float(img1.size)
+    return inorm
+
+
+#################################################################################
+def runscripts(ryscripts,fout=None, scriptName=None):
+    # run tests for each script and compare against its own ref set
+    passed = {}
+    failed = {}
+    missing = {}
+    for ryscript in ryscripts:
+        # get the script name for this run
+        script = ryscript.split(os.sep)[1] 
+
+        if script in scriptName or scriptName==None:
+
+            #build a commandline string to execute and write stdout to file
+            task = 'python {}.py >{}-{}.txt'.format(script,script,cenvi)
+            print('\n{}'.format(task))
+            out = subprocess.check_output(task)
+            with open('{}-{}.txt'.format(script,cenvi),'wb') as foutlocal:
+                foutlocal.write(out)
+
+            for envi in envis:
+                if envi in cenvi: # replace with True to cross check
+                    if envi in cenvi:
+                        strenvi = ''
+                    else:
+                        strenvi = ' in {}'.format(envi)
+
+                    #get the list of files in the regression folder
+                    targfolder = os.path.join(ryscript.split('.')[0],envi)
+                    print('Regression result files in folder: {}'.format(targfolder))
+
+                    rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
+                    for fregres in rlist:
+                        flocal = os.path.basename(fregres)
+
+                        if os.path.exists(flocal):
+                            hflocal = hash_file(flocal)
+
+                            if os.path.exists(fregres):
+                                hfregres = hash_file(fregres)
+                            
+                                if hflocal==hfregres:
+                                    result = '+'
+                                    passed['{}{}'.format(flocal,strenvi)] = 1
+                                else:
+                                    result = '-'
+                                    failed['{}{}'.format(flocal,strenvi)] = 1
+                            # else:
+                            #     result = '?'
+                            #     missing['{}{}'.format(flocal,strenvi)] = 1
+                        else:
+                            result = '?'
+                            missing['{}{}'.format(flocal,strenvi)] = 1
+
+                        print('  {}  {} vs {}'.format(result,fregres,flocal))
+
+    if fout is not None:
+        fout.write('\n\nPassed:\n')
+        for key in sorted(list(passed.keys())):
+            fout.write('   + {}\n'.format(key))
+
+        fout.write('\n\nFailed:\n')
+        for key in sorted(list(failed.keys())):
+            fout.write('   - {}\n'.format(key))
+
+        fout.write('\n\nMissing:\n')
+        for key in sorted(list(missing.keys())):
+            fout.write('   ? {}\n'.format(key))
+
+    return passed, failed, missing
+
+
+########################################################################
+def cmp_lines(path_1, path_2):
+    l1 = l2 = ' '
+    with open(path_1, 'rb') as f1:
+        with open(path_2, 'rb') as f2:
+            while len(l1)>0 and len(l2)>0:
+                l1 = f1.readline()
+                l2 = f2.readline()
+                if l1.strip() != l2.strip():
+                    return False
+    return True
+
+
+#################################################################################
+def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
+    """Compare files with the same names in each of environments
+    """
+
+    fdict = {}
+    fnames = {}
+    for ryscript in ryscripts:
+        # get the script name for this run
+        script = ryscript.split(os.sep)[1] 
+        fdict[script] = {}
+
+        for envi in envis:
+            fdict[script][envi] = {}
+            # capture the files in the environment
+            paths = ryfiles.listFiles(os.path.join(ryscript,envi), patterns='*', 
+                recurse=0, return_folders=0)
+            for path in paths:
+                fname = os.path.basename(path)
+                fnames[fname] = 1
+                if  os.path.isfile(path):
+                    fdict[script][envi][fname] = hash_file(path)
+                else:
+                    fdict[script][envi][fname] = None
+
+    # print(fdict)
+
+    # finished collecting, now compare
+    sameHash = {}
+    sameTxt = {}
+    sameImg = {}
+    diffEnv = {}
+    for ryscript in ryscripts:
+        script = ryscript.split(os.sep)[1] 
+        for fname in fnames:
+            hsh0 = None
+            if script in fdict.keys():
+                if envis[0] in fdict[script].keys():
+                    if fname in fdict[script][envis[0]].keys():
+                        hsh0 = fdict[script][envis[0]][fname]
+            hsh1 = None
+            if script in fdict.keys():
+                if envis[1] in fdict[script].keys():
+                    if fname in fdict[script][envis[1]].keys():
+                        hsh1 = fdict[script][envis[1]][fname]
+
+            if hsh0 is not None and hsh1 is not None:
+                if hsh0 == hsh1:
+                    sameHash['{}/{}'.format(script,fname)] = 1
+                else:
+                    path0 = os.path.join('regressiondata',script,envis[0],fname)
+                    path1 = os.path.join('regressiondata',script,envis[1],fname)
+                    # do text compare if text file
+                    if not is_binary_string(open(path0, 'rb').read(1024)) and \
+                                    cmp_lines(path0, path1):
+
+                        sameTxt['{}/{}'.format(script,fname)] = 1
+                    else:
+                        # hashes and text content mismatch, these are probably bitmaps or binary files
+                        imgdiff = imagedifference(path0, path1)
+
+                        if imgdiff < similarity:
+                            sameImg['{}/{}'.format(script,fname)] = imgdiff
+                        else:
+                            print('{} {}'.format(path0, imgdiff))
+                            diffEnv['{}/{}'.format(script,fname)] = 1
+
+
+
+    if fout is not None:
+        fout.write('\n\nHash the same in both environments:\n')
+        for key in sorted(list(sameHash.keys())):
+            fout.write('   + {}\n'.format(key))
+
+        fout.write('\n\nText the same in both environments:\n')
+        for key in sorted(list(sameTxt.keys())):
+            fout.write('   + {}\n'.format(key))
+
+        fout.write('\n\nImages are similar in both environments with normalised error less than {}:\n'.format(similarity))
+        for key in sorted(list(sameImg.keys())):
+            fout.write('   + {}   {:.5f}\n'.format(key,sameImg[key]))
+
+        fout.write('\n\nDifferent between environments:\n')
+        for key in sorted(list(diffEnv.keys())):
+            fout.write('   - {}\n'.format(key))
+
+
+    return sameHash, sameTxt, diffEnv
+
+
+
+########################################################################
+
+runScripts = True
+compareEnvResults = True
+
+# get conda environments
+envis,cenvi = getcondaenvis()
 print('Currently working in environment {}'.format(cenvi))
 print('All environments: {}'.format(envis))
 
-# get a list of all folders in regression set
-flist = ryfiles.listFiles('./regressiondata', patterns='*', recurse=0, return_folders=1)
-ryscripts = []
-for fli in flist:
-    if not os.path.isfile(fli):
-        ryscripts.append(fli)
-
-for ryscript in ryscripts:
-    # get the script name for this run
-    script = ryscript.split(os.sep)[1] 
-
-    # if script in 'ry3dnoise':
-    if True: 
-
-        #build a commandline string to execute and write stdout to file
-        task = 'python {}.py >{}-{}.txt'.format(script,script,cenvi)
-        print('\n{}'.format(task))
-        out = subprocess.check_output(task)
-        with open('{}-{}.txt'.format(script,cenvi),'wb') as fout:
-            fout.write(out)
-
-        for envi in envis:
-            if envi in cenvi: # replace with True to cross check
-                if envi in cenvi:
-                    strenvi = ''
-                else:
-                    strenvi = ' in {}'.format(envi)
-
-                #get the list of files in the regression folder
-                targfolder = os.path.join(ryscript.split('.')[0],envi)
-                print('Regression result files in folder: {}'.format(targfolder))
-
-                rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
-                for fregres in rlist:
-                    flocal = os.path.basename(fregres)
-
-                    if os.path.exists(flocal):
-                        hflocal = hash_file(flocal)
-
-                        if os.path.exists(fregres):
-                            hfregres = hash_file(fregres)
-                        
-                            if hflocal==hfregres:
-                                result = '+'
-                                passed['{}{}'.format(flocal,strenvi)] = 1
-                            else:
-                                result = '-'
-                                failed['{}{}'.format(flocal,strenvi)] = 1
-                        # else:
-                        #     result = '?'
-                        #     missing['{}{}'.format(flocal,strenvi)] = 1
-                    else:
-                        result = '?'
-                        missing['{}{}'.format(flocal,strenvi)] = 1
-
-                    print('  {}  {} vs {}'.format(result,fregres,flocal))
-
-# write the result file to disk
+# open disk file for writing
 if sys.version_info[0] > 2:
     fout = open('regression-results-{}.regrtxt'.format(cenvi),'wt', encoding='utf-8') 
 else:
@@ -171,19 +373,19 @@ fout.write('Python: {}\n'.format(sys.version))
 fout.write('Current date & time {}\n'.format(time.strftime('%c')))
 fout.write('------------------------------------\n')
 
-fout.write('\n\nPassed:\n')
-for key in sorted(list(passed.keys())):
-    fout.write('   + {}\n'.format(key))
 
-fout.write('\n\nFailed:\n')
-for key in sorted(list(failed.keys())):
-    fout.write('   - {}\n'.format(key))
+# get the names of the folders in regression - these are script names
+ryscripts = getscriptnamesregression()
+# print(ryscripts)
 
-fout.write('\n\nMissing:\n')
-for key in sorted(list(missing.keys())):
-    fout.write('   ? {}\n'.format(key))
+# run the scripts and collect test results
+if runScripts:
+    # passed, failed, missing = runscripts(ryscripts, fout, scriptName=None)
+    passed, failed, missing = runscripts(ryscripts, fout, scriptName='ryutils')
 
 
+if compareEnvResults:
+    sameHash, sameTxt, diffEnv = compareenvresults(envis,ryscripts,fout)
 
 
 fout.close()

@@ -3060,7 +3060,8 @@ if __name__ == '__main__':
 
         #  plot the wavefront error
         I1 = ryplot.Plotter(1,2,len(specdef.keys()),'sample {} '.format(sample), figsize=(14,10));
-        for i,specband in enumerate(wfdev.keys()):
+        keys = sorted(list(wfdev.keys()))
+        for i,specband in enumerate(keys):
             I1.showImage(i+1, wfdev[specband], ptitle='{} wavefront displacement in m'.format(specband), 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
             I1.showImage(i+4, phase[specband], ptitle='{} wavefront displacement in rad'.format(specband), 
@@ -3070,7 +3071,8 @@ if __name__ == '__main__':
         # plot the 2D MTF
         I1 = ryplot.Plotter(1,1,len(specdef.keys()),'Degraded MTF: sample {} '.format(sample),
                             figsize=(14,5));
-        for i,specband in enumerate(MTF2D.keys()):
+        keys = sorted(list(MTF2D.keys()))
+        for i,specband in enumerate(keys):
             I1.showImage(i+1, MTF2D[specband], ptitle='{} MTF'.format(specband), cmap=ryplot.cubehelixcmap(), 
                          titlefsize=10, cbarshow=True);
         I1.saveFig('mirrorerror-2D-MTF.png')
@@ -3078,7 +3080,8 @@ if __name__ == '__main__':
         #  plot the 2D MTF degradation
         I1 = ryplot.Plotter(2,1,len(specdef.keys()),'Degraded MTF/MTFdiffraction: sample {} '.format(sample),
                             figsize=(14,5));
-        for i,specband in enumerate(MTF2D.keys()):
+        keys = sorted(list(MTF2D.keys()))
+        for i,specband in enumerate(keys):
             I1.showImage(i+1, MTF2D[specband]/MTF2D[clear], ptitle='{} MTF'.format(specband), 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
         I1.saveFig('mirrorerror-2D-MTF-ratio.png')
@@ -3086,7 +3089,8 @@ if __name__ == '__main__':
         # plot the rotational MTF
         I1 = ryplot.Plotter(3,1,len(specdef.keys())-1,figsize=(8*(len(specdef.keys())-1),5));
         j = 0
-        for specband in MTFpol.keys():
+        keys = sorted(list(MTFpol.keys()))
+        for specband in keys:
             if clear not in specband:
                 for i in range(0,MTFpol[specband].shape[1]):
                     I1.plot(j+1,rho[specband],MTFpol[specband][:,i],'Sample {} {}'.format(sample,specband),
@@ -3098,7 +3102,8 @@ if __name__ == '__main__':
         I1 = ryplot.Plotter(4,len(specdef.keys())-1,2,figsize=(12,4*(len(specdef.keys())-1)),
                 figuretitle='Mean MTF relative to diffraction limit: sample {}'.format(sample));
         j = 0
-        for specband in MTFmean.keys():
+        keys = sorted(list(MTFmean.keys()))
+        for specband in keys:
             if clear not in specband:
                 I1.plot(j*2+1,rho[specband],MTFmean[specband],'',
                        'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1],label=[specband])
