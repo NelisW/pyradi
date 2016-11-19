@@ -1,10 +1,16 @@
 Environment: py27
 Python: 2.7.12 |Anaconda 4.2.0 (64-bit)| (default, Jun 29 2016, 11:07:13) [MSC v.1500 64 bit (AMD64)]
-Current date & time 11/19/16 18:16:30
+Current date & time 11/19/16 22:01:26
 ------------------------------------
 
 
 Passed:
+   + 3D.png
+   + 3Dlaunch.png
+   + 3DwithLabel.png
+   + 3DwithLabelRepeat.png
+   + 3dsphere.png
+   + A.png
    + A1-tape7-02-1rawdatainput-atco.png
    + A1-tape7-02-1rawdatainput-prad.png
    + A2-tape7-02-2normalisedinput-atco.png
@@ -15,6 +21,12 @@ Passed:
    + A4-MWIRtransmittanceAtau1000-tau.png
    + A4-MWIRtransmittanceAtau2000-tau.png
    + A4-tape7-02-2normalisedinput-atco.png
+   + AA.png
+   + ArrayPlot01.png
+   + ArrayPlot02.png
+   + ArrayPlot03.png
+   + HistoEq.png
+   + I.png
    + ID0-constvalue.png
    + ID0mul-constvalue167.png
    + ID0pow-constvalue3.png
@@ -25,28 +37,121 @@ Passed:
    + IDp01-constvaluespecvalue.png
    + IDp10-specvalueconstvalue.png
    + IDp11-specvaluespecvalue.png
+   + II.png
+   + LWIR-BBref-150C-150us-1.png
+   + M.png
+   + M3D.png
+   + ModtranPlot.png
+   + ModtranSpec.png
+   + NIRPathradiance.png
+   + NIRPathradiancewl.png
+   + OTBMLSNavMar15Nov4_10-C1E.png
+   + P.png
+   + PAOutput.txt
+   + PN.png
+   + PP.png
+   + PSOutput.txt
+   + PyradiSampleMWIR.txt
    + Rad-MWIR-300-radiance+refl-MWIR-6000-radiance-Selfemitted+Reflectedsunlight.png
    + Rad-MWIR-300-radiance-Selfemitted.png
+   + S.png
+   + S3D.png
+   + SS.png
+   + SampleReflectance.png
+   + SourceRadiance.png
+   + array.txt
    + bunsenPlt01.png
    + checkerboardL.png
    + checkerboardRGB.png
+   + chromaticity.png
+   + cieBAR.png
+   + cmaps.png
    + convplot01.png
    + convplot02.png
    + densconvert.png
+   + dplanck.png
+   + eps.txt
    + filtrespVar.png
+   + limitzero01.png
+   + limitzero02.png
+   + lut1-TempRadiance-NoF.png
+   + lut1-TempRadiance-WiF.png
+   + lut1-spectrals.png
+   + lut2-TempRadiance-NoF.png
+   + lut2-TempRadiance-WiF.png
+   + lut2-spectrals.png
+   + lut3-CalDLTemp.png
+   + lut3-CalInternal.png
+   + lut3-CalRadiance.png
+   + lut3-CalTempRadiance.png
+   + lut3-CaldlRadiance.png
+   + lut3-TempRadiance-NoF.png
+   + lut3-TempRadiance-WiF.png
+   + lut3-spectrals.png
+   + lwir100mm0150us10ND20090910-CalDLTemp.png
+   + lwir100mm0150us10ND20090910-CalInternal.png
+   + lwir100mm0150us10ND20090910-CalRadiance.png
+   + lwir100mm0150us10ND20090910-CaldlRadiance.png
+   + lwir100mm0150us10ND20090910-TempRadiance-NoF.png
+   + lwir100mm0150us10ND20090910-spectrals.png
+   + ma.png
    + makemotionsequence.png
+   + mb.png
+   + mc.png
+   + mesh3d01.png
+   + meshContour.png
    + mirrorerror-2D-MTF-ratio.png
    + mirrorerror-2D-MTF.png
    + mirrorerror-WFerror.png
    + mirrorerror-mean-MTF.png
    + mirrorerror-rotational-MTF.png
+   + p3D.png
+   + p3D2.png
+   + planck.png
+   + plotdateX.png
+   + plotxTick.png
+   + pmesh.png
+   + pmeshrad.png
+   + ptwframe0.png
+   + ptwnoise.png
+   + rawIm0.png
+   + rawIm1.png
+   + rawIm2.png
+   + rawIm3.png
+   + rawframe0.png
    + refl-MWIR-6000-radiance-Reflectedsunlight.png
    + responsivityVar.png
+   + ry3dnoise-py27.txt
+   + rychroma-py27.txt
+   + rydetector-py27.txt
+   + ryfiles-py27.txt
+   + rylookup-py27.txt
+   + rymodtran-py27.txt
+   + rypflux-py27.txt
+   + ryplanck-py27.txt
+   + ryplot-py27.txt
+   + ryptw-py27.txt
+   + rystare-py27.txt
    + ryutils-py27.txt
+   + sample.png
+   + sensornoise.txt
    + sfilterVar.png
    + sfilterVar2.png
+   + simnoise.png
+   + stackplot.png
+   + tape7-01.txt
+   + tape7-01a.txt
+   + tape7-01b.txt
+   + tape7-02.txt
+   + tape7-03.txt
+   + tape7-04.txt
+   + tape7-05.txt
+   + tape7-05b.txt
+   + testaxis.png
+   + testwith.png
    + tool_circ.png
    + tool_rect.png
+   + tristimulus.png
    + vlam.png
    + warpPolarImageToCartesianImage.png
 

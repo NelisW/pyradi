@@ -4,7 +4,7 @@ Setup script for pyradi. This procedure must be followed only once so set up.
 1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
     letters and numbers, not other symbols.
 
-2.  On Windows create an environmental variable to your home directory (C:\\Users\\username)
+2.  On Windows create a HOME environmental variable to your home directory (C:\\Users\\username)
 
 3.  Place the .pypirc file in your home directory (to where HOME points). The format
     of this file is as follows (no spaces in last two lines):

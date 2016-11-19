@@ -3,6 +3,14 @@
 
 """This is a lazy regression testing attempt, but it sort of works.
 
+This script requires the regression data at https://github.com/NelisW/pyradi-data,
+on the same level as the pyradi repo clone:
+
+localFolder
+  |--> pyradi         [https://github.com/NelisW/pyradi]
+  |--> pyradi-data    [https://github.com/NelisW/pyradi-data]
+  |--> pyradi-docs    [https://github.com/NelisW/pyradi-docs]
+
 The test suite probably does not have 100% coverage.
 It might grow in coverage with time. For now, it tests basic operation.
 If you find some gaps in coverage please let me know.
@@ -62,6 +70,8 @@ from scipy.misc import imread
 from scipy.linalg import norm
 from scipy import sum, average
 
+pathToRegressionData = '../../pyradi-data/regression'
+
 #################################################################################
 # to detect text files:
 # http://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python
@@ -120,7 +130,7 @@ def getcondaenvis():
 #################################################################################
 def getscriptnamesregression():
     # get a list of all folders in regression set
-    flist = ryfiles.listFiles('./regressiondata', patterns='*', recurse=0, return_folders=1)
+    flist = ryfiles.listFiles(pathToRegressionData, patterns='*', recurse=0, return_folders=1)
     ryscripts = []
     for fli in flist:
         if not os.path.isfile(fli):
@@ -177,59 +187,62 @@ def compare_images(img1, img2, method='zeronorm'):
 
 
 #################################################################################
-def runscripts(ryscripts,fout=None, scriptName=None):
+def runscripts(ryscripts,fout=None):
     # run tests for each script and compare against its own ref set
     passed = {}
     failed = {}
     missing = {}
     for ryscript in ryscripts:
         # get the script name for this run
-        script = ryscript.split(os.sep)[1] 
+        script = os.path.basename(ryscript) 
 
-        if script in scriptName or scriptName==None:
+        #build a commandline string to execute and write stdout to file
+        task = 'python {}.py >{}-{}.txt'.format(script,script,cenvi)
+        print('\n{}'.format(task))
+        out = subprocess.check_output(task)
+        with open('{}-{}.txt'.format(script,cenvi),'wb') as foutlocal:
+            foutlocal.write(out)
 
-            #build a commandline string to execute and write stdout to file
-            task = 'python {}.py >{}-{}.txt'.format(script,script,cenvi)
-            print('\n{}'.format(task))
-            out = subprocess.check_output(task)
-            with open('{}-{}.txt'.format(script,cenvi),'wb') as foutlocal:
-                foutlocal.write(out)
+        for envi in envis:
+            if envi in cenvi: # replace with True to cross check
+                if envi in cenvi:
+                    strenvi = ''
+                else:
+                    strenvi = ' in {}'.format(envi)
 
-            for envi in envis:
-                if envi in cenvi: # replace with True to cross check
-                    if envi in cenvi:
-                        strenvi = ''
-                    else:
-                        strenvi = ' in {}'.format(envi)
+                #get the list of files in the regression folder
+                targfolder = os.path.join(pathToRegressionData,script.split('.')[0],envi)
+                print('Regression result files in folder: {}'.format(targfolder))
 
-                    #get the list of files in the regression folder
-                    targfolder = os.path.join(ryscript.split('.')[0],envi)
-                    print('Regression result files in folder: {}'.format(targfolder))
+                rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
+                for fregres in rlist:
+                    flocal = os.path.basename(fregres)
 
-                    rlist = ryfiles.listFiles(targfolder, patterns='*.*', recurse=0, return_folders=0)
-                    for fregres in rlist:
-                        flocal = os.path.basename(fregres)
+                    if os.path.exists(flocal):
+                        hflocal = hash_file(flocal)
 
-                        if os.path.exists(flocal):
-                            hflocal = hash_file(flocal)
-
-                            if os.path.exists(fregres):
-                                hfregres = hash_file(fregres)
-                            
-                                if hflocal==hfregres:
-                                    result = '+'
+                        if os.path.exists(fregres):
+                            hfregres = hash_file(fregres)
+                        
+                            if hflocal==hfregres:
+                                result = '+'
+                                passed['{}{}'.format(flocal,strenvi)] = 1
+                            else:
+                                # test for text string compare
+                                if not is_binary_string(open(fregres, 'rb').read(1024)) and \
+                                                cmp_lines(fregres, flocal):
                                     passed['{}{}'.format(flocal,strenvi)] = 1
                                 else:
                                     result = '-'
                                     failed['{}{}'.format(flocal,strenvi)] = 1
-                            # else:
-                            #     result = '?'
-                            #     missing['{}{}'.format(flocal,strenvi)] = 1
-                        else:
-                            result = '?'
-                            missing['{}{}'.format(flocal,strenvi)] = 1
+                        # else:
+                        #     result = '?'
+                        #     missing['{}{}'.format(flocal,strenvi)] = 1
+                    else:
+                        result = '?'
+                        missing['{}{}'.format(flocal,strenvi)] = 1
 
-                        print('  {}  {} vs {}'.format(result,fregres,flocal))
+                    print('  {}  {} vs {}'.format(result,fregres,flocal))
 
     if fout is not None:
         fout.write('\n\nPassed:\n')
@@ -269,7 +282,7 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
     fnames = {}
     for ryscript in ryscripts:
         # get the script name for this run
-        script = ryscript.split(os.sep)[1] 
+        script = os.path.basename(ryscript)
         fdict[script] = {}
 
         for envi in envis:
@@ -285,15 +298,13 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
                 else:
                     fdict[script][envi][fname] = None
 
-    # print(fdict)
-
     # finished collecting, now compare
     sameHash = {}
     sameTxt = {}
     sameImg = {}
     diffEnv = {}
     for ryscript in ryscripts:
-        script = ryscript.split(os.sep)[1] 
+        script = os.path.basename(ryscript) 
         for fname in fnames:
             hsh0 = None
             if script in fdict.keys():
@@ -310,8 +321,8 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
                 if hsh0 == hsh1:
                     sameHash['{}/{}'.format(script,fname)] = 1
                 else:
-                    path0 = os.path.join('regressiondata',script,envis[0],fname)
-                    path1 = os.path.join('regressiondata',script,envis[1],fname)
+                    path0 = os.path.join(pathToRegressionData,script,envis[0],fname)
+                    path1 = os.path.join(pathToRegressionData,script,envis[1],fname)
                     # do text compare if text file
                     if not is_binary_string(open(path0, 'rb').read(1024)) and \
                                     cmp_lines(path0, path1):
@@ -376,12 +387,11 @@ fout.write('------------------------------------\n')
 
 # get the names of the folders in regression - these are script names
 ryscripts = getscriptnamesregression()
-# print(ryscripts)
 
 # run the scripts and collect test results
 if runScripts:
-    # passed, failed, missing = runscripts(ryscripts, fout, scriptName=None)
-    passed, failed, missing = runscripts(ryscripts, fout, scriptName='ryutils')
+    passed, failed, missing = runscripts(ryscripts, fout)
+    # passed, failed, missing = runscripts(ryscripts=['ryptw'], fout)
 
 
 if compareEnvResults:
