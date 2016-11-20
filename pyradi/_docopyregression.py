@@ -6,10 +6,22 @@
 This script requires the regression data at https://github.com/NelisW/pyradi-data,
 on the same level as the pyradi repo clone:
 
-localFolder
-  |--> pyradi         [https://github.com/NelisW/pyradi]
-  |--> pyradi-data    [https://github.com/NelisW/pyradi-data]
-  |--> pyradi-docs    [https://github.com/NelisW/pyradi-docs]
+    ..
+    +-pyradi  [https://github.com/NelisW/pyradi]
+      +-.git
+      |-setup.py (this file)
+      | ...
+      +-pyradi
+        + ... all the pyradi files
+
+    +-pyradi-docs [https://github.com/NelisW/pyradi-data] (this is an optional clone) 
+      +-.git
+      +-_build
+
+    +-pyradi-data [https://github.com/NelisW/pyradi-docs] (this is an optional clone) 
+      +-.git
+      +-regression
+      +-images
 
 The test suite probably does not have 100% coverage.
 It might grow in coverage with time. For now, it tests basic operation.

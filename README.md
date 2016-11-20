@@ -1,7 +1,7 @@
 The purpose of computing is insight, not numbers.<BR>
 _-- Richard Hamming_
 
-##Objective
+## Objective
 
 The PyRadi toolkit is a Python toolkit to perform optical and infrared computational radiometry (flux flow) calculations.
 
@@ -26,9 +26,9 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
 
 
-##Prerequisites
+## Prerequisites
 
-If you install the [Anaconda](https://store.continuum.io/cshop/anaconda/) distribution (based on Python 2.7 oe 3.5)  you can ignore the rest of this paragraph.  It works well, is easy to do and, unless you have conflicting requirements, just download Anaconda and focus on the work.
+If you install the [Anaconda](https://store.continuum.io/cshop/anaconda/) distribution (Python 2.7 or 3.5)  you can ignore the rest of this paragraph.  It works well, is easy to do and, unless you have conflicting requirements, just download Anaconda and focus on the work.
 
 This specific toolkit is implemented in
 [Python (2.7 or 3.5)](http://www.python.org/) and its associated modules
@@ -47,13 +47,12 @@ Look for
 You can find Mayavi (and other) installation packages on
 [this site](http://www.lfd.uci.edu/~gohlke/pythonlibs/#scikits-image).
 
-pyradi requires Python version 2.7, *it does not work with Python 3.x*.  
-An investigation on 2014-03-03 indicated that not all the prerequisite modules are available in Python 3 (most notably Mayavi).
+pyradi requires Python version 2.7 or Python 3.5.  
 
-pyradi was last tested on 2015-03-14 using Python 2.7.9, Numpy 1.9.0, SciPy 0.14 and Matplotlib 1.4.
+pyradi was last tested on 2016-11-20 using Python 2.7.12 and Python 3.5.2.
 
 
-##Learning Python
+## Learning Python
 
 <a href="http://lorenabarba.com/blog/why-i-push-for-python"><img src="http://pyradi.googlecode.com/svn/trunk/pyradi/doc/_images/keep-calm-and-code-python_BW.png" alt="Keep calm and code Python" width="150" height="175"/></a>
 
@@ -74,12 +73,12 @@ A very good introduction to Python for scientific work are the
 [two books](http://folk.uio.no/hpl/scripting/book_comparison.html) by Hans Petter Langtangen.
 
 
-##Status
+## Status
 This project has Production status. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. 
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 
-##Documentation
+## Documentation
 - Module documentation is available in  
 - [HTML](http://nelisw.github.io/pyradi-docs/_build/html/index.html) and  [PDF](https://raw.githubusercontent.com/NelisW/pyradi-docs/gh-pages/_build/latex/pyradi.pdf).
 - A number of IPython notebooks demonstrate pyradi use. Head on over to
@@ -92,7 +91,7 @@ The development is ongoing as and when new needs arise.  We are open for feature
 [<img src="https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/doc/_images/PM236.jpg"/>](http://spie.org/x648.html?product_id=2021423&origin_id=x646)
 
 
-##Get the code via Python pip or easy_install
+## Get the code via Python pip or easy_install
 You can download the pyradi package using pip, from the command line by typing
 
     pip install --upgrade pyradi
@@ -103,15 +102,39 @@ The pyradi version in pip is built at regular intervals from the subversion repo
 
 Instructions on how to use pip is available at <http://www.pythonforbeginners.com/basics/python-pip-usage> and  <http://www.pip-installer.org/en/latest/installing.html>.
 
-##Get the code from GitHub
-You can download the very [latest version of pyradi](https://github.com/NelisW/pyradi) from the pyradi repository on GitHub.
+## Get the code from GitHub
+You can download the very latest version of pyradi from the [pyradi repository](https://github.com/NelisW/pyradi) on GitHub.  I am somewhat slow to update PyPi with the latest GitHub version.
 
 Note that the subversion download only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
 
- pip install --upgrade matplotlib
+    pip install --upgrade matplotlib
+
+If you install the Anaconda distribution all the dependency packages should already be present.
+
+## Repositories associated with pyradi
+
+In order to keep the size of the pyradi repository smaller, some pyradi information has been moved to separate repositories.  If you require to work on regression testing and documentation, check out the tree repositories as follows:
 
 
-##Related toolkits and resources
+    ..
+    +-pyradi  [https://github.com/NelisW/pyradi]
+      +-.git
+      |-setup.py (this file)
+      | ...
+      +-pyradi
+        + ... all the pyradi files
+
+    +-pyradi-docs [https://github.com/NelisW/pyradi-data] (this is an optional clone) 
+      +-.git
+      +-_build
+
+    +-pyradi-data [https://github.com/NelisW/pyradi-docs] (this is an optional clone) 
+      +-.git
+      +-regression
+      +-images
+
+
+## Related toolkits and resources
 
 For image segmentation and analysis, please see
 <http://scikit-image.org/ scikit-image>.
@@ -119,11 +142,11 @@ For image segmentation and analysis, please see
 For hyperspectral image processing see
 <http://spectralpython.sourceforge.net/ Spectral Python>.
 
-##Acknowledgement
+## Acknowledgement
 
 The authors gratefully acknowledge the [CSIR](http://www.csir.co.za/) and [Denel Dynamics](http://www.deneldynamics.co.za/) for support in the development of the code.
 
 
-##Contact
+## Contact
 
 You can contact the pyradi community by emailing the repository owner through github or at neliswillers at gmail.

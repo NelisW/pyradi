@@ -1,6 +1,8 @@
 """
 Setup script for pyradi. This procedure must be followed only once so set up.
 
+0. Make a list of all the folders included and excluded in the PyPi packate in MANIFEST.in
+
 1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
     letters and numbers, not other symbols.
 
@@ -8,7 +10,7 @@ Setup script for pyradi. This procedure must be followed only once so set up.
 
 3.  Place the .pypirc file in your home directory (to where HOME points). The format
     of this file is as follows (no spaces in last two lines):
-    -------------------
+    ---------------------------------------------------------
     [distutils]
     index-servers =
         pypi
@@ -16,7 +18,7 @@ Setup script for pyradi. This procedure must be followed only once so set up.
     [pypi]
     username:yourPyPIusername
     password:yourPyPIpassword    
-    -------------------
+    ---------------------------------------------------------
     you can remove the password, it will be prompted.
 
 4.  Write the setup.py script for project (this file)
@@ -27,16 +29,23 @@ Setup script for pyradi. This procedure must be followed only once so set up.
    gh-pages branch from https://github.com/NelisW/pyradi-docs/tree/gh-pages
    To be on the same level as the main pyradi directory:In other words,
    create a new folder on the same level as where pyradi root is:
+
     ..
-    +-pyradi
+    +-pyradi  [https://github.com/NelisW/pyradi]
       +-.git
       |-setup.py (this file)
       | ...
       +-pyradi
         + ... all the pyradi files
-    +-pyradi-docs
+
+    +-pyradi-docs [https://github.com/NelisW/pyradi-data] (this is an optional clone) 
       +-.git
       +-_build
+
+    +-pyradi-data [https://github.com/NelisW/pyradi-docs] (this is an optional clone) 
+      +-.git
+      +-regression
+      +-images
 
 7.  On every new release:  Register the meta data with PyPI    
     cd to where setup.py is located and run the following command:
@@ -86,6 +95,8 @@ Release cycle when updating PyRadi
 4a. Commit the pyradi code to the pyradi repo, master branch.
 
 4b. Commit pyradi-docs to the pyradi-docs repo, gh-pages branch.
+
+4c. Commit the pyradi-data repo as and if required.
 
 5.  Update the IPython notebook documentation in the local git clone.
     Do a complete rebuild of the notebooks: restart kernel and run all cells.
@@ -145,7 +156,8 @@ def read(fname):
 # of replicating them:
 standard_exclude = ['*.py', '*.pyc', '*$py.class', '*~', '.*', '*.bak']
 standard_exclude_directories = [
-    '.*', 'CVS', '_darcs', './build', './dist', 'EGG-INFO', '*.egg-info'
+    '.*', 'CVS', '_darcs', './build', './dist', 'EGG-INFO', '*.egg-info',
+    'pyradi/__pycache__','pyradi/othercode'
 ]
 
 
