@@ -2466,6 +2466,9 @@ if __name__ == '__main__':
     figtype = ".png"  # eps, jpg, png
     # figtype = ".eps"  # eps, jpg, png
 
+    # this path assumes that pyradi-data is cloned on the same
+    # level as pradi itself.
+    pathtoPyradiData = '../../pyradi-data'
 
     if sys.version_info[0] > 2:
         spectrals = {}
@@ -2627,7 +2630,7 @@ if __name__ == '__main__':
 
 
     if  doAll:
-        imgfilename = 'data/images/Tan-Chau-bw.png'
+        imgfilename = os.path.join(pathtoPyradiData,'images/Tan-Chau-bw.png')
         mtnfilename = 'data/imgmotion/rowcol-displacement.npz'
         intTime = 0.005
         frmTim = 0.02
