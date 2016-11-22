@@ -59,6 +59,12 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+# following for the pie plots
+from matplotlib.transforms import Affine2D
+import mpl_toolkits.axisartist.floating_axes as floating_axes
+import mpl_toolkits.axisartist.angle_helper as angle_helper
+from matplotlib.projections import PolarAxes
+from mpl_toolkits.axisartist.grid_finder import MaxNLocator
 
 ####################################################################
 ##
@@ -507,7 +513,7 @@ class Plotter:
                         'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol',
                         'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
                         'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
-                        'emptyPlot',]
+                        'emptyPlot','pie']
 
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -2837,6 +2843,242 @@ class Plotter:
             # ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
             # ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
+
+
+    ############################################################
+    ##
+    def setup_pie_axes(self,fig, rect, thetaAxis, radiusAxis,radLabel='',angLabel='',numAngGrid=5, 
+        numRadGrid=10,drawGrid=True, degreeformatter="%d$^\circ$"):
+        """
+        http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html
+        http://matplotlib.org/mpl_toolkits/axes_grid/api/axis_artist_api.html
+        http://matplotlib.org/mpl_toolkits/axes_grid/users/axisartist.html
+        http://matplotlib.org/examples/axes_grid/demo_floating_axes.html
+        https://fossies.org/dox/matplotlib-1.5.3/classmpl__toolkits_1_1axisartist_1_1angle__helper_1_1FormatterDMS.html
+        """
+
+        # PolarAxes.PolarTransform takes radian. However, we want our coordinate
+        # system in degree
+        tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
+
+        # Find grid values appropriate for the coordinate (degree).
+        # The argument is an approximate number of grids.
+        grid_locator1 = angle_helper.LocatorD(numAngGrid)
+
+        # And also use an appropriate formatter:
+        tick_formatter1 = angle_helper.FormatterDMS()
+        tick_formatter1.fmt_d = degreeformatter
+
+        # set up number of ticks for the r-axis
+        grid_locator2 = MaxNLocator(numRadGrid)
+
+        # the extremes are passed to the function
+        grid_helper = floating_axes.GridHelperCurveLinear(tr,
+                                    extremes=(thetaAxis[0], thetaAxis[1], radiusAxis[0], radiusAxis[1]),
+                                    grid_locator1=grid_locator1,
+                                    grid_locator2=grid_locator2,
+                                    tick_formatter1=tick_formatter1,
+                                    tick_formatter2=None,
+                                    )
+
+        ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
+        fig.add_subplot(ax1)
+
+        # create a parasite axes
+        aux_ax = ax1.get_aux_axes(tr)
+
+        aux_ax.patch = ax1.patch # for aux_ax to have a clip path as in ax
+        ax1.patch.zorder=0.9 # but this has a side effect that the patch is
+                             # drawn twice, and possibly over some other
+                             # artists. So, we decrease the zorder a bit to
+                             # prevent this.
+
+        return ax1, aux_ax
+
+
+    ############################################################
+    ##
+    def pie(self, plotnum,theta,radius, ptitle=None,angLabel='',radLabel='',
+                    thetaAxis=[0,360.],radiusAxis=[0,1],plotCol=[], 
+                    linewidths=None, label=[], legendAlpha=0.0,
+                    legendLoc='best',
+                    linestyle=None,
+                    titlefsize = 12,
+                    numAngGrid=5, numRadGrid=10,
+                    labelfsize=10, drawGrid=True,
+                    markers=[],markevery=None,
+                    radangfsize = 12, 
+                    xytickfsize = 10,
+                    zorders=None, clip_on=True,
+                    degreeformatter="%d$^\circ$"  ):
+        """Low level helper function to create a subplot and plot the data as required.
+
+        This function does the actual plotting, labelling etc. It uses the plotting
+        function provided by its user functions.
+
+        lineStyles = {
+        '': '_draw_nothing',
+        ' ': '_draw_nothing',
+        'None': '_draw_nothing',
+        '--': '_draw_dashed',
+        '-.': '_draw_dash_dot',
+        '-': '_draw_solid',
+        ':': '_draw_dotted'}
+
+            Args:
+              | plotnum (int): subplot number, 1-based index
+              | theta (np.array[N,] or [N,M]): angular data set in degrees - could be M columns
+              | radius (np.array[N,] or [N,M]): radial data set - could be M columns
+              | ptitle (string): plot title (optional)
+              | angLabel (string): angular axis label (optional)
+              | radLabel (string): radial axis label (optional)
+              | thetaAxis ([minAngle, maxAnlge]): the angular extent to be displayed, degrees (optional)
+              | radiusAxis ([minRad, maxRad]): the radial extent to be displayed, degrees (optional)
+              | plotCol ([strings]): plot colour and line style, list with M entries, use default if [] (optional)
+              | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
+              | label  ([strings]): legend label for ordinate, list with M entries
+              | legendAlpha (float): transparency for legend box
+              | legendLoc (string): location for legend box (optional)
+              | linestyle (string): linestyle for this plot (optional)
+              | titlefsize (int): title font size, default 12pt (optional)
+              | numAngGrid (int): number of grid or tick marks along angular extent
+              | numRadGrid (int): number of grid or tick marks along angular extent
+              | labelfsize (int): label/legend font size, default 10pt (optional)
+              | drawGrid (bool): draw the grid on the plot (optional)
+              | markers ([string]) markers to be used for plotting data points (optional)
+              | markevery (int | (startind, stride)) subsample when using markers (optional)
+              | radangfsize (int): x-axis, y-axis label font size, default 12pt (optional)
+              | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
+              | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
+              | clip_on (bool) clips objects to drawing axes (optional)
+              | degreeformatter (str) format string to defie the angular tick labels (optional)
+
+             Returns:
+              | the axis object for the plot
+
+            Raises:
+              | No exception is raised.
+        """
+
+        pkey = (self.nrow, self.ncol, plotnum)
+        if pkey not in list(self.subplots.keys()):
+            ax, aux_ax1 = self.setup_pie_axes(self.fig, '{}{}{}'.format(*pkey), 
+                thetaAxis, radiusAxis, 
+                radLabel=radLabel,angLabel=angLabel,numAngGrid=numAngGrid, 
+                numRadGrid=numRadGrid,drawGrid=drawGrid,degreeformatter=degreeformatter)
+            self.subplots[pkey] = (ax,aux_ax1)
+        else:
+            (ax,aux_ax1) = self.subplots[pkey]
+
+        # reshape input dataset into rank 2
+        xx = theta if theta.ndim>1 else theta.reshape(-1, 1)
+        yy = radius if radius.ndim>1 else radius.reshape(-1, 1)
+
+        ax.grid(drawGrid)
+
+        for i in range(yy.shape[1]):
+            #set up the line style, either given or next in sequence
+            mmrk = ''
+            if markers:
+                mmrk = markers[-1] if i >= len(markers) else markers[i]
+
+            if plotCol:
+                if i >= len(plotCol):
+                    col = plotCol[-1]
+                else:
+                    col = plotCol[i]
+            else:
+                col = self.nextPlotCol()
+
+            if linestyle is None:
+                if len(col) > 1:
+                    linestyleL = col[1:]
+                else:
+                    linestyleL = '-'
+            else:
+                if type(linestyle) == type([1]):
+                    linestyleL = linestyle[i]
+                else:
+                    linestyleL = linestyle
+
+            if zorders:
+                if len(zorders) > 1:
+                    zorder = zorders[i]
+                else:
+                    zorder = zorders[0]
+            else:
+                zorder = 2
+
+            if not label:
+                if linewidths is not None:
+                    line = aux_ax1.plot(xx[:, i], yy[:, i], col, label=None, linestyle=linestyleL,
+                         marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                         clip_on=clip_on, zorder=zorder)
+                else:
+                    line = aux_ax1.plot(xx[:, i], yy[:, i], col, label=None, linestyle=linestyleL,
+                         marker=mmrk, markevery=markevery,
+                         clip_on=clip_on, zorder=zorder)
+                line = line[0]
+            else:
+                if linewidths is not None:
+                  line = aux_ax1.plot(xx[:, i],yy[:,i],col,#label=label[i],
+                        linestyle=linestyleL,
+                        marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                        clip_on=clip_on, zorder=zorder)
+                else:
+                  line = aux_ax1.plot(xx[:, i],yy[:,i],col,#label=label[i],
+                        linestyle=linestyleL,
+                        marker=mmrk, markevery=markevery,
+                        clip_on=clip_on, zorder=zorder)
+                line = line[0]
+                line.set_label(label[i])
+                leg = aux_ax1.legend( loc=legendLoc, fancybox=True,fontsize=labelfsize)
+                leg.get_frame().set_alpha(legendAlpha)
+                # aux_ax1.legend()
+                self.bbox_extra_artists.append(leg)
+
+
+        if(ptitle is not None):
+            ax.set_title(ptitle, fontsize=titlefsize)
+
+        # adjust axis
+        # the axis artist lets you call axis with
+        # "bottom", "top", "left", "right"
+        ax.axis["left"].set_axis_direction("bottom")
+        ax.axis["right"].set_axis_direction("top")
+
+        ax.axis["bottom"].set_visible(False)
+        ax.axis["top"].set_axis_direction("bottom")
+        ax.axis["top"].toggle(ticklabels=True, label=True)
+        ax.axis["top"].major_ticklabels.set_axis_direction("top")
+        ax.axis["top"].label.set_axis_direction("top")
+
+
+        #set angular and radial labels
+        ax.axis["left"].label.set_text(radLabel)
+        ax.axis["top"].label.set_text(angLabel)
+        ax.axis["left"].label.set_size(radangfsize)
+        ax.axis["top"].label.set_size(radangfsize)
+
+
+        ax.axis["left"].major_ticklabels.set_size(xytickfsize)
+        ax.axis["top"].major_ticklabels.set_size(xytickfsize)
+        ax.axis["left"].minor_ticklabels.set_size(xytickfsize-2)
+        ax.axis["top"].minor_ticklabels.set_size(xytickfsize-2)
+
+        #draw the inner grif boundary,somehow not done by matplotlib
+        if radiusAxis[0] > 0.:
+            numqi = 20
+            thqi = np.linspace(thetaAxis[0], thetaAxis[1],numqi)
+            raqi = np.linspace(radiusAxis[0],radiusAxis[0],numqi)
+            aux_ax1.plot(thqi,raqi,'k',linewidth=2.5)
+
+
+        return aux_ax1
+
+
+
+
 ################################################################
 ################################################################
 ##
@@ -3023,6 +3265,41 @@ if __name__ == '__main__':
 
     doAll = True
 
+    if doAll:
+        p = Plotter(1,2,3,figsize=(12,12))
+        theta = np.linspace(-10,10,20) + np.random.random(20) # in degrees
+        radius = np.linspace(.5, 1., 20) + np.random.random(20) /50.
+        thetax2 = np.hstack((theta.reshape(-1,1), -4 + theta.reshape(-1,1)))
+        radiusx2 = np.hstack((radius.reshape(-1,1), 0.1+radius.reshape(-1,1)))
+
+        # plot one data set
+        p.pie(1,theta,radius,ptitle='test 1',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[-20,20], radiusAxis=[0.5,1],
+            numAngGrid=3, numRadGrid=5,linewidths=[5],linestyle=[''],markers=['x'],label=['dada'],legendAlpha=0.7,
+            labelfsize=14,titlefsize=18)
+
+        p.pie(2,theta,radius,ptitle='test 2',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[-20,20], radiusAxis=[0.,1],
+            numAngGrid=3, numRadGrid=5,linestyle=['--'])
+
+        # plot two datasets in one np.array
+        p.pie(3,thetax2,radiusx2,ptitle='test 3',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[-20,20], radiusAxis=[0.5,1],
+            numAngGrid=3, numRadGrid=5,linewidths=[2,1],linestyle=['-',':'],markers=['v','o'],drawGrid=False,
+        label=['dada','dodo'],clip_on=False)
+
+        p.pie(4,theta+90.,radius,ptitle='',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[45,135], radiusAxis=[0.,1],
+            numAngGrid=10, numRadGrid=5,linestyle=['--'],degreeformatter="%d")
+
+        # use the same subplot more than once
+        p.pie(6,theta,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
+            thetaAxis=[-20,20], radiusAxis=[0.5,1],xytickfsize=8,
+            linewidths=[5],linestyle=[''],markers=['x'],label=['dada'],radangfsize=7)
+
+        p.pie(6,theta+5,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
+            thetaAxis=[-20,20], radiusAxis=[0.5,1],xytickfsize=8,
+            linewidths=[2],linestyle=['-'],markers=['o'],label=['dodo'],markevery=4,radangfsize=7)
+
+        p.saveFig('piepol.png')
+
+
     if doAll:  # stacked plot
         np.random.seed(1)
         fnx = lambda : np.random.randint(5, 50, 10)
@@ -3034,7 +3311,7 @@ if __name__ == '__main__':
         percent = y /  y.sum(axis=0).astype(float) * 100
         #data must vary along rows for single column  (row-major)
         percent = percent.T
-        print(rit(percent.shape))
+        # print(rit(percent.shape))
         sp = Plotter(1,1,1,figsize=(16,8))
         sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label',
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)

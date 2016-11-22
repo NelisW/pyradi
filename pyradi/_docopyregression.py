@@ -199,7 +199,7 @@ def compare_images(img1, img2, method='zeronorm'):
 
 
 #################################################################################
-def runscripts(ryscripts,fout=None):
+def runscripts(ryscripts,fout=None, similarity=0.01):
     # run tests for each script and compare against its own ref set
     passed = {}
     failed = {}
@@ -241,12 +241,21 @@ def runscripts(ryscripts,fout=None):
                                 passed['{}{}'.format(flocal,strenvi)] = 1
                             else:
                                 # test for text string compare
-                                if not is_binary_string(open(fregres, 'rb').read(1024)) and \
-                                                cmp_lines(fregres, flocal):
-                                    passed['{}{}'.format(flocal,strenvi)] = 1
+                                if not is_binary_string(open(fregres, 'rb').read(1024)):
+                                    if cmp_lines(fregres, flocal):
+                                        passed['{}{}'.format(flocal,strenvi)] = 1
+                                    else:
+                                        failed['{}{}'.format(flocal,strenvi)] = 1
                                 else:
-                                    result = '-'
-                                    failed['{}{}'.format(flocal,strenvi)] = 1
+                                    # hashes and text content mismatch, these are probably bitmaps or binary files
+                                    imgdiff = imagedifference(flocal, fregres)
+
+                                    if imgdiff < similarity:
+                                        result = '+'
+                                        passed['{}{} -- {:.5f}'.format(flocal,strenvi,imgdiff)] = 1
+                                    else:
+                                        result = '-'
+                                        failed['{}{} -- {:.5f}'.format(flocal,strenvi,imgdiff)] = 1
                         # else:
                         #     result = '?'
                         #     missing['{}{}'.format(flocal,strenvi)] = 1
@@ -286,7 +295,7 @@ def cmp_lines(path_1, path_2):
 
 
 #################################################################################
-def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
+def compareenvresults(envis,ryscripts,fout=None, similarity=0.01):
     """Compare files with the same names in each of environments
     """
 
@@ -336,10 +345,11 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
                     path0 = os.path.join(pathToRegressionData,script,envis[0],fname)
                     path1 = os.path.join(pathToRegressionData,script,envis[1],fname)
                     # do text compare if text file
-                    if not is_binary_string(open(path0, 'rb').read(1024)) and \
-                                    cmp_lines(path0, path1):
-
-                        sameTxt['{}/{}'.format(script,fname)] = 1
+                    if not is_binary_string(open(path0, 'rb').read(1024)):
+                        if cmp_lines(path0, path1):
+                            sameTxt['{}/{}'.format(script,fname)] = 1
+                        else:
+                            diffEnv['{}/{}'.format(script,fname)] = 1
                     else:
                         # hashes and text content mismatch, these are probably bitmaps or binary files
                         imgdiff = imagedifference(path0, path1)
@@ -349,8 +359,6 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
                         else:
                             print('{} {}'.format(path0, imgdiff))
                             diffEnv['{}/{}'.format(script,fname)] = 1
-
-
 
     if fout is not None:
         fout.write('\n\nHash the same in both environments:\n')
@@ -367,7 +375,7 @@ def compareenvresults(envis,ryscripts,fout=None, similarity=0.005):
 
         fout.write('\n\nDifferent between environments:\n')
         for key in sorted(list(diffEnv.keys())):
-            fout.write('   - {}\n'.format(key))
+            fout.write('   - {}   {:.5f}\n'.format(key,diffEnv[key]))
 
 
     return sameHash, sameTxt, diffEnv

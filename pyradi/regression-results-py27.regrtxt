@@ -1,6 +1,6 @@
 Environment: py27
 Python: 2.7.12 |Anaconda 4.2.0 (64-bit)| (default, Jun 29 2016, 11:07:13) [MSC v.1500 64 bit (AMD64)]
-Current date & time 11/19/16 22:01:26
+Current date & time 11/22/16 13:49:13
 ------------------------------------
 
 
@@ -107,6 +107,7 @@ Passed:
    + mirrorerror-rotational-MTF.png
    + p3D.png
    + p3D2.png
+   + piepol.png -- 0.00587
    + planck.png
    + plotdateX.png
    + plotxTick.png
@@ -270,7 +271,7 @@ Hash the same in both environments:
 Text the same in both environments:
 
 
-Images are similar in both environments with normalised error less than 0.005:
+Images are similar in both environments with normalised error less than 0.01:
    + ryfiles/OTBMLSNavMar15Nov4_10-C1E.png   0.00018
    + rylookup/lut1-spectrals.png   0.00019
    + rylookup/lut2-spectrals.png   0.00049
@@ -290,6 +291,7 @@ Images are similar in both environments with normalised error less than 0.005:
    + ryplot/S3D.png   0.00019
    + ryplot/mesh3d01.png   0.00000
    + ryplot/meshContour.png   0.00052
+   + ryplot/piepol.png   0.00601
    + ryplot/pmeshrad.png   0.00101
    + ryplot/stackplot.png   0.00009
    + ryptw/lwir100mm0150us10ND20090910-CalRadiance.png   0.00153
