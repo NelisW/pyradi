@@ -3044,35 +3044,56 @@ class Plotter:
         # adjust axis
         # the axis artist lets you call axis with
         # "bottom", "top", "left", "right"
-        ax.axis["left"].set_axis_direction("bottom")
-        ax.axis["right"].set_axis_direction("top")
 
+
+        # radial axis scale are the left/right of the graph
+
+        # draw labels outside the grapgh
+        if thetaAxis[0] > 90  and thetaAxis[0] < 270:
+            ax.axis["left"].set_visible(False)
+            ax.axis["right"].set_visible(True)
+            ax.axis["right"].set_axis_direction("top")
+            ax.axis["right"].toggle(ticklabels=True, label=True)
+            ax.axis["right"].major_ticklabels.set_axis_direction("bottom")
+            ax.axis["right"].label.set_axis_direction("bottom")
+            #set radial label
+            ax.axis["right"].label.set_text(radLabel)
+            ax.axis["right"].label.set_size(radangfsize)
+            aux_ax1.plot(np.array([thetaAxis[0],thetaAxis[0]]),
+                np.array([radiusAxis[0],radiusAxis[1]]),'k',linewidth=2.5)
+            ax.axis["right"].major_ticklabels.set_size(xytickfsize)
+            ax.axis["right"].minor_ticklabels.set_size(xytickfsize-2)
+        else:
+            # ax.axis["right"].set_visible(False)
+            ax.axis["left"].set_axis_direction("bottom")
+            # ax.axis["right"].set_axis_direction("top")
+            #set radial label
+            ax.axis["left"].label.set_text(radLabel)
+            ax.axis["left"].label.set_size(radangfsize)
+
+            ax.axis["left"].major_ticklabels.set_size(xytickfsize)
+            ax.axis["left"].minor_ticklabels.set_size(xytickfsize-2)
+
+        # angular axis scale are top / bottom
         ax.axis["bottom"].set_visible(False)
         ax.axis["top"].set_axis_direction("bottom")
         ax.axis["top"].toggle(ticklabels=True, label=True)
         ax.axis["top"].major_ticklabels.set_axis_direction("top")
         ax.axis["top"].label.set_axis_direction("top")
-
-
-        #set angular and radial labels
-        ax.axis["left"].label.set_text(radLabel)
+        #set angular label
         ax.axis["top"].label.set_text(angLabel)
-        ax.axis["left"].label.set_size(radangfsize)
         ax.axis["top"].label.set_size(radangfsize)
 
 
-        ax.axis["left"].major_ticklabels.set_size(xytickfsize)
         ax.axis["top"].major_ticklabels.set_size(xytickfsize)
-        ax.axis["left"].minor_ticklabels.set_size(xytickfsize-2)
         ax.axis["top"].minor_ticklabels.set_size(xytickfsize-2)
 
         #draw the inner grif boundary,somehow not done by matplotlib
-        if radiusAxis[0] > 0.:
-            numqi = 20
-            thqi = np.linspace(thetaAxis[0], thetaAxis[1],numqi)
-            raqi = np.linspace(radiusAxis[0],radiusAxis[0],numqi)
-            aux_ax1.plot(thqi,raqi,'k',linewidth=2.5)
-
+        # if radiusAxis[0] > 0.:
+        numqi = 20
+        thqi = np.linspace(thetaAxis[0], thetaAxis[1],numqi)
+        raqi = np.linspace(radiusAxis[0],radiusAxis[0],numqi)
+        aux_ax1.plot(thqi,raqi,'k',linewidth=2.5)
 
         return aux_ax1
 
@@ -3285,17 +3306,20 @@ if __name__ == '__main__':
             numAngGrid=3, numRadGrid=5,linewidths=[2,1],linestyle=['-',':'],markers=['v','o'],drawGrid=False,
         label=['dada','dodo'],clip_on=False)
 
-        p.pie(4,theta+90.,radius,ptitle='',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[45,135], radiusAxis=[0.,1],
+        p.pie(4,theta+180.,radius,ptitle='',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[90,270], radiusAxis=[0.,1],
+            numAngGrid=10, numRadGrid=5,linestyle=['--'],degreeformatter="%d")
+
+        p.pie(5,theta+180.,radius,ptitle='',radLabel='Distance m',angLabel='OTA deg',thetaAxis=[91,270], radiusAxis=[0.,1],
             numAngGrid=10, numRadGrid=5,linestyle=['--'],degreeformatter="%d")
 
         # use the same subplot more than once
-        p.pie(6,theta,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
-            thetaAxis=[-20,20], radiusAxis=[0.5,1],xytickfsize=8,
-            linewidths=[5],linestyle=[''],markers=['x'],label=['dada'],radangfsize=7)
+        p.pie(6,theta+180,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
+            thetaAxis=[135,270], radiusAxis=[0,1],xytickfsize=8,numAngGrid=3, numRadGrid=5,
+            linewidths=[5],linestyle=[''],markers=['x'],label=['dada'],radangfsize=8)
 
-        p.pie(6,theta+5,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
-            thetaAxis=[-20,20], radiusAxis=[0.5,1],xytickfsize=8,
-            linewidths=[2],linestyle=['-'],markers=['o'],label=['dodo'],markevery=4,radangfsize=7)
+        p.pie(6,theta+185,radius,ptitle='test 6',radLabel='Distance m',angLabel='OTA deg',
+            thetaAxis=[135,271], radiusAxis=[0,1],xytickfsize=8,numAngGrid=3, numRadGrid=5,
+            linewidths=[2],linestyle=['-'],markers=['o'],label=['dodo'],markevery=4,radangfsize=8)
 
         p.saveFig('piepol.png')
 
