@@ -1,7 +1,7 @@
 #  $Id$
 #  $HeadURL$
 ################################################################
-# The contents of this file are subject to the BSD 3Clause (New)cense
+# The contents of this file are subject to the BSD 3Clause (New)
 # you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://directory.fsf.org/wiki/License:BSD_3Clause
@@ -513,7 +513,7 @@ class Plotter:
                         'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol',
                         'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
                         'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
-                        'emptyPlot','pie']
+                        'emptyPlot','setup_pie_axes','pie']
 
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
@@ -575,6 +575,7 @@ class Plotter:
            or it can be one of the legal html colours.
            See http://html-color-codes.info/ and
            http://www.computerhope.com/htmcolor.htm.
+           http://latexcolor.com/
 
             Args:
                 | plotCol ([strings]): User-supplied list
@@ -590,8 +591,9 @@ class Plotter:
         # assemble the list as requested, use default if not specified
         if plotCol is None:
             plotCol = ['b', 'g', 'r', 'c', 'm', 'y', 'k',
-            'b--', 'g--', 'r--', 'c--', 'm--', 'y--', 'k--',
-            'b-.', 'g-.', 'r-.', 'c-.', 'm-.', 'y-.', 'k-.' ]
+            '#5D8AA8','#E52B50','#FF7E00','#9966CC','#CD9575','#915C83',
+            '#008000','#4B5320','#B2BEB5','#A1CAF1','#FE6F5E','#333399',
+            '#DE5D83','#800020','#1E4D2B','#00BFFF','#007BA7','#FFBCD9']
 
         if n is None:
             n = len(plotCol)
@@ -1346,10 +1348,7 @@ class Plotter:
                 col = self.nextPlotCol()
 
             if linestyle is None:
-                if len(col) > 1:
-                    linestyleL = col[1:]
-                else:
-                    linestyleL = '-'
+                linestyleL = '-'
             else:
                 if type(linestyle) == type([1]):
                     linestyleL = linestyle[i]
@@ -1836,7 +1835,7 @@ class Plotter:
       if edgeCol:
           edcol = edgeCol[0]
       else:
-          edcol = self.nextPlotCol()[0]
+          edcol = self.nextPlotCol()
 
       if zorders:
         if len(zorders) > 1:
@@ -2358,9 +2357,9 @@ class Plotter:
                         markevery=markevery, zorder=zorder, clip_on=clip_on)
 
         if edgeCol:
-          edcol = edgeCol[0]
+          edcol = edgeCol
         else:
-          edcol = self.nextPlotCol()[0]
+          edcol = self.nextPlotCol()
 
 
         #scale the axes
@@ -2472,9 +2471,9 @@ class Plotter:
         zorder = 2
 
       if edgeCol:
-        edcol = edgeCol[0]
+        edcol = edgeCol
       else:
-        edcol = self.nextPlotCol()[0]
+        edcol = self.nextPlotCol()
 
       #do the plot
       if facecolors is not None:
@@ -2849,12 +2848,31 @@ class Plotter:
     ##
     def setup_pie_axes(self,fig, rect, thetaAxis, radiusAxis,radLabel='',angLabel='',numAngGrid=5, 
         numRadGrid=10,drawGrid=True, degreeformatter="%d$^\circ$"):
-        """
+        """Sets up the axes_grid for the pie plot, not using regulat Matplotlib axes.
+
         http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html
         http://matplotlib.org/mpl_toolkits/axes_grid/api/axis_artist_api.html
         http://matplotlib.org/mpl_toolkits/axes_grid/users/axisartist.html
         http://matplotlib.org/examples/axes_grid/demo_floating_axes.html
         https://fossies.org/dox/matplotlib-1.5.3/classmpl__toolkits_1_1axisartist_1_1angle__helper_1_1FormatterDMS.html
+
+            Args:
+              | fig (matplotlib figure):  which figure to use
+              | rect (matplotlib subaxis): which subplot to use
+              | thetaAxis ([float]): [min,max] for angular scale
+              | radiusAxis ([float]): [min,max] for radial scale
+              | radLabel (str):  radial label
+              | angLabel (str):  angular label
+              | numAngGrid (int): number of ticks on angular grid
+              | numRadGrid (int): number of ticks on radial grid
+              | drawGrid (bool):  must grid be drawn?
+              | degreeformatter (str): format string for angular tick labels
+ 
+             Returns:
+              | the axes and parasitic axes object for the plot
+
+            Raises:
+              | No exception is raised.
         """
 
         # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -2911,19 +2929,7 @@ class Plotter:
                     xytickfsize = 10,
                     zorders=None, clip_on=True,
                     degreeformatter="%d$^\circ$"  ):
-        """Low level helper function to create a subplot and plot the data as required.
-
-        This function does the actual plotting, labelling etc. It uses the plotting
-        function provided by its user functions.
-
-        lineStyles = {
-        '': '_draw_nothing',
-        ' ': '_draw_nothing',
-        'None': '_draw_nothing',
-        '--': '_draw_dashed',
-        '-.': '_draw_dash_dot',
-        '-': '_draw_solid',
-        ':': '_draw_dotted'}
+        """Plots data in pie section on a polar grid.
 
             Args:
               | plotnum (int): subplot number, 1-based index
@@ -2991,10 +2997,7 @@ class Plotter:
                 col = self.nextPlotCol()
 
             if linestyle is None:
-                if len(col) > 1:
-                    linestyleL = col[1:]
-                else:
-                    linestyleL = '-'
+                linestyleL = '-'
             else:
                 if type(linestyle) == type([1]):
                     linestyleL = linestyle[i]
@@ -3701,7 +3704,7 @@ if __name__ == '__main__':
 
         A = Plotter(1, 2, 2,'Array Plots',figsize=(12,8))
         A.plot(1, xLinS, yLinA, "Array Linear","X", "Y",
-                plotCol=['c--'],
+                plotCol=['c'],
                label=['A1', 'A2', 'A3'],legendAlpha=0.5,
                pltaxis=[0, 10, 0, 2000],
                maxNX=10, maxNY=2,
@@ -3716,7 +3719,7 @@ if __name__ == '__main__':
         #A.saveFig('A.eps')
 
         AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
-        AA.plot(1, xLinS, yLinA, plotCol=['b--'],
+        AA.plot(1, xLinS, yLinA, plotCol=['b'],
                label=['A1', 'A2', 'A3'],legendAlpha=0.5,
                pltaxis=[0, 10, 0, 2000],
                maxNX=10, maxNY=2,
@@ -3913,5 +3916,24 @@ if __name__ == '__main__':
 
         # Write the PDF document to the disk
         pdf_pages.close()
+
+    if doAll:
+
+        x = np.linspace(-30,40,200)
+
+        q = Plotter(1,1,1,figsize=(6,2))
+        q.buildPlotCol(['#ff5577','#FFFF31'])
+        q.plot(1,x,x,pltaxis=[-2,1,-3,2],drawGrid=False)
+        q.plot(1,x,x**2,pltaxis=[-2,1,-3,2],drawGrid=False)
+        q.saveFig('userplotcol.png')
+
+        x = np.linspace(0,1,200).reshape(-1,1)
+        t = Plotter(1,1,1,figsize=(6,2))
+        y = x
+        for i in range(len(t.plotCol)):
+            y = np.hstack((y,x+i*0.02))
+        t.plot(1,x,y,'Display default plot colours',pltaxis=[0,1,0,1],drawGrid=False)
+        t.saveFig('userplotcol02.png')
+
 
     print('module ryplot done!')

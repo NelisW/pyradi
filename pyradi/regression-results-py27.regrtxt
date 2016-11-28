@@ -1,6 +1,6 @@
 Environment: py27
 Python: 2.7.12 |Anaconda 4.2.0 (64-bit)| (default, Jun 29 2016, 11:07:13) [MSC v.1500 64 bit (AMD64)]
-Current date & time 11/23/16 20:29:23
+Current date & time 11/28/16 16:23:05
 ------------------------------------
 
 
@@ -42,7 +42,7 @@ Passed:
    + M.png
    + M3D.png
    + ModtranPlot.png
-   + ModtranSpec.png
+   + ModtranSpec.png -- 0.00207
    + NIRPathradiance.png
    + NIRPathradiancewl.png
    + OTBMLSNavMar15Nov4_10-C1E.png
@@ -70,7 +70,6 @@ Passed:
    + convplot02.png
    + densconvert.png
    + dplanck.png
-   + eps.txt
    + filtrespVar.png
    + limitzero01.png
    + limitzero02.png
@@ -88,10 +87,10 @@ Passed:
    + lut3-TempRadiance-NoF.png
    + lut3-TempRadiance-WiF.png
    + lut3-spectrals.png
-   + lwir100mm0150us10ND20090910-CalDLTemp.png
+   + lwir100mm0150us10ND20090910-CalDLTemp.png -- 0.00232
    + lwir100mm0150us10ND20090910-CalInternal.png
    + lwir100mm0150us10ND20090910-CalRadiance.png
-   + lwir100mm0150us10ND20090910-CaldlRadiance.png
+   + lwir100mm0150us10ND20090910-CaldlRadiance.png -- 0.00211
    + lwir100mm0150us10ND20090910-TempRadiance-NoF.png
    + lwir100mm0150us10ND20090910-spectrals.png
    + ma.png
@@ -107,7 +106,7 @@ Passed:
    + mirrorerror-rotational-MTF.png
    + p3D.png
    + p3D2.png
-   + piepol.png -- 0.00529
+   + piepol.png -- 0.00509
    + planck.png
    + plotdateX.png
    + plotxTick.png
@@ -153,6 +152,8 @@ Passed:
    + tool_circ.png
    + tool_rect.png
    + tristimulus.png
+   + userplotcol.png
+   + userplotcol02.png
    + vlam.png
    + warpPolarImageToCartesianImage.png
 
@@ -176,8 +177,6 @@ Hash the same in both environments:
    + rychroma/cieBAR.png
    + rychroma/tristimulus.png
    + ryfiles/SampleReflectance.png
-   + ryfiles/array.txt
-   + ryfiles/eps.txt
    + ryfiles/rawIm0.png
    + ryfiles/rawIm1.png
    + ryfiles/rawIm2.png
@@ -228,6 +227,8 @@ Hash the same in both environments:
    + ryplot/pmesh.png
    + ryplot/testaxis.png
    + ryplot/testwith.png
+   + ryplot/userplotcol.png
+   + ryplot/userplotcol02.png
    + ryptw/LWIR-BBref-150C-150us-1.png
    + ryptw/lwir100mm0150us10ND20090910-CalDLTemp.png
    + ryptw/lwir100mm0150us10ND20090910-CalInternal.png
@@ -269,6 +270,7 @@ Hash the same in both environments:
 
 
 Text the same in both environments:
+   + ryfiles/array.txt
 
 
 Images are similar in both environments with normalised error less than 0.01:
@@ -291,7 +293,7 @@ Images are similar in both environments with normalised error less than 0.01:
    + ryplot/S3D.png   0.00019
    + ryplot/mesh3d01.png   0.00000
    + ryplot/meshContour.png   0.00052
-   + ryplot/piepol.png   0.00538
+   + ryplot/piepol.png   0.00541
    + ryplot/pmeshrad.png   0.00101
    + ryplot/stackplot.png   0.00009
    + ryptw/lwir100mm0150us10ND20090910-CalRadiance.png   0.00153

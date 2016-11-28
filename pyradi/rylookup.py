@@ -761,10 +761,10 @@ class RadLookup:
             for j,tmprInstr in enumerate(keys):
               if j == 0:
                 plotColB = ['r']
-                plotColM = ['b--']
+                plotColM = ['b']
               else:
                 plotColB = ['c']
-                plotColM = ['g--']
+                plotColM = ['g']
               p.plot(1,self.dicTableDLRad[tmprInstr][:,0],self.dicTableDLRad[tmprInstr][:,1],
                 label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
               p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicCalRadiance[tmprInstr],
@@ -942,10 +942,10 @@ class RadLookup:
                 temp = self.LookupDLTemp(DL, tmprInstr)
                 if j == 0:
                     plotColB = ['r']
-                    plotColM = ['b--']
+                    plotColM = ['b']
                 else:
                     plotColB = ['c']
-                    plotColM = ['g--']
+                    plotColM = ['g']
                 p.plot(1,DL,temp,label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
                 p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicCaldata[tmprInstr][:,0],
                    label=['Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
@@ -991,10 +991,10 @@ class RadLookup:
                 temp = self.LookupDLTemp(DL, tmprInstr)
                 if j == 0:
                     plotColB = ['r']
-                    plotColM = ['b--']
+                    plotColM = ['b']
                 else:
                     plotColB = ['c']
-                    plotColM = ['g--']
+                    plotColM = ['g']
                 p.plot(1,temp,DL,label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
                 p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,1],
                    label=['Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)

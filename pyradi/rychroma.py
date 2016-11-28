@@ -535,20 +535,20 @@ if __name__ == '__main__':
         ##------------------------- plot sample spectra ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1)
         smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
-                    r'Reflectance', ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=samplesTxt,legendAlpha=0.5)
+                    r'Reflectance', ['r', 'g', 'y','k', 'b', 'm'],label=samplesTxt,legendAlpha=0.5)
         smpleplt.saveFig('SampleReflectance'+figtype)
 
         ##------------------------- plot source spectra ------------------------------
         srceplt = ryplot.Plotter(2, 1, 1)
         srceplt.plot(1, wavelength, sources, "Normalized source radiance",
-                    r'Wavelength $\mu$m', r'Radiance',
-                    ['k:', 'k-.', 'k--', 'k-'],label=sourcesTxt,legendAlpha=0.5 )
+                    r'Wavelength $\mu$m', r'Radiance',['k', 'k', 'k', 'k'],
+                    linestyle=[':', '-.', '--', '-'],label=sourcesTxt,legendAlpha=0.5 )
         srceplt.saveFig('SourceRadiance'+figtype)
 
         ##------------------------- plot cie tristimulus spectra ---------------------
         cietriplt = ryplot.Plotter(3, 1, 1)
         cietriplt.plot(1, wavelength, bar,"CIE tristimulus values",r'Wavelength $\mu$m',
-                r'Response', 'k--', label=['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],legendAlpha=0.5)
+                r'Response', ['r','g','b'], label=['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],legendAlpha=0.5)
         cietriplt.saveFig('tristimulus'+figtype)
 
 
@@ -579,9 +579,9 @@ if __name__ == '__main__':
         ##---------------------- plot chromaticity diagram  ---------------------------
         ciexyplt = ryplot.Plotter(4, 1, 1)
         #plot monochromatic horseshoe
-        ciexyplt.plot(1, xm, ym,"CIE chromaticity diagram", r'x', r'y', ['k-'])
+        ciexyplt.plot(1, xm, ym,"CIE chromaticity diagram", r'x', r'y', ['k'])
         #plot chromaticity loci for samples
-        styleSample=['r--', 'g-.', 'y-', 'g-', 'b-', 'k-']
+        styleSample=['r', 'g', 'y', 'g', 'b', 'k']
         for iSmpl in range(samples.shape[1]):
             ciexyplt.plot(1,xs[iSmpl],ys[iSmpl],"CIE chromaticity diagram", r'x', r'y',
                     [styleSample[iSmpl]], label=[samplesTxt[iSmpl]],legendAlpha=0.5 )

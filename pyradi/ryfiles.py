@@ -1242,7 +1242,7 @@ if __name__ == '__main__':
         smpleplt = ryplot.Plotter(1, 1, 1)
         smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
                     r'Reflectance', 
-                    ['r-', 'g-', 'y-','g--', 'b-', 'm-'],label=samplesTxt,legendAlpha=0.5)
+                    ['r', 'g', 'y','k', 'b', 'm'],label=samplesTxt,legendAlpha=0.5)
         smpleplt.saveFig('SampleReflectance'+'.png')
 
         ##===================================================
