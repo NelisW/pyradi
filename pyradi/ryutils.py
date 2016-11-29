@@ -875,14 +875,20 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
     The inwinwidth and outwinwidth window function widths are full width half-max (FWHM)
     for the window functions for the inspectral and returned spectral variables, respectively.
     The Bartlett function is used as default, but the user can use a different function.
-    The Bartlett function is a triangular function reaching zero at the ends. Window functio
+    The Bartlett function is a triangular function reaching zero at the ends. Window function
     width is correct for Bartlett and only approximate for other window functions.
 
+    Spectral convolution is best done in frequency domain ([cm-1] units) because
+    the filter or emission line shapes have better symmetry in frequency domain than
+    in wavelength domain.
+
+    The input spectral vector must be in spectral density units of cm-1.
+
     Args:
-        | inspectral (np.array[N,] or [N,1]):  vector in  [cm-1].
+        | inspectral (np.array[N,] or [N,1]):  spectral variable input  vector (e.g., radiance or transmittance).
         | samplingresolution (float): wavenumber interval between inspectral samples
-        | inwinwidth (float): FWHM window width of the input spectral vector
-        | outwinwidth (float): FWHM window width of the output spectral vector
+        | inwinwidth (float): FWHM window width used to obtain the input spectral vector (e.g., spectroradiometer window width)
+        | outwinwidth (float): FWHM window width of the output spectral vector after convolution
         | windowtype (function): name of a  numpy/scipy function for the window function
 
     Returns:
