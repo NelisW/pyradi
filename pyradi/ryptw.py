@@ -680,7 +680,12 @@ def getPTWFrame (header, frameindex):
     This routine also stores the data array as part of the header. This may
     change - not really needed to have both a return value and header stored
     value for the DL valueheader. This for a historical reason due to the way
-    GetPTWFrameFromFile was written
+    GetPTWFrameFromFile was written.  
+
+    The contents of the header is changed (new information added: frame time 
+    and detector temperature).  The header is returned from the function to
+    make it explicit that the contents have changed from the header passed into
+    the function.
 
     Args:
         | header (class object)
@@ -688,6 +693,7 @@ def getPTWFrame (header, frameindex):
 
     Returns:
         | header.data (np.ndarray): requested frame DL values, dimensions (rows,cols)
+        | header (class): updated header now with frame time and FPA temperature
 
     Raises:
         | No exception is raised.
