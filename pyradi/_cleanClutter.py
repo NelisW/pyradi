@@ -93,18 +93,18 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     return filertn
 
 
-def QueryDelete(recurse, dir, patn, promptUser=True, dryrun=False):
+def QueryDelete(recurse, tdir, patn, promptUser=True, dryrun=False):
     """Delete files in specified directory.
 
     recurse: defines if the search must be recursively 0=not, 1=recursive
-    dir: specifies the path
+    tdir: specifies the path
     patn: specifies the file patterns to erase
     promptUser: if true the user is first asked to confirm
     dryrun: if true nothing is erased
 
     the user is promted before the files are deleted
     """
-    thefiles = listFiles(dir, patn,recurse)
+    thefiles = listFiles(tdir, patn,recurse)
     if thefiles is not None:
         if len(thefiles)>0:
             if promptUser==True:

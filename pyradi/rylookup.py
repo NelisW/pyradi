@@ -643,7 +643,7 @@ class RadLookup:
 
 
     ################################################################
-    def PlotSpectrals(self, savePath=None, saveExt='png'):
+    def PlotSpectrals(self, savePath=None, saveExt='png', saveFig=False):
         """Plot all spectral curve data to a single graph.
 
         The filename is constructed from the given object name, save path, and
@@ -662,7 +662,6 @@ class RadLookup:
         """
 
         if  self.spectralsLoaded == True:
-
             p = ryplot.Plotter(1, figsize=(10,5))
             p.semilogY(1,self.wl,self.specEmis,label=['Emissivity'])
             p.semilogY(1,self.wl,self.specAtmo,label=['Atmosphere'])
@@ -674,18 +673,19 @@ class RadLookup:
             currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
             currentP.set_ylabel('Response')
             currentP.set_title('{} Spectral Response'.format(self.specName))
-
+         
             if savePath==None:
                 savePath=self.specName
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-spectrals.{}'.format(savePath, saveExt))
-
-            plt.close(p.getPlot())
-
+            if saveFig:
+                p.saveFig('{}-spectrals.{}'.format(savePath, saveExt))
+                plt.close(p.getPlot())
+    
+    
     ################################################################
-    def PlotCalSpecRadiance(self, savePath=None, saveExt='png'):
+    def PlotCalSpecRadiance(self, savePath=None, saveExt='png', saveFig=False):
         """Plot spectral radiance data for the calibration temperatures.
 
         The filename is constructed from the given object name, save path, and
@@ -729,13 +729,13 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CalRadiance.{}'.format(savePath, saveExt))
-
-            plt.close(p.getPlot())
+            if saveFig:
+                p.saveFig('{}-CalRadiance.{}'.format(savePath, saveExt))
+                plt.close(p.getPlot())
 
 
     ################################################################
-    def PlotCalDLRadiance(self, savePath=None, saveExt='png'):
+    def PlotCalDLRadiance(self, savePath=None, saveExt='png', saveFig=False):
         """Plot DL level versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -779,13 +779,13 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CaldlRadiance.{}'.format(savePath, saveExt))
-
-            plt.close(p.getPlot())
+            if saveFig:
+                p.saveFig('{}-CaldlRadiance.{}'.format(savePath, saveExt))
+                plt.close(p.getPlot())
 
 
     ################################################################
-    def PlotTempRadiance(self, withFilter=True, savePath=None, saveExt='png'):
+    def PlotTempRadiance(self, withFilter=True, savePath=None, saveExt='png', saveFig=False):
         """Plot temperature versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -827,16 +827,17 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            if withFilter:
-                p.saveFig('{}-TempRadiance-NoF.{}'.format(savePath, saveExt))
-            else:
-                p.saveFig('{}-TempRadiance-WiF.{}'.format(savePath, saveExt))
+            if saveFig:
+                if withFilter:
+                    p.saveFig('{}-TempRadiance-NoF.{}'.format(savePath, saveExt))
+                else:
+                    p.saveFig('{}-TempRadiance-WiF.{}'.format(savePath, saveExt))
 
-            plt.close(p.getPlot())
+                plt.close(p.getPlot())
 
 
     ################################################################
-    def PlotCalTempRadiance(self, savePath=None, saveExt='png'):
+    def PlotCalTempRadiance(self, savePath=None, saveExt='png', saveFig=False):
         """Plot temperature versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -872,13 +873,14 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CalTempRadiance.{}'.format(savePath, saveExt))
+            if saveFig:
+                p.saveFig('{}-CalTempRadiance.{}'.format(savePath, saveExt))
 
-            plt.close(p.getPlot())
+                plt.close(p.getPlot())
 
 
     ################################################################
-    def PlotCalTintRad(self, savePath=None, saveExt='png'):
+    def PlotCalTintRad(self, savePath=None, saveExt='png', saveFig=False):
         """Plot optics radiance versus instrument temperature
 
         The filename is constructed from the given object name, save path, and
@@ -908,13 +910,14 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CalInternal.{}'.format(savePath, saveExt))
+            if saveFig:
+                p.saveFig('{}-CalInternal.{}'.format(savePath, saveExt))
 
-            plt.close(p.getPlot())
+                plt.close(p.getPlot())
 
 
     ################################################################
-    def PlotCalDLTemp(self, savePath=None, saveExt='png'):
+    def PlotCalDLTemp(self, savePath=None, saveExt='png', saveFig=False):
         """Plot digital level versus temperature for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -959,11 +962,14 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CalDLTemp.{}'.format(savePath, saveExt))
+            if saveFig:
+                p.saveFig('{}-CalDLTemp.{}'.format(savePath, saveExt))
 
-            plt.close(p.getPlot())
+                plt.close(p.getPlot())
+                
+                
     ################################################################
-    def PlotCalTempDL(self, savePath=None, saveExt='png'):
+    def PlotCalTempDL(self, savePath=None, saveExt='png', saveFig=False):
         """Plot digital level versus temperature for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -1008,9 +1014,10 @@ class RadLookup:
             else:
                 savePath = os.path.join(savePath,self.specName)
 
-            p.saveFig('{}-CalTempDL.{}'.format(savePath, saveExt))
+            if saveFig:
+                p.saveFig('{}-CalTempDL.{}'.format(savePath, saveExt))
 
-            plt.close(p.getPlot())
+                plt.close(p.getPlot())
 
 
 ################################################################
@@ -1038,14 +1045,14 @@ if __name__ == '__main__':
     lut1 = RadLookup('lut1', nu, tmprMin, tmprMax, tmprInc)
     print(lut1.Info())
     if doPlots:
-        lut1.PlotSpectrals()
-        lut1.PlotTempRadiance(withFilter=True)
-        lut1.PlotTempRadiance(withFilter=False)
-        lut1.PlotCalSpecRadiance()
-        lut1.PlotCalDLTemp()
-        lut1.PlotCalDLRadiance()
-        lut1.PlotCalTempRadiance()
-        lut1.PlotCalTintRad()
+        lut1.PlotSpectrals(saveFig=True)
+        lut1.PlotTempRadiance(withFilter=True,saveFig=True)
+        lut1.PlotTempRadiance(withFilter=False,saveFig=True)
+        lut1.PlotCalSpecRadiance(saveFig=True)
+        lut1.PlotCalDLTemp(saveFig=True)
+        lut1.PlotCalDLRadiance(saveFig=True)
+        lut1.PlotCalTempRadiance(saveFig=True)
+        lut1.PlotCalTintRad(saveFig=True)
     # print('This table shows radiance with and without filter for given temperature')
     # print(lut1.TableTempRad)
     tempr1 = [300., 307.5, 505., 792.5, 800.]
@@ -1069,14 +1076,14 @@ if __name__ == '__main__':
              'data/Unity.txt', 'data/Unity.txt')
     print(lut2.Info())
     if doPlots:
-        lut2.PlotSpectrals()
-        lut2.PlotTempRadiance(withFilter=True)
-        lut2.PlotTempRadiance(withFilter=False)
-        lut2.PlotCalSpecRadiance()
-        lut2.PlotCalDLTemp()
-        lut2.PlotCalDLRadiance()
-        lut2.PlotCalTempRadiance()
-        lut2.PlotCalTintRad()
+        lut2.PlotSpectrals(saveFig=True)
+        lut2.PlotTempRadiance(withFilter=True,saveFig=True)
+        lut2.PlotTempRadiance(withFilter=False,saveFig=True)
+        lut2.PlotCalSpecRadiance(saveFig=True)
+        lut2.PlotCalDLTemp(saveFig=True)
+        lut2.PlotCalDLRadiance(saveFig=True)
+        lut2.PlotCalTempRadiance(saveFig=True)
+        lut2.PlotCalTintRad(saveFig=True)
     # print('This table shows radiance with and without filter for given temperature')
     # print(lut2.TableTempRad)
     tempr2 = [300., 307.5, 505., 792.5, 800.]
@@ -1134,14 +1141,14 @@ if __name__ == '__main__':
                 dicPower=dicPower, dicFloor=dicFloor)
     print(lut3.Info())
     if doPlots:
-        lut3.PlotSpectrals()
-        lut3.PlotTempRadiance(withFilter=True)
-        lut3.PlotTempRadiance(withFilter=False)
-        lut3.PlotCalSpecRadiance()
-        lut3.PlotCalDLTemp()
-        lut3.PlotCalDLRadiance()
-        lut3.PlotCalTempRadiance()
-        lut3.PlotCalTintRad()
+        lut3.PlotSpectrals(saveFig=True)
+        lut3.PlotTempRadiance(withFilter=True, saveFig=True)
+        lut3.PlotTempRadiance(withFilter=False, saveFig=True)
+        lut3.PlotCalSpecRadiance(saveFig=True)
+        lut3.PlotCalDLTemp(saveFig=True)
+        lut3.PlotCalDLRadiance(saveFig=True)
+        lut3.PlotCalTempRadiance(saveFig=True)
+        lut3.PlotCalTintRad(saveFig=True)
     tempr3 = [300., 307.5, 505., 792.5, 800.]
     rad3 = lut3.LookupTempRad(tempr3)
     tempr3i =  lut3.LookupRadTemp(rad3)
