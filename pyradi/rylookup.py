@@ -711,13 +711,19 @@ class RadLookup:
             keys = sorted(list(self.dicCaldata.keys()))
             for j,tmprInstr in enumerate(keys):
                 #print(tmprInstr,j)
-
+                
                 # build temperature labels
                 labels = []
                 for temp in self.dicCaldata[tmprInstr][:,0]:
                     labels.append('{:.0f} $^\circ$C, {:.0f} K'.format(temp-273.15, temp))
 
-                p.plot(1+j,self.wl,self.dicSpecRadiance[tmprInstr],label=labels)
+                # Sub-sample if more than 10
+                numTemps = len(labels)
+                delTemps = 1
+                if numTemps > 10:
+                    delTemps = numTemps / 10
+                
+                p.plot(1+j,self.wl,self.dicSpecRadiance[tmprInstr][:,::delTemps],label=labels[::delTemps])
                 currentP = p.getSubPlot(1+j)
                 currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)), fontsize=12)
                 currentP.set_ylabel('Radiance W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
