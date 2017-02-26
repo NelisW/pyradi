@@ -72,6 +72,7 @@ __all__=['myint','mylong','myfloat','mybyte', 'mydouble', 'ReadPTWHeader',
 import sys
 import collections
 import os.path
+import string
 
 try:
     import xml.etree.cElementTree as ET
@@ -372,6 +373,8 @@ def readPTWHeader(ptwfilename):
         Header.h_Version = headerinfo[5:10].decode('utf-8')
     else:
         Header.h_Version = headerinfo[5:10]
+    if not Header.h_Version[-1] in string.printable:
+        Header.h_Version =  Header.h_Version[:-1]
     Header.h_MainHeaderSize = mylong(headerinfo[11:15])
     Header.h_FrameHeaderSize = mylong(headerinfo[15:19])
     Header.h_SizeOfOneFrameAndHeader = mylong(headerinfo[19:23])
