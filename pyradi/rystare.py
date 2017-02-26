@@ -47,7 +47,8 @@ __all__=['photosensor','set_photosensor_constants','check_create_datasets','sour
     'shotnoise','responsivity_FPN_light','responsivity_FPN_dark','FPN_models',
     'nEcntLLightDF','nEcntLLightPhotL','nElecCntThermalScene','nEcntThermalOptics',
     'nElecCntReflSun','darkcurrentnoise','kTCnoiseCsn','kTCnoiseGv','create_HDF5_image',
-    'define_metrics','limitzero','run_example','get_summary_stats'
+    'define_metrics','limitzero','run_example',
+    'get_summary_stats'
     ]
 
 import sys
@@ -1955,7 +1956,7 @@ def create_HDF5_image(imageName, imtype, pixelPitch, numPixels,wavelength,
     the speed of light. 
 
     The image file is in HDF5 format, containing the input parameters to the image creation process.
-    A few minimum entries are required, but you can add any information youo wish to document the
+    A few minimum entries are required, but you can add any information you wish to document the
     data.  The following minimum HDF5 entries are required by pyradi.rystare:
 
         | ``'image/imageName'`` (string):  the image name  

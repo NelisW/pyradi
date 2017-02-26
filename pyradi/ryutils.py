@@ -49,7 +49,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
          'Atmo','Sensor','Target','calcMTFwavefrontError',
          'polar2cartesian','warpPolarImageToCartesianImage',
-         'intify_tuple'
+         'intify_tuple','differcommonfiles'
          ]
 
 import sys
@@ -2447,6 +2447,57 @@ class Target(Spectral):
             radiance = None
 
         return rtnVal
+
+
+############################################################
+##
+def differcommonfiles(dir1,dir2, patterns='*'):
+    """Find if common files in two dirs are different
+    Directories are not recursed, only common files are binary compared
+
+    Args:
+        | filename (dir1): first directory name
+        | filename (dir2): first directory name
+
+    Returns:
+        | file (list): list of common files
+        | different (list) : list of flags of different flags
+
+    Raises:
+        | No exception is raised.
+    """
+
+    import pyradi.ryfiles as ryfiles
+
+    bufsize = 2**8
+
+    dlist = []
+    flist = []
+    file1s = ryfiles.listFiles(dir1, patterns, recurse=0, return_folders=0, useRegex=False)
+    file2s = ryfiles.listFiles(dir2, patterns, recurse=0, return_folders=0, useRegex=False)
+    print(file1s)
+    print(file2s)
+    for file1 in file1s:
+        for file2 in file2s:
+            if os.path.basename(file1) == os.path.basename(file2):
+                print(os.path.basename(file1), os.path.basename(file1))
+                flist.append(os.path.basename(file1))
+                fp1 = open(file1, 'rb')
+                fp2 = open(file2, 'rb')
+                different = False
+                while True:
+                    # print('*')
+                    b1 = fp1.read(bufsize)
+                    b2 = fp2.read(bufsize)
+                    if b1 != b2:
+                        different = True
+                        break
+                    if not b1 or not b2:
+                        break
+                dlist.append(different)
+
+    return(flist,dlist)
+
 
 
 ################################################################

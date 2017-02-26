@@ -42,7 +42,9 @@ Welcome to pyradi's documentation!
    rydetector
    
    rystare
-      
+   
+   rytarggen      
+    
    ryprob
    
    rypflux
