@@ -649,9 +649,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'spectrals'.
 
+        if saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
-            | savePath (string): Path to where the plots must be saved (optional).
+            | savePath (string): Path to where the plots must be saved. If not given use data filename (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -691,9 +695,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CalRadiance'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -747,9 +755,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CaldlRadiance'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -797,11 +809,15 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'TempRadiance'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | withFilter (boolean): use table with filter to do lookup, no filter
                if false (optional).
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -849,9 +865,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CalTempRadiance'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -892,9 +912,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CalInternal'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -929,9 +953,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CalDLTemp'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -981,9 +1009,13 @@ class RadLookup:
         The filename is constructed from the given object name, save path, and
         the word 'CalDLTemp'.
 
+        If saveFig==True, images are saved to a specified location in savePath, 
+        or in the location from which the script is running.
+
         Args:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
+            | saveFig (bool) : Flag to control writing plot to file, default False (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
