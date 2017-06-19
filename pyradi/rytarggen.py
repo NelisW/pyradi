@@ -22,10 +22,12 @@
 """
 
 
-For more detail see the documentation at 
-http://nelisw.github.io/pyradi-docs/_build/html/index.html,
-http://nelisw.github.io/pyradi-docs/_build/html/rytarggen.html, or 
-pyradi/doc/rytarggen.rst  
+For more detail see the documentation at
+
+| ``http://nelisw.github.io/pyradi-docs/_build/html/index.html``,
+| ``http://nelisw.github.io/pyradi-docs/_build/html/rytarggen.html``, or 
+| ``pyradi/doc/rytarggen.rst``  
+
 """
 
 from __future__ import division
@@ -34,7 +36,7 @@ from __future__ import unicode_literals
 
 __version__= ""
 __author__='CJ Willers'
-__all__=[
+__all__=['create_HDF5_image', 'hdf_Raw', 'hdf_Uniform_photon', 'hdf_disk_photon', 'hdf_stairs_lux',
     ]
 
 import sys
@@ -452,7 +454,7 @@ if __name__ == '__main__':
 
     #----------  create test images ---------------------
 
-    if True:
+    if False:
 
         #create a uniform photon rate image, scaled from unity base, by min + dynamic range
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
@@ -507,6 +509,7 @@ if __name__ == '__main__':
         pass
 
 
+    if False:
         #create an infrared image with lin stairs
         # work in temperature
         tmin = 293 # 20 deg C at minimum level
@@ -529,4 +532,7 @@ if __name__ == '__main__':
                 steps=40,fintp=fintp,equivalentSignalType='Temperature',
                 equivalentSignalUnit='K',EinUnits='q/(s.m2) on detector plane')
 
+    import inspect
 
+    all_functions = inspect.getmembers(pyradi.rytarggen, inspect.isfunction)
+    print(all_functions)

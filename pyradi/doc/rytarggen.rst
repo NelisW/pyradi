@@ -1,17 +1,20 @@
 Target Radiance Image Generator (rytarggen)
-*******************************
+**********************************************
+
+
 .. include global.rst
 
 Overview
 ----------
 
-This module provides a simple model for an optical taget image radiance calculator,
+This module provides a simple model for an optical target image radiance calculator,
 given the radiometric sensor characteristics and the target spatial temperature 
 and emissivity distribution.
 The calculator accounts for 
-- the sensor spectral band 
-- target self-emission 
-- target reflected sunlight.
+
+#. the sensor spectral band 
+#. target self-emission 
+#. target reflected sunlight.
 
 The model does not account for reflected ambient radiance.
 
@@ -37,4 +40,16 @@ Code Overview
 Module functions
 ------------------
 
-.. autofunction:: pyradi.rytarggen.photosensor	
+.. autofunction:: pyradi.rytarggen.create_HDF5_image
+
+.. autofunction:: pyradi.rytarggen.hdf_Raw
+
+.. autofunction:: pyradi.rytarggen.hdf_Uniform_photon
+
+.. autofunction:: pyradi.rytarggen.hdf_disk_photon
+
+.. autofunction:: pyradi.rytarggen.hdf_stairs_lux
+
+
+
+.. [hdf5asdataformat] hdf5-as-data-format.md.
