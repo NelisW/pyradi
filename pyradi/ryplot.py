@@ -769,6 +769,106 @@ class Plotter:
         else:
             return None
 
+   ############################################################
+    ##
+    def getXLim(self, subplotNum = 1):
+        """Returns the x limits of the current subplot.
+        Subplot numbers range from 1 upwards.
+
+            Args:
+                | subplotNumer (int) : number of the subplot
+
+            Returns:
+                | An array with the two limits
+
+            Raises:
+                | No exception is raised.
+        """
+        if (self.nrow,self.ncol, subplotNum) in list(self.subplots.keys()):
+            return np.asarray(self.subplots[(self.nrow,self.ncol, subplotNum)].get_xlim())
+        else:
+            return None
+
+
+   ############################################################
+    ##
+    def getYLim(self, subplotNum = 1):
+        """Returns the y limits of the current subplot.
+        Subplot numbers range from 1 upwards.
+
+            Args:
+                | subplotNumer (int) : number of the subplot
+
+            Returns:
+                | An array with the two limits
+
+            Raises:
+                | No exception is raised.
+        """
+        if (self.nrow,self.ncol, subplotNum) in list(self.subplots.keys()):
+            return np.asarray(self.subplots[(self.nrow,self.ncol, subplotNum)].get_ylim())
+        else:
+            return None
+
+   ############################################################
+    ##
+    def verticalLineCoords(self,subplotNum=1,x=0):
+        """Returns two arrays for vertical line at x in the specific subplot.
+
+        The line is drawn at specified x, with current y limits in subplot.
+        Subplot numbers range from 1 upwards.
+
+        Use as follows to draw a vertical line in plot:
+            p.plot(1,*p.verticalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
+
+            Args:
+                | subplotNumer (int) : number of the subplot
+                | x (double): horizontal value used for line
+
+            Returns:
+                | A tuple with two arrays for line (x-coords,y-coords)
+
+            Raises:
+                | No exception is raised.
+        """
+        if (self.nrow,self.ncol, subplotNum) in list(self.subplots.keys()):
+            handle = self.subplots[(self.nrow,self.ncol, subplotNum)]
+
+            x = np.asarray((x,x))
+            y = self.getYLim(subplotNum)
+            return x,y
+        else:
+            return None
+
+   ############################################################
+    ##
+    def horizontalLineCoords(self,subplotNum=1,y=0):
+        """Returns two arrays for horizontal line at y in the specific subplot.
+
+        The line is drawn at specified y, with current x limits in subplot.
+        Subplot numbers range from 1 upwards.
+
+        Use as follows to draw a horizontal line in plot:
+            p.plot(1,*p.verticalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
+
+            Args:
+                | subplotNumer (int) : number of the subplot
+                | y (double): horizontal value used for line
+
+            Returns:
+                | A tuple with two arrays for line (x-coords,y-coords)
+
+            Raises:
+                | No exception is raised.
+        """
+        if (self.nrow,self.ncol, subplotNum) in list(self.subplots.keys()):
+            handle = self.subplots[(self.nrow,self.ncol, subplotNum)]
+
+            y = np.asarray((y,y))
+            x = self.getXLim(subplotNum)
+            return x,y
+        else:
+            return None
 
     ############################################################
     ##

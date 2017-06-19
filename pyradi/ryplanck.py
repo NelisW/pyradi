@@ -26,7 +26,7 @@ temperature derivative calculations.
 The functions provide spectral exitance in [W/(m^2.*)] or [q/(s.m^2.*)], given
 the temperature and a vector of one of wavelength, wavenumbers or frequency
 (six combinations each for exitance and temperature derivative). The total
-exitance can also be calculated by using the Stefan-Boltzman equation, in
+exitance can also be calculated by using the Stefan-Boltzmann equation, in
 [W/m^2] or [q/(s.m^2)].  'Exitance' is the CIE/ISO term for the older term 'emittance'.
 
 The Planck and temperature-derivative Planck functions take the spectral variable

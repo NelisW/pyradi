@@ -20,7 +20,9 @@
 # Contributor(s): MS Willers
 
 ################################################################
-"""Provides a simple, order of magnitude estimate of the photon flux and 
+"""
+
+Provides a simple, order of magnitude estimate of the photon flux and 
 electron count in a detector for various sources and scene lighting.  
 All models are based on published information or derived herein, so you 
 can check their relevancy and suitability for your work.  
@@ -58,13 +60,17 @@ from numbers import Number
 ##############################################################################################
 class PFlux:
     """ 
+    Provides a combined thermal and reflected photon irradiance estimate.
+
+    The class name derives from (P)hoton (Flux).
+
+
     See here: 
     https://github.com/NelisW/ComputationalRadiometry/blob/master/07-Optical-Sources.ipynb
-    for mathemetical derivations and more detail.
+    for mathematical derivations and more detail.
 
 
     """
-
     ############################################################
     ##
     def __init__(self):
@@ -116,9 +122,6 @@ class PFlux:
         'MWIR': [np.linspace(3.6,4.9,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
         'LWIR': [np.linspace(7.5,10,numpts).reshape(-1,1),np.ones((numpts,1)), 'wl' ], 
         }
-
-
-
 
 
     ############################################################

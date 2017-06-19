@@ -49,6 +49,8 @@ Welcome to pyradi's documentation!
    
    rypflux
    
+   ryscene
+   
    codingguidelines
    
 
