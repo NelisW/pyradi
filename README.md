@@ -74,7 +74,7 @@ A very good introduction to Python for scientific work are the
 
 
 ## Status
-This project has Production status. Current content is tested, stable and usable. With time and active use the scope of the pyradi offering will grow and expand. 
+This project has Production status. Current content is tested, stable and usable. The scope of the pyradi is continually growing as new functionality and examples are added. 
 
 The development is ongoing as and when new needs arise.  We are open for feature requests as well.
 
@@ -92,13 +92,16 @@ The development is ongoing as and when new needs arise.  We are open for feature
 
 
 ## Get the code via Python pip or easy_install
+
+**Note that the PyPi version is not up to date with the github version.**
+
 You can download the pyradi package using pip, from the command line by typing
 
     pip install --upgrade pyradi
 
-This command will install or upgrade pyradi to the latest version in <https://pypi.python.org/pypi/pyradi/>. If the install is successful, pyradi is available for use immediately, no further action is required.  The pip install may initiate the download of numpy, scipy, matplotlib or scikit-image if these are not presently in your Python distribution.
+This command will install or upgrade pyradi to the latest version written to  <https://pypi.python.org/pypi/pyradi/>. If the install is successful, pyradi is available for use immediately, no further action is required.  The pip install may initiate the download of numpy, scipy, matplotlib or scikit-image if these are not presently in your Python distribution.
 
-The pyradi version in pip is built at regular intervals from the subversion repository, but may not have all the very latest updates.
+The pyradi version in pip is **not** built at regular intervals from the subversion repository, but definitely does not have all the very latest version.
 
 Instructions on how to use pip is available at <http://www.pythonforbeginners.com/basics/python-pip-usage> and  <http://www.pip-installer.org/en/latest/installing.html>.
 

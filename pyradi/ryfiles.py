@@ -39,7 +39,8 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 __version__= "$Revision$"
 __author__='pyradi team'
 __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
-         'cleanFilename', 'listFiles','readRawFrames','rawFrameToImageFile',
+         'cleanFilename', 'listFiles','readRawFrames','writeRawFrames',
+         'rawFrameToImageFile',
          'arrayToLaTex','epsLaTexFigure','execOnFiles',
          'read2DLookupTable', 
          'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
@@ -647,6 +648,57 @@ def rawFrameToImageFile(image, filename):
     scipy.misc.imsave(filename, image)
 
 
+
+################################################################
+##
+def writeRawFrames(fname, img, vartype, writeFrames=[]):
+    """ Write selected multiple 2D frames from a 3D array to a raw data file.
+
+        The array must be a two dimensional or three dimensional array.
+        The row and column size remains as in the input data.
+        Frames increase over the first dimension of the 3D array. 
+        Frames of different data types can be written according to the user specification.  
+        The user can specify which frames must be written (if not all the frames).
+
+    Args:
+        | fname (string): filename
+        | img (np.array(:,:,:) or np.array(:,:)): array to be written to disk
+        | vartype (np.dtype): numpy data type of data to be read
+        |                                      int8, int16, int32, int64
+        |                                      uint8, uint16, uint32, uint64
+        |                                      float16, float32, float64
+        | writeFrames ([int]): optional list of frames to load, zero-based , 
+        |                      empty list (default) loads all frames
+
+    Returns:
+        | message (string) : empty if successful, fail message otherwise
+
+    Raises:
+        | No exception is raised.
+    """
+
+    # convert twoD to threeD
+    if len(img.shape)==2:
+        img = img[None, ... ]
+    elif len(img.shape)==3:
+        pass
+    else:
+        return 'Input array rank inappropriate: {}'.format(img.shape)
+
+    # if frame list not supplied build complete set
+    if not writeFrames:
+        writeFrames = range(0,img.shape[0])
+
+    try:
+        with open(fname, 'wb') as fout:
+            # write only the required frames
+            img[writeFrames,:,:].astype(vartype).tofile(fout)
+    except IOError:
+        return 'Error when writing file'
+
+    return None
+
+
 ################################################################
 ##
 def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
@@ -673,7 +725,7 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
         |                                              None if error occurred
 
     Raises:
-        | No exception is raised.
+        | Exception is raised if IOError
     """
 
     frames = 0
@@ -1168,12 +1220,13 @@ if __name__ == '__main__':
 
     rit = ryutils.intify_tuple
 
-    doAll = True
+    doAll = False
 
     # x = y = z = np.arange(0.0,5.0,1.0)
     # np.savetxt('test.out', x, delimiter=',')   # X is an array
     # np.savetxt('test.out', (x,y,z))   # x,y,z equal sized 1D arrays
     # np.savetxt('test.out', x, fmt='%1.4e')   # use exponential notation
+
 
     if False:
         #this example requires the DKTools bmpp executable http://dktools.sourceforge.net/bmpp.html
@@ -1293,6 +1346,18 @@ if __name__ == '__main__':
 
         else:
             print('\nNot all frames read from file')
+
+        # test writing raw frames
+        imagefile = 'data/sample.ulong'
+        rows = 100
+        cols = 100
+        vartype = np.uint32
+        frames, img = readRawFrames(imagefile, rows, cols, vartype, loadFrames=[])
+
+        writeRawFrames('sample_all.double', img, 'double', writeFrames=[])
+        writeRawFrames('sample_first.double', img, 'double', writeFrames=[1,6])
+        img1 =np.squeeze( img[0,:,:])
+        writeRawFrames('sample_only.double', img1, 'double')
 
         #######################################################################
         patrn = r'*.py'
