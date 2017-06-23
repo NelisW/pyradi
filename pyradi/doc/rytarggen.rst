@@ -44,12 +44,12 @@ Module functions
 
 .. autofunction:: pyradi.rytarggen.hdf_Raw
 
-.. autofunction:: pyradi.rytarggen.hdf_Uniform_photon
+.. autofunction:: pyradi.rytarggen.hdf_Uniform
 
 .. autofunction:: pyradi.rytarggen.hdf_disk_photon
 
-.. autofunction:: pyradi.rytarggen.hdf_stairs_lux
+.. autofunction:: pyradi.rytarggen.hdf_stairs
 
 
 
-.. [hdf5asdataformat] hdf5-as-data-format.md.
+.. [hdf5asdataformat] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md

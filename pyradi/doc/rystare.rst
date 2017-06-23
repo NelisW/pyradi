@@ -21,7 +21,8 @@ photosensors.  The original files are available at:
 
 - Paper: http://arxiv.org/pdf/1412.4031.pdf
 - Matlab code: https://bitbucket.org/aorta/highlevelsensorsim
-- The paper describing this Python model as published in SPIE Proc 10036 is available here https://github.com/NelisW/pyradi/blob/master/pyradi/documentation/SM200-30-staring-array-modeling.pdf
+- The paper describing this Python model as published in SPIE Proc 10036 is available here::
+  https://github.com/NelisW/pyradi/blob/master/pyradi/documentation/SM200-30-staring-array-modeling.pdf
 
 
 
@@ -62,7 +63,8 @@ Signal Flow
 
 The process from incident photons to the digital numbers appearing in the 
 image is outlined in the picture below. 
-The input image must be provided in photon rate irradiance units [q/(s.m\ :superscript:`2`\ )], 
+The input image to rystare must be provided in photon rate irradiance units
+ [q/(s.m\ :superscript:`2`\ )], 
 with photon noise already present in the image.  The count of photons 
 captured in the detector is determined from the irradiance by accounting 
 for the detector area and integration time.
@@ -380,8 +382,8 @@ The full code for the example run is included in `rystare.py`:
 
 	    #images must be in photon rate irradiance units q/(m2.s)
 	    strh5['rystare/equivalentSignal'] = imghd5['image/equivalentSignal'].value
-	    strh5['rystare/signal/photonRateIrradianceNoNoise'] = imghd5['image/PhotonRateIrradianceNoNoise'].value
-	    strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/PhotonRateIrradiance'].value
+	    strh5['rystare/signal/photonRateIrradianceNoNoise'] = imghd5['image/PhotonRateRadianceNoNoise'].value
+	    strh5['rystare/signal/photonRateIrradiance'] = imghd5['image/PhotonRateRadiance'].value
 	    strh5['rystare/pixelPitch'] = imghd5['image/pixelPitch'].value
 	    strh5['rystare/imageName'] = imghd5['image/imageName'].value
 	    strh5['rystare/imageFilename'] = imghd5['image/imageFilename'].value
@@ -391,8 +393,7 @@ The full code for the example run is included in `rystare.py`:
 	    strh5['rystare/imageSizeCols'] = imghd5['image/imageSizeCols'].value
 	    strh5['rystare/imageSizeDiagonal'] = imghd5['image/imageSizeDiagonal'].value
 	    strh5['rystare/equivalentSignalUnit'] = imghd5['image/equivalentSignalUnit'].value
-	    strh5['rystare/equivalentSignalType'] = imghd5['image/equivalentSignalType'].value
-	    strh5['rystare/EinUnits'] = imghd5['image/EinUnits'].value
+	    strh5['rystare/LinUnits'] = imghd5['image/LinUnits'].value
 
 
 
@@ -455,7 +456,7 @@ HDF5 File
 The Python implementation of the model uses an HDF5 file to capture the
 input and output data for record keeping or subsequent analysis. 
 HDF5 files provide for hierarchical data structures and easy read/save to disk. 
-See the file `hdf5-as-data-format.md` ([hdf5asdataformat]_) in the pyradi root directory for more detail.
+See the file `hdf5-as-data-format.md` ([hdf5asdataformatalt]_) in the pyradi root directory for more detail.
 
 Input images are written to and read from HDF5 files as well.  These files store the
 image as well as the images' dimensional scaling in the focal plane.  
@@ -523,8 +524,6 @@ Module functions
 
 .. autofunction:: pyradi.rystare.kTCnoiseGv
 
-.. autofunction:: pyradi.rystare.create_HDF5_image
-
 .. autofunction:: pyradi.rystare.define_metrics
 
 .. autofunction:: pyradi.rystare.limitzero
@@ -533,5 +532,5 @@ Module functions
 
 .. autofunction:: pyradi.rystare.get_summary_stats
 
-.. [hdf5asdataformat] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
+.. [hdf5asdataformatalt] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
 
