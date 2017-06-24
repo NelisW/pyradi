@@ -64,7 +64,7 @@ Signal Flow
 The process from incident photons to the digital numbers appearing in the 
 image is outlined in the picture below. 
 The input image to rystare must be provided in photon rate irradiance units
- [q/(s.m\ :superscript:`2`\ )], 
+[q/(s.m\ :superscript:`2`\ )], 
 with photon noise already present in the image.  The count of photons 
 captured in the detector is determined from the irradiance by accounting 
 for the detector area and integration time.
