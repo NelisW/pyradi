@@ -2215,7 +2215,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
         strh5['rystare/imageSizeRows'] = imghd5['image/imageSizeRows'].value
         strh5['rystare/imageSizeCols'] = imghd5['image/imageSizeCols'].value
         pixelPitch = strh5['rystare/pixelPitch'].value
-        numPixels = imghd5['image/imageSizePixels']
+        numPixels = imghd5['image/imageSizePixels'].value
         
         strh5['rystare/imageSizeDiagonal'] = np.sqrt((pixelPitch[0] * numPixels[0]) ** 2. + (pixelPitch[1] * numPixels[1]) ** 2)
 
@@ -2319,6 +2319,9 @@ def get_summary_stats(hdffilename):
         print('Input rystare/LinUnits      : {}'.format(strh5['rystare/LinUnits'].value))
         print('Input rystare/EinUnit       : {}'.format(strh5['rystare/EinUnits'].value))
         print('Sensor type                 : {} '.format(strh5['rystare/sensortype'].value))
+
+        print('F-number                    : {} '.format(strh5['rystare/fnumber'].value))
+        print('F-number cone               : {} sr'.format(strh5['rystare/fnumberConeSr'].value))
         print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'].value))
         if 'rystare/imageSizeDiagonal' in strh5:
             print('Image size diagonal         : {:.3e} m'.format(strh5['rystare/imageSizeDiagonal'].value))
