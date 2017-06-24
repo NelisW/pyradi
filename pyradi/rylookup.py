@@ -23,7 +23,7 @@
 """
 This class provides lookup functionality between source temperature,
 source radiance and sensor signal.  In this class the sensor signal is called
-digital level, but it represents any atribrary sensor signal unit.
+digital level, but it represents any arbitrary sensor signal unit.
 
 See the __main__ function for examples of use.
 
@@ -63,7 +63,7 @@ class RadLookup:
     The class provides two parallel functional capabilities:
 
     * given spectral data and no calibration data it calculates a simple radiance-based
-      lookup between temperture and radiance, assuming Planck-law relationships.
+      lookup between temperature and radiance, assuming Planck-law relationships.
 
     * given camera calibration data it relates between signal value, temperature and
       radiance.  It accounts for the effect of hot optics that cause a lower asymptotic
@@ -78,7 +78,7 @@ class RadLookup:
     (1) emissivity,
     (2) atmospheric transmittance,
     (3) filter transmittance,
-    (4) optics tranmittance, and
+    (4) optics transmittance, and
     (5) sensor response.
     Two sets of calculations are performed, the first with all five spectral vectors,
     and the second without the filter, but all four remaining vectors.  This option
@@ -90,7 +90,7 @@ class RadLookup:
 
     Spectral data parameter may be either a filename (data read from file) or a
     numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
-    must have two colums: first column is wavelength, and second
+    must have two columns: first column is wavelength, and second
     column is the spectral value at this wavelength.  Data read in from the file
     will be interpolated to (nuMin, nuMax,nuInc) scale. If the parameter is None,
     then unity spectral values will be used.
@@ -729,7 +729,7 @@ class RadLookup:
                 numTemps = len(labels)
                 delTemps = 1
                 if numTemps > 10:
-                    delTemps = numTemps / 10
+                    delTemps = int(numTemps / 10)
                 
                 p.plot(1+j,self.wl,self.dicSpecRadiance[tmprInstr][:,::delTemps],label=labels[::delTemps])
                 currentP = p.getSubPlot(1+j)

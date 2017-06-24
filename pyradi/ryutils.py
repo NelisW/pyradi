@@ -241,30 +241,35 @@ def upMu(uprightMu=True, textcomp=False):
     Raises:
         | No exception is raised.
     """
-    if uprightMu:
-      from matplotlib import rc, font_manager
-      import matplotlib as mpl
-      rc('text', usetex=True)
-      # set up the use of external latex, fonts and packages
-      if not textcomp :
-        mpl.rcParams['text.latex.preamble'] = [
-          # r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-          '\\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-          '\\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
-          '\\usepackage{helvet}',  # set the normal font here
-          '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-          '\\sansmath']  # <- tricky! -- gotta actually tell tex to use!
-        upmu = '\si{\micro}'
-      else:
-        mpl.rcParams['text.latex.preamble'] = [
-          '\\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
-          '\\usepackage{helvet}',  # set the normal font here
-          '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-          '\\sansmath'  # <- tricky! -- gotta actually tell tex to use!
-          ]
-        upmu = '\\textmu{}'
+    if sys.version_info[0] < 3:
+
+        if uprightMu:
+            from matplotlib import rc, font_manager
+            import matplotlib as mpl
+            rc('text', usetex=True)
+            # set up the use of external latex, fonts and packages
+            if not textcomp :
+                mpl.rcParams['text.latex.preamble'] = [
+                # r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+                '\\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
+                '\\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
+                '\\usepackage{helvet}',  # set the normal font here
+                '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+                '\\sansmath']  # <- tricky! -- gotta actually tell tex to use!
+                upmu = '\si{\micro}'
+            else:
+                mpl.rcParams['text.latex.preamble'] = [
+                '\\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
+                '\\usepackage{helvet}',  # set the normal font here
+                '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
+                '\\sansmath'  # <- tricky! -- gotta actually tell tex to use!
+                ]
+                upmu = '\\textmu{}'
+        else:
+            upmu = '$\\mu$'
     else:
-      upmu = '$\\mu$'
+        upmu = '\u00B5'
+        
     return upmu
 
 
