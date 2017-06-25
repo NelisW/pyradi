@@ -749,7 +749,9 @@ class RadLookup:
 
 
     ################################################################
-    def PlotCalDLRadiance(self, savePath=None, saveExt='png', saveFig=False):
+    def PlotCalDLRadiance(self, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
+
         """Plot DL level versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -762,6 +764,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -792,6 +797,9 @@ class RadLookup:
             currentP.set_ylabel(' Radiance W/(m$^2$.sr)')
             currentP.set_title('{} Radiance With Filter'.format(self.specName))
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
+                    
             if savePath==None:
                 savePath=self.specName
             else:
@@ -803,7 +811,9 @@ class RadLookup:
 
 
     ################################################################
-    def PlotTempRadiance(self, withFilter=True, savePath=None, saveExt='png', saveFig=False):
+    def PlotTempRadiance(self, withFilter=True, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
+
         """Plot temperature versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -818,6 +828,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -844,6 +857,9 @@ class RadLookup:
             currentP.set_xlabel('Temperature K')
             currentP.set_ylabel('Radiance W/(m$^2$.sr)')
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
+                    
             if savePath==None:
                 savePath=self.specName
             else:
@@ -859,7 +875,9 @@ class RadLookup:
 
 
     ################################################################
-    def PlotCalTempRadiance(self, savePath=None, saveExt='png', saveFig=False):
+    def PlotCalTempRadiance(self, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
+
         """Plot temperature versus radiance for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -872,6 +890,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -894,6 +915,9 @@ class RadLookup:
                 currentP.set_title('{} Radiance With Filter'.format(self.specName))
                 currentP.set_ylim([0,np.max(self.dicCaldata[tmprInstr][:,2])])
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')                
+
             if savePath==None:
                 savePath=self.specName
             else:
@@ -906,7 +930,9 @@ class RadLookup:
 
 
     ################################################################
-    def PlotCalTintRad(self, savePath=None, saveExt='png', saveFig=False):
+    def PlotCalTintRad(self, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
+
         """Plot optics radiance versus instrument temperature
 
         The filename is constructed from the given object name, save path, and
@@ -919,6 +945,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -935,6 +964,9 @@ class RadLookup:
             p.plot(1,self.TableTintRad[:,0]-273.15,self.TableTintRad[:,1], ptitle=ptitle,
               xlabel='Internal temperature $^\circ$C', ylabel='Radiance W/(m$^2$.sr)')
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
+                    
             if savePath==None:
                 savePath=self.specName
             else:
@@ -947,7 +979,9 @@ class RadLookup:
 
 
     ################################################################
-    def PlotCalDLTemp(self, savePath=None, saveExt='png', saveFig=False):
+    def PlotCalDLTemp(self, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
+
         """Plot digital level versus temperature for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -960,6 +994,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -991,6 +1028,9 @@ class RadLookup:
                 currentP.set_ylabel('Temperature K')
                 currentP.set_title('{} Temperature vs Sensor Signal'.format(self.specName))
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
+                    
             if savePath==None:
                 savePath=self.specName
             else:
@@ -1003,7 +1043,8 @@ class RadLookup:
                 
                 
     ################################################################
-    def PlotCalTempDL(self, savePath=None, saveExt='png', saveFig=False):
+    def PlotCalTempDL(self, savePath=None, saveExt='png', saveFig=False,
+            plotPoints=None,colPoints=['k'],markPoints=['.']):
         """Plot digital level versus temperature for both camera temperatures
 
         The filename is constructed from the given object name, save path, and
@@ -1016,6 +1057,9 @@ class RadLookup:
             | savePath (string): Path to where the plots must be saved (optional).
             | saveExt (string) : Extension to save the plot as, default of 'png' (optional).
             | saveFig (bool) : Flag to control writing plot to file, default False (optional).
+            | plotPoints (np.array) : array of points to be plotted, default None (optional).
+            | colPoints (list[string]) : Colour of points, default None (optional).
+            | markPoints (list[string]) : Marker for points, default None (optional).
 
         Returns:
             | None, the images are saved to a specified location or in the location
@@ -1041,12 +1085,16 @@ class RadLookup:
                     plotColM = ['g']
                 p.plot(1,temp,DL,label=['Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
                 p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,1],
-                   label=['Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
+                   label=['Measured {}$^\circ$C'.format(tmprInstr)],linestyle='',
+                   markers=['x'],plotCol=plotColM)
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel('Temperature K')
                 currentP.set_ylabel('Digital level')
                 currentP.set_title('{} Temperature vs Digital Level'.format(self.specName))
 
+            if plotPoints is not None:
+                p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
+                    
             if savePath==None:
                 savePath=self.specName
             else:

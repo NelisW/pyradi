@@ -1,7 +1,7 @@
 """
 Setup script for pyradi. This procedure must be followed only once so set up.
 
-0. Make a list of all the folders included and excluded in the PyPi packate in MANIFEST.in
+0. Make a list of all the folders included and excluded in the PyPi package in MANIFEST.in
 
 1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
     letters and numbers, not other symbols.
@@ -25,7 +25,7 @@ Setup script for pyradi. This procedure must be followed only once so set up.
 
 5.  Write and test the long description, this goes onto PyPI project page.
 
-6. If not allready existing, mkdir ../pyradi-docs/_build. Alternatively clone the
+6. If not already existing, mkdir ../pyradi-docs/_build. Alternatively clone the
    gh-pages branch from https://github.com/NelisW/pyradi-docs/tree/gh-pages
    To be on the same level as the main pyradi directory:In other words,
    create a new folder on the same level as where pyradi root is:

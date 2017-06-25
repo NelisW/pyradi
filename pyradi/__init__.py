@@ -34,7 +34,7 @@ computational radiometry (flux flow) calculations.
     | Tested against Python 2.7.12 and Python 3.5.2
 
 """
-__version__= "1.1.2"
+__version__= "1.1.3"
 __author__='pyradi team'
 
 

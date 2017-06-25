@@ -2,6 +2,9 @@ include pyradi/README.rst
 
 recursive-include pyradi/data *
 recursive-include pyradi/test *
+recursive-include pyradi/logo *
+recursive-include pyradi/doc *
+recursive-include pyradi/examples *
 prune pyradi/data/plotspherical
 
 include pyradi/data/plotspherical/*.dat
