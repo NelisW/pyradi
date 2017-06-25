@@ -272,7 +272,7 @@ def hdf_Raw(imghd5,filename,rad_min=-1,rad_dynrange=-1, imgNum=0):
 
 ######################################################################################
 def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
-    saveNoiseImage=True,saveEquivImage=True,
+    saveNoiseImage=False,saveEquivImage=False,
     equivalentSignalType='',equivalentSignalUnit='', LinUnits='', seedval=0,fintp=None):
     r"""This routine serves as calling function to a generating function to create images.
     This function expects that the calling function will return photon rate images,
@@ -564,6 +564,7 @@ if __name__ == '__main__':
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
         filename = create_HDF5_image(imageName='Zero',  
             numPixels=numPixels,wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Uniform, kwargs={'rad_dynrange':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=None )
@@ -573,6 +574,7 @@ if __name__ == '__main__':
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
         filename = create_HDF5_image(imageName='Uniform',  
             numPixels=numPixels,wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Uniform, kwargs={'rad_dynrange':1.3e17},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=None )
@@ -583,6 +585,7 @@ if __name__ == '__main__':
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
         filename = create_HDF5_image(imageName='Disk', 
             numPixels=numPixels,wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_disk_photon, kwargs={'rad_min':0.0,'rad_dynrange':1.3e17,
                 'fracdiameter':0.7,'fracblur':0.2},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
@@ -598,6 +601,7 @@ if __name__ == '__main__':
         fintp = calcLuxEquivalent(wavelength,rad_min,rad_dynrange,LinUnits)
         filename = create_HDF5_image(imageName='Stairslin-10',  
             numPixels=[250, 250], wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_stairs, kwargs={'rad_min':rad_min,'rad_dynrange':rad_dynrange,
                 'imtype':'stairslin','steps':10},
                 equivalentSignalType='Irradiance',equivalentSignalUnit='lux',
@@ -613,6 +617,7 @@ if __name__ == '__main__':
         fintp = calcLuxEquivalent(wavelength,rad_min,rad_dynrange,LinUnits)
         filename = create_HDF5_image(imageName='Stairslin-40',  
             numPixels=[100,520],wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_stairs, kwargs={'rad_min':rad_min,'rad_dynrange':rad_dynrange,
                 'imtype':'stairslin','steps':40},
                 equivalentSignalType='Irradiance',equivalentSignalUnit='lux', 
@@ -627,6 +632,7 @@ if __name__ == '__main__':
         fintp = calcLuxEquivalent(wavelength,rad_min,rad_dynrange,LinUnits)
         filename = create_HDF5_image(imageName='Stairslin-LowLight-40',  
             numPixels=[100,520],wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_stairs, kwargs={'rad_min':rad_min,'rad_dynrange':rad_dynrange,
                 'imtype':'stairslin','steps':40},
             equivalentSignalType='Irradiance',equivalentSignalUnit='lux', 
@@ -636,6 +642,7 @@ if __name__ == '__main__':
         # create photon rate image from raw, unscaled 
         filename = create_HDF5_image(imageName='PtaInd-13Dec14h00X',
             numPixels=[512,512],wavelength=4.5e-6,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/PtaInd-13Dec14h00X.bin',
                 'rad_min':-1,'rad_dynrange':-1,'imgNum':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='W/m2', 
@@ -645,6 +652,7 @@ if __name__ == '__main__':
         # create photon rate image from raw, unscaled 
         filename = create_HDF5_image(imageName='StairIR-raw',
             numPixels=[100,256],wavelength=4.5e-6,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/StairIR-raw.double',
                 'rad_min':-1,'rad_dynrange':-1,'imgNum':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='W/m2', 
@@ -665,6 +673,7 @@ if __name__ == '__main__':
 
         filename = create_HDF5_image(imageName='StairslinIR-40',  
             numPixels=[100,520],wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_stairs, kwargs={'rad_min':fintpEL(tmin),
                 'rad_dynrange':fintpEL(tmax) -fintpEL(tmin),
                 'imtype':'stairslin','steps':40},
@@ -684,6 +693,7 @@ if __name__ == '__main__':
         # create photon rate image from raw, scaled 
         filename = create_HDF5_image(imageName='PtaInd-13Dec14h00XScaled',
             numPixels=[512,512],wavelength=4.5e-6,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/PtaInd-13Dec14h00X.bin',
                 'rad_min':fintpEL(tmin),'rad_dynrange':fintpEL(tmax) -fintpEL(tmin),
                 'imgNum':0},
@@ -703,6 +713,7 @@ if __name__ == '__main__':
         # create photon rate image from raw, scaled 
         filename = create_HDF5_image(imageName='Uniform{}K'.format(tuniform),  
             numPixels=numPixels,wavelength=wavelength,
+            saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Uniform, kwargs={'rad_dynrange':fintpEL(tuniform)},
             equivalentSignalType='Temperature',equivalentSignalUnit='K', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=fintpLE )
