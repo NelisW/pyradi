@@ -498,7 +498,7 @@ class RadLookup:
 
         Args:
             |  DL (float, np.array[N,]): scalar, list or array of sensor signal values.
-            |  Tint (float): scalar, internal temperature of the sensor.
+            |  Tint (float): scalar, internal temperature of the sensor, deg C
 
         Returns:
             |  (np.array[N,]) radiance W/(sr.m2) values associated with sensor signals.
@@ -565,7 +565,7 @@ class RadLookup:
 
         Args:
             |  DL (float, np.array[N,]): scalar, list or array of sensor signal values.
-            |  Tint (float): scalar, internal temperature of the sensor.
+            |  Tint (float): scalar, internal temperature of the sensor, deg C
 
         Returns:
             |  (np.array[N,]) temperature K values associated with sensor signals.
