@@ -49,7 +49,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
          'Atmo','Sensor','Target','calcMTFwavefrontError',
          'polar2cartesian','warpPolarImageToCartesianImage',
-         'intify_tuple','differcommonfiles'
+         'intify_tuple','differcommonfiles','blurryextract'
          ]
 
 import sys
@@ -1081,19 +1081,20 @@ def gen_siemens_star(origin, radius, n):
 
 
 ######################################################################################################
-def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, imageReturnType='image'):
+def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, imageReturnType='image',datatype=np.uint8):
     """Draw checkerboard with 8-bit pixels 
     
    From http://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy
    
    Args:
-        | rows           : number or rows in checkerboard
-        | cols           : number of columns in checkerboard 
-        | numPixInBlock  : number of pixels to be used in one block of the checkerboard
-        | imageMode      : PIL image mode [e.g. L (8-bit pixels, black and white), RGB (3x8-bit pixels, true color)]
-        | colour1        : colour 1 specified according to the imageMode
-        | colour2        : colour 2 specified according to the imageMode
+        | rows (int) : number or rows in checkerboard
+        | cols (int) : number of columns in checkerboard 
+        | numPixInBlock (int) : number of pixels to be used in one block of the checkerboard
+        | imageMode (string) : PIL image mode [e.g. L (8-bit pixels, black and white), RGB (3x8-bit pixels, true color)]
+        | colour1 (int or RGB tuple) : colour 1 specified according to the imageMode
+        | colour2 (int or RGB tuple) : colour 2 specified according to the imageMode
         | imageReturnType: 'image' for PIL image, 'nparray' for numpy array
+        | datatype (numpy data type) : numpy data type for the returned np.array
    
     Returns:
         | img          : checkerboard numpy array or PIL image (see imageReturnType) 
@@ -1124,7 +1125,7 @@ def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, ima
     height = numPixInBlock * rows
     coords = np.ogrid[0:height, 0:width]
     idx = (coords[0] // numPixInBlock + coords[1] // numPixInBlock) % 2
-    vals = np.array([colour1, colour2], dtype=np.uint8)
+    vals = np.array([colour1, colour2], dtype=datatype)
     img = vals[idx]
     
     if (imageReturnType == 'nparray'):
@@ -2505,6 +2506,80 @@ def differcommonfiles(dir1,dir2, patterns='*'):
 
 
 
+############################################################
+##
+def blurryextract(img, inputOrigin, outputSize, blocksize, sigma, filtermode='reflect' ):
+    """Slice region from 2d array, blur it with gaussian kernel, and coalesce to lower resolution
+
+    The image is blurred with a gaussian kernel of size sigma, using filtermode.
+    Then the slice is calculated using the inputOrigin, required output size and 
+    the block size.  The sliced image is then lowered in resolution by averaging
+    blocks of values in the input image into the output image.
+
+    If the input image size/bounds are to be exceeded in the calculation 
+    the function returns None.
+
+    | https://docs.scipy.org/doc/numpy/reference/generated/numpy.einsum.html
+    | http://ajcr.net/Basic-guide-to-einsum/
+    | https://obilaniu6266h16.wordpress.com/2016/02/04/einstein-summation-in-numpy/
+    | https://stackoverflow.com/questions/26089893/understanding-numpys-einsum
+    | https://stackoverflow.com/questions/26064594/how-does-numpy-einsum-work
+    |
+    | http://stackoverflow.com/questions/16856788/slice-2d-array-into-smaller-2d-arrays
+    | http://stackoverflow.com/questions/21220942/sums-of-subarrays
+    | https://en.wikipedia.org/wiki/Einstein_notation
+    | https://docs.scipy.org/doc/numpy-1.12.0/reference/generated/numpy.einsum.html
+    | https://stackoverflow.com/questions/28652976/passing-array-range-as-argument-to-a-function
+    | https://stackoverflow.com/questions/13706258/passing-python-slice-syntax-around-to-functions
+    |
+    | https://docs.scipy.org/doc/scipy-0.16.1/reference/generated/scipy.ndimage.filters.gaussian_filter.html
+
+
+    Args:
+        | img (nd.array(M,N)): 2D input array
+        | inputOrigin ([lower0,lower1]): start coordinates in the input image
+        | outputSize ([size0,size1]): size of the output array
+        | blocksize ([block0,block1]): input image block size to be 
+        |   averaged into single output image
+        | sigma (float): gaussian kernel rms size in pixel counts
+        | sigma (float): gaussian kernel filter mode
+
+    Returns:
+        | imgo (nd.array of floats): smaller image or None if out of bounds
+
+    Raises:
+        | No exception is raised.
+    """
+    import scipy.ndimage.filters as filters
+
+    # filter the input image
+    img = img.astype('float')
+    img = filters.gaussian_filter(img,sigma=sigma, mode=filtermode)
+    # slice the region from the input image
+    inputUpper = [inputOrigin[0]+outputSize[0]*blocksize[0],
+                  inputOrigin[1]+outputSize[1]*blocksize[1]]
+    if inputUpper[0]>img.shape[0] or inputUpper[1]>img.shape[1]:
+        print('blurryextract: input image too small for required output image')
+        return None
+    print(inputOrigin)    
+    print(inputUpper)    
+
+    imgn = img[inputOrigin[0]:inputUpper[0],inputOrigin[1]:inputUpper[1]]
+    print(imgn[0,0])
+    # prepare to lower resolution: make appropriate size
+    h, w = imgn.shape
+    h = (h // blocksize[0])*blocksize[0]
+    w = (w // blocksize[1])*blocksize[1]
+    # create correct size for einsum to work
+    imgn = imgn[:h,:w]
+    # use einstein sums to average aggregate blocks into single pixels
+    imgo = np.einsum('ijkl->ik', 
+          imgn.reshape(h // blocksize[0], blocksize[0], -1, blocksize[1]))\
+                  / (blocksize[0]*blocksize[1])
+
+    return imgo
+
+
 ################################################################
 ##
 
@@ -2521,7 +2596,6 @@ if __name__ == '__main__':
     import pyradi.rymodtran as rymodtran
     import os
     import collections
-
 
     rit = intify_tuple
 
@@ -2543,10 +2617,22 @@ if __name__ == '__main__':
         sensors = collections.OrderedDict()   
         targets = collections.OrderedDict()   
 
-
-
-
     doAll = True
+
+    if doAll:
+
+        filename = 'rawFile.bin'
+        # create a temporary image for subsampling
+        img = drawCheckerboard(rows=2**11, cols=2*11, numPixInBlock=2**4, imageMode='L', 
+                colour1=0, colour2=1, imageReturnType='nparray',datatype=np.float)
+        # do the filtering and averaging
+        imgo = blurryextract(img, inputOrigin=[10,10], outputSize=[64,64], sigma=3, blocksize=[2,4])
+        # confirm image
+        p = ryplot.Plotter(1,3,1,filename)
+        p.showImage(1,imgo)
+        p.saveFig('{}.png'.format(filename[:-4]))
+        # fil = open(filename,'wb')
+        # fil.write(imgo)
 
     if doAll:
         # test warpPolarImageToCartesianImage

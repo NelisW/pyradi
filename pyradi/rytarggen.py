@@ -426,7 +426,7 @@ def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
     #calculate and display values of these variables
     elements = ['image/imageFilename','image/imageName','image/filename','image/rad_dynrange',
     'image/rad_min','image/irrad_dynrange','image/irrad_min','image/disk_diameter','image/blur',
-    'image/blurr','image/steps','image/imtype','image/imageSizePixels','image/pixelPitch',
+    'image/blur','image/steps','image/imtype','image/imageSizePixels','image/pixelPitch',
     'image/imageSizeRows','image/imageSizeCols','image/imageSizeDiagonal',
     'image/equivalentSignalType','image/equivalentSignalUnit','image/LinUnits','image/EinUnits',
     'image/saveNoiseImage','image/saveEquivImage','image/joule_per_photon',
@@ -711,7 +711,7 @@ if __name__ == '__main__':
         sysresp = np.ones(wavelength.shape)
         fintpLE,fintpEL = calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax)
         # create photon rate image from raw, scaled 
-        filename = create_HDF5_image(imageName='Uniform{}K'.format(tuniform),  
+        filename = create_HDF5_image(imageName='Uniform{:.0f}K'.format(tuniform),  
             numPixels=numPixels,wavelength=wavelength,
             saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Uniform, kwargs={'rad_dynrange':fintpEL(tuniform)},
