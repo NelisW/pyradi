@@ -494,12 +494,15 @@ def calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax):
 
     Author: CJ Willers
     """
-    temp = np.linspace(0.99*tmin, 1.01*tmax, 100).reshape(-1)
+    wavelength = wavelength.reshape(-1, 1)
+    sysresp = sysresp.reshape(-1, 1)
+    
+    temp = np.linspace(0.99*float(tmin), 1.01*float(tmax), 100).reshape(-1,1)
     # radiance in q/(s.m2)
-    rad = (1. / np.pi) * np.trapz(sysresp * ryplanck.planck(wavelength, 
-                    temp.reshape(-1, 1), type='ql'),wavelength, axis=0)
-    fintpLE = interpolate.interp1d(rad, temp)
-    fintpEL = interpolate.interp1d(temp, rad)
+    rad = np.trapz(sysresp * ryplanck.planck(wavelength, temp,
+           type='ql'),wavelength, axis=0).reshape(-1,1) / np.pi
+    fintpLE = interpolate.interp1d(rad.reshape(-1,), temp.reshape(-1,))
+    fintpEL = interpolate.interp1d(temp.reshape(-1,), rad.reshape(-1,))
     return fintpLE,fintpEL
 
 
@@ -703,13 +706,11 @@ if __name__ == '__main__':
 
         #create a uniform photon rate image with nonzero value, for given temperature
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
-        tmin = 290 # K at minimum level
-        tmax = 300 # K at maximum level
         tuniform = 295
         # do a wideband spectral integral
         wavelength = np.linspace(3.7,4.8,100)
         sysresp = np.ones(wavelength.shape)
-        fintpLE,fintpEL = calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax)
+        fintpLE,fintpEL = calcTemperatureEquivalent(wavelength,sysresp,tuniform-5,tuniform+5)
         # create photon rate image from raw, scaled 
         filename = create_HDF5_image(imageName='Uniform{:.0f}K'.format(tuniform),  
             numPixels=numPixels,wavelength=wavelength,
