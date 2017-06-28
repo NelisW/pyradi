@@ -210,9 +210,18 @@ def hdf_stairs(imghd5,rad_min,rad_dynrange,steps,imtype):
 
 
 ######################################################################################
-def hdf_Raw(imghd5,filename,rad_min=-1,rad_dynrange=-1, imgNum=0):
+def hdf_Raw(imghd5,filename,inputSize,outputSize,rad_min=-1,rad_dynrange=-1, imgNum=0,
+inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     r"""A generating function to create a photon rate image from raw image.
-    The raw image read in will be rescaled to rad_min + rad_dynrange.
+
+    The output image is extracted from the raw image, with blocks of raw image
+    pixels averaged to single output image pixels. inputOrigin (lowest row,col values)
+    defines from where in the raw input image the slicing takes place. blocksize defines
+    how many raw image pixels must be averaged/aggregated together to define a single
+    output image pixel, resolution is lowered by this factor.  sigma is the kernel 
+    size to be used in scipy.filters.gaussian_filter.
+
+    The subsampled image will be rescaled to rad_min + rad_dynrange.
 
     The raw image sequence must be of type np.float64 with no header or footer.
 
@@ -225,8 +234,13 @@ def hdf_Raw(imghd5,filename,rad_min=-1,rad_dynrange=-1, imgNum=0):
         | imghd5 (handle to hdf5 file): file to which image must be added
         | filename (string):  Raw file filename, data must be np.float64
         | rad_min (float): additive minimum radiance  value in the image, -1 to not use scaling
+        | inputSize ([int,int]): raw image size, number of rows,cols
+        | outputSize ([int,int]): size of the output image row,cols
         | rad_dynrange (float): multiplicative  radiance scale factor (max value), -1 to not use scaling
         | imgNum (int): image number to be loaded from the image sequence
+        | inputOrigin ([int,int]): raw image row,col where the image must be extracted from 
+        | blocksize ([int,int]): row,col blocksize in raw image to be averaged to single output pixel 
+        | sigma (float): gaussian spatial filter kernel rms size in raw image pixels
 
     Returns:
         | nothing: as a side effect a set of photon radiance image files are written
@@ -236,14 +250,20 @@ def hdf_Raw(imghd5,filename,rad_min=-1,rad_dynrange=-1, imgNum=0):
     Author: CJ Willers
     """
 
+    # print(filename,inputSize,outputSize,rad_min,rad_dynrange, imgNum,inputOrigin,blocksize,sigma)
+
     imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
     imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
     imghd5['image/filename'] = filename 
 
     # read the imgNum'th raw image frame from file
-    nfr,img = ryfiles.readRawFrames(filename, rows=imghd5['image/imageSizePixels'].value[0], 
-                            cols=imghd5['image/imageSizePixels'].value[1],
+    nfr,img = ryfiles.readRawFrames(filename, rows=inputSize[0], cols=inputSize[1],
                             vartype=np.float64, loadFrames=[imgNum])
+    # print(nfr,img.shape)
+    #extract the smaller raw image and coalesce/blur
+    img = ryutils.blurryextract(img[0,:,:], inputOrigin=inputOrigin, 
+            outputSize=outputSize, 
+                sigma=sigma, blocksize=blocksize)
 
     if nfr > 0:
         img = img / imghd5['image/joule_per_photon'].value

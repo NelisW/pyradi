@@ -2508,7 +2508,7 @@ def differcommonfiles(dir1,dir2, patterns='*'):
 
 ############################################################
 ##
-def blurryextract(img, inputOrigin, outputSize, blocksize, sigma, filtermode='reflect' ):
+def blurryextract(img, inputOrigin, outputSize, blocksize, sigma=0., filtermode='reflect' ):
     """Slice region from 2d array, blur it with gaussian kernel, and coalesce to lower resolution
 
     The image is blurred with a gaussian kernel of size sigma, using filtermode.
@@ -2554,18 +2554,18 @@ def blurryextract(img, inputOrigin, outputSize, blocksize, sigma, filtermode='re
 
     # filter the input image
     img = img.astype('float')
-    img = filters.gaussian_filter(img,sigma=sigma, mode=filtermode)
+    if sigma > 0:
+        img = filters.gaussian_filter(img,sigma=sigma, mode=filtermode)
+
     # slice the region from the input image
     inputUpper = [inputOrigin[0]+outputSize[0]*blocksize[0],
                   inputOrigin[1]+outputSize[1]*blocksize[1]]
     if inputUpper[0]>img.shape[0] or inputUpper[1]>img.shape[1]:
         print('blurryextract: input image too small for required output image')
         return None
-    print(inputOrigin)    
-    print(inputUpper)    
 
-    imgn = img[inputOrigin[0]:inputUpper[0],inputOrigin[1]:inputUpper[1]]
-    print(imgn[0,0])
+    imgn = img[inputOrigin[0]:inputUpper[0],inputOrigin[1]:inputUpper[1]].copy()
+
     # prepare to lower resolution: make appropriate size
     h, w = imgn.shape
     h = (h // blocksize[0])*blocksize[0]
