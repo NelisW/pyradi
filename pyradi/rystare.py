@@ -69,7 +69,7 @@ import pyradi.ryplanck as ryplanck
 
 
 ######################################################################################
-def photosensor(strh5):
+def photosensor(strh5,initialise=True):
     """This routine simulates the behaviour of a CCD/CMOS sensor, performing the conversion 
     from irradiance to electrons, then volts, and then digital numbers.
      
@@ -119,10 +119,10 @@ def photosensor(strh5):
         exit(-1)
 
     #defining the constants such as speed of light c, Plank's h, and others.
-    strh5 = set_photosensor_constants(strh5)
+    strh5 = set_photosensor_constants(strh5, initialise)
 
     #create the various data arrays
-    strh5 = check_create_datasets(strh5)
+    strh5 = check_create_datasets(strh5, initialise)
 
 
 
@@ -145,15 +145,15 @@ def photosensor(strh5):
 
         # adjust 'rystare/signal/photonRateIrradiance' with responsivity non-uniformity (PRNU)
         # diagram node 2  PRNU stored in 'rystare/signal/photonRateIrradianceNU
-    	# diagram node 3 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
+        # diagram node 3 photon rate multiplied with PRNU stored in 'rystare/signal/photonRateIrradianceNU'
         if strh5['rystare/photondetector/lightPRNU/activate'].value:
             strh5 = responsivity_FPN_light(strh5)
 
 
         # at this point the photon irradiance is converted to electrons, after all 
         # responsivity effects but excluding detector area and integration time.
-	    # diagram node 4 quantum efficiency stored in rystare/quantumEfficiency
-	    # diagram node 4 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
+        # diagram node 4 quantum efficiency stored in rystare/quantumEfficiency
+        # diagram node 4 photon rate x mean value of the quantum efficiency stored in rystare/signal/electronRateIrradiance
         strh5 = convert_to_electrons(strh5) 
 
         # multiply with the detector area
@@ -205,12 +205,12 @@ def photosensor(strh5):
     # signal's Voltage amplification by Source Follower
     # diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
     # diagram node 18 source follower signal after nonlinearity stored in 'rystare/signal/voltageAfterSF'
-    strh5 = source_follower(strh5)
+    strh5 = source_follower(strh5, initialise)
 
     # calculate the source follower noise in volts.  
     # diagram node 19 source follower noise volts stored in 'rystare/sourcefollower/source_follower_noise'
     if strh5['rystare/sourcefollower/noise/activate'].value:
-        strh5 = source_follower_noise(strh5) 
+        strh5 = source_follower_noise(strh5, initialise) 
 
 
     #add source follower noise
@@ -223,7 +223,10 @@ def photosensor(strh5):
     strh5 = fixed_pattern_offset(strh5)
 
     # diagram node 22 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltagebeforecds'
-    strh5['rystare/signal/voltagebeforecds'] = strh5['rystare/signal/voltage'].value + strh5['rystare/sourcefollower/fpoffset/value'].value
+    if (initialise):
+        strh5['rystare/signal/voltagebeforecds'] = strh5['rystare/signal/voltage'].value + strh5['rystare/sourcefollower/fpoffset/value'].value
+    else:
+        strh5['rystare/signal/voltagebeforecds'][...] = strh5['rystare/signal/voltage'].value + strh5['rystare/sourcefollower/fpoffset/value'].value
 
     # signal's amplification and de-noising by Correlated Double Sampling
     # diagram node 23 fixed pattern offset added to signal in volts stored in 'rystare/signal/voltageaftercds'
@@ -238,7 +241,7 @@ def photosensor(strh5):
     return strh5
 
 ######################################################################################
-def set_photosensor_constants(strh5):
+def set_photosensor_constants(strh5, initialise=True):
     r"""Defining the constants that are necessary for calculation of photon energy, dark current rate, etc.
 
      Args:
@@ -255,25 +258,27 @@ def set_photosensor_constants(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
    """
     #Sensor material constants    
-    strh5['rystare/material/Eg-eV'] = 0.  #bandgap still to be computed at at temperature 
+    if (initialise):
+        strh5['rystare/material/Eg-eV'] = 0.  #bandgap still to be computed at at temperature 
 
     # band gap energy, [eV], Varshni equation
     strh5['rystare/material/Eg-eV'][...] = strh5['rystare/photondetector/varshni/Egap0'].value - \
         (strh5['rystare/photondetector/varshni/varA'].value * (strh5['rystare/photondetector/operatingtemperature'].value ** 2)) /\
          (strh5['rystare/photondetector/varshni/varB'].value + strh5['rystare/photondetector/operatingtemperature'].value)
     
-    # do this always
-    strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/limitnegative'] = True # only used with 'Janesick-Gaussian' 
+    if (initialise):
+        # do this always
+        strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/limitnegative'] = True # only used with 'Janesick-Gaussian' 
 
-    #Fundamental constants
-    strh5['rystare/constants/Boltzman-Constant-eV'] = const.physical_constants['Boltzmann constant in eV/K'][0] #Boltzman constant, [eV/K].
-    strh5['rystare/constants/Boltzman-Constant-JK'] = const.physical_constants['Boltzmann constant'][0] #Boltzman constant, [J/K].
-    strh5['rystare/constants/q'] = const.e # charge of an electron [C], coulomb
+        #Fundamental constants
+        strh5['rystare/constants/Boltzman-Constant-eV'] = const.physical_constants['Boltzmann constant in eV/K'][0] #Boltzman constant, [eV/K].
+        strh5['rystare/constants/Boltzman-Constant-JK'] = const.physical_constants['Boltzmann constant'][0] #Boltzman constant, [J/K].
+        strh5['rystare/constants/q'] = const.e # charge of an electron [C], coulomb
 
     return strh5
 
 ######################################################################################
-def check_create_datasets(strh5):
+def check_create_datasets(strh5,initialise=True):
     r"""Create the arrays to store the various image-sized variables.
 
      Args:
@@ -292,66 +297,124 @@ def check_create_datasets(strh5):
     #determine the size of the sensor.
     sensor_size = strh5['rystare/imageSizePixels'].value
 
-    #pre-allocating the matrices for photons, electrons, voltages and DNs.
-    # strh5['rystare/signal/photonRateIrradiance'] = np.zeros(sensor_size)
-    strh5['rystare/signal/photonRateIrradianceNU'] = np.zeros(sensor_size)
-    strh5['rystare/signal/electronRateIrradiance'] = np.zeros(sensor_size)
-    strh5['rystare/signal/electronRate'] = np.zeros(sensor_size)
-    # strh5['rystare/signal/photonRate'] = np.zeros(sensor_size)
-    # strh5['rystare/signal/photons'] = np.zeros(sensor_size)
-    strh5['rystare/quantumEfficiency'] = np.zeros(sensor_size)
-    strh5['rystare/signal/electrons'] = np.zeros(sensor_size)
-    strh5['rystare/signal/electronsWell'] = np.zeros(sensor_size)
-    strh5['rystare/signal/darkcurrentelectrons'] = np.zeros(sensor_size)
-    strh5['rystare/signal/darkcurrentelectronsnoDFPN'] = np.zeros(sensor_size)
-    # strh5['rystare/signal/light'] = np.zeros(sensor_size)
-    strh5['rystare/signal/lightelectronsnoshotnoise'] = np.zeros(sensor_size)
-    strh5['rystare/signal/lightelectrons'] = np.zeros(sensor_size)
-    strh5['rystare/signal/sensenodevoltageLinear'] = np.zeros(sensor_size)
-    strh5['rystare/signal/voltage'] = np.zeros(sensor_size)
-    strh5['rystare/signal/voltageAfterSF'] = np.zeros(sensor_size)
-    strh5['rystare/signal/voltageAfterSFnoise'] = np.zeros(sensor_size)
-    strh5['rystare/signal/voltageaftercds'] = np.zeros(sensor_size)
+    if (initialise):
+
+        #pre-allocating the matrices for photons, electrons, voltages and DNs.
+        # strh5['rystare/signal/photonRateIrradiance'] = np.zeros(sensor_size)
+        strh5['rystare/signal/photonRateIrradianceNU'] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronRateIrradiance'] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronRate'] = np.zeros(sensor_size)
+        # strh5['rystare/signal/photonRate'] = np.zeros(sensor_size)
+        # strh5['rystare/signal/photons'] = np.zeros(sensor_size)
+        strh5['rystare/quantumEfficiency'] = np.zeros(sensor_size)
+        strh5['rystare/signal/electrons'] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronsWell'] = np.zeros(sensor_size)
+        strh5['rystare/signal/darkcurrentelectrons'] = np.zeros(sensor_size)
+        strh5['rystare/signal/darkcurrentelectronsnoDFPN'] = np.zeros(sensor_size)
+        # strh5['rystare/signal/light'] = np.zeros(sensor_size)
+        strh5['rystare/signal/lightelectronsnoshotnoise'] = np.zeros(sensor_size)
+        strh5['rystare/signal/lightelectrons'] = np.zeros(sensor_size)
+        strh5['rystare/signal/sensenodevoltageLinear'] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltage'] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageAfterSF'] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageAfterSFnoise'] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageaftercds'] = np.zeros(sensor_size)
 
 
 
-    strh5['rystare/signal/DN'] = np.zeros(sensor_size) 
-    strh5['rystare/photondetector/lightPRNU/value'] = np.zeros(sensor_size) 
-    strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/value'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/sn_reset/resetnoise'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/sn_reset/vrefreset'] = np.zeros(sensor_size) 
-    strh5['rystare/noise/sn_reset/vrefresetpluskTC'] = np.zeros(sensor_size) 
-    strh5['rystare/sourcefollower/source_follower_noise'] = np.zeros(sensor_size)
-    strh5['rystare/sourcefollower/fpoffset/value'] = np.ones(sensor_size) 
-    strh5['rystare/signal/voltagebeforeSF'] = np.zeros(sensor_size)
+        strh5['rystare/signal/DN'] = np.zeros(sensor_size) 
+        strh5['rystare/photondetector/lightPRNU/value'] = np.zeros(sensor_size) 
+        strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/value'] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/resetnoise'] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/vrefreset'] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/vrefresetpluskTC'] = np.zeros(sensor_size) 
+        strh5['rystare/sourcefollower/source_follower_noise'] = np.zeros(sensor_size)
+        strh5['rystare/sourcefollower/fpoffset/value'] = np.ones(sensor_size) 
+        strh5['rystare/signal/voltagebeforeSF'] = np.zeros(sensor_size)
 
-    strh5['rystare/ADC/gain'] = np.ones(sensor_size)
-    strh5['rystare/ADC/gainILE'] = np.ones(sensor_size)
+        strh5['rystare/ADC/gain'] = np.ones(sensor_size)
+        strh5['rystare/ADC/gainILE'] = np.ones(sensor_size)
 
-    strh5['rystare/sourcefollower/sigma'] = np.zeros((1,1)) 
-    strh5['rystare/sensenode/volt-fullwell'] = 0.
-    strh5['rystare/sensenode/volt-min'] = 0.
-    strh5['rystare/sensenode/capacitance'] = 0.
-    strh5['rystare/sensenode/ResetKTC-sigma'] = 0.
-    strh5['rystare/darkcurrentelectronsnonoise'] = 0.  
+        strh5['rystare/sourcefollower/sigma'] = np.zeros((1,1)) 
+        strh5['rystare/sensenode/volt-fullwell'] = 0.
+        strh5['rystare/sensenode/volt-min'] = 0.
+        strh5['rystare/sensenode/capacitance'] = 0.
+        strh5['rystare/sensenode/ResetKTC-sigma'] = 0.
+        strh5['rystare/darkcurrentelectronsnonoise'] = 0.
 
-    if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
-        print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
-            '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
-            'The factor is set to 1.'))
-        strh5['rystare/sensenode/resetnoise/factor'].value = 1.
-    else:
-        if (strh5['rystare/sensenode/resetnoise/factor'].value < 0):
+        if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
             print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
-            '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
-            'The factor is set to 0, SNReset noise is not simulated.'))
-            strh5['rystare/sensenode/resetnoise/factor'].value=0
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
+                'The factor is set to 1.'))
+            strh5['rystare/sensenode/resetnoise/factor'].value = 1.
+        else:
+            if (strh5['rystare/sensenode/resetnoise/factor'].value < 0):
+                print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
+                'The factor is set to 0, SNReset noise is not simulated.'))
+                strh5['rystare/sensenode/resetnoise/factor'].value=0
+    else:
+
+        #pre-allocating the matrices for photons, electrons, voltages and DNs.
+        # strh5['rystare/signal/photonRateIrradiance'] = np.zeros(sensor_size)
+        strh5['rystare/signal/photonRateIrradianceNU'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronRateIrradiance'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronRate'][...] = np.zeros(sensor_size)
+        # strh5['rystare/signal/photonRate'] = np.zeros(sensor_size)
+        # strh5['rystare/signal/photons'] = np.zeros(sensor_size)
+        strh5['rystare/quantumEfficiency'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/electrons'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/electronsWell'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/darkcurrentelectrons'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/darkcurrentelectronsnoDFPN'][...] = np.zeros(sensor_size)
+        # strh5['rystare/signal/light'] = np.zeros(sensor_size)
+        strh5['rystare/signal/lightelectronsnoshotnoise'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/lightelectrons'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/sensenodevoltageLinear'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltage'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageAfterSF'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageAfterSFnoise'][...] = np.zeros(sensor_size)
+        strh5['rystare/signal/voltageaftercds'][...] = np.zeros(sensor_size)
+
+
+
+        strh5['rystare/signal/DN'][...] = np.zeros(sensor_size) 
+        strh5['rystare/photondetector/lightPRNU/value'][...] = np.zeros(sensor_size) 
+        strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/value'][...] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/resetnoise'][...] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/vrefreset'][...] = np.zeros(sensor_size) 
+        strh5['rystare/noise/sn_reset/vrefresetpluskTC'][...] = np.zeros(sensor_size) 
+        strh5['rystare/sourcefollower/source_follower_noise'][...] = np.zeros(sensor_size)
+        strh5['rystare/sourcefollower/fpoffset/value'][...] = np.ones(sensor_size) 
+        strh5['rystare/signal/voltagebeforeSF'][...] = np.zeros(sensor_size)
+
+        strh5['rystare/ADC/gain'][...] = np.ones(sensor_size)
+        strh5['rystare/ADC/gainILE'][...] = np.ones(sensor_size)
+
+        strh5['rystare/sourcefollower/sigma'][...] = np.zeros((1,1)) 
+        strh5['rystare/sensenode/volt-fullwell'][...] = 0.
+        strh5['rystare/sensenode/volt-min'][...] = 0.
+        strh5['rystare/sensenode/capacitance'][...] = 0.
+        strh5['rystare/sensenode/ResetKTC-sigma'][...] = 0.
+        strh5['rystare/darkcurrentelectronsnonoise'][...] = 0.  
+
+        if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
+            print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
+                'The factor is set to 1.'))
+            strh5['rystare/sensenode/resetnoise/factor'].value = 1.
+        else:
+            if (strh5['rystare/sensenode/resetnoise/factor'].value < 0):
+                print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
+                'The factor is set to 0, SNReset noise is not simulated.'))
+                strh5['rystare/sensenode/resetnoise/factor'].value=0
 
 
     return strh5
 
 ######################################################################################
-def source_follower(strh5):
+def source_follower(strh5,initialise=True):
     r"""The amplification of the voltage from Sense Node by Source Follower.
 
     Conventional sensor use a floating-diffusion sense node followed by a
@@ -415,23 +478,26 @@ def source_follower(strh5):
     strh5['rystare/signal/voltagebeforeSF'][...] = strh5['rystare/signal/voltage'].value
 
     sones =  np.ones(strh5['rystare/imageSizePixels'].value)
-    strh5['rystare/sourcefollower/gainA'] = strh5['rystare/sourcefollower/gain'].value * sones
+    if (initialise):
+        strh5['rystare/sourcefollower/gainA'] = strh5['rystare/sourcefollower/gain'].value * sones
+    else:
+        strh5['rystare/sourcefollower/gainA'][...] = strh5['rystare/sourcefollower/gain'].value * sones
 
     # calculating Source Follower VV non-linearity
     if strh5['rystare/sourcefollower/nonlinearity/activate'].value:
 
-     #    nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
-     #          (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
-    	# # diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
-     #    strh5['rystare/sourcefollower/gainA'][...] = sones * nonlinearity_alpha * \
-     #            ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
-     #            (strh5['rystare/sensenode/vrefreset'].value)) + \
-     #            (strh5['rystare/sourcefollower/gain'].value)
+        #    nonlinearity_alpha = (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1) * \
+        #          (strh5['rystare/sourcefollower/gain'].value  / strh5['rystare/sensenode/volt-fullwell'].value)
+        # # diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
+        #    strh5['rystare/sourcefollower/gainA'][...] = sones * nonlinearity_alpha * \
+        #            ((strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
+        #            (strh5['rystare/sensenode/vrefreset'].value)) + \
+        #            (strh5['rystare/sourcefollower/gain'].value)
                        
-    	# diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
+        # diagram node 17 source follower nonlinearity stored in 'rystare/sourcefollower/gainA'
         nonlinearity_alpha = sones * (strh5['rystare/sourcefollower/nonlinearity/ratio'].value - 1.) 
         strh5['rystare/sourcefollower/gainA'][...] =  strh5['rystare/sourcefollower/gain'].value * \
-        	(sones - nonlinearity_alpha * \
+            (sones - nonlinearity_alpha * \
                 (strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/signal/voltage'].value) / \
                    (strh5['rystare/sensenode/vrefreset'].value - strh5['rystare/sensenode/volt-fullwell'].value) )
 
@@ -1022,7 +1088,7 @@ def dark_current_and_dark_noises(strh5):
 
 
 ######################################################################################
-def source_follower_noise(strh5):
+def source_follower_noise(strh5,initialise=True):
     r"""The source follower noise routine, calculates noise in volts.
 
     The pixel's source follower noise limits the read noise, however in high-end CCD and CMOS cameras the source 
@@ -1127,27 +1193,43 @@ def source_follower_noise(strh5):
     #frequency, with delta_f as a spacing.
     numFsamp = strh5['rystare/sourcefollower/dataclockspeed'].value / strh5['rystare/sourcefollower/freqsamplingdelta'].value
     f = np.linspace(1., strh5['rystare/sourcefollower/dataclockspeed'].value, numFsamp).reshape(1,-1)
-    strh5['rystare/sourcefollower/noise/spectralfreq'] = f
+    if (initialise):
+        strh5['rystare/sourcefollower/noise/spectralfreq'] = f
+    else:
+        strh5['rystare/sourcefollower/noise/spectralfreq'][...] = f
 
     #CDS transfer function
     H_CDS = (2. - 2. * np.cos(2. * np.pi * strh5['rystare/sourcefollower/CDS/sampletosamplingtime'].value * f)) / (1. + (2. * np.pi * tau_D * f) ** 2) 
-    strh5['rystare/sourcefollower/noise/cdsgain'] = H_CDS
+    if (initialise):
+        strh5['rystare/sourcefollower/noise/cdsgain'] = H_CDS
+    else:
+        strh5['rystare/sourcefollower/noise/cdsgain'][...] = H_CDS
 
     # RTN noise only in CMOS photosensors
     S_RTN = np.zeros(f.shape)
     if strh5['rystare/sensortype'].value in ['CMOS']:  
         S_RTN = (2. * ((strh5['rystare/sourcefollower/noise/deltaindmodulation'].value) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
-    strh5['rystare/sourcefollower/noise/spectrumRTN'] = S_RTN
+
+    if (initialise):
+        strh5['rystare/sourcefollower/noise/spectrumRTN'] = S_RTN
+    else:
+        strh5['rystare/sourcefollower/noise/spectrumRTN'][...] = S_RTN
 
 
 
     # white and 1/f noise
     W_SF = (strh5['rystare/sourcefollower/noise/whitenoisedensity'].value ** 2) * (1. + strh5['rystare/sourcefollower/noise/flickerCornerHz'].value / f) 
-    strh5['rystare/sourcefollower/noise/spectrumwhiteflicker'] = W_SF
+    if (initialise):
+        strh5['rystare/sourcefollower/noise/spectrumwhiteflicker'] = W_SF
+    else:
+        strh5['rystare/sourcefollower/noise/spectrumwhiteflicker'][...] = W_SF
 
     #total noise
     S_SF =  W_SF + S_RTN 
-    strh5['rystare/sourcefollower/noise/spectrumtotal'] = S_SF
+    if (initialise):
+        strh5['rystare/sourcefollower/noise/spectrumtotal'] = S_SF
+    else:
+        strh5['rystare/sourcefollower/noise/spectrumtotal'][...] = S_SF
 
     #Calculating the std of SF noise:
     nomin = np.sqrt(strh5['rystare/sourcefollower/freqsamplingdelta'].value * np.dot(S_SF, H_CDS.T))
