@@ -1,6 +1,6 @@
 # HDF5 as Data Format in Python
 
-##Overview
+## Overview
 
 [HDF5](http://en.wikipedia.org/wiki/Hierarchical_Data_Format) is a data model, library, and file format for storing and managing data. It supports an unlimited variety of datatypes, and is designed for flexible and efficient I/O and for high volume and complex data. HDF5 is portable and is extensible, allowing applications to evolve in their use of HDF5. The HDF5 Technology suite includes tools and applications for managing, manipulating, viewing, and analyzing data in the HDF5 format [[from HDF5 web page](https://www.hdfgroup.org/HDF5/)].  The HDF5 format can be read and written in many computer languages, such as C and C++, but also from [Python](http://www.h5py.org/) and [Matlab](http://de.mathworks.com/help/matlab/hdf5-files.html).  There are also support in the form of [file viewing tools](https://www.hdfgroup.org/HDF5/Tutor/tools.html).
 
@@ -26,16 +26,16 @@ HDF5 pitfalls:
 - HDF5 is not thread-safe in all cases: one has to ensure, that the library was compiled with the correct options
 - changing h5 datasets (resize, delete etc.) blows up the file size (in the best case) or is impossible (in the worst case the whole hdf5 file has to be copied to flatten it again).
 
-#HDF5 in Python
+# HDF5 in Python
 
-##Motivation for using HDF5 in pyradi.rystare
+## Motivation for using HDF5 in pyradi.rystare
 
 An HDF5 file is a convenient means to store data in a structure.  In pyradi.rystare it is used to store all input and output data in one collective location.  This is a convenient way to keep track of all the variables in one place.  
 
 Using HDF5 for this purpose is definitely more verbose and requires careful coding to keep track of the `[...]` and `.value` constructs.
 
 
-##Opening a file and creating variables
+## Opening a file and creating variables
 
 To open an HDF5 file. The data in this file will be written when the data is updated or the app is closed.
 
@@ -156,8 +156,18 @@ So in summary the using variables in the HDF5 file is as follows:
 - `hdf5file['group path'].value`  is used when reading the variable.
 - `hdf5file['group path'][...]`  is used when assigning to an existing variable.
 
+This function could help with assigning to new and existing paths:
 
-###Iterating through the file
+    def assigncheck(hdf5,path,value):
+        """assign a value to a path, checking for prior existence
+        """
+        if path in hdf5:
+            hdf5[path][...] = value
+        else:
+            hdf5[path] = value
+
+
+### Iterating through the file
 To print a complete list of all the branches in the file  
 
     def printname(name):
@@ -177,7 +187,7 @@ To build a list of  all dataset values at the end of group paths:
     hdf5File.visit(mylist.append)
     print(mylist)
 
-##Flushing and closing file contents
+## Flushing and closing file contents
 The `flush()` function flushes all changed data to file and `close()` closes the file.
 
 	g = erase_create_HDF('test.hdf5')
@@ -186,7 +196,7 @@ The `flush()` function flushes all changed data to file and `close()` closes the
 	g.close()
 
 
-#Viewing HDF5 File Contents
+# Viewing HDF5 File Contents
 
 The [HDFView tool](https://www.hdfgroup.org/products/java/hdfview/index.html) allows you to browse through the file and view its contents.  The viewer allows you to plot vector-style variables as graphs (up to ten lines are drawn).  Two-dimensional arrays van be plotted along rows or columns.  You can also view the properties and attributes of variables in the file.
 

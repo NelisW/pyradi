@@ -54,6 +54,18 @@ import pyradi.ryplot as ryplot
 import pyradi.ryprob as ryprob
 import pyradi.ryplanck as ryplanck
 
+
+
+######################################################################################
+def assigncheck(hdf5,path,value):
+    """assign a value to a path, checking for prior existence
+    """
+    if path in hdf5:
+        hdf5[path][...] = value
+    else:
+        hdf5[path] = value
+
+
 ######################################################################################
 def hdf_Uniform(imghd5,rad_dynrange):
     r"""A generating function to create a uniform photon rate image.
@@ -76,16 +88,16 @@ def hdf_Uniform(imghd5,rad_dynrange):
 
     Author: CJ Willers
     """
-    
+
     # convert to radiance values in photon units
-    imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
-    imghd5['image/rad_min'] = 0. 
+    assigncheck(imghd5,'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_min',0.)
+    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
+    # imghd5['image/rad_min'] = 0. 
 
     # create photon rate radiance image from min to min+dynamic range, with no noise
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
                      rad_dynrange * np.ones((imghd5['image/imageSizePixels'].value)) 
-
-    imghd5.flush()
 
     return imghd5 
 
@@ -116,12 +128,21 @@ def hdf_disk_photon(imghd5,rad_min,rad_dynrange,fracdiameter,fracblur):
     """
 
     # convert to radiance values in photon units
-    imghd5['image/rad_dynrange'] = rad_dynrange  * imghd5['image/conversion'].value
-    imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange  * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
     # scale the disk to image size, as fraction
     maxSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
-    imghd5['image/disk_diameter'] = fracdiameter * maxSize
-    imghd5['image/blur'] = fracblur * maxSize
+    assigncheck(imghd5,'image/disk_diameter',fracdiameter * maxSize)
+    assigncheck(imghd5,'image/blur',fracblur * maxSize)
+
+    # imghd5['image/rad_dynrange'] = rad_dynrange  * imghd5['image/conversion'].value
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    # # scale the disk to image size, as fraction
+    # maxSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
+    # imghd5['image/disk_diameter'] = fracdiameter * maxSize
+    # imghd5['image/blur'] = fracblur * maxSize
+
+
 
     #create the disk, normalised to unity
     varx = np.linspace(-imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizePixels'].value[1])
@@ -176,13 +197,15 @@ def hdf_stairs(imghd5,rad_min,rad_dynrange,steps,imtype):
 
     Author: CJ Willers
     """
-
     # convert to radiance values in photon units
-    imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
-    imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
-
-    imghd5['image/steps'] = steps 
-    imghd5['image/imtype'] = imtype
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/steps',steps)
+    assigncheck(imghd5,'image/imtype',imtype)
+    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    # imghd5['image/steps'] = steps 
+    # imghd5['image/imtype'] = imtype
 
     #Create the stairs spatial definition
     size = imghd5['image/imageSizePixels'].value[1]
@@ -251,10 +274,12 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     """
 
     # print(filename,inputSize,outputSize,rad_min,rad_dynrange, imgNum,inputOrigin,blocksize,sigma)
-
-    imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
-    imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
-    imghd5['image/filename'] = filename 
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/filename',filename)
+     # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    # imghd5['image/filename'] = filename 
 
     # read the imgNum'th raw image frame from file
     nfr,img = ryfiles.readRawFrames(filename, rows=inputSize[0], cols=inputSize[1],
@@ -285,20 +310,23 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     # save the no noise image
     imghd5['image/PhotonRateRadianceNoNoise'][...] = PhotonRateRadianceNoNoise
 
-    imghd5.flush()
-
     return imghd5 
+
 
 
 ######################################################################################
 def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     saveNoiseImage=False,saveEquivImage=False,
-    equivalentSignalType='',equivalentSignalUnit='', LinUnits='', seedval=0,fintp=None):
+    equivalentSignalType='',equivalentSignalUnit='', LinUnits='', seedval=0,fintp=None,
+    fileHandle=None):
     r"""This routine serves as calling function to a generating function to create images.
     This function expects that the calling function will return photon rate images,
     irrespective of the units of the min/max values used to create the image.
     Each generating function creates an image of a different type, taking as input
     radiant, photon rate, temperature or some other unit, as coded in the generating function.
+
+    if fileHandle is None, the file is created anew, if fileHandle is not None, use  as 
+    existing file handle
 
     This calling function sets up the image and writes common information and then calls the 
     generating function of add the specific image type with radiometric units required.
@@ -339,7 +367,7 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
 
     Args:
-        | imageName (string): the image name, used to form the filename.
+        | imageName (string/hdffile): the image name, used to form the filename.
         | numPixels ([int, int]): number of pixels [row,col].
         | fn (Python function): the generating function to be used to calculate the image.
         | kwargs (dictionary): kwargs to the passed to the generating function.
@@ -351,9 +379,10 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
         | saveNoiseImage (bool): save the noisy image to HDF5 file
         | saveEquivImage (bool): save the equivalent image to HDF5 file
         | fintp (function): interpolation function to map from radiance to equivalent unit
+        | fileHandle (filehandle): create new file None, use otherwise
 
     Returns:
-        | hdffilename (string): hdf5 filename
+        | string/hdffile (string): hdf5 filename or open file
         |                     : as a side effect an image file is written
 
     Raises:
@@ -361,38 +390,66 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
     Author: CJ Willers
     """
+    # # see if the input is a string
+    # inpstr = False
+    # if sys.version_info[0] > 2:
+    #     inpstr = isinstance(imageName, str)
+    # else:
+    #     inpstr = isinstance(imageName, basestring)
 
     hdffilename = 'image-{}-{}-{}.hdf5'.format(imageName, numPixels[0], numPixels[1])
-    imghd5 = ryfiles.erase_create_HDF(hdffilename)
-    imghd5['image/imageName'] = imageName
-    imghd5['image/imageSizePixels'] = numPixels
-    imghd5['image/imageSizeRows'] = numPixels[0]
-    imghd5['image/imageSizeCols'] = numPixels[1]
-    imghd5['image/imageFilename'] = hdffilename
-    imghd5['image/equivalentSignalType'] = equivalentSignalType
-    imghd5['image/equivalentSignalUnit'] = equivalentSignalUnit
-    imghd5['image/LinUnits'] = LinUnits
-    imghd5['image/saveNoiseImage'] = saveNoiseImage
-    imghd5['image/saveEquivImage'] = saveEquivImage
-    dset = imghd5.create_dataset('image/equivalentSignal', numPixels, dtype='float', compression="gzip")
-    dset = imghd5.create_dataset('image/PhotonRateRadianceNoNoise', numPixels, dtype='float', compression="gzip")
-    dset = imghd5.create_dataset('image/PhotonRateRadiance', numPixels, dtype='float', compression="gzip")
+    if fileHandle is None:
+        imghd5 = ryfiles.erase_create_HDF(hdffilename)
+    else:
+        imghd5 = fileHandle
+    
+    assigncheck(imghd5,'image/imageName',imageName)
+    assigncheck(imghd5,'image/imageSizePixels',numPixels)
+    assigncheck(imghd5,'image/imageSizeRows',numPixels[0])
+    assigncheck(imghd5,'image/imageSizeCols',numPixels[1])
+    assigncheck(imghd5,'image/imageFilename',hdffilename)
+    assigncheck(imghd5,'image/equivalentSignalType',equivalentSignalType)
+    assigncheck(imghd5,'image/equivalentSignalUnit',equivalentSignalUnit)
+    assigncheck(imghd5,'image/LinUnits',LinUnits)
+    assigncheck(imghd5,'image/saveNoiseImage',saveNoiseImage)
+    assigncheck(imghd5,'image/saveEquivImage',saveEquivImage)
+    # imghd5['image/imageName'] = imageName
+    # imghd5['image/imageSizePixels'] = numPixels
+    # imghd5['image/imageSizeRows'] = numPixels[0]
+    # imghd5['image/imageSizeCols'] = numPixels[1]
+    # imghd5['image/imageFilename'] = hdffilename
+    # imghd5['image/equivalentSignalType'] = equivalentSignalType
+    # imghd5['image/equivalentSignalUnit'] = equivalentSignalUnit
+    # imghd5['image/LinUnits'] = LinUnits
+    # imghd5['image/saveNoiseImage'] = saveNoiseImage
+    # imghd5['image/saveEquivImage'] = saveEquivImage
+
+    if 'image/equivalentSignal' not in imghd5:
+        dset = imghd5.create_dataset('image/equivalentSignal', numPixels, dtype='float', compression="gzip")
+    if 'image/PhotonRateRadianceNoNoise' not in imghd5:
+        dset = imghd5.create_dataset('image/PhotonRateRadianceNoNoise', numPixels, dtype='float', compression="gzip")
+    if 'image/PhotonRateRadiance' not in imghd5:
+        dset = imghd5.create_dataset('image/PhotonRateRadiance', numPixels, dtype='float', compression="gzip")
     #photon rate radiance in the image ph/(m2.s), with no photon noise, will be filled by rendering function
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
               np.zeros((imghd5['image/imageSizePixels'].value[0],imghd5['image/imageSizePixels'].value[1]))
 
-    imghd5['image/wavelength'] = wavelength
+    assigncheck(imghd5,  'image/wavelength',wavelength)
+     # imghd5['image/wavelength'] = wavelength
+
     # use units to determine if photon rate or watts
     # joule/photon factor to convert between W/m2 and q/(s.m2)
-    if isinstance( imghd5['image/wavelength'], float):   
-        imghd5['image/joule_per_photon'] = const.h * const.c / imghd5['image/wavelength'].value
+    if isinstance( imghd5['image/wavelength'].value, float):   
+        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / imghd5['image/wavelength'].value)
+        # imghd5['image/joule_per_photon'] = const.h * const.c / imghd5['image/wavelength'].value
     else:
-        imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'].value)
-        
-    imghd5['image/conversion'] = 1.0 if 'q/' in imghd5['image/LinUnits'].value[:3] \
+        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / np.mean(imghd5['image/wavelength'].value))        
+        # imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'].value)
+    conversion =  1.0 if 'q/' in imghd5['image/LinUnits'].value[:3] \
                                         else 1. / imghd5['image/joule_per_photon'].value
+    assigncheck(imghd5,'image/conversion',conversion)                                 
+    # imghd5['image/conversion'] = conversion
         
-
     kwargs['imghd5'] = imghd5
     # call the function that actually generates the image
     imghd5 = fn(**kwargs)
@@ -408,8 +465,10 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
             # save equivalent signal  (e.g., temperature or lux), by interpolation
             imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'].value)
             # save the interpolation function to hdf5
-            imghd5['image/interpolate_x'] = fintp.x
-            imghd5['image/interpolate_y'] = fintp.y
+            assigncheck(imghd5,'image/interpolate_x',fintp.x)
+            assigncheck(imghd5,'image/interpolate_y',fintp.y)
+            # imghd5['image/interpolate_x'] = fintp.x
+            # imghd5['image/interpolate_y'] = fintp.y
         else:
             # save nonoise image as equivalent signal 
             imghd5['image/equivalentSignal'][...] = imghd5['image/PhotonRateRadianceNoNoise'].value
@@ -422,11 +481,12 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
 
 ######################################################################################
-def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
+def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     r"""Summarise the image properties and statistics
 
     Args:
-        | imghd5 (handle to hdf5 file): file to be analysed
+        | imghd5 (handle to an open hdf5 file): file to be analysed
+        | plotfile(string): filename for plot graphics
         | gwidh (float): graph width in inches
         | gheit (float): graph height in inches
 
@@ -440,8 +500,6 @@ def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
     """
     from scipy import stats
     import pyradi.ryplot
-
-    imghd5 = ryfiles.open_HDF(hdffilename)
 
     #calculate and display values of these variables
     elements = ['image/imageFilename','image/imageName','image/filename','image/rad_dynrange',
@@ -457,7 +515,8 @@ def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
             print('{:30s} : {}'.format(item,imghd5[item].value))
 
     # wavelength as scalar or vector
-    if isinstance( imghd5['image/wavelength'], float):   
+    print(imghd5)
+    if isinstance( imghd5['image/wavelength'].value, float):   
         print('{:30s} : {}'.format('wavelength',imghd5['image/wavelength'].value))
     else:
         print('{:30s} : {}'.format('wavelength (mean)',np.mean(imghd5['image/wavelength'].value)))
@@ -472,7 +531,7 @@ def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
             print(stats.describe(imghd5[item].value,axis=None))
 
     # plot the images
-    p = ryplot.Plotter(1,3,1,hdffilename, figsize=(gwidh,gheit))
+    p = ryplot.Plotter(1,3,1,plotfile, figsize=(gwidh,gheit))
     for item in ['image/PhotonRateRadianceNoNoise','image/PhotonRateIrradianceNoNoise']:
         if item in imghd5:
             p.showImage(1,imghd5[item].value,item,cbarshow=True)
@@ -484,16 +543,40 @@ def analyse_HDF5_image(hdffilename,gwidh=12,gheit=8):
     if 'image/equivalentSignal' in imghd5:
         p.showImage(3,imghd5['image/equivalentSignal'].value,'image/equivalentSignal',cbarshow=True)
 
-    p.saveFig('{}.png'.format(hdffilename[:-5]))
+    p.saveFig('{}.png'.format(plotfile))
 
     # plot interpolation function
     if 'image/interpolate_x' in imghd5:
-        q = ryplot.Plotter(1,1,1,hdffilename, figsize=(12,6))
+        q = ryplot.Plotter(1,1,1,plotfile, figsize=(12,6))
         q.plot(1,imghd5['image/interpolate_x'].value,imghd5['image/interpolate_y'].value)
-        q.saveFig('{}-lookup.png'.format(hdffilename[:-5]))
+        q.saveFig('{}-lookup.png'.format(plotfile))
 
     print(50*'='+'\n\n')
 
+
+
+
+######################################################################################
+def analyse_HDF5_imageFile(hdffilename,gwidh=12,gheit=8):
+    r"""Summarise the image properties and statistics
+
+    Args:
+        | imghd5 (hdf5 filename): file to be analysed
+        | gwidh (float): graph width in inches
+        | gheit (float): graph height in inches
+
+    Returns:
+        | nothing: as a side effect a set properties are written and graphs created
+
+    Raises:
+        | No exception is raised.
+
+    Author: CJ Willers
+    """
+
+    imghd5 = ryfiles.open_HDF(hdffilename)
+    analyse_HDF5_image(imghd5,plotfile=hdffilename[:-5],gwidh=gwidh,gheit=gheit)
+    imghd5.close()
 
 
 ######################################################################################
@@ -591,7 +674,10 @@ if __name__ == '__main__':
             fn=hdf_Uniform, kwargs={'rad_dynrange':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=None )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
+
+
+
 
         #create a uniform photon rate image with nonzero value, from radiance input
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
@@ -601,7 +687,7 @@ if __name__ == '__main__':
             fn=hdf_Uniform, kwargs={'rad_dynrange':1.3e17},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=None )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
 
         # create a disk photon rate image, scaled from unity base, by min + dynamic range
@@ -613,7 +699,7 @@ if __name__ == '__main__':
                 'fracdiameter':0.7,'fracblur':0.2},
             equivalentSignalType='Irradiance',equivalentSignalUnit='q/(s.m2.sr)', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=None )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
          
         # create stair photon rate image, scaled from unity base, by min + dynamic range
@@ -629,7 +715,7 @@ if __name__ == '__main__':
                 'imtype':'stairslin','steps':10},
                 equivalentSignalType='Irradiance',equivalentSignalUnit='lux',
                 LinUnits=LinUnits, seedval=0,fintp=fintp )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
 
         # create stair photon rate image, scaled from unity base, by min + dynamic range
@@ -645,7 +731,7 @@ if __name__ == '__main__':
                 'imtype':'stairslin','steps':40},
                 equivalentSignalType='Irradiance',equivalentSignalUnit='lux', 
                 LinUnits=LinUnits, seedval=0,fintp=fintp )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
         # create stair photon rate image, scaled from unity base, by min + dynamic range
         # low light level input in W/m2,  output in q/(s.m2), equivalent in lux units 
@@ -660,27 +746,33 @@ if __name__ == '__main__':
                 'imtype':'stairslin','steps':40},
             equivalentSignalType='Irradiance',equivalentSignalUnit='lux', 
             LinUnits='W/(m2.sr)', seedval=0,fintp=fintp )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
         # create photon rate image from raw, unscaled 
         filename = create_HDF5_image(imageName='PtaInd-13Dec14h00X',
             numPixels=[512,512],wavelength=4.5e-6,
             saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/PtaInd-13Dec14h00X.bin',
+                'inputSize':[512,512],'outputSize':[512,512],
                 'rad_min':-1,'rad_dynrange':-1,'imgNum':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='W/m2', 
             LinUnits='W/(m2.sr)', seedval=0,fintp=None )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
+
+
+# def hdf_Raw(imghd5,filename,inputSize,outputSize,rad_min=-1,rad_dynrange=-1, imgNum=0,
+# inputOrigin=[0,0],blocksize=[1,1],sigma=0):
 
         # create photon rate image from raw, unscaled 
         filename = create_HDF5_image(imageName='StairIR-raw',
             numPixels=[100,256],wavelength=4.5e-6,
             saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/StairIR-raw.double',
+                'inputSize':[100,256],'outputSize':[100,256],
                 'rad_min':-1,'rad_dynrange':-1,'imgNum':0},
             equivalentSignalType='Irradiance',equivalentSignalUnit='W/m2', 
             LinUnits='W/(m2.sr)', seedval=0,fintp=None )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
        #create an infrared image with lin stairs
         # work in temperature
@@ -690,10 +782,6 @@ if __name__ == '__main__':
         wavelength = np.linspace(3.4,4.9,100)
         sysresp = np.ones(wavelength.shape)
         fintpLE,fintpEL = calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax)
-
-        print(tmin,np.min(fintpEL.x))
-        print(tmax,np.max(fintpEL.x))
-
         filename = create_HDF5_image(imageName='StairslinIR-40',  
             numPixels=[100,520],wavelength=wavelength,
             saveNoiseImage=True,saveEquivImage=True,
@@ -702,7 +790,7 @@ if __name__ == '__main__':
                 'imtype':'stairslin','steps':40},
             equivalentSignalType='Temperature',equivalentSignalUnit='K', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=fintpLE )
-        analyse_HDF5_image(filename,15,7)
+        analyse_HDF5_imageFile(filename,15,7)
 
         #create a scaled infrared image derived  from raw input image
         # use temperatures to define min and max values to which the
@@ -718,11 +806,12 @@ if __name__ == '__main__':
             numPixels=[512,512],wavelength=4.5e-6,
             saveNoiseImage=True,saveEquivImage=True,
             fn=hdf_Raw, kwargs={'filename':'data/PtaInd-13Dec14h00X.bin',
+                'inputSize':[512,512],'outputSize':[512,512],
                 'rad_min':fintpEL(tmin),'rad_dynrange':fintpEL(tmax) -fintpEL(tmin),
                 'imgNum':0},
             equivalentSignalType='Temperature',equivalentSignalUnit='K', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=fintpLE )
-        analyse_HDF5_image(filename,15,7)
+        analyse_HDF5_imageFile(filename,15,7)
 
         #create a uniform photon rate image with nonzero value, for given temperature
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
@@ -738,7 +827,7 @@ if __name__ == '__main__':
             fn=hdf_Uniform, kwargs={'rad_dynrange':fintpEL(tuniform)},
             equivalentSignalType='Temperature',equivalentSignalUnit='K', 
             LinUnits='q/(s.m2.sr)', seedval=0,fintp=fintpLE )
-        analyse_HDF5_image(filename)
+        analyse_HDF5_imageFile(filename)
 
 
 

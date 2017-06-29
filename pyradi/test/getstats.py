@@ -6,4 +6,4 @@ filenames = ['image-Disk-256-256.hdf5','image-rawFile-512-512.hdf5',
 'image-Uniform-256-256.hdf5','image-Zero-256-256.hdf5'
 ]
 for filename in filenames:
-    rytarggen.analyse_HDF5_image(filename,gwidh=18,gheit=12)
+    rytarggen.analyse_HDF5_imageFile(filename,gwidh=18,gheit=12)
