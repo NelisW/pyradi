@@ -48,7 +48,6 @@ __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
          'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms']
 
 import sys
-from scipy.interpolate import interp1d
 import numpy as np
 import os.path, fnmatch
 from matplotlib import cm as mcm
@@ -134,6 +133,8 @@ def loadColumnTextFile(filename, loadCol=[1],  \
     Raises:
         | No exception is raised.
     """
+    
+    from scipy.interpolate import interp1d
 
     #prepend the 0'th column to the rest of the list, make local copy first
     ldCol = loadCol[:]
@@ -549,12 +550,11 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     """
     if useRegex:
         import re
-        
+
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
     filenames = []
     filertn = []
-
 
     if sys.version_info[0] < 3:
 
@@ -595,6 +595,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                     for dirn in dirnames:
                         # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
                         filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
+
         for name in filenames:
             if return_folders or os.path.isfile(name):
                 for pattern in pattern_list:
@@ -605,7 +606,8 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                             filertn.append(name)
                             break
                     else:
-                        if fnmatch.fnmatch(name, pattern):
+                        # split only the filename to compare, discard folder path
+                        if fnmatch.fnmatch(os.path.basename(name), pattern):
                             filertn.append(name)
                             break
     return filertn

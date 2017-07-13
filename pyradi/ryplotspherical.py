@@ -21,6 +21,10 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
+Mayavi appears to be now available for Python 3.5 (but not 3.6) on the menpo repo:
+https://anaconda.org/menpo/mayavi
+conda install -c menpo mayavi=4.5.0 
+
 
 Please note that all mayavi-based code has been commented out.
 This is because Mayavi is (1) not available in Anaconda and (2) not
