@@ -849,7 +849,7 @@ class Plotter:
         Subplot numbers range from 1 upwards.
 
         Use as follows to draw a horizontal line in plot:
-            p.plot(1,*p.verticalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
+            p.plot(1,*p.horizontalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
 
             Args:
                 | subplotNumer (int) : number of the subplot

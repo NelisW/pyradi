@@ -48,7 +48,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'rect', 'circ','poissonarray','draw_siemens_star','drawCheckerboard',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
          'Atmo','Sensor','Target','calcMTFwavefrontError',
-         'polar2cartesian','warpPolarImageToCartesianImage',
+         'polar2cartesian','warpPolarImageToCartesianImage','warpCartesianImageToPolarImage',
          'intify_tuple','differcommonfiles','blurryextract'
          ]
 
@@ -1685,14 +1685,14 @@ def polar2cartesian(xycoords, inputshape, origin):
     x = xindex - x0
     y = yindex - y0
 
-    r = np.sqrt(x**2 + y**2)
-    theta = np.arctan2(y, x)
+    r = int(round(np.sqrt(x**2 + y**2)))
+    theta = np.arctan2(x,-y)
     theta_index = np.round((theta + np.pi) * (inputshape[1]-1.) / (2 * np.pi))
 
     return (r,theta_index)
 
 ##############################################################################################
-def warpPolarImageToCartesianImage(mesh):
+def warpPolarImageToCartesianImage(mesh,order=0):
     """Convert an image in (r,theta) format to (x,y) format
     
     The 0th and 1st axes correspond to r and theta, respectively.
@@ -1723,9 +1723,75 @@ def warpPolarImageToCartesianImage(mesh):
 
     output_shape=(mesh.shape[0] * 2, mesh.shape[0] * 2)
     mesh_cart = sp.ndimage.geometric_transform(mesh, polar2cartesian,
-                order=0,output_shape=output_shape, 
+                order=order,output_shape=output_shape, 
             extra_keywords={'inputshape':mesh.shape,'origin':(mesh.shape[0], mesh.shape[0])})
     return mesh_cart
+
+
+##############################################################################################
+def warpCartesianImageToPolarImage(mesh,order=0):
+    """Convert an image in (x,y) format to (r,theta) format 
+    
+    The 0th and 1st axes correspond to x and y, respectively.
+    size along x and y must be equal and the conversion origin is assumed
+    in the center of the image.
+    theta goes from 0 to 2pi, and r's units are just its indices.
+    output image is the same length as x and y in one axes and sqrt(2) bigger
+    in the other axis. 
+    
+    Args:
+         | mesh (np.array) : array in x,y coordinates
+
+    Returns:
+         | mesh_Polar (np.array) : array in r,theta coordinates
+
+    Raises:
+        | No exception is raised.
+    """
+    import scipy as sp
+    from scipy import ndimage
+    output_shape=(int(mesh.shape[0]/np.sqrt(2)), mesh.shape[1] )
+    mesh_Polar = sp.ndimage.geometric_transform(mesh, cartesian2polar,
+                output_shape=output_shape,order=order,
+            extra_keywords={'inputshape':mesh.shape,'origin':(mesh.shape[0]/2.,mesh.shape[1]/2.)}
+            )
+    return mesh_Polar
+
+
+##############################################################################################
+# to map an cartesian  cartesian (x,y) image to (r,theta)
+def cartesian2polar(rtcoords, inputshape,origin):
+# def cartesian2polar(rtcoords):
+    """Converting Cartesian (x,y) to polar (r,theta) array indices. 
+
+    This function is called from scipy.ndimage.geometric_transform which calls this function 
+    as follows:
+    cartesian2polar: A callable object that accepts a tuple of length equal to the output 
+    array rank, and returns the corresponding input coordinates as a tuple of length equal 
+    to the input array rank.
+    
+    the x,y coords maps from -r to +r. theta goes from 0 to 2pi.  
+
+    Args:
+        | rtcoords (tuple): r, theta  values for which xy coords must be found
+        | inputshape (tuple):  shape of the cartesian input array
+        | origin (tuple):  x and y indices of where the origin should be in the output array
+
+    Returns:
+         | r,theta_index (tuple) : indices into the the r,theta array corresponding to xycoords
+
+    Raises:
+        | No exception is raised.
+    
+    """
+
+    r, t = rtcoords
+    t = - (t / (inputshape[1]-1.))*(2 * np.pi)
+    x = int( round(r*np.sin(t) + np.sqrt(1)*origin[0]))
+    y = int( round(r*np.cos(t) + np.sqrt(1)*origin[1]))
+
+    return (x,y)
+
 
 ##############################################################################################
 ##############################################################################################
@@ -2645,6 +2711,19 @@ if __name__ == '__main__':
         p.showImage(2, mesh_cart);
         p.saveFig('warpPolarImageToCartesianImage.png')
 
+        if False:
+            # this takes a while to compute
+            filename = 'data/images/testimage01.png'
+            files = filename.split('.')[0]
+            im = scipy.ndimage.imread('testimage01.png')[:,:,0]
+
+            im2 = ryutils.warpCartesianImageToPolarImage(im)
+            im3 = ryutils.warpPolarImageToCartesianImage(im2)
+
+            with ryplot.savePlot(1,1,1,figsize=(12,6),saveName=[files+var for var in ['P.png']]) as r:
+                r.showImage(1,im2,interpolation='none')
+            with ryplot.savePlot(1,1,1,figsize=(12,6),saveName=[files+var for var in ['C.png']]) as p:
+                p.showImage(1,im3,interpolation='none')
 
     if doAll:
 
