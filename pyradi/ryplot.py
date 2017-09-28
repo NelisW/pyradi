@@ -45,6 +45,7 @@ __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
             'savePlot']
 
 import numpy as np
+import pandas as pd
 import math
 import sys
 import itertools
@@ -881,7 +882,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False ):
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -925,6 +926,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | axesequal (bool) force scaling on x and y axes to be equal (optional)
 
             Returns:
                 | the axis object for the plot
@@ -947,7 +949,7 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal)
       return ax
 
     ############################################################
@@ -1035,7 +1037,7 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
 
       return ax
 
@@ -1118,7 +1120,7 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
 
       return ax
 
@@ -1133,7 +1135,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True  ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False  ):
       """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1280,7 +1282,7 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
 
       return ax
 
@@ -1298,7 +1300,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ,
-                    markevery=None, zorders=None, clip_on=True  ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False  ):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1347,6 +1349,7 @@ class Plotter:
               | markevery (int | (startind, stride)) subsample when using markers (optional)
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
+              | axesequal (bool) force scaling on x and y axes to be equal (optional)
 
           Returns:
               | the axis object for the plot
@@ -1358,11 +1361,15 @@ class Plotter:
       if x.ndim>1:
           xx=x
       else:
+          if type(x)==type(pd.Series()):
+              x = x.values
           xx=x.reshape(-1, 1)
 
       if y.ndim>1:
           yy=y
       else:
+          if type(y)==type(pd.Series()):
+              y = y.values
           yy=y.reshape(-1, 1)
 
       # plotCol = self.buildPlotCol(plotCol, yy.shape[1])
@@ -1525,6 +1532,11 @@ class Plotter:
           ax.set_ylim(ax.get_ylim()[::-1])
       if xInvert:
           ax.set_xlim(ax.get_xlim()[::-1])
+
+      if axesequal:
+          ax.axis('equal')
+          
+                
 
       return ax
 
@@ -2902,6 +2914,7 @@ class Plotter:
 
         nestplotnum = 0
         #create subplot for each y-axis vector
+        numplots = len(ylabels)
         for index,y in enumerate(yAll):
             if index in selectCols:
 
@@ -2916,11 +2929,23 @@ class Plotter:
                 ax = self.arrayRows[rkey]
 
                 # plot the data
-                ax.plot(x,y,allPlotCol)
+                line, = ax.plot(x,y,allPlotCol)
                 if ylabels is not None:
-                    ax.set_ylabel(ylabels[index], fontsize=xylabelfsize)
-                    #align ylabels
-                    ax.yaxis.set_label_coords(-0.05, 0.5)
+                    doYAxis = False
+                    if doYAxis:
+                        # place on y-axis
+                        ax.set_ylabel(ylabels[index], fontsize=xylabelfsize)
+                    else:
+                        # place as legend
+                        line.set_label(ylabels[index])
+                        leg = ax.legend( loc='best', fancybox=True,fontsize=8)
+                        leg.get_frame().set_alpha(0.1)
+                        # ax.legend()
+                        self.bbox_extra_artists.append(leg)
+
+
+                    ###align ylabels
+                    ### ax.yaxis.set_label_coords(-0.05, 0.5)
 
                 #tick label fonts
                 for tick in ax.yaxis.get_major_ticks():
@@ -2935,7 +2960,7 @@ class Plotter:
 
                 #share x ticklabels and label to avoid clutter and overlapping
                 plt.setp([a.get_xticklabels() for a in self.fig.axes[:-1]], visible=False)
-                if xlabel is not None:
+                if xlabel is not None and index==numplots-1:
                     self.fig.axes[-1].set_xlabel(xlabel, fontsize=xylabelfsize)
 
             # minor ticks are two points smaller than major
