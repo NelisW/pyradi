@@ -612,6 +612,25 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
                             break
     return filertn
 
+#function to delete files in specified directory
+#  first parameter defines if the search must be recursively 0=not, 1=recursive
+#  second parameter specifies the path
+#  third parameter specifies the file patterns to erase
+#the user is promted before the files are deleted
+def QueryDelete(recurse,tdir,patn,instr=""):
+    thefiles = listFiles(tdir,patn,recurse)
+    if len(thefiles)>0:
+        for filename in thefiles:
+            print(filename)
+        if len(instr) == 0:
+            if sys.version_info[0] < 3:
+                instr=raw_input("Delete these files? (y/n)")
+            else:
+                instr=input("Delete these files? (y/n)")
+        if instr=='y':
+            for filename in thefiles:
+                os.remove(filename)
+
 
 ################################################################
 ##
