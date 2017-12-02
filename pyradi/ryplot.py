@@ -2362,7 +2362,8 @@ class Plotter:
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None,
                plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
                xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False,scatter=False,
-               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None):
+               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None,
+               linestyle='-'):
         """3D plot on linear scales for x y z input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2401,6 +2402,8 @@ class Plotter:
                 | zorder ([int]): list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool): clips objects to drawing axes (optional)
                 | edgeCol ([int]): list of colour specs, value at [0] used for edge colour (optional).
+                | linestyle (string): linestyle for this plot (optional)
+
             Returns:
                 | the axis object for the plot
 
@@ -2409,6 +2412,13 @@ class Plotter:
         """
 
         # if required convert 1D arrays into 2D arrays
+        if type(x)==type(pd.Series()):
+            x = x.values
+        if type(y)==type(pd.Series()):
+            y = y.values
+        if type(z)==type(pd.Series()):
+            z = z.values
+
         if x.ndim < 2:
             x = x.reshape(-1,1)
         if y.ndim < 2:
@@ -2421,6 +2431,13 @@ class Plotter:
         # else:
         # plotCol = self.buildPlotCol(plotCol, x.shape[-1])
 
+        if linestyle is None:
+            linestyleL = '-'
+        else:
+            if type(linestyle) == type([1]):
+                linestyleL = linestyle[i]
+            else:
+                linestyleL = linestyle
 
 
         if (self.nrow,self.ncol, plotnum) not in list(self.subplots.keys()):
@@ -2459,14 +2476,14 @@ class Plotter:
                         marker=marker, zorder=zorder, clip_on=clip_on)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
-                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on)
+                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL)
             else:
                 if scatter:
                     ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         zorder=zorder, clip_on=clip_on)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
-                        markevery=markevery, zorder=zorder, clip_on=clip_on)
+                        markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL)
 
         if edgeCol:
           edcol = edgeCol
