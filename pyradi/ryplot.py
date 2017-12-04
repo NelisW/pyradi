@@ -17,7 +17,7 @@
 # Portions created by CJ Willers are Copyright (C) 2006-2012
 # All Rights Reserved.
 
-# Contributor(s): MS Willers, PJ van der Merwe, A de Waal
+# Contributor(s): MS Willers, PJ van der Merwe, A de Waal, Seretla Mahlagare
 ################################################################
 """
 This module provides functions for plotting cartesian and polar plots.
@@ -66,6 +66,18 @@ import mpl_toolkits.axisartist.floating_axes as floating_axes
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import MaxNLocator
+
+# see if plotly is available
+try:
+    __import__('plotly.tools')
+    imported_plotly = True
+    from plotly import tools
+    from plotly.offline import download_plotlyjs, offline
+    from plotly.graph_objs import Scatter, Layout, Figure,Scatter3d,Mesh3d,ColorBar,Contour
+except ImportError:
+    imported_plotly = False
+
+from datetime import datetime
 
 ####################################################################
 ##
@@ -486,7 +498,8 @@ class Plotter:
     ############################################################
     ##
     def __init__(self,fignumber=0,subpltnrow=1,subpltncol=1,\
-                 figuretitle=None, figsize=(9,9), titlefontsize=14):
+                figuretitle=None, figsize=(9,9), titlefontsize=14,
+                useplotly = False): 
         """Class constructor
 
         The constructor defines the number for this figure, allowing future reference
@@ -502,6 +515,7 @@ class Plotter:
                 | figuretitle (string): the overall heading for the figure
                 | figsize ((w,h)): the figure size in inches
                 | titlefontsize (int): the figure title size in points
+                | useplotly (bool): Plotly activation parameter
 
             Returns:
                 | Nothing. Creates the figure for subequent use.
@@ -529,6 +543,32 @@ class Plotter:
         self.fig.set_size_inches(figsize[0], figsize[1])
         self.fig.clear()
         self.figuretitle = figuretitle
+
+        #Plotly variables initialization
+        self.useplotly = useplotly
+        
+        if self.useplotly:
+            self.Plotlyfig = []
+            self.Plotlydata = []
+            self.Plotlylayout = []
+            self.PlotlyXaxisTitles = []
+            self.PlotlyYaxisTitles = []
+            self.PlotlySubPlotTitles = []
+            self.PlotlySubPlotLabels = []
+            self.PlotlySubPlotNumbers = []
+            self.PlotlyPlotCalls = 0
+            self.PLcolor=''
+            self.PLwidth=0
+            self.PLdash=''
+            self.PLmultiAxisTitle=''
+            self.PLmultipleYAxis=False
+            self.PLyAxisSide=''
+            self.PLyAxisOverlaying=''
+            self.PLmultipleXAxis=False
+            self.PLxAxisSide=''
+            self.PLxAxisOverlaying=''
+            self.PLIs3D=False
+            self.PLType=''
 
         self.nrow=subpltnrow
         self.ncol=subpltncol
@@ -882,7 +922,11 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True,axesequal=False ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    PLcolor=None,
+                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
+                    PLmultipleYAxis=False, PLmultiAxisTitle=None, PLxAxisSide=None,
+                    PLxAxisOverlaying=None, PLmultipleXAxis=False  ): #Plotly initialization parameters
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -927,6 +971,16 @@ class Plotter:
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
+                | PLwidth
+                | PLdash (string): Line stlye
+                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
+                | PLyAxisOverlaying (string): Sets the overlaying
+                | PLmultipleYAxis (bool): Indicates presence of multiple axis
+                | PLmultiAxisTitle (string): Sets the title of the multiple axis
+                | PLxAxisSide (string): Sets the location of the x-axis (top/bottom)
+                | PLxAxisOverlaying (string): Sets the overlaying
+                | PLmultipleXAxis (bool): Indicates presence of multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -934,6 +988,18 @@ class Plotter:
             Raises:
                 | No exception is raised.
        """
+      #Plotly variables initialization
+      self.PLcolor=PLcolor
+      self.PLwidth=PLwidth
+      self.PLdash=PLdash
+      self.PLmultipleYAxis=PLmultipleYAxis
+      self.PLmultiAxisTitle=PLmultiAxisTitle	  
+      self.PLyAxisSide=PLyAxisSide
+      self.PLyAxisOverlaying=PLyAxisOverlaying
+      self.PLmultipleXAxis=PLmultipleXAxis  
+      self.PLxAxisSide=PLxAxisSide
+      self.PLxAxisOverlaying=PLxAxisOverlaying
+
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
       if pkey not in list(self.subplots.keys()):
@@ -963,7 +1029,10 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True   ):
+                    markevery=None, zorders=None, clip_on=True, 
+                    PLcolor=None,
+                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
+                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
       """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1008,6 +1077,13 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
+                | PLwidth
+                | PLdash (string): Line stlye
+                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
+                | PLyAxisOverlaying (string): Sets the overlaying
+                | PLmultipleYAxis (bool): Indicates presence of multiple axis
+                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1015,6 +1091,16 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
+
+      # Plotly variables initialization
+      self.PLcolor=PLcolor
+      self.PLwidth=PLwidth
+      self.PLdash=PLdash
+      self.PLmultipleYAxis=PLmultipleYAxis
+      self.PLmultiAxisTitle=PLmultiAxisTitle	  
+      self.PLyAxisSide=PLyAxisSide
+      self.PLyAxisOverlaying=PLyAxisOverlaying
+
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
       if pkey not in list(self.subplots.keys()):
@@ -1053,7 +1139,10 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True   ):
+                    markevery=None, zorders=None, clip_on=True, 
+                    PLcolor=None,
+                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
+                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
 
       """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
@@ -1098,6 +1187,13 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
+                | PLwidth
+                | PLdash (string): Line stlye
+                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
+                | PLyAxisOverlaying (string): Sets the overlaying
+                | PLmultipleYAxis (bool): Indicates presence of multiple axis
+                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1105,6 +1201,15 @@ class Plotter:
             Raises:
                 | No exception is raised.
        """
+      #Plotly variables initialization
+      self.PLcolor=PLcolor
+      self.PLwidth=PLwidth
+      self.PLdash=PLdash
+      self.PLmultipleYAxis=PLmultipleYAxis
+      self.PLmultiAxisTitle=PLmultiAxisTitle	  
+      self.PLyAxisSide=PLyAxisSide
+      self.PLyAxisOverlaying=PLyAxisOverlaying 
+
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
       if pkey not in list(self.subplots.keys()):
@@ -1135,7 +1240,10 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True,axesequal=False  ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    PLcolor=None,
+                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
+                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
       """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1179,6 +1287,13 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
+                | PLwidth
+                | PLdash (string): Line stlye
+                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
+                | PLyAxisOverlaying (string): Sets the overlaying
+                | PLmultipleYAxis (bool): Indicates presence of multiple axis
+                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1186,6 +1301,15 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
+      #Plotly variables initialization
+      self.PLcolor=PLcolor
+      self.PLwidth=PLwidth
+      self.PLdash=PLdash
+      self.PLmultipleYAxis=PLmultipleYAxis
+      self.PLmultiAxisTitle=PLmultiAxisTitle	  
+      self.PLyAxisSide=PLyAxisSide
+      self.PLyAxisOverlaying=PLyAxisOverlaying
+
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
       if pkey not in list(self.subplots.keys()):
@@ -1216,7 +1340,10 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True  ):
+                    markevery=None, zorders=None, clip_on=True, 
+                    PLcolor=None,
+                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
+                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
       """Plot stacked data on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1260,6 +1387,13 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
+                | PLwidth
+                | PLdash (string): Line stlye
+                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
+                | PLyAxisOverlaying (string): Sets the overlaying
+                | PLmultipleYAxis (bool): Indicates presence of multiple axis
+                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1267,6 +1401,15 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
+      #Plotly variables initialization
+      self.PLcolor=PLcolor
+      self.PLwidth=PLwidth
+      self.PLdash=PLdash
+      self.PLmultipleYAxis=PLmultipleYAxis
+      self.PLmultiAxisTitle=PLmultiAxisTitle	  
+      self.PLyAxisSide=PLyAxisSide
+      self.PLyAxisOverlaying=PLyAxisOverlaying
+
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
       if pkey not in list(self.subplots.keys()):
@@ -1300,7 +1443,8 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ,
-                    markevery=None, zorders=None, clip_on=True,axesequal=False  ):
+                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    PLyStatic=[0]  ):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1350,6 +1494,7 @@ class Plotter:
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
               | axesequal (bool) force scaling on x and y axes to be equal (optional)
+              | PLyStatic ([int]) the guy that added this did not document it properly
 
           Returns:
               | the axis object for the plot
@@ -1357,6 +1502,9 @@ class Plotter:
           Raises:
               | No exception is raised.
       """
+      #Initialize plotlyPlot call when Plotly is activated
+      if self.useplotly:
+          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
 
       if x.ndim>1:
           xx=x
@@ -1425,16 +1573,31 @@ class Plotter:
 
       ###############################stacked plot #######################
       if plotcommand==ax.stackplot:
-        if not plotCol:
-            plotCol = [self.nextPlotCol() for col in range(0,yy.shape[0])]
+        if not self.useplotly:
+            if not plotCol:
+                plotCol = [self.nextPlotCol() for col in range(0,yy.shape[0])]
 
-        ax.stackplot(xx.reshape(-1), yy, colors=plotCol)
-        ax.margins(0, 0) # Set margins to avoid "whitespace"
+            ax.stackplot(xx.reshape(-1), yy, colors=plotCol)
+            ax.margins(0, 0) # Set margins to avoid "whitespace"
 
-        # creating the legend manually
-        ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label,
-            loc=legendLoc, framealpha=legendAlpha)
-
+            # creating the legend manually
+            ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label,
+                loc=legendLoc, framealpha=legendAlpha)
+        else: #Plotly stacked plot
+           #Plotly stacked plot variables
+           PLXAxis = 0
+           PLYAxis = 0
+           for i in range(yy.shape[0]):
+                PLXAxis = dict(type='category',)
+                PLYAxis = dict(type='linear')
+                try:
+                    if len(y[0,:]) > 1:
+                        self.Plotlydata.append(Scatter(x=x, y=y[i,:]+PLyStatic[0],mode='lines', name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        PLyStatic[0] += y[i,:]
+                    elif len(x[0,:]) > 1:
+                        self.Plotlydata.append(Scatter(x=x[:,i], y=y,mode='lines', name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                except:
+                    self.Plotlydata.append(Scatter(x=x, y=y, name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
       ###############################line plot #######################
       else: # not a stacked plot
         for i in range(yy.shape[1]):
@@ -1470,32 +1633,140 @@ class Plotter:
             else:
               zorder = 2
 
-            if not label:
-                if linewidths is not None:
-                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                         marker=mmrk, markevery=markevery, linewidth=linewidths[i],
-                         clip_on=clip_on, zorder=zorder)
+            if not self.useplotly:
+                if not label:
+                    if linewidths is not None:
+                      plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
+                             marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                             clip_on=clip_on, zorder=zorder)
+                    else:
+                      plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
+                             marker=mmrk, markevery=markevery,
+                             clip_on=clip_on, zorder=zorder)
                 else:
-                  plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                         marker=mmrk, markevery=markevery,
-                         clip_on=clip_on, zorder=zorder)
-            else:
-                if linewidths is not None:
-                  # print('***************',linewidths)
-                  line, = plotcommand(xx,yy[:,i],col,#label=label[i],
-                        linestyle=linestyleL,
-                        marker=mmrk, markevery=markevery, linewidth=linewidths[i],
-                        clip_on=clip_on, zorder=zorder)
+                    if linewidths is not None:
+                      # print('***************',linewidths)
+                      line, = plotcommand(xx,yy[:,i],col,#label=label[i],
+                            linestyle=linestyleL,
+                            marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                            clip_on=clip_on, zorder=zorder)
+                    else:
+                      line, = plotcommand(xx,yy[:,i],col,#label=label[i],
+                            linestyle=linestyleL,
+                            marker=mmrk, markevery=markevery,
+                            clip_on=clip_on, zorder=zorder)
+                    line.set_label(label[i])
+                    leg = ax.legend( loc=legendLoc, fancybox=True,fontsize=labelfsize)
+                    leg.get_frame().set_alpha(legendAlpha)
+                    # ax.legend()
+                    self.bbox_extra_artists.append(leg)
+            else:#Plotly plots
+                if 'loglog' in str(plotcommand):
+                    PLXAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
+                    PLYAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
+
+                    # Assuming that either y or x has to 1
+                    try:
+                        if len(x[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        elif len(y[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    except:
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+
+                    # Append axis and plot titles
+                    if self.ncol > 1:
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                    elif self.nrow > 1 :
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                elif 'semilogx' in str(plotcommand):
+                    PLXAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
+                    PLYAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
+
+                    # Assuming that either y or x has to 1
+                    try:
+                        if len(x[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        elif len(y[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    except:
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+
+                    # Append axis and plot titles
+                    if self.ncol > 1:
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                    elif self.nrow > 1 :
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                elif 'semilogy' in str(plotcommand):
+                    PLXAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
+                    PLYAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
+
+                    # Assuming that either y or x has to 1
+                    try:
+                        if len(x[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        elif len(y[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    except:
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+
+                    # Append axis and plot titles
+                    if self.ncol > 1:
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                    elif self.nrow > 1 :
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
                 else:
-                  line, = plotcommand(xx,yy[:,i],col,#label=label[i],
-                        linestyle=linestyleL,
-                        marker=mmrk, markevery=markevery,
-                        clip_on=clip_on, zorder=zorder)
-                line.set_label(label[i])
-                leg = ax.legend( loc=legendLoc, fancybox=True,fontsize=labelfsize)
-                leg.get_frame().set_alpha(legendAlpha)
-                # ax.legend()
-                self.bbox_extra_artists.append(leg)
+                    PLXAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
+                    PLYAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
+
+                    # Assuming that either y or x has to 1
+                    try:
+                        if len(x[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,xaxis='x1',
+                            line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        elif len(y[0,:]) > 1:
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,xaxis='x1',
+                            line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    except:
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,xaxis='x1',
+                        line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    
+                    # Append axis and plot titles
+                    if self.ncol > 1:
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+                    elif self.nrow > 1 :
+                        self.PlotlySubPlotNumbers.append(plotnum)
+                        self.PlotlyXaxisTitles.append(xlabel)
+                        self.PlotlyYaxisTitles.append(ylabel)
+
+      #Plotly plots setup
+      if self.useplotly:
+          if self.PLmultipleYAxis:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,xaxis = PLXAxis,yaxis=PLYAxis,yaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLyAxisSide,overlaying=self.PLyAxisOverlaying)))
+          elif self.PLmultipleXAxis:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,yaxis=PLYAxis,xaxis = PLXAxis,xaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLxAxisSide,overlaying=self.PLxAxisOverlaying)))
+          else:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,xaxis = PLXAxis,yaxis=PLYAxis))
+          if self.ncol > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlySubPlotLabels.append(label)
+          elif self.nrow > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlySubPlotLabels.append(label)
 
       if xIsDate:
           plt.gcf().autofmt_xdate()
@@ -1540,6 +1811,185 @@ class Plotter:
 
       return ax
 
+    ############################################################
+    #Before this function is called, plot data is accumulated in runtime variables
+    #At the call of this function the Plotly plots are plotted using the accumulated data.
+    def plotlyPlot(self,filename=None,image=None,image_filename=None,auto_open=True):
+        if ((self.nrow == self.ncol) & self.ncol == 1 & self.nrow == 1 ): #No subplots
+            fig = Figure(data=self.Plotlydata,layout=self.Plotlylayout[0])
+            fig['layout'].update(title=str(self.figuretitle))
+        else:
+            dataFormatCatch = 0
+            try:
+                len(self.Plotlydata[0].y[1,:])
+                dataFormatCatch = 0
+            except:
+                dataFormatCatch = 1
+
+            if self.PLIs3D:
+                specRow = []
+                specCol = []
+                for r in range(int(self.nrow)):
+                    specRow.append({'is_3d': True})
+                for r in range(int(self.ncol)):
+                    specCol.append({'is_3d': True})
+                fig = tools.make_subplots(rows=int(self.nrow), cols=int(self.nrow), specs=[specRow,specCol])#[[{'is_3d': True}, {'is_3d': True}], [{'is_3d': True}, {'is_3d': True}]])
+            else:
+                fig = tools.make_subplots(int(self.nrow), int(self.ncol), subplot_titles=self.PlotlySubPlotTitles)
+
+            # make row and column formats
+            rowFormat = []
+            colFormat = []
+            countRows = 1
+            rowCount = 1
+            colCount = 1
+            for tmp in range(int(self.nrow)*int(self.ncol)):
+                if int(self.nrow) == int(self.ncol):
+                    if countRows == int(self.nrow):
+                        rowFormat.append(rowCount)
+                        rowCount = rowCount + 1
+                        if rowCount > int(self.nrow):
+                            rowCount = 1
+                        countRows = 1
+                    elif countRows < int(self.nrow) :
+                        rowFormat.append(rowCount)
+                        countRows = countRows + 1
+
+                    if colCount == int(self.ncol):
+                        colFormat.append(colCount)
+                        colCount = 1
+                    elif colCount < int(self.ncol):
+                        colFormat.append(colCount)
+                        colCount = colCount + 1
+                else:
+                    if rowCount > int(self.nrow):
+                        rowCount = 1
+                        rowFormat.append(rowCount)
+                        rowCount = rowCount + 1
+                    else:
+                        rowFormat.append(rowCount)
+                        rowCount = rowCount + 1
+
+                    if colCount > int(self.ncol):
+                        colCount = 1
+                        colFormat.append(colCount)
+                        colCount = colCount + 1
+                    else:
+                        colFormat.append(colCount)
+                        colCount = colCount + 1
+
+            if dataFormatCatch == 0:
+                for tmp in range(self.PlotlyPlotCalls):
+                    if self.PLIs3D:
+                        if str(self.PLType) == "plot3d":
+                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[tmp], colFormat[tmp])
+                        elif str(self.PLType) == "mesh3D":
+                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[tmp], colFormat[tmp])
+                    else:
+                        if str(self.PLType) == "meshContour":
+                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                        else:
+                            fig.append_trace(self.Plotlydata, rowFormat[tmp], colFormat[tmp])
+            else:
+                rCntrl = 1
+                rIndex = 1
+                cIndex = 1
+                cCntrl = 1
+                rStpVal = int(len(self.Plotlydata)/len(rowFormat))
+                cStpVal = int(len(self.Plotlydata)/len(colFormat))
+                for i in range(len(self.Plotlydata)):
+                    if rCntrl > rStpVal:
+                        rCntrl = 1
+                        rIndex = rIndex+1
+                        if cCntrl > cStpVal:
+                            cCntrl = 1
+                            cIndex = cIndex+1
+                            if self.PLIs3D:
+                                if str(self.PLType) == "plot3d":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                elif str(self.PLType) == "mesh3D":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            else:
+                                if str(self.PLType) == "meshContour":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                else:
+                                    if(len(self.Plotlydata) == len(rowFormat)):
+                                        fig.append_trace(self.Plotlydata[i], rowFormat[i], colFormat[i])
+                                    else:
+                                        fig.append_trace(self.Plotlydata[i], rowFormat[self.PlotlySubPlotNumbers[i]-1], colFormat[self.PlotlySubPlotNumbers[i]-1])
+                            cCntrl = cCntrl + 1
+                        else:
+                            if self.PLIs3D:
+                                if str(self.PLType) == "plot3d":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                elif str(self.PLType) == "mesh3D":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            else:
+                                if str(self.PLType) == "meshContour":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                else:
+                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
+                        rCntrl = rCntrl + 1
+                    elif cCntrl > cStpVal:
+                        cCntrl = 1
+                        cIndex = cIndex+1
+                        if rCntrl > rStpVal:
+                            rCntrl = 1
+                            rIndex = rIndex+1
+                            if self.PLIs3D:
+                                if str(self.PLType) == "plot3d":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                elif str(self.PLType) == "mesh3D":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            else:
+                                if str(self.PLType) == "meshContour":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                else:
+                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
+                            rCntrl = rCntrl + 1
+                        else:
+                            if self.PLIs3D:
+                                if str(self.PLType) == "plot3d":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                elif str(self.PLType) == "mesh3D":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            else:
+                                if str(self.PLType) == "meshContour":
+                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                                else:
+                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
+                        cCntrl = cCntrl + 1
+                    else:
+                        if self.PLIs3D:
+                            if str(self.PLType) == "plot3d":
+                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            elif str(self.PLType) == "mesh3D":
+                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
+                        else:
+                            if str(self.PLType) == "meshContour":
+                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
+                            else:
+                                fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
+                        rCntrl = rCntrl + 1
+                        cCntrl = cCntrl + 1
+
+            fig['layout'].update(title=str(self.figuretitle))
+            for j in range(self.PlotlyPlotCalls):
+                if j < len(self.PlotlyXaxisTitles):
+                    fig['layout']['xaxis'+str(j+1)].update(title=self.PlotlyXaxisTitles[j],type=self.Plotlylayout[j].xaxis.type)
+                else:
+                    fig['layout']['xaxis'+str(j+1)].update(type=self.Plotlylayout[j].xaxis.type)
+                if j < len(self.PlotlyYaxisTitles):
+                    fig['layout']['yaxis'+str(j+1)].update(title=self.PlotlyYaxisTitles[j],type=self.Plotlylayout[j].yaxis.type)
+                else:
+                    fig['layout']['yaxis'+str(j+1)].update(type=self.Plotlylayout[j].yaxis.type)
+
+        if filename:
+            offline.plot(fig,filename=filename)
+        elif image:
+            offline.plot(fig,image_filename=image_filename,image=image,auto_open=auto_open)
+        else:
+            offline.plot(fig)
 
     ############################################################
     ##
@@ -1584,7 +2034,7 @@ class Plotter:
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
-                  zorders=None, clip_on=True ):
+                  zorders=None, clip_on=True,PLcolorscale='' ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional
@@ -1650,6 +2100,7 @@ class Plotter:
                 | contLinWid (float): contour line width in points (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolorscale (?) Plotly parameter ? (optional)
 
             Returns:
                 | the axis object for the plot
@@ -1718,6 +2169,29 @@ class Plotter:
           zorder = zorders[0]
       else:
         zorder = 2
+
+      if self.useplotly:
+          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
+          self.PLType = "meshContour"
+          if cbarshow:
+              self.Plotlydata.append(Contour(x=list(itertools.chain.from_iterable(xvals)),
+              y=list(itertools.chain.from_iterable(yvals)),
+              z=list(itertools.chain.from_iterable(zvals)),
+              PLcolorscale=PLcolorscale))
+              #,color=color,colorbar = ColorBar(PLtickmode=PLtickmode,nticks=PLnticks,
+              # PLtick0=PLtick0,PLdtick=PLdtick,PLtickvals=PLtickvals,PLticktext=PLticktext),
+              # PLcolorscale = PLcolorScale,intensity = PLintensity))
+          else:
+              self.Plotlydata.append(Contour(x=list(itertools.chain.from_iterable(xvals)),
+              y=list(itertools.chain.from_iterable(yvals)),
+              z=list(itertools.chain.from_iterable(zvals)),PLcolorscale=PLcolorscale))
+              #,color=color))
+
+          # Append axis and plot titles
+          if self.ncol > 1:
+              self.PlotlySubPlotNumbers.append(plotnum)
+          elif self.nrow > 1 :
+              self.PlotlySubPlotNumbers.append(plotnum)
 
 
       #do the plot
@@ -1796,6 +2270,37 @@ class Plotter:
 
       plt.rcParams['contour.negative_linestyle'] = contour_negative_linestyle
 
+      if self.useplotly:
+          if self.PLmultipleYAxis:
+              if yInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
+              elif xInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
+              else:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,font=dict(title=self.PLmultiAxisTitle,side=self.PLyAxisSide,overlaying=self.PLyAxisOverlaying)))
+          elif self.PLmultipleXAxis:
+              if yInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
+              elif xInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
+              else:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,yaxis=PLYAxis,xaxis = PLXAxis,xaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLxAxisSide,overlaying=self.PLxAxisOverlaying)))
+          else:
+              if yInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
+              elif xInvert:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
+              else:
+                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,xaxis = PLXAxis,yaxis=PLYAxis))
+          if self.ncol > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlyXaxisTitles.append(xlabel)
+              self.PlotlyYaxisTitles.append(ylabel)
+          elif self.nrow > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlyXaxisTitles.append(xlabel)
+              self.PlotlyYaxisTitles.append(ylabel)
+
       return ax
 
     ############################################################
@@ -1811,7 +2316,10 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
                   logScale=False, alpha=1, alphawire=1,
-                  azim=45, elev=30, distance=10, zorders=None, clip_on=True
+                  azim=45, elev=30, distance=10, zorders=None, clip_on=True, 
+                  PLcolor=None,
+                  PLcolorScale=None, PLtickmode=None, PLnticks=None, PLtick0=None, PLdtick=None,
+                  PLtickvals=None, PLticktext=None, PLintensity = None
                    ):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
@@ -1883,6 +2391,15 @@ class Plotter:
                 | distance (float): distance between viewer and plot (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | PLcolor (string): Graph colors e.g 'FFFFFF'
+                | PLcolorScale ([int,string]): Color scale for mesh graphs e.g [0, 'rgb(0, 0, 0)']
+                | PLtickmode (string): Plot mode
+                | PLnticks (int): number of ticks
+                | PLtick0 (int): First tick value
+                | PLdtick (int):
+                | PLtickvals [int]: Plot intervals
+                | PLticktext [string]: Plot text
+                | PLintensity
 
             Returns:
                 | the axis object for the plot
@@ -1956,6 +2473,28 @@ class Plotter:
           zorder = zorders[0]
       else:
         zorder = 1
+
+      if self.useplotly:
+          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
+          self.PLIs3D = True
+          self.PLType = "mesh3D"
+          if cbarshow:
+              self.Plotlydata.append(Mesh3d(x=list(itertools.chain.from_iterable(xvals)),
+              y=list(itertools.chain.from_iterable(yvals)),
+              z=list(itertools.chain.from_iterable(zvals)),color=PLcolor,
+              colorbar = ColorBar(PLtickmode=PLtickmode,nticks=PLnticks,
+              PLtick0=PLtick0,PLdtick=PLdtick,PLtickvals=PLtickvals,PLticktext=PLticktext),
+              PLcolorscale=PLcolorScale,intensity=PLintensity))
+          else:
+              self.Plotlydata.append(Mesh3d(x=list(itertools.chain.from_iterable(xvals)),
+              y=list(itertools.chain.from_iterable(yvals)),
+              z=list(itertools.chain.from_iterable(zvals)),color=PLcolor))
+
+          # Append axis and plot titles
+          if self.ncol > 1:
+              self.PlotlySubPlotNumbers.append(plotnum)
+          elif self.nrow > 1 :
+              self.PlotlySubPlotNumbers.append(plotnum)
 
       #do the plot
 
@@ -2037,6 +2576,21 @@ class Plotter:
       if zInvert:
           ax.set_zlim(ax.get_zlim()[::-1])
 
+      if self.useplotly:
+          if self.PLmultipleYAxis:
+              self.Plotlylayout.append(Layout(title = ptitle))
+          elif self.PLmultipleXAxis:
+              self.Plotlylayout.append(Layout(title = ptitle))
+          else:
+              self.Plotlylayout.append(Layout(title = ptitle))
+          if self.ncol > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlyXaxisTitles.append(xlabel)
+              self.PlotlyYaxisTitles.append(ylabel)
+          elif self.nrow > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlyXaxisTitles.append(xlabel)
+              self.PlotlyYaxisTitles.append(ylabel)
 
       return ax
 
@@ -2226,6 +2780,30 @@ class Plotter:
           else:
               ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
 
+          #Plotly polar setup
+          if self.useplotly:
+              # Assuming that either y or x has to 1
+              if thetagrid is None:
+                  tt=tt*(180.0/(np.pi))
+              else:
+                  tt=tt*(180.0/(np.pi*(thetagrid[0]/(-4.62*i+5))))
+
+              try:
+                  if len(r[0,:]) > 1:
+                      self.Plotlydata.append(Scatter(r=rr[:,i], t=tt[:,0], name = label,mode='lines'))
+                  elif len(theta[0,:]) > 1:
+                      self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,i], name = label,mode='lines'))
+                  else:
+                      self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,0], name = label,mode='lines'))
+              except:
+                  self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,0], name = label))
+
+              # Append axis and plot titles
+              if self.ncol > 1:
+                  self.PlotlySubPlotNumbers.append(plotnum)
+              elif self.nrow > 1 :
+                  self.PlotlySubPlotNumbers.append(plotnum)
+
       if label:
           fontP = mpl.font_manager.FontProperties()
           fontP.set_size('small')
@@ -2264,6 +2842,20 @@ class Plotter:
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize, \
               verticalalignment ='bottom', horizontalalignment='center')
+
+      if self.useplotly:
+          if self.PLmultipleYAxis:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
+          elif self.PLmultipleXAxis:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
+          else:
+              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
+          if self.ncol > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlySubPlotLabels.append(label)
+          elif self.nrow > 1:
+              self.PlotlySubPlotTitles.append(ptitle)
+              self.PlotlySubPlotLabels.append(label)
 
       return ax
 
@@ -2446,6 +3038,9 @@ class Plotter:
 
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
+        if self.useplotly:
+            self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
+
         # print(x.shape[-1])
 
         for i in range(x.shape[-1]):
@@ -2485,6 +3080,48 @@ class Plotter:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL)
 
+            # Plotly 3D plot setup
+            if self.useplotly:
+                self.PLIs3D = True
+                self.PLType = "plot3d"
+                try:
+                    if (len(x[0,:]) > 1) and (len(y[0,:]) > 1) and (len(z[0,:]) > 1):
+                        if len(label) > x.shape[-1]:
+                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,i],z=z[:,i], name = label,mode='lines'))
+                        else:
+                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,i],z=z[:,i], name = label[i],mode='lines'))
+                    elif (len(x[0,:]) > 1) and (len(y[0,:]) <= 1) and (len(z[0,:]) <= 1):
+                        if len(label) > x.shape[-1]:
+                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,0],z=z[:,0], name = label,mode='lines'))
+                        else:
+                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
+                    elif (len(x[0,:]) <= 1) and (len(y[0,:]) > 1) and (len(z[0,:]) <= 1):
+                        if len(label) > x.shape[-1]:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,i],z=z[:,0], name = label,mode='lines'))
+                        else:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,i],z=z[:,0], name = label[i],mode='lines'))
+                    elif (len(x[0,:]) <= 1) and (len(y[0,:]) <= 1) and (len(z[0,:]) > 1):
+                        if len(label) > x.shape[-1]:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,i], name = label,mode='lines'))
+                        else:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,i], name = label[i],mode='lines'))
+                    else:
+                        if len(label) > x.shape[-1]:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label,mode='lines'))
+                        else:
+                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
+                except:
+                    if len(label) > x.shape[-1]:
+                        self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label,mode='lines'))
+                    else:
+                        self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
+
+                # Append axis and plot titles
+                if self.ncol > 1:
+                    self.PlotlySubPlotNumbers.append(plotnum)
+                elif self.nrow > 1 :
+                    self.PlotlySubPlotNumbers.append(plotnum)
+
         if edgeCol:
           edcol = edgeCol
         else:
@@ -2523,6 +3160,20 @@ class Plotter:
 
         if(ptitle is not None):
            plt.title(ptitle, fontsize=titlefsize)
+
+        if self.useplotly:
+            if self.PLmultipleYAxis:
+                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
+            elif self.PLmultipleXAxis:
+                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
+            else:
+                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
+            if self.ncol > 1:
+                self.PlotlySubPlotTitles.append(ptitle)
+                self.PlotlySubPlotLabels.append(label)
+            elif self.nrow > 1:
+                self.PlotlySubPlotTitles.append(ptitle)
+                self.PlotlySubPlotLabels.append(label)
 
         return ax
 
@@ -2946,19 +3597,24 @@ class Plotter:
                 ax = self.arrayRows[rkey]
 
                 # plot the data
-                line, = ax.plot(x,y,allPlotCol)
-                if ylabels is not None:
-                    doYAxis = False
-                    if doYAxis:
-                        # place on y-axis
-                        ax.set_ylabel(ylabels[index], fontsize=xylabelfsize)
-                    else:
-                        # place as legend
-                        line.set_label(ylabels[index])
-                        leg = ax.legend( loc='best', fancybox=True,fontsize=8)
-                        leg.get_frame().set_alpha(0.1)
-                        # ax.legend()
-                        self.bbox_extra_artists.append(leg)
+                if self.useplotly:#Plotly subplot configuration
+                    self.nrow = nestnrow
+                    self.ncol = nestncol
+                    self.plot(plotnum,x,y,allPlotCol)
+                else:
+                    line, = ax.plot(x,y,allPlotCol)
+                    if ylabels is not None:
+                        doYAxis = False
+                        if doYAxis:
+                            # place on y-axis
+                            ax.set_ylabel(ylabels[index], fontsize=xylabelfsize)
+                        else:
+                            # place as legend
+                            line.set_label(ylabels[index])
+                            leg = ax.legend( loc='best', fancybox=True,fontsize=8)
+                            leg.get_frame().set_alpha(0.1)
+                            # ax.legend()
+                            self.bbox_extra_artists.append(leg)
 
 
                     ###align ylabels
