@@ -101,14 +101,14 @@ You can download the pyradi package using pip, from the command line by typing
 
 This command will install or upgrade pyradi to the latest version written to  <https://pypi.python.org/pypi/pyradi/>. If the install is successful, pyradi is available for use immediately, no further action is required.  The pip install may initiate the download of numpy, scipy, matplotlib or scikit-image if these are not presently in your Python distribution.
 
-The pyradi version in pip is **not** built at regular intervals from the subversion repository, but definitely does not have all the very latest version.
+The pyradi version in pip is **not** built at regular intervals from the git repository, but definitely does not have all the very latest version.
 
 Instructions on how to use pip is available at <http://www.pythonforbeginners.com/basics/python-pip-usage> and  <http://www.pip-installer.org/en/latest/installing.html>.
 
 ## Get the code from GitHub
 You can download the very latest version of pyradi from the [pyradi repository](https://github.com/NelisW/pyradi) on GitHub.  I am somewhat slow to update PyPi with the latest GitHub version.
 
-Note that the subversion download only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
+Note that the git checkout only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
 
     pip install --upgrade matplotlib
 
