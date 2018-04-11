@@ -66,6 +66,7 @@ import mpl_toolkits.axisartist.floating_axes as floating_axes
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import MaxNLocator
+from matplotlib.ticker import FormatStrFormatter
 
 # see if plotly is available
 try:
@@ -923,6 +924,7 @@ class Plotter:
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
                     markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None, PLxAxisSide=None,
@@ -971,6 +973,8 @@ class Plotter:
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+                | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
                 | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
                 | PLwidth
                 | PLdash (string): Line stlye
@@ -1015,7 +1019,8 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xAxisFmt,yAxisFmt)
       return ax
 
     ############################################################
@@ -1029,7 +1034,8 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True, 
+                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None):
@@ -1077,6 +1083,9 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+                | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
                 | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
                 | PLwidth
                 | PLdash (string): Line stlye
@@ -1123,7 +1132,8 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xAxisFmt,yAxisFmt)
 
       return ax
 
@@ -1139,7 +1149,8 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True, 
+                    markevery=None, zorders=None, clip_on=True, axesequal=False, 
+                    xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None):
@@ -1187,6 +1198,9 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+                | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
                 | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
                 | PLwidth
                 | PLdash (string): Line stlye
@@ -1225,7 +1239,8 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xAxisFmt,yAxisFmt)
 
       return ax
 
@@ -1241,6 +1256,7 @@ class Plotter:
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
                     markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None):
@@ -1287,6 +1303,9 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+                | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
                 | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
                 | PLwidth
                 | PLdash (string): Line stlye
@@ -1325,7 +1344,8 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,
+                    axesequal,xAxisFmt,yAxisFmt)
 
       return ax
 
@@ -1340,7 +1360,8 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                      xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True, 
+                    markevery=None, zorders=None, clip_on=True, axesequal=False, 
+                    xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None):
@@ -1387,6 +1408,9 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
+                | axesequal (bool) force scaling on x and y axes to be equal (optional)
+                | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+                | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
                 | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
                 | PLwidth
                 | PLdash (string): Line stlye
@@ -1425,7 +1449,8 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal=False)
+                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,
+                    axesequal,xAxisFmt,yAxisFmt)
 
       return ax
 
@@ -1444,6 +1469,7 @@ class Plotter:
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, markers=[] ,
                     markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xAxisFmt=None,yAxisFmt=None,
                     PLyStatic=[0]  ):
       """Low level helper function to create a subplot and plot the data as required.
 
@@ -1494,6 +1520,8 @@ class Plotter:
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
               | axesequal (bool) force scaling on x and y axes to be equal (optional)
+              | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
+              | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
               | PLyStatic ([int]) the guy that added this did not document it properly
 
           Returns:
@@ -1570,6 +1598,13 @@ class Plotter:
           formy.set_powerlimits([powerLimits[2], powerLimits[3]])
           formy.set_scientific(True)
           ax.yaxis.set_major_formatter(formy)
+
+      # this user-defined format setting is given at the end of the function.
+    #   # override the format with user defined
+    #   if xAxisFmt is not None:
+    #       ax.xaxis.set_major_formatter(FormatStrFormatter(xAxisFmt))
+    #   if yAxisFmt is not None:
+    #       ax.yaxis.set_major_formatter(FormatStrFormatter(yAxisFmt))
 
       ###############################stacked plot #######################
       if plotcommand==ax.stackplot:
@@ -1807,7 +1842,12 @@ class Plotter:
       if axesequal:
           ax.axis('equal')
           
-                
+      # override the format with user defined
+      if xAxisFmt is not None:
+          ax.xaxis.set_major_formatter(FormatStrFormatter(xAxisFmt))
+      if yAxisFmt is not None:
+          ax.yaxis.set_major_formatter(FormatStrFormatter(yAxisFmt))
+               
 
       return ax
 
