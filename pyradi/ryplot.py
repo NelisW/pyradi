@@ -2699,11 +2699,15 @@ class Plotter:
       if theta.ndim>1:
           tt=theta
       else:
+          if type(theta)==type(pd.Series()):
+              theta = theta.values
           tt=theta.reshape(-1, 1)
 
       if r.ndim>1:
           rr=r
       else:
+          if type(r)==type(pd.Series()):
+              r = r.values
           rr=r.reshape(-1, 1)
 
 
