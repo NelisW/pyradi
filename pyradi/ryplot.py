@@ -2639,7 +2639,7 @@ class Plotter:
     def polar(self, plotnum, theta, r, ptitle=None, \
                     plotCol=None, label=[],labelLocation=[-0.1, 0.1], \
                     highlightNegative=True, highlightCol='#ffff00', highlightWidth=4,\
-                    legendAlpha=0.0, \
+                    legendAlpha=0.0, linestyle=None,\
                     rscale=None, rgrid=[0,5], thetagrid=[30], \
                     direction='counterclockwise', zerooffset=0, titlefsize=12, drawGrid=True,
                     zorders=None, clip_on=True, markers=[], markevery=None,
@@ -2673,6 +2673,7 @@ class Plotter:
                 | highlightCol (string): negative highlight colour string (optional)
                 | highlightWidth (int): negative highlight line width(optional)
                 | legendAlpha (float): transparency for legend box (optional)
+                | linestyle ([str]): line style to be used in plot
                 | rscale ([rmin, rmax]): radial plotting limits. use default setting if None.
                   If rmin is negative the zero is a circle and rmin is at the centre of the graph (optional)
                 | rgrid ([rinc, numinc]): radial grid, use default is [0,5].
@@ -2770,6 +2771,16 @@ class Plotter:
           else:
               col = self.nextPlotCol()
 
+
+          if linestyle is None:
+            linestyleL = '-'
+          else:
+            if type(linestyle) == type([1]):
+                linestyleL = linestyle[i]
+            else:
+                linestyleL = linestyle
+
+
           # print('p',ttt.shape)
           # print('p',rrr.shape)
           if zorders:
@@ -2782,7 +2793,7 @@ class Plotter:
 
           if not label:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -2790,17 +2801,17 @@ class Plotter:
                               if MakeAbs:
                                   ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
-                                    marker=mmrk, markevery=markevery,)
+                                    marker=mmrk, markevery=markevery,linestyle=linestyleL)
                               else:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
-                                    marker=mmrk, markevery=markevery)
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+                                    marker=mmrk, markevery=markevery,linestyle=linestyleL)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
               rmax = np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
           else:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -2810,19 +2821,19 @@ class Plotter:
                               if MakeAbs:
                                   ax.plot(negttt[ii], np.abs(negrrr[ii]), highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
-                                    marker=mmrk, markevery=markevery)
+                                    marker=mmrk, markevery=markevery,linestyle=linestyleL)
                               else:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
-                                    marker=mmrk, markevery=markevery)
-              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+                                    marker=mmrk, markevery=markevery,linestyle=linestyleL)
+              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
               rmax=np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
 
           if MakeAbs:
-              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
           else:
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery)
+              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
 
           #Plotly polar setup
           if self.useplotly:
