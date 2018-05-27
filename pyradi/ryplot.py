@@ -500,7 +500,7 @@ class Plotter:
     ##
     def __init__(self,fignumber=0,subpltnrow=1,subpltncol=1,\
                 figuretitle=None, figsize=(9,9), titlefontsize=14,
-                useplotly = False): 
+                useplotly = False,doWarning=True): 
         """Class constructor
 
         The constructor defines the number for this figure, allowing future reference
@@ -517,6 +517,7 @@ class Plotter:
                 | figsize ((w,h)): the figure size in inches
                 | titlefontsize (int): the figure title size in points
                 | useplotly (bool): Plotly activation parameter
+                | doWarning (bool): print warning messages to the screen
 
             Returns:
                 | Nothing. Creates the figure for subequent use.
@@ -544,6 +545,7 @@ class Plotter:
         self.fig.set_size_inches(figsize[0], figsize[1])
         self.fig.clear()
         self.figuretitle = figuretitle
+        self.doWarning = doWarning
 
         #Plotly variables initialization
         self.useplotly = useplotly
@@ -729,7 +731,7 @@ class Plotter:
 
         #http://stackoverflow.com/questions/15341757/how-to-check-that-pylab-backend-of-matplotlib-runs-inline/17826459#17826459
         # print(mpl.get_backend())
-        if 'inline' in mpl.get_backend():
+        if 'inline' in mpl.get_backend() and self.doWarning:
             print('****  If saveFig does not work inside the notebook please comment out the line "%matplotlib inline" ')
             # return
 
