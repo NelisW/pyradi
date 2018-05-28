@@ -649,9 +649,11 @@ def GetPTWFrameFromFile(header):
     header.data = np.eye(header.h_Cols, header.h_Rows)
 
     #datapoints = header.m_cols * header.m_rows
-    for y in range(header.h_Rows):
-        for x in range(header.h_Cols):
-            header.data[x][y] = myint(fid.read(2))
+    # for y in range(header.h_Rows):
+    #     for x in range(header.h_Cols):
+    #         header.data[x][y] = myint(fid.read(2))
+    data2=struct.unpack(str(header.h_SizeOfOneFrame)+'h',fid.read(header.h_SizeOfOneFrame*2))      
+    header.data=np.reshape(data2,(header.h_Rows,header.h_Cols))
 
     # for debugging
     #print ('Data read',len(header.m_data), 'points')
