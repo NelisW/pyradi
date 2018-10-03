@@ -171,7 +171,7 @@ class Markers:
 
             Args:
                 | markerfacecolor (colour): main colour for marker (optional)
-                | markerfacecoloralt (colour): alterive colour for marker (optional)
+                | markerfacecoloralt (colour): alternative colour for marker (optional)
                 | markeredgecolor (colour): edge colour for marker (optional)
                 | marker (string): string to specify the marker  (optional)
                 | markersize (int)): size of the marker  (optional)
