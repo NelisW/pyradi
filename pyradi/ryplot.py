@@ -2076,7 +2076,7 @@ class Plotter:
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
-                  zorders=None, clip_on=True,PLcolorscale='' ):
+                  zorders=None, PLcolorscale='' ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional
@@ -2141,7 +2141,6 @@ class Plotter:
                 | contFonSz (float): contour label fontsize (optional)
                 | contLinWid (float): contour line width in points (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
-                | clip_on (bool) clips objects to drawing axes (optional)
                 | PLcolorscale (?) Plotly parameter ? (optional)
 
             Returns:
@@ -2239,19 +2238,19 @@ class Plotter:
       #do the plot
       if contourFill:
           pmplotcf = ax.contourf(xvals, yvals, zvals, levels,
-              cmap=meshCmap, zorder=zorder, clip_on=clip_on)
+              cmap=meshCmap, zorder=zorder)
 
       if contourLine:
           pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder, clip_on=clip_on)
+               colors=col, zorder=zorder)
 
       if zeroContourLine:
           pmplot = ax.contour(xvals, yvals, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder, clip_on=clip_on)
+               colors=col, zorder=zorder)
 
 
       if contLabel: # and not contourFill:
-        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder, clip_on=clip_on)
+        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder)
 
       if cbarshow and (contourFill):
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
