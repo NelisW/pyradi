@@ -126,9 +126,9 @@ __all__= ['readOffFile', 'getRotateFromOffFile', 'getOrbitFromOffFile',
         'globePlotElevAzim','plotVertexSphere',]
 
 import sys
-if sys.version_info[0] > 2:
-    print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
-    exit(-1)
+# if sys.version_info[0] > 2:
+#     print("pyradi is not yet ported to Python 3, because imported modules are not yet ported")
+#     exit(-1)
 
 
 import os.path, fnmatch
