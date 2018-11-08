@@ -733,6 +733,7 @@ class Plotter:
         # print(mpl.get_backend())
         if 'inline' in mpl.get_backend() and self.doWarning:
             print('****  If saveFig does not work inside the notebook please comment out the line "%matplotlib inline" ')
+            print('To disable ryplot warnings, set doWarning=False')
             # return
 
         if len(filename)>0:

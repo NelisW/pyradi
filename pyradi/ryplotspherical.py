@@ -421,6 +421,10 @@ def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
     outp = np.hstack((outp, zVel * onesv)) # z-velocity
     outp = np.hstack((outp, engine * onesv)) # engine setting
 
+    print(np.mean(x))
+    print(np.mean(y))
+    print(np.mean(z))
+
     outfile = os.path.basename(filename)
     idx=outfile.find('.')
     outfile = outfile[:idx]
