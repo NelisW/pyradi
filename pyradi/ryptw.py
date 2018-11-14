@@ -109,9 +109,9 @@ def myint(x):
 def mylong(x):
     # four bytes length
     if sys.version_info[0] > 2:
-        ans = x[0] + (x[1]<<8) + (x[2]<<16) + (x[3]<<32)
+        ans = x[0] + (x[1]<<8) + (x[2]<<16) + (x[3]<<24)
     else:
-        ans = ord(x[0]) + (ord(x[1])<<8) + (ord(x[2])<<16) + (ord(x[3])<<32)
+        ans = ord(x[0]) + (ord(x[1])<<8) + (ord(x[2])<<16) + (ord(x[3])<<24)
     return ans
 
 def myfloat(x):
