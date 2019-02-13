@@ -740,10 +740,10 @@ class Plotter:
             if self.bbox_extra_artists:
                 self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
                             pad_inches=pad_inches,\
-                            bbox_extra_artists= self.bbox_extra_artists)
+                            bbox_extra_artists= self.bbox_extra_artists);
             else:
                 self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
-                            pad_inches=pad_inches)
+                            pad_inches=pad_inches);
 
 
     ############################################################

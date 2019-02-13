@@ -70,6 +70,66 @@ else:
 
 ##############################################################################
 ##
+def solidAngleSquare(width,breadth,height,stype,numsamples):
+    """Calculate the solid angle of a rectagular plate from a point on the normal at its centre
+
+    
+
+    The solid angle of a rectangular flat surface, with dimensions $W$ and $D$, as seen from a 
+    reference point centered above the surface, is determined by the integral of the projected 
+    area of a small elemental area $\cos\theta\,dd\,dw$ across the full size of the surface:
+    $$
+    \omega_{\rm s}=\int_W\int_D\frac{dw\,dd\,\cos^{n-2}\theta}{R^2}
+    $$
+    $$
+    \omega_{\rm s}=\int_W\int_D\frac{dw\,dd\,\cos^n\theta}{H^2}
+    $$
+    $$
+    \omega_{\rm s}=\int_W\int_D\frac{dw\,dd\,}{H^2}\left(\frac{H}{R}\right)^n
+    $$
+    $$\omega_{\rm s}=\int_W\int_D\frac{dw\,dd\,}{H^2}\left(\frac{H}{\sqrt{w^2+d^2+H^2}}\right)^n, 
+    $$
+    where $H$ is the reference point height above the surface, and $n=3$ for the geometrical solid angle 
+    and $n=4$ for the projected solid angle. The integral is performed along the $W$ and $D$ dimensions 
+    with increments of $dw$ and $dd$. The slant range between the reference point and the elemental area 
+    $dd\times dw$ is $R=H/\cos\theta$.
+
+
+    Args:
+        | width (float): size along one edge of rectangle
+        | breadth (float): size along the second edge of rectangle
+        | height (float): distance along normal to the rect to reference point
+        | stype (str): type of solid angle can be one of ('g' or 'p') for  ('geometric','projected')
+        | numsamples (int): number of samples along edges
+
+    Returns:
+        |  solid angle (float) or None if incorrect type
+
+
+    Raises:
+        | No exception is raised.
+
+
+    """
+
+    varx = np.linspace(-width/2, width/2, numsamples)
+    vary = np.linspace(-breadth/2, breadth/2, numsamples)
+    x, y = np.meshgrid(varx, vary)
+    if stype[0]=='g':
+       gv = (1. / ( (x / height) ** 2 + (y / height) ** 2 + 1 ) ) ** (3 / 2)
+    elif stype[0]=='p':
+        gv = (1. / ( (x / height) ** 2 + (y / height) ** 2 + 1 ) ) ** (4 / 2)
+    else:
+        return None
+
+    solidAngle = np.trapz(np.ravel(gv), dx=breadth*width/(numsamples**2))/(height*height)
+    return solidAngle
+
+
+
+
+##############################################################################
+##
 def intify_tuple(tup):
     """Make tuple entries int type
     """
@@ -2683,7 +2743,12 @@ if __name__ == '__main__':
         sensors = collections.OrderedDict()   
         targets = collections.OrderedDict()   
 
-    doAll = True
+    doAll = False
+
+    if True:
+        print(f'Solid angle= {solidAngleSquare(5.,5.,3.5,"p",101)}')    
+        print(f'Solid angle= {solidAngleSquare(5.,5.,3.5,"g",101)}')    
+        print(f'Solid angle= {solidAngleSquare(5.,5.,3.5,"s",101)}')    
 
     if doAll:
 
