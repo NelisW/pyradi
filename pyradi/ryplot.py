@@ -2141,7 +2141,7 @@ class Plotter:
                 | contCol (string): contour label colour, e.g., 'k' (optional)
                 | contFonSz (float): contour label fontsize (optional)
                 | contLinWid (float): contour line width in points (optional)
-                | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
+                | zorders ([int]) list of zorders for drawing sequence, highest is last (optional)
                 | PLcolorscale (?) Plotly parameter ? (optional)
 
             Returns:
@@ -2204,7 +2204,7 @@ class Plotter:
       else:
           col = self.nextPlotCol()
 
-      if zorders:
+      if zorders is not None:
         if len(zorders) > 1:
           zorder = zorders[i]
         else:
@@ -2251,7 +2251,7 @@ class Plotter:
 
 
       if contLabel: # and not contourFill:
-        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz, zorder=zorder)
+        plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz) #, zorder=zorder)
 
       if cbarshow and (contourFill):
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
