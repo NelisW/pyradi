@@ -45,7 +45,8 @@ __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
          'read2DLookupTable', 
          'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
          'open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
-         'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms']
+         'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms'
+         'mergeDFS']
 
 import sys
 import numpy as np
@@ -53,6 +54,12 @@ import os.path, fnmatch
 from matplotlib import cm as mcm
 import h5py
 from skimage.io import imread, imsave
+
+
+
+
+
+
 
 ################################################################
 def saveHeaderArrayTextFile(filename,dataArray, header=None,
@@ -1224,6 +1231,130 @@ def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
         filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
         with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
             p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin',maxNX=5)
+
+
+   
+################################################################
+def mergeDFS(df1, df2,leftPre=None,rightPre=None,bounds_error=False,
+                    mergeOn=None):
+    """Merge two pandas data frames on common column return merged df.
+
+    by default the merging takes place on columns named Time or time,
+    but the merge column name can be specified in mergeOn
+    
+    Args:
+        | df1 (dataframe): first dataframe to be merged
+        | df2 (dataframe): first dataframe to be merged
+        | leftPre (string): to be prepended to df1 columns names, except time
+        | rightPre (string): to be prepended to df2 columns names, except time
+        | bounds_error (boolean): pass through to interpolation function
+        | mergeOn (string): if not merging on time use this to merge on
+    
+    Returns:
+        | (pd.DataFrame): A Pandas data frame with the merged data
+
+    Raises:
+        | No exception is raised.
+    """
+    if mergeOn is not None:
+        if 'time' in df1.columns or 'time' in df2.columns or \
+            'Time' in df1.columns or 'Time' in df2.columns:
+            print('The "time" columns may not already be present in a dataframe')
+            return pd.DataFrame()
+        # rename merge column to time, later rename back
+        df1 = df1.rename(columns={mergeOn: 'time'})
+        df2 = df2.rename(columns={mergeOn: 'time'})
+
+    # we want time to be lower case
+    df1 = df1.rename(columns={'Time': 'time'})
+    df2 = df2.rename(columns={'Time': 'time'})
+
+    if leftPre is not None:
+        ncols = []
+        cols = df1.columns
+        for col in cols:
+            # if not 'Time' in col and not 'time' in col:
+            if not 'time' in col:
+                ncol = leftPre + '_' + col
+            else:
+                ncol = col
+            ncols.append(ncol)
+        df1.columns = ncols
+        
+    if rightPre is not None:
+        ncols = []
+        cols = df2.columns
+        for col in cols:
+            # if not 'Time' in col and not 'time' in col:
+            if not 'time' in col:
+                ncol = rightPre + '_' + col
+            else:
+                ncol = col
+            ncols.append(ncol)
+        df2.columns = ncols
+
+    # default setting, change down below
+    merged = False
+
+    # test single row entries
+    if df1.shape[0]==1 and df2.shape[0]==1:
+        if df1['time'].iloc[0] == df2['time'].iloc[0]:
+            df1 = df1.merge(df2, on='time')
+        else:
+            print('mergeDFS failed to merge two single row frames on different times: \n{}\n{}'.format(df1,df2))
+            df1 = None
+        merged = True
+
+    # test equal number entries and equal time intervals
+    if merged == False and df1.shape[0] == df2.shape[0]:
+        # test same values in both columns
+        if np.all(np.where(df1['time']==df2['time'], True, False)):
+            df1 = df1.merge(df2, on='time')
+            merged = True
+ 
+    #  # merge must be on shorter time intervals
+    # if df1.shape[0] < df2.shape[0]:
+    #     # swop
+    #     df1,df2 = df2,df1
+
+
+    if merged == False:
+        from scipy.interpolate import interp1d
+        from numbers import Number
+
+        # use column with shorter time as baseline
+        # print(f"{np.min(df1['time']):.16f}   {np.min(df2['time']):.16f}")
+        # print(f"{np.max(df1['time']):.16f}   {np.max(df2['time']):.16f}")
+        # print(np.max(df1['time']) == np.max(df2['time']))
+        if (np.max(df1['time'])-np.min(df1['time']) ) > (np.max(df2['time'])-np.min(df2['time'])):
+        # if (np.max(df1['time'])-np.min(df1['time']) ) > (np.max(df2['time'])-np.min(df2['time']) \
+        #     and np.max(df1['time']) >= np.max(df2['time']) \
+        #     and np.min(df1['time']) <= np.min(df2['time']) \
+        #     ):
+            df1,df2 = df2,df1
+            # print('flipping')
+        else:
+            # print('not flipping')
+            pass
+
+        #cycle through all columns
+        cols = df2.columns
+        for col in cols:
+            # only interpolate if this column as numbers
+            # print(f'isnumber {col} {isinstance(df2[col].iloc[0], Number)}')
+            if isinstance(df2[col].iloc[0], Number):
+                fint = interp1d(df2['time'],df2[col],bounds_error=bounds_error)
+                df1[col] = fint(df1['time'])
+            else:
+                # unable to interpolate non-number, don't copy column
+                pass
+
+    dfRtn = df1.copy() if df1 is not None else None
+    if mergeOn is not None:
+        dfRtn = dfRtn.rename(columns={'time': mergeOn})
+
+    return dfRtn
+    
 
 
 ################################################################

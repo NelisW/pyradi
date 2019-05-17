@@ -285,12 +285,12 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     nfr,img = ryfiles.readRawFrames(filename, rows=inputSize[0], cols=inputSize[1],
                             vartype=np.float64, loadFrames=[imgNum])
     # print(nfr,img.shape)
-    #extract the smaller raw image and coalesce/blur
-    img = ryutils.blurryextract(img[0,:,:], inputOrigin=inputOrigin, 
-            outputSize=outputSize, 
-                sigma=sigma, blocksize=blocksize)
-
     if nfr > 0:
+        #extract the smaller raw image and coalesce/blur
+        img = ryutils.blurryextract(img[0,:,:], inputOrigin=inputOrigin, 
+                outputSize=outputSize, 
+                    sigma=sigma, blocksize=blocksize)
+
         img = img / imghd5['image/joule_per_photon'].value
 
         if imghd5['image/rad_min'].value < 0. and imghd5['image/rad_dynrange'].value < 0.:
