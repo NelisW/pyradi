@@ -124,7 +124,8 @@ def photosensor(strh5,initialise=True):
     #create the various data arrays
     strh5 = check_create_datasets(strh5, initialise)
 
-
+    detarea = strh5['rystare/photondetector/geometry/fillfactor'].value * strh5['rystare/pixelPitch'].value[0] * strh5['rystare/pixelPitch'].value[1]
+    strh5['rystare/detectorArea'][...] = detarea
 
     if strh5['rystare/darkframe'].value:  
         # complete darkness, photon signal already set to zero
@@ -320,8 +321,6 @@ def check_create_datasets(strh5,initialise=True):
         strh5['rystare/signal/voltageAfterSFnoise'] = np.zeros(sensor_size)
         strh5['rystare/signal/voltageaftercds'] = np.zeros(sensor_size)
 
-
-
         strh5['rystare/signal/DN'] = np.zeros(sensor_size) 
         strh5['rystare/photondetector/lightPRNU/value'] = np.zeros(sensor_size) 
         strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/value'] = np.zeros(sensor_size) 
@@ -341,6 +340,7 @@ def check_create_datasets(strh5,initialise=True):
         strh5['rystare/sensenode/capacitance'] = 0.
         strh5['rystare/sensenode/ResetKTC-sigma'] = 0.
         strh5['rystare/darkcurrentelectronsnonoise'] = 0.
+        strh5['rystare/detectorArea'] = -1.
 
         if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
             print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
@@ -397,6 +397,7 @@ def check_create_datasets(strh5,initialise=True):
         strh5['rystare/sensenode/capacitance'][...] = 0.
         strh5['rystare/sensenode/ResetKTC-sigma'][...] = 0.
         strh5['rystare/darkcurrentelectronsnonoise'][...] = 0.  
+        strh5['rystare/detectorArea'][...] = -1.
 
         if (strh5['rystare/sensenode/resetnoise/factor'].value > 1.):
             print('{} {} {} {}'.format('Warning! The compensation factor', strh5['rystare/sensenode/resetnoise/factor'].value,
@@ -1275,11 +1276,9 @@ def multiply_detector_area(strh5):
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
-    #Calculating the area of the pixel (in [m^2]).
-    detarea = strh5['rystare/photondetector/geometry/fillfactor'].value * strh5['rystare/pixelPitch'].value[0] * strh5['rystare/pixelPitch'].value[1]
 
     # calculate radiant flux [W] from irradiance [W/m^2] and area
-    strh5['rystare/signal/electronRate'][...]  = detarea * strh5['rystare/signal/electronRateIrradiance'].value 
+    strh5['rystare/signal/electronRate'][...]  = strh5['rystare/detectorArea'].value * strh5['rystare/signal/electronRateIrradiance'].value 
 
     return strh5
 
@@ -2405,6 +2404,8 @@ def get_summary_stats(hdffilename):
         print('F-number                    : {} '.format(strh5['rystare/fnumber'].value))
         print('F-number cone               : {} sr'.format(strh5['rystare/fnumberConeSr'].value))
         print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'].value))
+        print('Detector area               : {} m'.format(strh5['rystare/detectorArea'].value))
+        
         if 'rystare/imageSizeDiagonal' in strh5:
             print('Image size diagonal         : {:.3e} m'.format(strh5['rystare/imageSizeDiagonal'].value))
         print('Image size pixels           : {} '.format(strh5['rystare/imageSizePixels'].value))

@@ -531,7 +531,7 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
             print(stats.describe(imghd5[item].value,axis=None))
 
     # plot the images
-    p = ryplot.Plotter(1,3,1,plotfile, figsize=(gwidh,gheit))
+    p = ryplot.Plotter(1,3,1,plotfile, figsize=(gwidh,gheit),doWarning=False)
     for item in ['image/PhotonRateRadianceNoNoise','image/PhotonRateIrradianceNoNoise']:
         if item in imghd5:
             p.showImage(1,imghd5[item].value,item,cbarshow=True)
@@ -547,7 +547,7 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
 
     # plot interpolation function
     if 'image/interpolate_x' in imghd5:
-        q = ryplot.Plotter(1,1,1,plotfile, figsize=(12,6))
+        q = ryplot.Plotter(1,1,1,plotfile, figsize=(12,6),doWarning=False)
         q.plot(1,imghd5['image/interpolate_x'].value,imghd5['image/interpolate_y'].value)
         q.saveFig('{}-lookup.png'.format(plotfile))
 
