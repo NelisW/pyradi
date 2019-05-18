@@ -291,6 +291,9 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
                 outputSize=outputSize, 
                     sigma=sigma, blocksize=blocksize)
 
+        # save the original input image
+        imghd5['image/equivalentSignal'][...] = img
+
         img = img / imghd5['image/joule_per_photon'].value
 
         if imghd5['image/rad_min'].value < 0. and imghd5['image/rad_dynrange'].value < 0.:
@@ -310,6 +313,7 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     # save the no noise image
     imghd5['image/PhotonRateRadianceNoNoise'][...] = PhotonRateRadianceNoNoise
 
+
     return imghd5 
 
 
@@ -318,7 +322,7 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
 def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     saveNoiseImage=False,saveEquivImage=False,
     equivalentSignalType='',equivalentSignalUnit='', LinUnits='', seedval=0,fintp=None,
-    fileHandle=None):
+    fileHandle=None,noSpaces=False):
     r"""This routine serves as calling function to a generating function to create images.
     This function expects that the calling function will return photon rate images,
     irrespective of the units of the min/max values used to create the image.
@@ -378,8 +382,10 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
         | seedval (int): a seed for the photon noise generator
         | saveNoiseImage (bool): save the noisy image to HDF5 file
         | saveEquivImage (bool): save the equivalent image to HDF5 file
-        | fintp (function): interpolation function to map from radiance to equivalent unit
+        | fintp (function or str): interpolation function to map from radiance to equivalent unit,
+        |           if string 'original', then keep the original input image written by hdf_raw()
         | fileHandle (filehandle): create new file None, use otherwise
+        | noSpaces (bool): if True replace all spaces and decimals in filename with '-'
 
     Returns:
         | string/hdffile (string): hdf5 filename or open file
@@ -397,7 +403,13 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     # else:
     #     inpstr = isinstance(imageName, basestring)
 
-    hdffilename = 'image-{}-{}-{}.hdf5'.format(imageName, numPixels[0], numPixels[1])
+
+    hdffilename = 'image-{}-{}-{}'.format(imageName, numPixels[0], numPixels[1])
+    if noSpaces:
+        hdffilename = hdffilename.replace(' ','-')
+        hdffilename = hdffilename.replace('.','-')
+    hdffilename = '{}.hdf5'.format(hdffilename)
+
     if fileHandle is None:
         imghd5 = ryfiles.erase_create_HDF(hdffilename)
     else:
@@ -461,18 +473,21 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
     # save equivalent signal
     if imghd5['image/saveEquivImage'].value:
-        if fintp is not None:
-            # save equivalent signal  (e.g., temperature or lux), by interpolation
-            imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'].value)
-            # save the interpolation function to hdf5
-            assigncheck(imghd5,'image/interpolate_x',fintp.x)
-            assigncheck(imghd5,'image/interpolate_y',fintp.y)
-            # imghd5['image/interpolate_x'] = fintp.x
-            # imghd5['image/interpolate_y'] = fintp.y
-        else:
+        if fintp is None:
             # save nonoise image as equivalent signal 
             imghd5['image/equivalentSignal'][...] = imghd5['image/PhotonRateRadianceNoNoise'].value
-            
+        else:
+            if isinstance(fintp, str): # if string, keep the value written by hdf_raw
+                pass
+            else:
+                # save equivalent signal  (e.g., temperature or lux), by interpolation
+                imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'].value)
+                # save the interpolation function to hdf5
+                assigncheck(imghd5,'image/interpolate_x',fintp.x)
+                assigncheck(imghd5,'image/interpolate_y',fintp.y)
+                # imghd5['image/interpolate_x'] = fintp.x
+                # imghd5['image/interpolate_y'] = fintp.y
+
 
     imghd5.flush()
     imghd5.close()
