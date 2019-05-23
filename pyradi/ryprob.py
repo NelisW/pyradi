@@ -18,15 +18,13 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides a high level model for CCD and CMOS staring array 
-signal chain modelling. The work is based on a paper and Matlab code by Mikhail Konnik,
-available at:
+This module provides a few probability utility functions, most of which are used in  the 
+high level  CCD and CMOS staring array model pyradi.rystare.
 
-- Paper available at: http://arxiv.org/pdf/1412.4031.pdf
-- Matlab code available at: https://bitbucket.org/aorta/highlevelsensorsim
+One of the utility functions provide a packaged version of scikit learn's 
+kernel density estimation tool to provide a better estimate than does a 
+simple histogram.
 
-See the documentation at http://nelisw.github.io/pyradi-docs/_build/html/index.html 
-or pyradi/doc/rystare.rst  for more detail.
 """
 
 
@@ -42,6 +40,96 @@ __all__=['distribution_exp','distribution_lognormal','distribution_inversegauss'
 import sys
 import numpy as np
 import re
+
+
+######################################################################################
+def KDEbounded(x_d,x,bandwidth=np.nan,lowbnd=np.nan,uppbnd=np.nan,kernel = 'gaussian'):
+    """Estimate the probability by Kernel Density Estimation
+
+    If bandwidth is np.nan, calculate the optimal kernel width, aka bandwidth.  
+    Be careful, this can take a while.
+
+    Mirrors the data at either or both of the edges if the domain is bounded.
+
+    Args:
+        | x_d (np.array[N,]): domain over which values must be returned
+        | x (np.array[N,]): input ample data set
+        | bandwidth (float): the bandwidth width to be used, np.nan if to be calculated
+        | lowbnd (float): lower mirror fold boundary, np.nan means no lower bound and mirror
+        | uppbnd (float): upper mirror fold boundary, np.nan means no upper bound and mirror
+        | kernel (str): kernel to be used ['gaussian'|'tophat'|'epanechnikov'|'exponential'|'linear'|'cosine']
+
+
+    Returns:
+        | x_d (np.array[N,]): input vector used as domain for the calculations
+        | x (np.array[N,]): probability density over x_d, the range of the PDF
+        | bandwidth (float): bandwidth used in the KDE
+        | kernel (str): kernel used 
+
+    Raises:
+        | No exception is raised.
+
+    See here for more detail and examples:
+    https://github.com/NelisW/PythonNotesToSelf/tree/master/KernelDensityEstimation
+
+    Other references:
+    https://jakevdp.github.io/PythonDataScienceHandbook/05.13-kernel-density-estimation.html#Motivating-KDE:-Histograms
+    https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
+    https://scikit-learn.org/stable/auto_examples/neighbors/plot_kde_1d.html
+    https://stats.stackexchange.com/questions/405357/how-to-choose-the-bandwidth-of-a-kde-in-python
+    https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
+    https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+    https://stats.stackexchange.com/questions/405357/how-to-choose-the-bandwidth-of-a-kde-in-python
+    https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation
+    https://towardsdatascience.com/how-to-find-probability-from-probability-density-plots-7c392b218bab
+    https://github.com/admond1994/calculate-probability-from-probability-density-plots/blob/master/cal_probability.ipynb
+   
+    """
+
+    from sklearn.neighbors import KernelDensity
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.model_selection import LeaveOneOut
+   
+    # find optimal bandwidth if not supplied
+    if np.isnan(bandwidth):
+        bandwidths = 10 ** np.linspace(-1, 1, 100)
+        kd = KernelDensity(kernel=kernel)
+        grid = GridSearchCV(kd,param_grid={'bandwidth': bandwidths},
+                            cv=LeaveOneOut())
+        grid.fit(x[:, None]); # create additional axes of length one
+        bandwidth = grid.best_params_['bandwidth']
+ 
+    X = []
+    Xo = []
+    
+    # base data, and if required lower flipped, upper flipped
+    X.append(x)
+    if not np.isnan(lowbnd):
+        X.append(-x + 2 * lowbnd)
+    if not np.isnan(uppbnd):
+        X.append(-x + 2 * uppbnd)
+
+    # do for base, and if present lower and upper flipped
+    for i,x in enumerate(X):
+        # instantiate and fit the KDE model
+        kde = KernelDensity(bandwidth=bandwidth, kernel=kernel)
+        kde.fit(x[:, None]) # create additional axes of length one
+        # score_samples returns the log of the probability density
+        prob = np.exp(kde.score_samples(x_d[:, None])) # create additional axes of length one
+        Xo.append(prob)
+
+    # add base and flipped together
+    x = np.zeros_like(x_d)
+    for xi in Xo:
+        x += xi
+
+    # only cut out the base domain
+    if not np.isnan(lowbnd):
+        x = np.where(x_d<=lowbnd,0,x)
+    if not np.isnan(uppbnd):
+        x = np.where(x_d>=uppbnd,0,x)
+    
+    return x_d,x,bandwidth, kernel
 
 
 ######################################################################################
