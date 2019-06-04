@@ -49,7 +49,7 @@ __all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'makemotionsequence','extractGraph','luminousEfficiency','Spectral',
          'Atmo','Sensor','Target','calcMTFwavefrontError',
          'polar2cartesian','warpPolarImageToCartesianImage','warpCartesianImageToPolarImage',
-         'intify_tuple','differcommonfiles','blurryextract'
+         'intify_tuple','differcommonfiles','blurryextract','update_progress'
          ]
 
 import sys
@@ -66,6 +66,49 @@ if sys.version_info[0] > 2:
 else:
     from StringIO import StringIO
 
+
+
+##############################################################################
+##
+def update_progress(progress, bar_length=20):
+    """Simple text-based progress bar for Jupyter notebooks.
+
+    Note that clear_output, and hence this function wipes the entire cell output, 
+    including previous output and widgets.
+
+    Usage:
+
+    import pyradi.ryutils as ryutils
+    import time
+    print('before')
+    #Replace this with a real computation
+    number_of_elements = 100
+    for i in range(number_of_elements):
+        time.sleep(0.1) 
+        # progress must be a float between 0 and 1
+        ryutils.update_progress((i+1) / number_of_elements,bar_length=40)
+    print('after')
+
+    source:
+
+    https://mikulskibartosz.name/how-to-display-a-progress-bar-in-jupyter-notebook-47bd4c2944bf
+    https://ipython.org/ipython-doc/3/api/generated/IPython.display.html#IPython.display.clear_output
+    Wait to clear the output until new output is available to replace it.
+    """
+    from IPython.display import clear_output
+    
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+    if progress < 0:
+        progress = 0
+    if progress >= 1:
+        progress = 1
+    block = int(round(bar_length * progress))
+    clear_output(wait = True)
+    text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+    print(text)
 
 
 ##############################################################################
