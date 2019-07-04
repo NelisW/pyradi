@@ -6,7 +6,7 @@ To build the documentation the pyradi module files must be reachable via the `PY
 where the module files are kept, such that the module directory name must not be  in the specified path, i.e., enter a path one level higher than the module directory.
 
 
-The present version of pyradi requires Python 2.7 to build the documentation, because the code only runs under Python 2.7.  If your Python 2.7 is in an environment, activate the environment.
+The present version of pyradi requires Python 3 to build the documentation, because the code only runs under Python 3.  
 
 ## Create the documentation
 

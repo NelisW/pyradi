@@ -1,5 +1,15 @@
+
 The purpose of computing is insight, not numbers.<BR>
 _-- Richard Hamming_
+
+## Notes
+
+- pyradi is no longer supported on PyPI, please install directly from this repository (details below).
+
+- Setting up and getting to know pyradi requires some grit on your part.  The toolkit is offered as  an engineering tool to other engineers; it is not intended to be used casually by uninformed persons. Most of the documentation is written up in the code itself.  The additional documentation is relatively sparse.
+
+- Some of the tools in pyradi are quite powerful and require careful study and insight to use correctly. Do not take shortcuts!
+
 
 ## Objective
 
@@ -23,34 +33,17 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
 
   * Spectral variables are expressed in Numpy arrays to ease spectral operations and integrals.
 
+  * A powerful staring array sensor that accounts for various noise sources and nonlinearities.
+
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
 
 
-## Prerequisites
+## Prerequisites and Installation
 
-If you install the [Anaconda](https://store.continuum.io/cshop/anaconda/) distribution (Python 2.7 or 3.5)  you can ignore the rest of this paragraph.  It works well, is easy to do and, unless you have conflicting requirements, just download Anaconda and focus on the work.
+The most recent version of pyradi was last tested in July 2019 using Python 3.7.
+Python 2.7 is no longer supported (the code may still work, but it is not actively supported).
 
-This specific toolkit is implemented in
-[Python (2.7 or 3.5)](http://www.python.org/) and its associated modules
-[Numpy](https://www.scipy.org/),
-[SciPy](https://www.scipy.org/),
-[Matplotlib](http://matplotlib.sourceforge.net/), and
-[Mayavi](http://code.enthought.com/projects/mayavi/).
-The links provided in this section should get you going, except maybe for Mayavi. Mayavi is only required for the three-dimensional spherical plots, you may ignore the requirement otherwise.
-
-Most sources advise users to install Mayavi as part of a Python distribution, such as the
-[Enthought Tool Set](http://www.lfd.uci.edu/~gohlke/pythonlibs/#ets) or
-[Anaconda](https://store.continuum.io/cshop/anaconda/) distributions. This is certainly an option for newcomers, but  these distributions are not always current with the latest code package versions. Of the two, Anaconda appears to be quicker with the updates.
-Look for
-[Anaconda](https://store.continuum.io/cshop/anaconda/) (under the supervision of Travis Oliphant, one of the driving forces behind Numpy) or
-[Enthought Tool Set](http://www.lfd.uci.edu/~gohlke/pythonlibs/#ets), both of which contains contains Mayavi and other tools.
-You can find Mayavi (and other) installation packages on
-[this site](http://www.lfd.uci.edu/~gohlke/pythonlibs/#scikits-image).
-
-pyradi requires Python version 2.7 or Python 3.5.  
-
-pyradi was last tested on 2016-11-20 using Python 2.7.12 and Python 3.5.2.
-
+Please see this [link for installation procedures](https://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/00-Installing-Python-pyradi.ipynb#Installing-pyradi). It should take you to the online  nbviewer to open a notebook (`00-Installing-Python-pyradi.ipynb`) in the companion repository https://github.com/NelisW/ComputationalRadiometry.
 
 ## Learning Python
 
@@ -69,8 +62,7 @@ There are many free
 [numpy reference](http://docs.scipy.org/doc/numpy/numpy-ref-1.8.0.pdf) and StackOverflow are good sources.
 Just google some variation of 'learning python' and make your choice.
 
-A very good introduction to Python for scientific work are the
-[two books](http://folk.uio.no/hpl/scripting/book_comparison.html) by Hans Petter Langtangen.
+A comprehensive list of training material is given [here](https://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/02-PythonWhirlwindCheatSheet.ipynb#Learning-Python)
 
 
 ## Status
@@ -82,7 +74,7 @@ The development is ongoing as and when new needs arise.  We are open for feature
 - Module documentation is available in  
 - [HTML](http://nelisw.github.io/pyradi-docs/_build/html/index.html) and  [PDF](https://raw.githubusercontent.com/NelisW/pyradi-docs/gh-pages/_build/latex/pyradi.pdf).
 - A number of IPython notebooks demonstrate pyradi use. Head on over to
-[Computational Radiometry](https://github.com/NelisW/ComputationalRadiometry) to download the notebooks. If you are not using the IPython notebook, the are also [HTML renderings](https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi).
+[Computational Radiometry](https://github.com/NelisW/ComputationalRadiometry) to download the notebooks. If you are not using the IPython notebook, the are also [HTML renderings](https://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/tree/master/) in the online notebook viewer.
 - At the end of each of the pyradi files, in the __main__ section, you will find test and example code demonstrating the use of that specific file. Some day, these will find their way into a tutorial, but for now, please study the example code.
 - ["Pyradi: an open-source toolkit for infrared calculation and data processing"](http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/SPIE-8543-Pyradi-an-open-source-toolkit-for-infrared-85430J.pdf), SPIE   Proceedings Vol 8543, Security+Defence 2012,  Technologies for Optical Countermeasures, Edinburgh, 24-27 September, C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau.
 - ["Pyradi radiometry toolkit"](http://pyradi.googlecode.com/svn/trunk/pyradi/documentation/pyradi-SPIE-Newsroom.pdf),   C.J. Willers, M. S. Willers,    R.A.T. Santos, P.J. van der Merwe, J.J. Calitz, A de Waal and A.E. Mudau,  SPIE Newsroom, DOI:10.1117/2.1201211.004568, 2012.
@@ -93,31 +85,18 @@ The development is ongoing as and when new needs arise.  We are open for feature
 
 ## Get the code via Python pip or easy_install
 
-**Note that the PyPi version is not up to date with the github version.**
-
-You can download the pyradi package using pip, from the command line by typing
-
-    pip install --upgrade pyradi
-
-This command will install or upgrade pyradi to the latest version written to  <https://pypi.python.org/pypi/pyradi/>. If the install is successful, pyradi is available for use immediately, no further action is required.  The pip install may initiate the download of numpy, scipy, matplotlib or scikit-image if these are not presently in your Python distribution.
-
-The pyradi version in pip is **not** built at regular intervals from the git repository, but definitely does not have all the very latest version.
-
-Instructions on how to use pip is available at <http://www.pythonforbeginners.com/basics/python-pip-usage> and  <http://www.pip-installer.org/en/latest/installing.html>.
+**Note that pyradi is no longer available on PyPi.**
 
 ## Get the code from GitHub
-You can download the very latest version of pyradi from the [pyradi repository](https://github.com/NelisW/pyradi) on GitHub.  I am somewhat slow to update PyPi with the latest GitHub version.
+You can download the very latest version of pyradi from the [pyradi repository](https://github.com/NelisW/pyradi) on GitHub.  
 
-Note that the git checkout only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image.  These can be installed using pip with commands of the form:
-
-    pip install --upgrade matplotlib
+Note that the git checkout only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image. 
 
 If you install the Anaconda distribution all the dependency packages should already be present.
 
 ## Repositories associated with pyradi
 
 In order to keep the size of the pyradi repository smaller, some pyradi information has been moved to separate repositories.  If you require to work on regression testing and documentation, check out the tree repositories as follows:
-
 
     ..
     +-pyradi  [https://github.com/NelisW/pyradi]
