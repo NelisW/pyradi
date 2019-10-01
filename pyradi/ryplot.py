@@ -541,7 +541,7 @@ class Plotter:
             sys.exit(-1)
 
         self.figurenumber = fignumber
-        self.fig = plt.figure(self.figurenumber, frameon=False)
+        self.fig = plt.figure(self.figurenumber)
         self.fig.set_size_inches(figsize[0], figsize[1])
         self.fig.clear()
         self.figuretitle = figuretitle
