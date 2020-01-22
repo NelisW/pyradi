@@ -988,11 +988,16 @@ def read2DLookupTable(filename):
     return(xVec, yVec, data, xlabel, ylabel, title)
 
 ######################################################################################
-def open_HDF(filename):
+def open_HDF(filename, mode='r'):
     """Open and return an HDF5 file with the given filename.
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
     for more information on using HDF5 as a data structure.
+
+    Default open mode is read, cam be overridden by any of these:
+    'r', 'r+', 'w', 'w-'/'x', 'a'
+    https://h5py.readthedocs.io/en/stable/quick.html
+    https://h5py.readthedocs.io/en/stable/high/file.html#opening-creating-files
 
     Args:
         | filename (string): name of the file to be opened
@@ -1005,7 +1010,7 @@ def open_HDF(filename):
 
     Author: CJ Willers
     """
-    f = h5py.File(filename)
+    f = h5py.File(filename,mode)
     return f
 
 
@@ -1015,6 +1020,9 @@ def erase_create_HDF(filename):
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
     for more information on using HDF5 as a data structure.
+
+    open for writing, truncate if exists
+    https://h5py.readthedocs.io/en/stable/high/file.html#opening-creating-files
 
     Args:
         | filename (string): name of the file to be created
@@ -1029,7 +1037,7 @@ def erase_create_HDF(filename):
     """
     if os.path.isfile(filename):
         os.remove(filename)
-    f = h5py.File(filename)
+    f = h5py.File(filename,'w')
     return f
 
 ######################################################################################

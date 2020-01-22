@@ -90,14 +90,14 @@ def hdf_Uniform(imghd5,rad_dynrange):
     """
 
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
     assigncheck(imghd5,'image/rad_min',0.)
-    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
+    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
     # imghd5['image/rad_min'] = 0. 
 
     # create photon rate radiance image from min to min+dynamic range, with no noise
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
-                     rad_dynrange * np.ones((imghd5['image/imageSizePixels'].value)) 
+                     rad_dynrange * np.ones((imghd5['image/imageSizePixels'][()])) 
 
     return imghd5 
 
@@ -128,31 +128,31 @@ def hdf_disk_photon(imghd5,rad_min,rad_dynrange,fracdiameter,fracblur):
     """
 
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange  * imghd5['image/conversion'].value)
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange  * imghd5['image/conversion'][()])
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
     # scale the disk to image size, as fraction
-    maxSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
+    maxSize = np.min((imghd5['image/imageSizeRows'][()], imghd5['image/imageSizeCols'][()]))
     assigncheck(imghd5,'image/disk_diameter',fracdiameter * maxSize)
     assigncheck(imghd5,'image/blur',fracblur * maxSize)
 
-    # imghd5['image/rad_dynrange'] = rad_dynrange  * imghd5['image/conversion'].value
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    # imghd5['image/rad_dynrange'] = rad_dynrange  * imghd5['image/conversion'][()]
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
     # # scale the disk to image size, as fraction
-    # maxSize = np.min((imghd5['image/imageSizeRows'].value, imghd5['image/imageSizeCols'].value))
+    # maxSize = np.min((imghd5['image/imageSizeRows'][()], imghd5['image/imageSizeCols'][()]))
     # imghd5['image/disk_diameter'] = fracdiameter * maxSize
     # imghd5['image/blur'] = fracblur * maxSize
 
 
 
     #create the disk, normalised to unity
-    varx = np.linspace(-imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizeCols'].value/2, imghd5['image/imageSizePixels'].value[1])
-    vary = np.linspace(-imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizeRows'].value/2, imghd5['image/imageSizePixels'].value[0])
+    varx = np.linspace(-imghd5['image/imageSizeCols'][()]/2, imghd5['image/imageSizeCols'][()]/2, imghd5['image/imageSizePixels'][()][1])
+    vary = np.linspace(-imghd5['image/imageSizeRows'][()]/2, imghd5['image/imageSizeRows'][()]/2, imghd5['image/imageSizePixels'][()][0])
     x1, y1 = np.meshgrid(varx, vary)
     delta_x = varx[1] - varx[0]
     delta_y = vary[1] - vary[0]
-    Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'].value) 
+    Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'][()]) 
     #create blur disk normalised to unity
-    dia = np.max((1, 2 * round(imghd5['image/blur'].value / np.max((delta_x,delta_y)))))
+    dia = np.max((1, 2 * round(imghd5['image/blur'][()] / np.max((delta_x,delta_y)))))
     varx = np.linspace(-dia, dia, 2 * dia)
     vary = np.linspace(-dia, dia, 2 * dia)
     x, y = np.meshgrid(varx, vary)
@@ -162,7 +162,7 @@ def hdf_disk_photon(imghd5,rad_min,rad_dynrange,fracdiameter,fracblur):
 
     # create the photon rate radiance image from min to min+dynamic range, with no noise
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
-                (imghd5['image/rad_min'].value + NormLin * imghd5['image/rad_dynrange'].value ) 
+                (imghd5['image/rad_min'][()] + NormLin * imghd5['image/rad_dynrange'][()] ) 
 
     imghd5.flush()
 
@@ -198,34 +198,34 @@ def hdf_stairs(imghd5,rad_min,rad_dynrange,steps,imtype):
     Author: CJ Willers
     """
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'].value)
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
     assigncheck(imghd5,'image/steps',steps)
     assigncheck(imghd5,'image/imtype',imtype)
-    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
     # imghd5['image/steps'] = steps 
     # imghd5['image/imtype'] = imtype
 
     #Create the stairs spatial definition
-    size = imghd5['image/imageSizePixels'].value[1]
+    size = imghd5['image/imageSizePixels'][()][1]
     if imtype in ['stairslin']:
         varx = np.linspace(0,size-1,size)
     else:
         varx = np.logspace(-1,np.log10(size-1),size)
     varx =  ((varx/(size/steps)).astype(int)).astype(float) / steps
     varx = varx / np.max(varx) 
-    vary = np.linspace( - imghd5['image/imageSizeRows'].value/2, 
-                            imghd5['image/imageSizeRows'].value/2,
-                            imghd5['image/imageSizePixels'].value[0])
-    vary = np.where(np.abs(vary)<imghd5['image/imageSizeRows'].value/3.,1.,0.)
+    vary = np.linspace( - imghd5['image/imageSizeRows'][()]/2, 
+                            imghd5['image/imageSizeRows'][()]/2,
+                            imghd5['image/imageSizePixels'][()][0])
+    vary = np.where(np.abs(vary)<imghd5['image/imageSizeRows'][()]/3.,1.,0.)
     x, y = np.meshgrid(varx,vary)
     NormLin = y * x  * np.ones(x.shape)  
 
 
     # create the photon rate radiance image from min to min+dynamic range, with no noise
     imghd5['image/PhotonRateRadianceNoNoise'][...] =  \
-            (imghd5['image/rad_min'].value + NormLin * imghd5['image/rad_dynrange'].value ) 
+            (imghd5['image/rad_min'][()] + NormLin * imghd5['image/rad_dynrange'][()] ) 
  
     imghd5.flush()
 
@@ -274,11 +274,11 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     """
 
     # print(filename,inputSize,outputSize,rad_min,rad_dynrange, imgNum,inputOrigin,blocksize,sigma)
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'].value)
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'].value)
+    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
     assigncheck(imghd5,'image/filename',filename)
-     # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'].value
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'].value
+     # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
+    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
     # imghd5['image/filename'] = filename 
 
     # read the imgNum'th raw image frame from file
@@ -294,9 +294,9 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
         # save the original input image
         imghd5['image/equivalentSignal'][...] = img
 
-        img = img / imghd5['image/joule_per_photon'].value
+        img = img / imghd5['image/joule_per_photon'][()]
 
-        if imghd5['image/rad_min'].value < 0. and imghd5['image/rad_dynrange'].value < 0.:
+        if imghd5['image/rad_min'][()] < 0. and imghd5['image/rad_dynrange'][()] < 0.:
             # don't scale the input image
             # create photon rate radiance image from input, no scaling, with no noise
             PhotonRateRadianceNoNoise = img 
@@ -304,8 +304,8 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
             # scale the input image
             NormLin = (img - np.min(img)) / (np.max(img)- np.min(img))
             # create photon rate radiance image from min to min+dynamic range, with no noise
-            PhotonRateRadianceNoNoise = imghd5['image/rad_min'].value  \
-                        + NormLin * imghd5['image/rad_dynrange'].value
+            PhotonRateRadianceNoNoise = imghd5['image/rad_min'][()]  \
+                        + NormLin * imghd5['image/rad_dynrange'][()]
     else:
         print('Unknown image type or file not successfully read: {}\n no image file created'.format(filename))
         return imghd5
@@ -444,21 +444,21 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
         dset = imghd5.create_dataset('image/PhotonRateRadiance', numPixels, dtype='float', compression="gzip")
     #photon rate radiance in the image ph/(m2.s), with no photon noise, will be filled by rendering function
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
-              np.zeros((imghd5['image/imageSizePixels'].value[0],imghd5['image/imageSizePixels'].value[1]))
+              np.zeros((imghd5['image/imageSizePixels'][()][0],imghd5['image/imageSizePixels'][()][1]))
 
     assigncheck(imghd5,  'image/wavelength',wavelength)
      # imghd5['image/wavelength'] = wavelength
 
     # use units to determine if photon rate or watts
     # joule/photon factor to convert between W/m2 and q/(s.m2)
-    if isinstance( imghd5['image/wavelength'].value, float):   
-        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / imghd5['image/wavelength'].value)
-        # imghd5['image/joule_per_photon'] = const.h * const.c / imghd5['image/wavelength'].value
+    if isinstance( imghd5['image/wavelength'][()], float):   
+        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / imghd5['image/wavelength'][()])
+        # imghd5['image/joule_per_photon'] = const.h * const.c / imghd5['image/wavelength'][()]
     else:
-        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / np.mean(imghd5['image/wavelength'].value))        
-        # imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'].value)
-    conversion =  1.0 if 'q/' in imghd5['image/LinUnits'].value[:3] \
-                                        else 1. / imghd5['image/joule_per_photon'].value
+        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / np.mean(imghd5['image/wavelength'][()]))        
+        # imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'][()])
+    conversion =  1.0 if 'q/' in imghd5['image/LinUnits'][()][:3] \
+                                        else 1. / imghd5['image/joule_per_photon'][()]
     assigncheck(imghd5,'image/conversion',conversion)                                 
     # imghd5['image/conversion'] = conversion
         
@@ -467,21 +467,21 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     imghd5 = fn(**kwargs)
 
     # add photon noise in the signal
-    if imghd5['image/saveNoiseImage'].value:
+    if imghd5['image/saveNoiseImage'][()]:
         imghd5['image/PhotonRateRadiance'][...] = \
-                 ryutils.poissonarray(imghd5['image/PhotonRateRadianceNoNoise'].value, seedval=seedval)
+                 ryutils.poissonarray(imghd5['image/PhotonRateRadianceNoNoise'][()], seedval=seedval)
 
     # save equivalent signal
-    if imghd5['image/saveEquivImage'].value:
+    if imghd5['image/saveEquivImage'][()]:
         if fintp is None:
             # save nonoise image as equivalent signal 
-            imghd5['image/equivalentSignal'][...] = imghd5['image/PhotonRateRadianceNoNoise'].value
+            imghd5['image/equivalentSignal'][...] = imghd5['image/PhotonRateRadianceNoNoise'][()]
         else:
             if isinstance(fintp, str): # if string, keep the value written by hdf_raw
                 pass
             else:
                 # save equivalent signal  (e.g., temperature or lux), by interpolation
-                imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'].value)
+                imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'][()])
                 # save the interpolation function to hdf5
                 assigncheck(imghd5,'image/interpolate_x',fintp.x)
                 assigncheck(imghd5,'image/interpolate_y',fintp.y)
@@ -527,14 +527,14 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     ]
     for item in elements:
         if item in imghd5:
-            print('{:30s} : {}'.format(item,imghd5[item].value))
+            print('{:30s} : {}'.format(item,imghd5[item][()]))
 
     # wavelength as scalar or vector
     print(imghd5)
-    if isinstance( imghd5['image/wavelength'].value, float):   
-        print('{:30s} : {}'.format('wavelength',imghd5['image/wavelength'].value))
+    if isinstance( imghd5['image/wavelength'][()], float):   
+        print('{:30s} : {}'.format('wavelength',imghd5['image/wavelength'][()]))
     else:
-        print('{:30s} : {}'.format('wavelength (mean)',np.mean(imghd5['image/wavelength'].value)))
+        print('{:30s} : {}'.format('wavelength (mean)',np.mean(imghd5['image/wavelength'][()])))
 
     #calculate and display statistics of these variables
     elements = ['image/PhotonRateRadianceNoNoise','image/PhotonRateRadiance',
@@ -543,27 +543,27 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     for item in elements:
         if item in imghd5:
             print('\nStatistics for {}:'.format(item))
-            print(stats.describe(imghd5[item].value,axis=None))
+            print(stats.describe(imghd5[item][()],axis=None))
 
     # plot the images
     p = ryplot.Plotter(1,3,1,plotfile, figsize=(gwidh,gheit),doWarning=False)
     for item in ['image/PhotonRateRadianceNoNoise','image/PhotonRateIrradianceNoNoise']:
         if item in imghd5:
-            p.showImage(1,imghd5[item].value,item,cbarshow=True)
+            p.showImage(1,imghd5[item][()],item,cbarshow=True)
 
     for item in ['image/PhotonRateRadiance','image/PhotonRateIrradiance']:
         if item in imghd5:
-            p.showImage(2,imghd5[item].value,item,cbarshow=True)
+            p.showImage(2,imghd5[item][()],item,cbarshow=True)
 
     if 'image/equivalentSignal' in imghd5:
-        p.showImage(3,imghd5['image/equivalentSignal'].value,'image/equivalentSignal',cbarshow=True)
+        p.showImage(3,imghd5['image/equivalentSignal'][()],'image/equivalentSignal',cbarshow=True)
 
     p.saveFig('{}.png'.format(plotfile))
 
     # plot interpolation function
     if 'image/interpolate_x' in imghd5:
         q = ryplot.Plotter(1,1,1,plotfile, figsize=(12,6),doWarning=False)
-        q.plot(1,imghd5['image/interpolate_x'].value,imghd5['image/interpolate_y'].value)
+        q.plot(1,imghd5['image/interpolate_x'][()],imghd5['image/interpolate_y'][()])
         q.saveFig('{}-lookup.png'.format(plotfile))
 
     print(50*'='+'\n\n')
