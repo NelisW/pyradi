@@ -37,7 +37,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
+__all__= ['buildLogSpace','sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
          'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 
          'rangeEquation','_rangeEquationCalc','detectThresholdToNoiseTpFAR', 
          'detectSignalToNoiseThresholdToNoisePd',
@@ -66,6 +66,35 @@ if sys.version_info[0] > 2:
 else:
     from StringIO import StringIO
 
+##############################################################################
+##
+def buildLogSpace(Vmin,Vmax,nDec,patn=False):
+    """Calculate a log space given low, high and number samples per decade
+
+    If patn is True, the upper limit is adjusted to obtain a
+    repeat numeric pattern in each dcade.
+
+    Args:
+        | Vmin (float) lower limit
+        | Vmax (float) upper limit
+        | nDec (int) number of points per decade
+        | patn (bool) repeat pattern in each decade
+
+    Returns:
+        | vector with equal spacing in log
+
+    Raises:
+        | No exception is raised.
+    """
+    decs = int(np.log10(Vmax/Vmin))
+    if patn:
+        ful = np.log10(Vmax/Vmin)
+        upp = np.ceil(nDec *(ful - decs))
+        num = np.ceil(decs * nDec + upp + 1)
+        Vmax = 10 ** (np.log10(Vmin)  + ((num-1) / nDec))
+    else:
+        num = np.ceil(decs * nDec)
+    return np.logspace(np.log10(Vmin),np.log10(Vmax),num)
 
 
 ##############################################################################
@@ -115,8 +144,6 @@ def update_progress(progress, bar_length=20):
 ##
 def solidAngleSquare(width,breadth,height,stype,numsamples):
     """Calculate the solid angle of a rectagular plate from a point on the normal at its centre
-
-    
 
     The solid angle of a rectangular flat surface, with dimensions $W$ and $D$, as seen from a 
     reference point centered above the surface, is determined by the integral of the projected 

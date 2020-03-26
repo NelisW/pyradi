@@ -4432,6 +4432,8 @@ def RGBToPyCmap(rgbdata):
 # register turbo as a matplotlib colourmap
 mpl_data = RGBToPyCmap(turbo_colormap_data)
 plt.register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
+plt.register_cmap(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
 # usage:
 # plt.imshow(ZZ, cmap='turbo')
 
@@ -5095,12 +5097,14 @@ if __name__ == '__main__':
         t.saveFig('userplotcol02.png')
 
 
-    if doAll:
+    if True: # doAll:
+        print('------------')
         XX, YY = np.meshgrid(np.linspace(0,1,100), np.linspace(0,1,100))
         ZZ = np.sqrt(XX**2 + YY**2)
-        q = Plotter(1,1,2,figsize=(8,4))
+        q = Plotter(1,1,3,figsize=(8,4))
         cimage = q.showImage(1,ZZ,'Jet', cmap='jet')
         cimage = q.showImage(2,ZZ,'Turbo', cmap='turbo')
+        cimage = q.showImage(3,ZZ,'Turbo', cmap='iturbo')
         q.saveFig('jet-turbo.png')
 
 
