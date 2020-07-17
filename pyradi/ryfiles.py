@@ -663,17 +663,22 @@ def rawFrameToImageFile(image, filename):
     #normalise input image (img) data to between 0 and 1
     from scipy import ndimage
 
+    # print(filename)
     imin = image.min()
     imax = image.max()
     # print('{}   {}   {}'.format(image.mean(),imin, imax))
-    image = (image.astype('float') - imin ) / (imax - imin)
+    image = 255*(image.astype(np.float64) - imin ) / (imax - imin)
     # print(image.mean())
 
     # http://scikit-image.org/docs/dev/api/skimage.io.html#imsave
     # import skimage.io as io
     # io.imsave(filename, image) 
-    import scipy.misc
-    scipy.misc.imsave(filename, image)
+    # https://docs.scipy.org/doc/scipy-1.1.0/reference/generated/scipy.misc.imsave.html
+    # import scipy.misc
+    # scipy.misc.imsave(filename, image)
+    # https://stackoverflow.com/questions/51815361/scipy-imsave-and-imread-change-format
+    import imageio 
+    imageio.imwrite(filename, image.astype(np.uint8))
 
 
 
