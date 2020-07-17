@@ -2035,7 +2035,7 @@ class Spectral(object):
             wnmin = min(np.min(self.wn),np.min(other.wn))
             wnmax = max(np.max(self.wn),np.max(other.wn))
             wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
-            wn = np.linspace(wnmin, wnmax, (wnmax-wnmin)/wninc)
+            wn = np.linspace(wnmin, wnmax, int((wnmax-wnmin)/wninc))
             wl = 1e4 / self.wn
             if np.mean(np.diff(self.wn,axis=0)) > 0:
                 s = np.interp(wn,self.wn[:,0], self.value[:,0])
@@ -3131,7 +3131,7 @@ if __name__ == '__main__':
         #do a few tests first to check basic functionality. Place single lines and then convolve.
         ## ----------------------- basic functionality------------------------------------------
         samplingresolution=0.5
-        wavenum=np.linspace(0, 100, 100/samplingresolution)
+        wavenum=np.linspace(0, 100, int(100/samplingresolution))
         inspectral=np.zeros(wavenum.shape)
         inspectral[int(10/samplingresolution)] = 1
         inspectral[int(11/samplingresolution)] = 1
@@ -3333,8 +3333,8 @@ if __name__ == '__main__':
         b = 3.
         d = 2.
         samples = 10
-        varx = np.linspace(-a/2, a/2, samples*a)
-        vary = np.linspace(-b/2, b/2, samples*b)
+        varx = np.linspace(-a/2, a/2, int(samples*a))
+        vary = np.linspace(-b/2, b/2, int(samples*b))
         x, y = np.meshgrid(varx, vary)
         z = circ(x, y, d)
 
@@ -3355,8 +3355,8 @@ if __name__ == '__main__':
         sx = 2.
         sy = 2.
         samples = 10
-        varx = np.linspace(-a/2, a/2, samples*a)
-        vary = np.linspace(-b/2, b/2, samples*b)
+        varx = np.linspace(-a/2, a/2, int(samples*a))
+        vary = np.linspace(-b/2, b/2, int(samples*b))
         x, y = np.meshgrid(varx, vary)
         z = rect(x, y, sx, sy)
 

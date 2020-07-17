@@ -1016,7 +1016,7 @@ class JadeCalibrationData:
                 tmprHi  = max(tmprHi, np.max(self.dicCaldata[tmprInstr][:,0])+100)
 
         tmprInc = (tmprHi - tmprLow) / 100.
-        nu = np.linspace(self.nuMin, self.nuMax, 1 + (self.nuMax - self.nuMin )/self.nuInc )
+        nu = np.linspace(self.nuMin, self.nuMax, int(1 + (self.nuMax - self.nuMin )/self.nuInc ))
 
         self.LU = rylookup.RadLookup(self.name, nu, tmprLow=tmprLow, tmprHi=tmprHi, tmprInc=tmprInc,
                 sensorResp=self.sensorResponseFilename, opticsTau=self.opticsTransmittanceFilename,

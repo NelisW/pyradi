@@ -357,8 +357,7 @@ class RadLookup:
 
             # calculate a high resolution lookup table between temperature and radiance
             # this is independent from calibration data, no keyTInstr dependence
-            tempHiRes = np.linspace(self.tmprLow, self.tmprHi,  1 + \
-                                      (self.tmprHi - self.tmprLow )/self.tmprInc)
+            tempHiRes = np.linspace(self.tmprLow, self.tmprHi,  int(1 + (self.tmprHi - self.tmprLow )/self.tmprInc))
             xx = np.ones(tempHiRes.shape)
             #first calculate for case with filter present
 
@@ -381,8 +380,8 @@ class RadLookup:
             if self.dicCaldata is not None:
 
                 #set up the DL range
-                self.interpDL = np.linspace(self.sigMin, self.sigMax, 1 + \
-                                         (self.sigMax - self.sigMin )/self.sigInc )
+                self.interpDL = np.linspace(self.sigMin, self.sigMax, int(1 + \
+                                         (self.sigMax - self.sigMin )/self.sigInc ))
                 # print(np.min(self.interpDL))
 
                 # self.TableTempRad = None
@@ -1119,7 +1118,7 @@ if __name__ == '__main__':
     nuMin = 700
     nuMax = 1665
     nuInc = 5
-    nu = np.linspace(nuMin, nuMax, 1 + (nuMax - nuMin )/nuInc )
+    nu = np.linspace(nuMin, nuMax, int(1 + (nuMax - nuMin )/nuInc ))
 
 
     tmprMin = 300.

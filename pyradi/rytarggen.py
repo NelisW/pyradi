@@ -152,9 +152,9 @@ def hdf_disk_photon(imghd5,rad_min,rad_dynrange,fracdiameter,fracblur):
     delta_y = vary[1] - vary[0]
     Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'][()]) 
     #create blur disk normalised to unity
-    dia = np.max((1, 2 * round(imghd5['image/blur'][()] / np.max((delta_x,delta_y)))))
-    varx = np.linspace(-dia, dia, 2 * dia)
-    vary = np.linspace(-dia, dia, 2 * dia)
+    dia =  np.max((1, 2 * round(imghd5['image/blur'][()] / np.max((delta_x,delta_y)))))
+    varx = np.linspace(-dia, dia, int(2 * dia))
+    vary = np.linspace(-dia, dia, int(2 * dia))
     x, y = np.meshgrid(varx, vary)
     H = ryutils.circ(x, y, dia)
     # convolve disk with blur
