@@ -1162,7 +1162,8 @@ def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
         if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
 
-        if arr.shape is not ():
+        # if arr.shape is not ():
+        if arr.shape != ():
             if np.max(arr) != 0.:
                 arr = 255 * arr/np.max(arr)
                 imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),pformat), arr.astype(np.uint8))
@@ -1201,7 +1202,8 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
         if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
 
-        if arr.shape is not ():
+        # if arr.shape is not ():
+        if arr.shape != ():
             if logscale:
                 filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
                 with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:

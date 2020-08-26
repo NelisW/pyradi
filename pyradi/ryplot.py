@@ -2888,9 +2888,9 @@ class Plotter:
       if rgrid is None:
         ax.set_yticklabels([])
       else:
-        if rgrid[0] is 0:
+        if rgrid[0] == 0:
           ax.set_yticks(np.linspace(rscale[0],rscale[1],int(rgrid[1])))
-        if rgrid[0] is not 0:
+        if rgrid[0] != 0:
           numrgrid = (rscale[1] - rscale[0] ) / rgrid[0]
           ax.set_yticks(np.linspace(rscale[0],rscale[1],int(numrgrid+1.000001)))
 
@@ -3504,10 +3504,10 @@ class Plotter:
         ax.set_yticklabels([])
       else :
         #set the number of intervals
-        if rgrid[0] is 0:
+        if rgrid[0] == 0:
           ax.set_yticks(np.linspace(rscale[0],rscale[1],int(rgrid[1])))
         #set the interval incremental size
-        if rgrid[0] is not 0:
+        if rgrid[0] != 0:
           numrgrid = (rscale[1] - rscale[0] ) / (rgrid[0])
           ax.set_yticks(np.linspace(rscale[0],rscale[1],int(numrgrid+1.000001)))
 
