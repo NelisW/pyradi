@@ -67,6 +67,7 @@ import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import MaxNLocator
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.colors import LinearSegmentedColormap as LSC
 
 # see if plotly is available
 try:
@@ -4089,7 +4090,6 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     """
 
-    from matplotlib.colors import LinearSegmentedColormap as LSC
 
  #-- set up the parameters
     fract = np.arange(nlev)/(nlev-1.)
@@ -4431,9 +4431,13 @@ def RGBToPyCmap(rgbdata):
 
 # register turbo as a matplotlib colourmap
 mpl_data = RGBToPyCmap(turbo_colormap_data)
-plt.register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+# plt.register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+# plt.register_cmap(cmap=LSC(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0]))
+plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shape[0]))
 mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-plt.register_cmap(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+# plt.register_cmap(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
+# plt.register_cmap(cmap=LSC(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0]))
+plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 # usage:
 # plt.imshow(ZZ, cmap='turbo')
 

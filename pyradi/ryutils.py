@@ -2635,7 +2635,8 @@ class Target(Spectral):
             Raises:
                 | No exception is raised.
         """
-
+        import pyradi.ryplanck as ryplanck
+        
         specprod = self.emisVal * self.reflVal * self.taumedVal
         vscale =  specprod.value * self.scale * self.cosTarg
 
