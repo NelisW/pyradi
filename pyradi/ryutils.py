@@ -66,6 +66,204 @@ if sys.version_info[0] > 2:
 else:
     from StringIO import StringIO
 
+    
+#################################################################################
+"""
+Gathers and presents version information.
+
+Adapted from https://github.com/ahmedsalhin/version_information
+This makes it much easier to determine which versions of modules
+were installed in the source IPython interpreter's environment.
+
+Produces output in:
+
+* Plaintext (IPython [qt]console)
+* HTML (IPython notebook, ``nbconvert --to html``, ``--to slides``)
+* JSON (IPython notebook ``.ipynb`` files)
+* LaTeX (e.g. ``ipython nbconvert example.ipynb --to LaTeX --post PDF``)
+
+Usage
+======
+
+.. sourcecode:: ipython
+
+   print(ryutils.VersionInformation('matplotlib,numpy'))
+
+"""
+import html
+import json
+import sys
+import time
+import locale
+import IPython
+import platform
+
+try:
+    import pkg_resources
+except ImportError:
+    pkg_resources = None
+
+timefmt = '%a %b %d %H:%M:%S %Y %Z'
+
+
+def _date_format_encoding():
+    return locale.getlocale(locale.LC_TIME)[1] or locale.getpreferredencoding()
+
+class VersionInformation():
+
+    def __init__(self,line=''):
+        self.version_information( line=line)
+        
+        
+    def version_information(self, line=''):
+        """Show information about versions of modules.
+
+        Usage:
+
+            %version_information [optional comma-separated list of modules]
+
+        """
+        self.packages = [
+            ("Python", "{version} {arch} [{compiler}]".format(
+                version=platform.python_version(),
+                arch=platform.architecture()[0],
+                compiler=platform.python_compiler())),
+            ("IPython", IPython.__version__),
+            ("OS", platform.platform().replace('-', ' '))
+            ]
+
+        modules = line.replace(' ', '').split(",")
+
+        for module in modules:
+            if len(module) > 0:
+                try:
+                    code = ("import %s; version=str(%s.__version__)" %
+                            (module, module))
+                    ns_g = ns_l = {}
+                    exec(compile(code, "<string>", "exec"), ns_g, ns_l)
+                    self.packages.append((module, ns_l["version"]))
+                except Exception as e:
+                    try:
+                        if pkg_resources is None:
+                            raise
+                        version = pkg_resources.require(module)[0].version
+                        self.packages.append((module, version))
+                    except Exception as e:
+                        self.packages.append((module, str(e)))
+
+        return self
+
+    def _repr_json_(self):
+        obj = {
+            'Software versions': [
+                {'module': name, 'version': version} for
+                (name, version) in self.packages]}
+        if IPython.version_info[0] >= 3:
+            return obj
+        else:
+            return json.dumps(obj)
+
+    @staticmethod
+    def _htmltable_escape(str_):
+        CHARS = {
+            '&':  r'\&',
+            '%':  r'\%',
+            '$':  r'\$',
+            '#':  r'\#',
+            '_':  r'\_',
+            '{':  r'\letteropenbrace{}',
+            '}':  r'\letterclosebrace{}',
+            '~':  r'\lettertilde{}',
+            '^':  r'\letterhat{}',
+            '\\': r'\letterbackslash{}',
+            '>':  r'\textgreater',
+            '<':  r'\textless',
+        }
+        return u"".join([CHARS.get(c, c) for c in str_])
+
+    def _repr_html_(self):
+
+        html_table = "<table>"
+        html_table += "<tr><th>Software</th><th>Version</th></tr>"
+        for name, version in self.packages:
+            _version = self._htmltable_escape(version)
+            html_table += "<tr><td>%s</td><td>%s</td></tr>" % (name, _version)
+
+        try:
+            html_table += "<tr><td colspan='2'>%s</td></tr>" % time.strftime(timefmt)
+        except:
+            html_table += "<tr><td colspan='2'>%s</td></tr>" % \
+                time.strftime(timefmt).decode(_date_format_encoding())
+        html_table += "</table>"
+
+        return html_table
+
+    @staticmethod
+    def _latex_escape(str_):
+        CHARS = {
+            '&':  r'\&',
+            '%':  r'\%',
+            '$':  r'\$',
+            '#':  r'\#',
+            '_':  r'\_',
+            '{':  r'\letteropenbrace{}',
+            '}':  r'\letterclosebrace{}',
+            '~':  r'\lettertilde{}',
+            '^':  r'\letterhat{}',
+            '\\': r'\letterbackslash{}',
+            '>':  r'\textgreater',
+            '<':  r'\textless',
+        }
+        return u"".join([CHARS.get(c, c) for c in str_])
+
+    def _repr_latex_(self):
+
+        latex = r"\begin{tabular}{|l|l|}\hline" + "\n"
+        latex += r"{\bf Software} & {\bf Version} \\ \hline\hline" + "\n"
+        for name, version in self.packages:
+            _version = self._latex_escape(version)
+            latex += r"%s & %s \\ \hline" % (name, _version) + "\n"
+
+        try:
+            latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % \
+                time.strftime(timefmt) + "\n"
+        except:
+            latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % \
+                time.strftime(timefmt).decode(_date_format_encoding()) + "\n"
+
+        latex += r"\end{tabular}" + "\n"
+
+        return latex
+
+    def _repr_pretty_(self):
+
+        text = "Software versions\n"
+        for name, version in self.packages:
+            text += "%s %s\n" % (name, version)
+
+        try:
+            text += "%s" % time.strftime(timefmt)
+        except:
+            text += "%s" % \
+                time.strftime(timefmt).decode(_date_format_encoding())
+
+        import pprint
+        pprint.pprint(text)
+        
+    def __str__(self):
+
+        text = 'Software versions\n'
+        for name, version in self.packages:
+            text += f"{name}:   {version}\n"
+
+        try:
+            text += f"{time.strftime(timefmt)}"
+        except:
+            text += f"{time.strftime(timefmt).decode(_date_format_encoding())}"
+                
+        return text
+
+    
 ##############################################################################
 ##
 def buildLogSpace(Vmin,Vmax,nDec,patn=False):
@@ -412,7 +610,7 @@ def detectFARThresholdToNoisepulseWidth(ThresholdToNoise, pulseWidth):
 
     "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
 
-    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Processing, CRC Press, 2002
 
     Args:
         | ThresholdToNoise (float): the threshold to noise ratio.
@@ -442,7 +640,7 @@ def detectThresholdToNoiseTpFAR(pulseWidth, FAR):
 
     "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
 
-    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Processing, CRC Press, 2002
 
     Args:
         | pulseWidth (float): the signal pulse width in [s].
@@ -474,7 +672,7 @@ def detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, pD):
 
     "Electro-optics handbook," Tech. Rep. EOH-11, RCA, 1974. RCA Technical Series Publication.
 
-    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Pro-cessing, CRC Press, 2002
+    R. D. Hippenstiel, Detection Theory: Applications and Digital Signal Processing, CRC Press, 2002
 
     Args:
         | ThresholdToNoise (float): the threshold to noise ratio [-]

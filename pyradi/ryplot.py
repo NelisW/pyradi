@@ -1827,6 +1827,7 @@ class Plotter:
           if xIsDate:
               from datetime import date
               ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
+          ax.set_xticks(ticks) # this is workaround for bug in matplotlib
           ax.set_xticklabels(ticks,
               rotation=xtickRotation, fontsize=xytickfsize)
 
