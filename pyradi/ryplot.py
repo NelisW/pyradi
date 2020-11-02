@@ -2683,7 +2683,7 @@ class Plotter:
                 | rgrid ([rinc, numinc]): radial grid, use default is [0,5].
                   If rgrid is None don't show. If rinc=0 then numinc is number of intervals.
                   If rinc is not zero then rinc is the increment and numinc is ignored (optional)
-                | thetagrids (float): theta grid interval [degrees], if None don't show (optional)
+                | thetagrid (float): theta grid interval [degrees], if None don't show (optional)
                 | direction (string): direction in increasing angle, 'counterclockwise' or 'clockwise' (optional)
                 | zerooffset (float):  rotation offset where zero should be [rad]. Positive
                   zero-offset rotation is counterclockwise from 3'o'clock (optional)
