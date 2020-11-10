@@ -41,7 +41,7 @@ from __future__ import print_function
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy']
+__all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','variationTape5File']
 
 import re
 import sys
@@ -106,6 +106,7 @@ def fixHeaders(instr):
 
     rtnstring = instr.translate(translate_table)
     return rtnstring
+
 
 
 
@@ -351,6 +352,77 @@ def loadtape7(filename, colspec = []):
         coldata = np.hstack((coldata, lines[fixHeaders(colname)].reshape(-1, 1)))
 
     return coldata
+
+
+
+##############################################################################
+##
+def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr ):
+	"""Read tape5 in specified folder, modify one variable, write out new tape5 in new folder
+
+	Replace a search string (must be unique in the file) with the value of a variation
+	formatted as required by the tape5 format.  All occurrences of the search string are
+	blindly replaced, must occur only once.
+
+	The variation variable must be of the form that can be used to create sub-folders in
+	the master scenario folder. The variation can be processed (scaled, etc.) before writing
+	out to file. For example, variation can be an integer in metre, then scaled to kilometer.
+
+	The variation tape5 is written to a new sub folder with the name variation, constructed
+	in the scenario folder.  The template tape5 file must be in the scenario root file.
+
+	dir structure:
+	|dir root
+		| file domodtran.py
+		| dir scenario 1
+			|dir variation 1
+			|dir variation 2
+			|dir variation 3
+			|file tape5 template for scenario 1
+		| dir scenario 2
+			|dir variation 1
+			|dir variation 2
+			|dir variation 3
+			|file tape5 template for scenario 2
+	The scenario directories must exist, but the variation scenarios are created.
+
+    Args:
+        | scenario (string): path to folder with the scenario tape5
+        | variation (int): number that defines the variation, will be modified by varFunc
+        | tape5 (string): tape5 filename, must be in the scenario folder
+        | varFunc (fn): Function to process the variation number before writing
+        | fmtstr (string): print format string to be used when writing to tape5
+        | srcstr (string): the string in the tape5 file to be replaced
+
+    Returns:
+        | side effect creates new folders and files.
+
+    Raises:
+        | No exception is raised.
+    """
+
+	import os
+
+	#read the tape5 base file
+	tape5base = os.path.join(scenario,tape5)
+	print(tape5base, variation, scenario)
+	with open(tape5base) as fin:
+		lines = fin.readlines()
+
+	#change the srcstr to new value with specfied format
+	outlines = []
+	for line in lines:
+		outlines.append(line.replace(srcstr,f'{varFunc(variation):{fmtstr}}'))
+
+	#create new scenario and write file to new dir
+	dirname = os.path.join('.',scenario,'{}'.format(variation))
+	if not os.path.exists(dirname):
+	    os.makedirs(dirname)
+
+	filename = os.path.join(dirname, 'tape5')
+	with open(filename,'w') as fout:
+		fout.writelines(outlines)
+
 
 ##############################################################################
 ##
