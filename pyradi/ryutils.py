@@ -1196,6 +1196,24 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     y = np.concatenate((firstvals, y, lastvals))
     return np.convolve( m[::-1], y, mode='valid')
 
+##############################################################################
+##
+def getFHWM(wl,tau,normaliseMax=False):
+    """Given spectral domain and range, determine full-width half-max domain width
+    """
+    # get FWHM https://stackoverflow.com/questions/53445337/implementation-of-a-threshold-detection-function-in-python
+    if normaliseMax:
+        tau = tau / np.max(tau)
+    mask = np.diff(1 * (tau > 0.5) != 0)
+    wlcr = np.vstack((wl[:-1][mask],wl[1:][mask]))
+    spcr = np.vstack((tau[:-1][mask],tau[1:][mask]))
+    lamh = np.zeros((2,))
+    # interpolate to get 0.5 crossing
+    for i in [0,1]:
+        lamh[i] = wlcr[0,i]+(wlcr[1,i]-wlcr[0,i])*(0.5-spcr[0,i])/(spcr[1,i]-spcr[0,i])
+    fwhm = lamh[1] - lamh[0]
+    return np.abs(fwhm)
+
 
 ##############################################################################
 ##
