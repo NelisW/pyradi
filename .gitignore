@@ -95,3 +95,4 @@ Backup_of_*.cdr
 /pyradi/PAOutput.txt
 /pyradi/PSOutput.txt
 /howto-pyPI-publish.txt
+/pyradi/.ipynb_checkpoints

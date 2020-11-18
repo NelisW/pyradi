@@ -1200,6 +1200,8 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
 ##
 def getFHWM(wl,tau,normaliseMax=False):
     """Given spectral domain and range, determine full-width half-max domain width
+
+    Returns the FWHM, and the two 50% wavelengths
     """
     # get FWHM https://stackoverflow.com/questions/53445337/implementation-of-a-threshold-detection-function-in-python
     if normaliseMax:
@@ -1212,7 +1214,7 @@ def getFHWM(wl,tau,normaliseMax=False):
     for i in [0,1]:
         lamh[i] = wlcr[0,i]+(wlcr[1,i]-wlcr[0,i])*(0.5-spcr[0,i])/(spcr[1,i]-spcr[0,i])
     fwhm = lamh[1] - lamh[0]
-    return np.abs(fwhm)
+    return np.abs(fwhm),lamh[0], lamh[1]
 
 
 ##############################################################################
