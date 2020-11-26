@@ -109,9 +109,9 @@ def myint(x):
 def mylong(x):
     # four bytes length
     if sys.version_info[0] > 2:
-        ans = x[0] + (x[1]<<8) + (x[2]<<16) + (x[3]<<24)
+        ans = x[0] + (x[1]<<8) + (x[2]<<16) + (x[3]<<32)
     else:
-        ans = ord(x[0]) + (ord(x[1])<<8) + (ord(x[2])<<16) + (ord(x[3])<<24)
+        ans = ord(x[0]) + (ord(x[1])<<8) + (ord(x[2])<<16) + (ord(x[3])<<32)
     return ans
 
 def myfloat(x):
@@ -160,6 +160,7 @@ class PTWFrameInfo:
     self.h_format = 'unknown'
     self.h_unit = ''
     self.h_Version = '' #[5:10]
+    self.h_EofAsciiCode = 0 #[10]
     self.h_MainHeaderSize = 0 #[11:15]
     self.h_FrameHeaderSize = 0 #[15:19]
     self.h_SizeOfOneFrameAndHeader = 0 #[19:23]
@@ -375,6 +376,7 @@ def readPTWHeader(ptwfilename):
         Header.h_Version = headerinfo[5:10]
     if not Header.h_Version[-1] in string.printable:
         Header.h_Version =  Header.h_Version[:-1]
+    Header.h_EofAsciiCode = mybyte(headerinfo[10:11])
     Header.h_MainHeaderSize = mylong(headerinfo[11:15])
     Header.h_FrameHeaderSize = mylong(headerinfo[15:19])
     Header.h_SizeOfOneFrameAndHeader = mylong(headerinfo[19:23])
@@ -412,6 +414,7 @@ def readPTWHeader(ptwfilename):
     Header.h_IRUSBilletSpeed = myfloat(headerinfo[124:128]) # IRUS
     Header.h_IRUSBilletDiameter = myfloat(headerinfo[128:132]) # IRUS
     Header.h_IRUSBilletShape = myint(headerinfo[132:134]) #IRUS
+    Header.h_Reserved134 = mybyte(headerinfo[134:141])
     Header.h_Emissivity = myfloat(headerinfo[141:145])
     Header.h_Ambiant = myfloat(headerinfo[145:149])
     Header.h_Distance = myfloat(headerinfo[149:153])
@@ -419,6 +422,7 @@ def readPTWHeader(ptwfilename):
     Header.h_IRUSInductorPower = mylong(headerinfo[154:158]) # IRUS
     Header.h_IRUSInductorVoltage = myint(headerinfo[158:160]) # IRUS
     Header.h_IRUSInductorFrequency = mylong(headerinfo[160:164]) # IRUS
+    Header.h_Reserved164 = mybyte(headerinfo[164:169])
     Header.h_IRUSSynchronization = ord(headerinfo[169:170]) # IRUS
     Header.h_AtmTransmission = myfloat(headerinfo[170:174])
     Header.h_ExtinctionCoeficient = myfloat(headerinfo[174:178])
@@ -439,6 +443,14 @@ def readPTWHeader(ptwfilename):
         Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231]).decode('utf-8').rstrip(stripchar)
     else:
         Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231])
+        
+        
+    Header.h_Reserved231 = mybyte(headerinfo[231:239])
+    Header.h_DetectorCode = myint(headerinfo[239:243])
+    Header.h_DetectorGain = my(headerinfo[245:247])
+
+    
+    
     Header.h_MinimumLevelThreshold = myint(headerinfo[245:247])
     Header.h_MaximumLevelThreshold = myint(headerinfo[247:249])
     Header.h_EchelleSpecial = myint(headerinfo[277:279])
@@ -649,11 +661,9 @@ def GetPTWFrameFromFile(header):
     header.data = np.eye(header.h_Cols, header.h_Rows)
 
     #datapoints = header.m_cols * header.m_rows
-    # for y in range(header.h_Rows):
-    #     for x in range(header.h_Cols):
-    #         header.data[x][y] = myint(fid.read(2))
-    data2=struct.unpack(str(header.h_SizeOfOneFrame)+'h',fid.read(header.h_SizeOfOneFrame*2))      
-    header.data=np.reshape(data2,(header.h_Rows,header.h_Cols))
+    for y in range(header.h_Rows):
+        for x in range(header.h_Cols):
+            header.data[x][y] = myint(fid.read(2))
 
     # for debugging
     #print ('Data read',len(header.m_data), 'points')
