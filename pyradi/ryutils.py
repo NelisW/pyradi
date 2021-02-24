@@ -38,7 +38,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['buildLogSpace','sfilter', 'responsivity', 'effectiveValue', 'convertSpectralDomain',
-         'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 
+         'convertSpectralDensity', 'convolve', 'savitzkyGolay1D','abshumidity', 'TFromAbshumidity',
          'rangeEquation','_rangeEquationCalc','detectThresholdToNoiseTpFAR', 
          'detectSignalToNoiseThresholdToNoisePd',
          'detectThresholdToNoiseSignalToNoisepD',
@@ -832,7 +832,30 @@ def _rangeEquationCalc(r,i,e,tauTable,n,rMax):
     return i * tauTable(r) / (r ** n) - e
 
 
+##############################################################################
+##
+def TFromAbshumidity(AH, equationSelect = 1):
+    """temperature in [K] between 248 K and 342 K, given  atmopsheric absolute humidity [g/m3], assuming 100% RH
 
+    This function uses two similar equations, but with different constants.
+
+
+    Args:
+        | AH  (float):  absolute humidity in g/m3.
+        | equationSelect (int): select the equation to be used.
+
+
+    Returns:
+        |  temperature  (float):  in K
+
+    Raises:
+        | No exception is raised.
+    """
+    
+    T = np.linspace(248., 342., 100 )
+    absLUT = abshumidity(T, equationSelect = equationSelect)
+    f = interpolate.interp1d(absLUT, T,bounds_error=True)
+    return f(AH)
 ##############################################################################
 ##
 def abshumidity(T, equationSelect = 1):
