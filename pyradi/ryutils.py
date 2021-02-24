@@ -55,6 +55,8 @@ __all__= ['buildLogSpace','sfilter', 'responsivity', 'effectiveValue', 'convertS
 import sys
 import numpy as np
 from scipy import constants
+from scipy import interpolate
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 from matplotlib.collections import PatchCollection
