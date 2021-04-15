@@ -292,7 +292,7 @@ class Markers:
                 | ax (axes): an axes handle for the plot
 
             Returns:
-                | Nothing. Creates the figure for subequent use.
+                | Nothing. Creates the figure for subsequent use.
 
             Raises:
                 | No exception is raised.
@@ -307,7 +307,8 @@ class Markers:
                 markeredgecolor = marker[2].markeredgecolor,
                 marker = marker[2].marker,
                 markersize = marker[2].markersize,
-                fillstyle = marker[2].fillstyle)
+                fillstyle = marker[2].fillstyle,
+                linewidth=0)
 
         plt.rcParams['text.usetex'] = usetex
 
