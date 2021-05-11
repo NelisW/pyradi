@@ -927,8 +927,9 @@ class Plotter:
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
@@ -975,6 +976,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1024,7 +1027,9 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xTicks, xtickRotation, 
+                    markers, markevery, markerfacecolor,markeredgecolor,
+                    zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
       return ax
 
@@ -1038,8 +1043,9 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
@@ -1086,6 +1092,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1137,7 +1145,9 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xTicks, xtickRotation, 
+                    markers, markevery, markerfacecolor,markeredgecolor,
+                    zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
 
       return ax
@@ -1153,8 +1163,9 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10,labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True, axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    zorders=None, clip_on=True, axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
@@ -1201,6 +1212,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1244,7 +1257,9 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,axesequal,
+                    xTicks, xtickRotation, 
+                    markers, markevery, markerfacecolor,markeredgecolor,
+                    zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
 
       return ax
@@ -1259,8 +1274,9 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
@@ -1306,6 +1322,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1349,7 +1367,9 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,
+                    xTicks, xtickRotation, 
+                    markers, markevery, markerfacecolor,markeredgecolor,
+                    zorders, clip_on,
                     axesequal,xAxisFmt,yAxisFmt)
 
       return ax
@@ -1364,8 +1384,9 @@ class Plotter:
                     xylabelfsize = 12, xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
-                     xTicks=None, xtickRotation=0, markers=[],
-                    markevery=None, zorders=None, clip_on=True, axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None,  markerfacecolor=True,markeredgecolor=True,
+                    zorders=None, clip_on=True, axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
@@ -1411,6 +1432,8 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1454,11 +1477,12 @@ class Plotter:
                     labelfsize, drawGrid,
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
-                    xTicks, xtickRotation, markers, markevery, zorders, clip_on,
+                    xTicks, xtickRotation, 
+                    markers, markevery, markerfacecolor,markeredgecolor,
+                    zorders, clip_on,
                     axesequal,xAxisFmt,yAxisFmt)
 
       return ax
-
 
 
     ############################################################
@@ -1472,10 +1496,13 @@ class Plotter:
                     labelfsize=10, drawGrid=True,
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, xIsDate=False,
-                    xTicks=None, xtickRotation=0, markers=[] ,
-                    markevery=None, zorders=None, clip_on=True,axesequal=False, 
+                    xTicks=None, xtickRotation=0, 
+                    markers=[], markevery=None, 
+                    markerfacecolor=True,markeredgecolor=True,
+                    zorders=None,clip_on=True,axesequal=False, 
                     xAxisFmt=None,yAxisFmt=None,
-                    PLyStatic=[0]  ):
+                    PLyStatic=[0]
+                      ):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1522,12 +1549,15 @@ class Plotter:
               | xtickRotation (float) x-axis tick label rotation angle (optional)
               | markers ([string]) markers to be used for plotting data points (optional)
               | markevery (int | (startind, stride)) subsample when using markers (optional)
+              | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+              | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
               | axesequal (bool) force scaling on x and y axes to be equal (optional)
               | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
               | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
               | PLyStatic ([int]) the guy that added this did not document it properly
+
 
           Returns:
               | the axis object for the plot
@@ -1657,6 +1687,21 @@ class Plotter:
             else:
                 col = self.nextPlotCol()
 
+            if markerfacecolor==True:
+                markerfacecolor = col
+            elif markerfacecolor is None:
+                markerfacecolor='none'
+            else:
+                pass # keep as is
+
+            if markeredgecolor==True:
+                markeredgecolor = col
+            elif markeredgecolor is None:
+                markeredgecolor='none'
+            else:
+                pass # keep as is
+
+
             if linestyle is None:
                 linestyleL = '-'
             else:
@@ -1677,22 +1722,26 @@ class Plotter:
                 if not label:
                     if linewidths is not None:
                       plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                             marker=mmrk, markevery=markevery, linewidth=linewidths[i],
-                             clip_on=clip_on, zorder=zorder)
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            marker=mmrk, markevery=markevery, linewidth=linewidths[i],
+                            clip_on=clip_on, zorder=zorder)
                     else:
                       plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                             marker=mmrk, markevery=markevery,
-                             clip_on=clip_on, zorder=zorder)
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            marker=mmrk, markevery=markevery,
+                            clip_on=clip_on, zorder=zorder)
                 else:
                     if linewidths is not None:
                       # print('***************',linewidths)
                       line, = plotcommand(xx,yy[:,i],col,#label=label[i],
                             linestyle=linestyleL,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
                             marker=mmrk, markevery=markevery, linewidth=linewidths[i],
                             clip_on=clip_on, zorder=zorder)
                     else:
                       line, = plotcommand(xx,yy[:,i],col,#label=label[i],
                             linestyle=linestyleL,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
                             marker=mmrk, markevery=markevery,
                             clip_on=clip_on, zorder=zorder)
                     line.set_label(label[i])
