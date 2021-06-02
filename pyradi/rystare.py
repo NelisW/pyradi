@@ -113,10 +113,14 @@ def photosensor(strh5,initialise=True):
 
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
- 
-    if not strh5['rystare/sensortype'][()] in ['CCD', 'CMOS']:
+    
+    senstype = strh5['rystare/sensortype'][()]
+    if type(senstype) is not str:
+        senstype = senstype.decode('UTF-8')
+
+    if not senstype in ['CCD', 'CMOS']:
         print('Sensor Simulator::: please select the sensor: CMOS or CCD!')
-        exit(-1)
+        return None
 
     #defining the constants such as speed of light c, Plank's h, and others.
     strh5 = set_photosensor_constants(strh5, initialise)
@@ -532,7 +536,12 @@ def fixed_pattern_offset(strh5):
     """
 
     strh5['rystare/sourcefollower/fpoffset/value'][...] = np.zeros(tuple(strh5['rystare/imageSizePixels'][()]))
-    if strh5['rystare/sensortype'][()] in 'CMOS':  
+
+    senstype = strh5['rystare/sensortype'][()]
+    if type(senstype) is not str:
+        senstype = senstype.decode('UTF-8')
+
+    if senstype in 'CMOS':  
         #If the sensor is CMOS and the darkoffset/NU is on 
         if strh5['rystare/sourcefollower/fpoffset/activate'][()]: 
 
@@ -868,8 +877,13 @@ def charge_to_voltage(strh5):
 	# for CCD kTC remains zero, fr cmos overwrite just now
     # diagram node 15b reset voltage with kTC noise stored in 'rystare/noise/sn_reset/vrefresetpluskTC'
     strh5['rystare/noise/sn_reset/vrefresetpluskTC'][...] = strh5['rystare/sensenode/vrefreset'][()] 
-    
-    if strh5['rystare/sensortype'][()] in ['CMOS']: 
+
+
+    senstype = strh5['rystare/sensortype'][()]
+    if type(senstype) is not str:
+        senstype = senstype.decode('UTF-8')
+
+    if senstype in ['CMOS']: 
 
         if strh5['rystare/sensenode/resetnoise/activate'][()]:
 
@@ -1193,7 +1207,7 @@ def source_follower_noise(strh5,initialise=True):
 
     #frequency, with delta_f as a spacing.
     numFsamp = strh5['rystare/sourcefollower/dataclockspeed'][()] / strh5['rystare/sourcefollower/freqsamplingdelta'][()]
-    f = np.linspace(1., strh5['rystare/sourcefollower/dataclockspeed'][()], numFsamp).reshape(1,-1)
+    f = np.linspace(1., strh5['rystare/sourcefollower/dataclockspeed'][()], int(numFsamp)).reshape(1,-1)
     if (initialise):
         strh5['rystare/sourcefollower/noise/spectralfreq'] = f
     else:
@@ -1208,7 +1222,12 @@ def source_follower_noise(strh5,initialise=True):
 
     # RTN noise only in CMOS photosensors
     S_RTN = np.zeros(f.shape)
-    if strh5['rystare/sensortype'][()] in ['CMOS']:  
+
+    senstype = strh5['rystare/sensortype'][()]
+    if type(senstype) is not str:
+        senstype = senstype.decode('UTF-8')
+        
+    if senstype in ['CMOS']:  
         S_RTN = (2. * ((strh5['rystare/sourcefollower/noise/deltaindmodulation'][()]) ** 2) * tau_RTN) / (4 + (2 * np.pi * tau_RTN *f) ** 2) 
 
     if (initialise):
@@ -1639,10 +1658,15 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     Original source: http://arxiv.org/pdf/1412.4031.pdf
     """
 
+    if type(noisetype) is not str:
+        noisetype = noisetype.decode('UTF-8')
+    if type(noisedistribution) is not str:
+        noisedistribution = noisedistribution.decode('UTF-8')
+
     if noisedistribution in ['AR-ElGamal']: # AR-ElGamal FPN model
         if not filter_params:
             print('When using AR-ElGamal the filter parameters must be defined')
-            exit(-1)
+            return None
         if noisetype in ['pixel']:
             x2 = np.random.randn(sensor_signal_rows, sensor_signal_columns) # uniformly distributed White Gaussian Noise.
             #Matlab's filter operates on the first dimension of the array, while scipy.signal.lfilter by default operates on the the last dimension.
@@ -1661,7 +1685,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
         #multiply with spread to get stddev equal to spread
         if spread is None:
             print('When using Janesick-Gaussian the spread must be defined')
-            exit(-1)
+            return None
 
         if noisetype in ['pixel']:
             noiseout = np.random.randn(sensor_signal_rows,sensor_signal_columns)  # here y is observed (filtered) signal. Any WSS process y[n] can be of
@@ -1679,7 +1703,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     elif noisedistribution in ['Wald']:  # Wald FPN model
         if spread is None:
             print('When using Wald the spread must be defined')
-            exit(-1)
+            return None
 
         if noisetype in ['pixel']:
             noiseout = ryprob.distributions_generator('wald',spread,[sensor_signal_rows,sensor_signal_columns]) + np.random.randn(sensor_signal_rows,sensor_signal_columns)
@@ -1691,7 +1715,7 @@ def FPN_models(sensor_signal_rows, sensor_signal_columns, noisetype, noisedistri
     elif noisedistribution in ['LogNormal']:
         if spread is None:
             print('When using LogNormal the spread must be defined')
-            exit(-1)
+            return None
 
         if noisetype in ['pixel']:
             noiseout = ryprob.distributions_generator('lognorm',[0.0,spread],[sensor_signal_rows,sensor_signal_columns])
@@ -2100,6 +2124,12 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     import pyradi.ryfiles as ryfiles
     import pyradi.ryutils as ryutils
 
+    if type(doTest) is not str:
+        doTest = doTest.decode('UTF-8')
+    if type(outfilename) is not str:
+        outfilename = outfilename.decode('UTF-8')
+    if type(pathtoimage) is not str:
+        pathtoimage = pathtoimage.decode('UTF-8')
 
     if doTest in ['Simple']:
         prefix = 'PS'
@@ -2132,7 +2162,12 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5['rystare/photondetector/operatingtemperature'] = 300. # operating temperature, [K]
 
     # full-frame CCD sensors has 100% fil factor (Janesick: 'Scientific Charge-Coupled Devices')
-    if strh5['rystare/sensortype'][()] in ['CMOS']:
+
+    senstype = strh5['rystare/sensortype'][()]
+    if type(senstype) is not str:
+        senstype = senstype.decode('UTF-8')
+ 
+    if senstype in ['CMOS']:
         strh5['rystare/photondetector/geometry/fillfactor'] = 0.5 # Pixel Fill Factor for CMOS photo sensors.
     else:
         strh5['rystare/photondetector/geometry/fillfactor'] = 0.95 # Pixel Fill Factor for full-frame CCD photo sensors.
@@ -2398,7 +2433,7 @@ def get_summary_stats(hdffilename):
         print('Image file name             : {}'.format(strh5['rystare/imageFilename'][()]))
         print('Image name                  : {}'.format(strh5['rystare/imageName'][()]))
         print('Input rystare/LinUnits      : {}'.format(strh5['rystare/LinUnits'][()]))
-        print('Input rystare/EinUnit       : {}'.format(strh5['rystare/EinUnits'][()]))
+        # print('Input rystare/EinUnit       : {}'.format(strh5['rystare/EinUnits'][()]))
         print('Sensor type                 : {} '.format(strh5['rystare/sensortype'][()]))
 
         print('F-number                    : {} '.format(strh5['rystare/fnumber'][()]))
