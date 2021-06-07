@@ -2145,7 +2145,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     hdffilename = '{}{}.hdf5'.format(prefix, outfilename)
     if os.path.isfile(hdffilename):
         os.remove(hdffilename)
-    strh5 = ryfiles.open_HDF(hdffilename)
+    strh5 = ryfiles.open_HDF(hdffilename,'w')
 
     # Optics parameters to convert from radiance to irradiance in the image plane
     strh5['rystare/fnumber'] = 3.2
@@ -2153,6 +2153,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     # solid angle optics from detector
     strh5['rystare/fnumberConeSr'] = np.pi / ((2. * strh5['rystare/fnumber'][()])**2.)  
     strh5['rystare/pixelPitch'] = [5e-6,5e-6]
+
 
     # Light Noise parameters
     strh5['rystare/photonshotnoise/activate'] = True #photon shot noise.
@@ -2323,7 +2324,10 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
                             imghd5['image/PhotonRateRadiance'][()]
         if 'image/pixelPitch' in imghd5:
             strh5['rystare/pixelPitch'] = imghd5['image/pixelPitch'][()]
-        
+
+        strh5['rystare/imageSizePixels'] = imghd5['image/imageSizePixels'][...]
+        numPixels = imghd5['image/imageSizePixels']        
+
         strh5['rystare/imageName'] = imghd5['image/imageName'][()]
         strh5['rystare/imageFilename'] = imghd5['image/imageFilename'][()]
         strh5['rystare/imageSizePixels'] = imghd5['image/imageSizePixels'][()]
@@ -2350,9 +2354,51 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
                 strh5['rystare/EinUnits'] = 'W/(m2)'
             elif 'q' in imghd5['image/LinUnits'][()]:
                 strh5['rystare/EinUnits'] = 'q/(s.m2)'
+    else:
 
+        imghd5 = ryfiles.open_HDF(pathtoimage)
 
+    strh5 = ryfiles.open_HDF(hdffilename,'r+')
+    
+    #images must be in photon rate irradiance units q/(s.m2)
+    
+    strh5['rystare/equivalentSignal'] = scaleInput * imghd5['image/equivalentSignal'][...]
+    strh5['rystare/signal/photonRateRadianceNoNoise'] = scaleInput * imghd5['image/PhotonRateRadianceNoNoise'][...]
+    strh5['rystare/signal/photonRateRadiance'] = scaleInput * imghd5['image/PhotonRateRadiance'][...]
+    strh5['rystare/signal/photonRateIrradianceNoNoise'] = scaleInput * strh5['rystare/fnumberConeSr'][...] * \
+                        imghd5['image/PhotonRateRadianceNoNoise'][...]
+    strh5['rystare/signal/photonRateIrradiance'] = scaleInput * strh5['rystare/fnumberConeSr'][...] * \
+                        imghd5['image/PhotonRateRadiance'][...]
+    if 'image/pixelPitch' in imghd5:
+        strh5['rystare/pixelPitch'] = imghd5['image/pixelPitch'][...]
+       
+    strh5['rystare/imageName'] = imghd5['image/imageName'][...]
+    strh5['rystare/imageFilename'] = imghd5['image/imageFilename'][...]
+    strh5['rystare/imageSizePixels'] = imghd5['image/imageSizePixels'][...]
+    strh5['rystare/wavelength'] = imghd5['image/wavelength'][...]
+    strh5['rystare/imageSizeRows'] = imghd5['image/imageSizeRows'][...]
+    strh5['rystare/imageSizeCols'] = imghd5['image/imageSizeCols'][...]
+    pixelPitch = strh5['rystare/pixelPitch'][...]
+    numPixels = imghd5['image/imageSizePixels']
+    
+    strh5['rystare/imageSizeDiagonal'] = np.sqrt((pixelPitch[0] * numPixels[0]) ** 2. + (pixelPitch[1] * numPixels[1]) ** 2)
 
+#     strh5['rystare/imageSizeDiagonal'] = imghd5['image/imageSizeDiagonal'][...]
+    strh5['rystare/equivalentSignalUnit'] = imghd5['image/equivalentSignalUnit'][...]
+    strh5['rystare/equivalentSignalType'] = imghd5['image/equivalentSignalType'][...]
+    if 'image/EinUnits' in imghd5:
+        strh5['rystare/EinUnits'] = imghd5['image/EinUnits'][...]
+        if 'W' in imghd5['image/EinUnits'][...]:
+            strh5['rystare/LinUnits'] = 'W/(m2.sr)'
+        elif 'q' in imghd5['image/EinUnits'][...]:
+            strh5['rystare/LinUnits'] = 'q/(s.m2.sr)'
+    else:
+        strh5['rystare/LinUnits'] = imghd5['image/LinUnits'][...]
+        if 'W' in imghd5['image/LinUnits'][...]:
+            strh5['rystare/EinUnits'] = 'W/(m2)'
+        elif 'q' in imghd5['image/LinUnits'][...]:
+            strh5['rystare/EinUnits'] = 'q/(s.m2)'
+    
     #calculate the noise and final images
     strh5 = photosensor(strh5) # here the Photon-to-electron conversion occurred.
 
@@ -2401,6 +2447,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     strh5.close()
 
     return hdffilename
+
 
 ################################################################
 def get_summary_stats(hdffilename):
@@ -2561,11 +2608,16 @@ if __name__ == '__main__':
 
     #----------  how to use example code ---------------------
     if doAll:
-        hdffilename = run_example(doTest='Advanced',doPlots=False, doHisto=False, doImages=False)
+        hdffilename = run_example(outfilename='Output', pathtoimage='image-Stairslin-LowLight-40-100-520.hdf5', 
+            doTest='Advanced',doPlots=False, doHisto=False, doImages=False)
         get_summary_stats(hdffilename)
         print(20*'- ')
-        hdffilename = run_example(doTest='Simple',doPlots=False, doHisto=False, doImages=False)
+        hdffilename = run_example(outfilename='Output', pathtoimage='image-Stairslin-LowLight-40-100-520.hdf5', 
+        doTest='Simple',doPlots=False, doHisto=False, doImages=False)
         get_summary_stats(hdffilename)
 
 
     print('module rystare done!')
+
+
+

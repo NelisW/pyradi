@@ -1158,7 +1158,7 @@ def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)].value
+        arr = hfd5f['{}'.format(lstimg)][...]
         if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
 
@@ -1197,7 +1197,7 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)].value
+        arr = hfd5f['{}'.format(lstimg)][...]
 
         if debug:
             print('data set {} has shape {} '.format(lstimg,arr.shape))
@@ -1241,7 +1241,7 @@ def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)].value
+        arr = hfd5f['{}'.format(lstimg)][...]
         his, bin = np.histogram(arr,bins=bins)
         filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
         with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
