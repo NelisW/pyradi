@@ -228,6 +228,9 @@ def loadtape7(filename, colspec = []):
     colHead = []
     lines = infile.readlines()#.strip()
     infile.close()
+    if len(lines) < 10:
+        print(f'Error reading file {filename}: too few lines!')
+        return None
 
     #determine values for MODEL, ITYPE, IEMSCT, IMULT from card 1
     #tape5 input format (presumably also tape7, line 1 format?)
