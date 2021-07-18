@@ -97,8 +97,13 @@ import json
 import sys
 import time
 import locale
-import IPython
 import platform
+
+try:
+    import IPython
+except ImportError:
+    pass
+
 
 try:
     import pkg_resources

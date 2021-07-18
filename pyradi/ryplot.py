@@ -1569,12 +1569,19 @@ class Plotter:
       if self.useplotly:
           self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
 
-      if x.ndim>1:
-          xx=x
+      xisList = False
+      if isinstance(x, list):
+        xx = x
+        xisList = True
+        maxNX = len(xx)
       else:
-          if type(x)==type(pd.Series()):
-              x = x.values
-          xx=x.reshape(-1, 1)
+
+        if x.ndim>1:
+            xx=x
+        else:
+            if type(x)==type(pd.Series()):
+                x = x.values
+            xx=x.reshape(-1, 1)
 
       if y.ndim>1:
           yy=y
@@ -1608,25 +1615,28 @@ class Plotter:
           ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
           ax.xaxis.set_major_locator(mdates.DayLocator())
 
-      if maxNX >0:
-          ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+      if not xisList:
+        if maxNX >0:
+            ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
+  
+        if xScientific:
+            # formx = plt.FormatStrFormatter('%.3e')
+            formx = plt.ScalarFormatter()
+            formx.set_powerlimits([powerLimits[0], powerLimits[1]])
+            formx.set_scientific(True)
+            ax.xaxis.set_major_formatter(formx)
+  
+            # http://matplotlib.1069221.n5.nabble.com/ScalarFormatter-td28042.html
+            # http://matplotlib.org/api/ticker_api.html
+            # http://matplotlib.org/examples/pylab_examples/newscalarformatter_demo.html
+            # ax.xaxis.set_major_formatter( plt.FormatStrFormatter('%d'))
+            # http://matplotlib.org/1.3.1/api/axes_api.html#matplotlib.axes.Axes.ticklabel_format
+            # plt.ticklabel_format(style='sci', axis='x',
+            #      scilimits=(powerLimits[0], powerLimits[1]))
+
+
       if maxNY >0:
           ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
-
-      if xScientific:
-          # formx = plt.FormatStrFormatter('%.3e')
-          formx = plt.ScalarFormatter()
-          formx.set_powerlimits([powerLimits[0], powerLimits[1]])
-          formx.set_scientific(True)
-          ax.xaxis.set_major_formatter(formx)
-
-          # http://matplotlib.1069221.n5.nabble.com/ScalarFormatter-td28042.html
-          # http://matplotlib.org/api/ticker_api.html
-          # http://matplotlib.org/examples/pylab_examples/newscalarformatter_demo.html
-          # ax.xaxis.set_major_formatter( plt.FormatStrFormatter('%d'))
-          # http://matplotlib.org/1.3.1/api/axes_api.html#matplotlib.axes.Axes.ticklabel_format
-          # plt.ticklabel_format(style='sci', axis='x',
-          #      scilimits=(powerLimits[0], powerLimits[1]))
 
       if yScientific:
           formy = plt.ScalarFormatter()
@@ -1867,27 +1877,28 @@ class Plotter:
               ax.set_xlim(pltaxis[0],pltaxis[1])
           ax.set_ylim(pltaxis[2],pltaxis[3])
 
-      if xTicks is not None:
-          ticks = ax.set_xticks(list(xTicks.keys()))
-          ax.set_xticklabels([xTicks[key] for key in xTicks],
-              rotation=xtickRotation, fontsize=xytickfsize)
-
-      if  xTicks is None and xtickRotation is not None:
-          ticks = ax.get_xticks()
-          if xIsDate:
-              from datetime import date
-              ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
-          ax.set_xticks(ticks) # this is workaround for bug in matplotlib
-          ax.set_xticklabels(ticks,
-              rotation=xtickRotation, fontsize=xytickfsize)
-
-
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize)
 
-      # minor ticks are two points smaller than major
-      ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
-      ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+      if not xisList:
+
+        if xTicks is not None:
+            ticks = ax.set_xticks(list(xTicks.keys()))
+            ax.set_xticklabels([xTicks[key] for key in xTicks],
+                rotation=xtickRotation, fontsize=xytickfsize)
+
+        if  xTicks is None and xtickRotation is not None:
+            ticks = ax.get_xticks()
+            if xIsDate:
+                from datetime import date
+                ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
+            ax.set_xticks(ticks) # this is workaround for bug in matplotlib
+            ax.set_xticklabels(ticks,
+                rotation=xtickRotation, fontsize=xytickfsize)
+
+            # minor ticks are two points smaller than major
+            ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+            ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
 
       if yInvert:
           ax.set_ylim(ax.get_ylim()[::-1])
