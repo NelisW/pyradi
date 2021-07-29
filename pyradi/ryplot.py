@@ -928,7 +928,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, 
-                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
@@ -978,6 +978,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1028,7 +1029,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, 
-                    markers, markevery, markerfacecolor,markeredgecolor,
+                    markers, markevery, markerfacecolor,markeredgecolor,markersize,
                     zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
       return ax
@@ -1044,7 +1045,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, 
-                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
@@ -1094,6 +1095,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1146,7 +1148,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, 
-                    markers, markevery, markerfacecolor,markeredgecolor,
+                    markers, markevery, markerfacecolor,markeredgecolor,markersize,
                     zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
 
@@ -1164,7 +1166,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, 
-                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True, axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
@@ -1214,6 +1216,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1258,7 +1261,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, 
-                    markers, markevery, markerfacecolor,markeredgecolor,
+                    markers, markevery, markerfacecolor,markeredgecolor,markersize,
                     zorders, clip_on,axesequal,
                     xAxisFmt,yAxisFmt)
 
@@ -1275,7 +1278,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, 
-                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,
+                    markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
@@ -1324,6 +1327,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1368,7 +1372,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, 
-                    markers, markevery, markerfacecolor,markeredgecolor,
+                    markers, markevery, markerfacecolor,markeredgecolor,markersize,
                     zorders, clip_on,
                     axesequal,xAxisFmt,yAxisFmt)
 
@@ -1385,7 +1389,7 @@ class Plotter:
                     xScientific=False, yScientific=False,
                     yInvert=False, xInvert=False, drawGrid=True,xIsDate=False,
                     xTicks=None, xtickRotation=0, 
-                    markers=[], markevery=None,  markerfacecolor=True,markeredgecolor=True,
+                    markers=[], markevery=None,  markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True, axesequal=False, 
                     xAxisFmt=None, yAxisFmt=None,
                     PLcolor=None,
@@ -1434,6 +1438,7 @@ class Plotter:
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
                 | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
                 | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1478,7 +1483,7 @@ class Plotter:
                     xScientific, yScientific,
                     yInvert, xInvert, xIsDate,
                     xTicks, xtickRotation, 
-                    markers, markevery, markerfacecolor,markeredgecolor,
+                    markers, markevery, markerfacecolor,markeredgecolor,markersize,
                     zorders, clip_on,
                     axesequal,xAxisFmt,yAxisFmt)
 
@@ -1498,7 +1503,7 @@ class Plotter:
                     yInvert=False, xInvert=False, xIsDate=False,
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, 
-                    markerfacecolor=True,markeredgecolor=True,
+                    markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None,clip_on=True,axesequal=False, 
                     xAxisFmt=None,yAxisFmt=None,
                     PLyStatic=[0]
@@ -1551,6 +1556,7 @@ class Plotter:
               | markevery (int | (startind, stride)) subsample when using markers (optional)
               | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
               | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+              | markersize (float) marker size in points, default 6 (optional)
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
               | axesequal (bool) force scaling on x and y axes to be equal (optional)
@@ -1732,12 +1738,12 @@ class Plotter:
                 if not label:
                     if linewidths is not None:
                       plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,markersize=markersize,
                             marker=mmrk, markevery=markevery, linewidth=linewidths[i],
                             clip_on=clip_on, zorder=zorder)
                     else:
                       plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
-                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,markersize=markersize,
                             marker=mmrk, markevery=markevery,
                             clip_on=clip_on, zorder=zorder)
                 else:
@@ -1745,13 +1751,13 @@ class Plotter:
                       # print('***************',linewidths)
                       line, = plotcommand(xx,yy[:,i],col,#label=label[i],
                             linestyle=linestyleL,
-                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,markersize=markersize,
                             marker=mmrk, markevery=markevery, linewidth=linewidths[i],
                             clip_on=clip_on, zorder=zorder)
                     else:
                       line, = plotcommand(xx,yy[:,i],col,#label=label[i],
                             linestyle=linestyleL,
-                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,
+                            markerfacecolor=markerfacecolor,markeredgecolor=markeredgecolor,markersize=markersize,
                             marker=mmrk, markevery=markevery,
                             clip_on=clip_on, zorder=zorder)
                     line.set_label(label[i])
@@ -2140,7 +2146,7 @@ class Plotter:
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
-                  zorders=None, PLcolorscale='' ):
+                  zorders=None, PLcolorscale='',alpha=0.5 ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional
@@ -2206,6 +2212,7 @@ class Plotter:
                 | contLinWid (float): contour line width in points (optional)
                 | zorders ([int]) list of zorders for drawing sequence, highest is last (optional)
                 | PLcolorscale (?) Plotly parameter ? (optional)
+                | alpha (float): fill alpha  (optional)
 
             Returns:
                 | the axis object for the plot
@@ -2301,16 +2308,23 @@ class Plotter:
 
       #do the plot
       if contourFill:
-          pmplotcf = ax.contourf(xvals, yvals, zvals, levels,
-              cmap=meshCmap, zorder=zorder)
+        pmplotcf = ax.contourf(xvals, yvals, zvals, levels,
+          cmap=meshCmap, zorder=zorder,alpha=alpha)
 
+        if contourLine:
+          pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
+                colors=col, zorder=zorder,alpha=1)
+        if contLabel: # and  contourFill:
+          plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz) #, zorder=zorder)
+
+  
       if contourLine:
           pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder)
+               colors=col, zorder=zorder,alpha=alpha)
 
       if zeroContourLine:
           pmplot = ax.contour(xvals, yvals, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder)
+               colors=col, zorder=zorder,alpha=alpha)
 
 
       if contLabel: # and not contourFill:
