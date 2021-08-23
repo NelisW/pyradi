@@ -4487,6 +4487,7 @@ turbo_colormap_data = np.array(
                        [0.47960,0.01583,0.01055]])
 
 def RGBToPyCmap(rgbdata):
+    
     nsteps = rgbdata.shape[0]
     stepaxis = np.linspace(0, 1, nsteps)
 
@@ -4506,16 +4507,22 @@ def RGBToPyCmap(rgbdata):
     return mpl_data
 
 # register turbo as a matplotlib colourmap
-mpl_data = RGBToPyCmap(turbo_colormap_data)
-# plt.register_cmap(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
-# plt.register_cmap(cmap=LSC(name='turbo', data=mpl_data, lut=turbo_colormap_data.shape[0]))
-plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shape[0]))
-mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-# plt.register_cmap(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0])
-# plt.register_cmap(cmap=LSC(name='iturbo', data=mpl_data, lut=turbo_colormap_data.shape[0]))
-plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 # usage:
 # plt.imshow(ZZ, cmap='turbo')
+if 'turbo' in plt.colormaps():
+    pass
+    # print(f'Name "turbo" already used in plt.colormaps()')
+else:
+    mpl_data = RGBToPyCmap(turbo_colormap_data)
+    plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shape[0]))
+
+if 'iturbo' in plt.colormaps():
+    pass
+    # print(f'Name "iturbo" already used in plt.colormaps()')
+else:
+    mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
+    plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
+
 
 ################################################################
 ################################################################

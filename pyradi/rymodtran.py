@@ -46,6 +46,9 @@ __all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','variat
 import re
 import sys
 import numpy as np
+import os.path
+
+
 if sys.version_info[0] > 2:
     # from io import StringIO
     from io import BytesIO
@@ -475,7 +478,7 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
 
 ##############################################################################
 ##
-def runModtranAndCopy(root, research, pathToModtranBin,execname):
+def runModtranAndCopy(root, research, pathToModtranBin,execname,clean=False):
     """
     Look for input files in directories, run modtran and copy results to dir.
 
@@ -513,7 +516,7 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname):
         dirname = os.path.dirname(filepath)
 
         #get rid of clutter to make sure that our tape5 will be used
-        for rfile in ['tape5','modin','modin.ontplt','mod5root.in','.ezl20ck']:
+        for rfile in ['tape5','tape6','tape7','tape7.scn','tape8','modin','modin.ontplt','mod5root.in','.ezl20ck']:
             rpath = os.path.join(pathToModtranBin, rfile)
             if os.path.exists(rpath):
                 os.remove(rpath)
@@ -524,9 +527,11 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname):
 
         #run modtran on the tape5 file in its bin directory
         if os.path.exists(tape5path):
-
-            p = subprocess.Popen(os.path.join(pathToModtranBin, execname), 
-                    shell=True, stdout=None, stderr=None, cwd=pathToModtranBin)
+            if  os.sep=='/':
+                p = subprocess.Popen(os.path.join(pathToModtranBin, execname))
+            else:
+                p = subprocess.Popen(os.path.join(pathToModtranBin, execname), 
+                        shell=True, stdout=None, stderr=None, cwd=pathToModtranBin)
             while  p.poll() == None:
                 time.sleep(0.5)
 
@@ -536,6 +541,11 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname):
                     if os.path.exists(outpath):
                         shutil.copy2(outpath, dirname)
 
+    # cleaning up, get rid of clutter 
+    for rfile in ['tape5','tape6','tape7','tape7.scn','tape8','modin','modin.ontplt','mod5root.in','.ezl20ck']:
+        rpath = os.path.join(pathToModtranBin, rfile)
+        if os.path.exists(rpath):
+            os.remove(rpath)
 
 ################################################################
 ##
