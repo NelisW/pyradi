@@ -249,7 +249,7 @@ class PFlux:
                 np.trapz(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
 
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
-        self.dfPhotRates = self.dfPhotRates.reindex_axis(sorted(self.dfPhotRates.columns), axis=1)
+        self.dfPhotRates = self.dfPhotRates.reindex(sorted(self.dfPhotRates.columns), axis=1)
 
         return self.dfPhotRates
 

@@ -1785,7 +1785,7 @@ def nEcntLLightDF(tauAtmo, tauFilt, tauOpt, quantEff, rhoTarg, cosTarg,
     """
     
     L =  quantEff * tauOpt * tauFilt *  tauAtmo * \
-            rhoTarg * dfPhotRates.ix[scenario][specBand]
+            rhoTarg * dfPhotRates.loc[scenario][specBand]
     n = np.pi * inttime * pfrac * detarea * L * cosTarg / (4 * fno**2)
     return n
     
