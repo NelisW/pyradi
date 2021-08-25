@@ -96,3 +96,4 @@ Backup_of_*.cdr
 /pyradi/PSOutput.txt
 /howto-pyPI-publish.txt
 /pyradi/.ipynb_checkpoints
+/pyradi/examples/.ipynb_checkpoints/bookcode-checkpoint.ipynb
