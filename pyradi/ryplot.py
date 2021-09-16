@@ -71,11 +71,14 @@ from matplotlib.colors import LinearSegmentedColormap as LSC
 
 # see if plotly is available
 try:
-    __import__('plotly.tools')
-    imported_plotly = True
-    from plotly import tools
+    # __import__('plotly.tools')
+    # from plotly import tools
+    __import__('plotly.subplots')
+    from plotly import subplots
     from plotly.offline import download_plotlyjs, offline
     from plotly.graph_objs import Scatter, Layout, Figure,Scatter3d,Mesh3d,ColorBar,Contour
+    # disable the plotly functionality - if you want plotly, go use plotly.
+    imported_plotly = False
 except ImportError:
     imported_plotly = False
 
@@ -922,7 +925,7 @@ class Plotter:
     def plot(self, plotnum, x, y, ptitle=None, xlabel=None, ylabel=None,
                     plotCol=[], linewidths=None, label=[], legendAlpha=0.0,
                     legendLoc='best',
-                    pltaxis=None, maxNX=10, maxNY=10, linestyle=None,
+                    pltaxis=None, maxNX=5, maxNY=5, linestyle=None,
                     powerLimits = [-4,  2,  -4,  2], titlefsize = 12,
                     xylabelfsize = 12,  xytickfsize = 10, labelfsize=10,
                     xScientific=False, yScientific=False,
@@ -1678,12 +1681,18 @@ class Plotter:
                 PLYAxis = dict(type='linear')
                 try:
                     if len(y[0,:]) > 1:
-                        self.Plotlydata.append(Scatter(x=x, y=y[i,:]+PLyStatic[0],mode='lines', name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        self.Plotlydata.append(Scatter(x=x, y=y[i,:]+PLyStatic[0],mode='lines', 
+                            fill='tonexty',line = dict(color = self.PLcolor, 
+                            width = self.PLwidth, dash = self.PLdash)))
                         PLyStatic[0] += y[i,:]
                     elif len(x[0,:]) > 1:
-                        self.Plotlydata.append(Scatter(x=x[:,i], y=y,mode='lines', name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        self.Plotlydata.append(Scatter(x=x[:,i], y=y,mode='lines', 
+                            fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, 
+                            dash = self.PLdash)))
                 except:
-                    self.Plotlydata.append(Scatter(x=x, y=y, name = label,fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                    self.Plotlydata.append(Scatter(x=x, y=y,fill='tonexty',
+                        line = dict(color = self.PLcolor, width = self.PLwidth, 
+                        dash = self.PLdash)))
       ###############################line plot #######################
       else: # not a stacked plot
         for i in range(yy.shape[1]):
@@ -1773,11 +1782,11 @@ class Plotter:
                     # Assuming that either y or x has to 1
                     try:
                         if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                         elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                     except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
 
                     # Append axis and plot titles
                     if self.ncol > 1:
@@ -1795,11 +1804,11 @@ class Plotter:
                     # Assuming that either y or x has to 1
                     try:
                         if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                         elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                     except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
 
                     # Append axis and plot titles
                     if self.ncol > 1:
@@ -1817,11 +1826,11 @@ class Plotter:
                     # Assuming that either y or x has to 1
                     try:
                         if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                         elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                     except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
+                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
 
                     # Append axis and plot titles
                     if self.ncol > 1:
@@ -1839,13 +1848,13 @@ class Plotter:
                     # Assuming that either y or x has to 1
                     try:
                         if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label,xaxis='x1',
+                            self.Plotlydata.append(Scatter(x=x[:,i], y=y,xaxis='x1',
                             line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                         elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label,xaxis='x1',
+                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], xaxis='x1',
                             line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                     except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label,xaxis='x1',
+                        self.Plotlydata.append(Scatter(x=x, y=y,xaxis='x1',
                         line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
                     
                     # Append axis and plot titles
@@ -1917,8 +1926,15 @@ class Plotter:
       # override the format with user defined
       if xAxisFmt is not None:
           ax.xaxis.set_major_formatter(FormatStrFormatter(xAxisFmt))
+      else:
+          if not xIsDate:
+            ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+
       if yAxisFmt is not None:
           ax.yaxis.set_major_formatter(FormatStrFormatter(yAxisFmt))
+      else:
+          if not xIsDate:
+            ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
                
 
       return ax
@@ -1945,9 +1961,9 @@ class Plotter:
                     specRow.append({'is_3d': True})
                 for r in range(int(self.ncol)):
                     specCol.append({'is_3d': True})
-                fig = tools.make_subplots(rows=int(self.nrow), cols=int(self.nrow), specs=[specRow,specCol])#[[{'is_3d': True}, {'is_3d': True}], [{'is_3d': True}, {'is_3d': True}]])
+                fig = subplots.make_subplots(rows=int(self.nrow), cols=int(self.nrow), specs=[specRow,specCol])#[[{'is_3d': True}, {'is_3d': True}], [{'is_3d': True}, {'is_3d': True}]])
             else:
-                fig = tools.make_subplots(int(self.nrow), int(self.ncol), subplot_titles=self.PlotlySubPlotTitles)
+                fig = subplots.make_subplots(int(self.nrow), int(self.ncol), subplot_titles=self.PlotlySubPlotTitles)
 
             # make row and column formats
             rowFormat = []
@@ -3831,7 +3847,7 @@ class Plotter:
                                     tick_formatter2=None,
                                     )
 
-        ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
+        ax1 = floating_axes.FloatingSubplot(fig, int(rect), grid_helper=grid_helper)
         fig.add_subplot(ax1)
 
         # create a parasite axes
