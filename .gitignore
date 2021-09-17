@@ -97,3 +97,15 @@ Backup_of_*.cdr
 /howto-pyPI-publish.txt
 /pyradi/.ipynb_checkpoints
 /pyradi/examples/.ipynb_checkpoints/bookcode-checkpoint.ipynb
+/pyradi/examples/SampleReflectance.png
+/pyradi/examples/SourceRadiance.png
+/pyradi/examples/chromaticity.png
+/pyradi/examples/contrastplotVis.pdf
+/pyradi/examples/flamesensor01.pdf
+/pyradi/examples/rangeplotLWIR.pdf
+/pyradi/examples/rangeplotMWIR.pdf
+/pyradi/examples/rangeplotVISB.pdf
+/pyradi/examples/rangeplotVISH.pdf
+/pyradi/examples/rangeplotVISW.pdf
+/pyradi/examples/specplot.pdf
+/pyradi/examples/tristimulus.png
