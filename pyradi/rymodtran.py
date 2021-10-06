@@ -41,7 +41,7 @@ from __future__ import print_function
 
 __version__= "$Revision$"
 __author__= 'pyradi team'
-__all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','variationTape5File']
+__all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','runModtranModrootIn','variationTape5File']
 
 import re
 import sys
@@ -546,6 +546,64 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname,clean=False):
         rpath = os.path.join(pathToModtranBin, rfile)
         if os.path.exists(rpath):
             os.remove(rpath)
+
+
+
+
+##############################################################################
+##
+def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
+    """
+    Look for input files in directories, run modtran and copy results to dir.
+
+    Finds all *.tp5 files below the root directory that matches the 
+    regex pattern in research. Then runs modtran on these files
+    using modroot.in
+
+    Each input file must be in a separate directory, because the results are
+    all written to files with the names 'tape5', etc.
+
+    Args:
+        | root ([string]): path to root dir containing the dirs with modtran input files.
+        | pathToModtranBin ([string]): path to modtran executable directory.
+        | execname ([string]): modtran executable filename.
+        | filerootname (string): root filename, no extension
+
+    Returns:
+        | List of all the files processed.
+
+    Raises:
+        | No exception is raised.
+    """
+    import os
+    import shutil
+    import subprocess
+    import time
+    import pyradi.ryfiles as ryfiles
+
+    filepaths = ryfiles.listFiles(root, patterns=f'{filerootname}.tp5', recurse=1, return_folders=0, useRegex=False)
+
+    # print('**********************',root,research,filepaths)
+ 
+    for filepath in filepaths:
+
+        # write tape5 path to modroot.in
+        with open('modroot.in','w') as fout:
+            fout.writelines([filepath.replace('.tp5','\n')])
+        time.sleep(0.1)
+
+        #run modtran
+        if os.path.exists(filepath):
+            if  os.sep=='/':
+                p = subprocess.Popen(os.path.join(pathToModtranBin, execname))
+            else:
+                p = subprocess.Popen(os.path.join(pathToModtranBin, execname), 
+                        shell=True, stdout=None, stderr=None, cwd=pathToModtranBin)
+            while  p.poll() == None:
+                time.sleep(0.5)
+
+
+
 
 ################################################################
 ##
