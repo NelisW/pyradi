@@ -2148,6 +2148,36 @@ class Plotter:
       return ax
 
 
+
+    def clippedcolorbar(CS, **kwargs):
+        from matplotlib.cm import ScalarMappable
+        from numpy import arange, floor, ceil
+        fig = CS.ax.get_figure()
+        vmin = CS.get_clim()[0]
+        vmax = CS.get_clim()[1]
+        m = ScalarMappable(cmap=CS.get_cmap())
+        m.set_array(CS.get_array())
+        m.set_clim(CS.get_clim())
+        step = CS.levels[1] - CS.levels[0]
+        cliplower = CS.zmin<vmin
+        clipupper = CS.zmax>vmax
+        noextend = 'extend' in kwargs.keys() and kwargs['extend']=='neither'
+        # set the colorbar boundaries
+        boundaries = arange((floor(vmin/step)-1+1*(cliplower and noextend))*step, (ceil(vmax/step)+1-1*(clipupper and noextend))*step, step)
+        kwargs['boundaries'] = boundaries
+        # if the z-values are outside the colorbar range, add extend marker(s)
+        # This behavior can be disabled by providing extend='neither' to the function call
+        if not('extend' in kwargs.keys()) or kwargs['extend'] in ['min','max']:
+            extend_min = cliplower or ( 'extend' in kwargs.keys() and kwargs['extend']=='min' )
+            extend_max = clipupper or ( 'extend' in kwargs.keys() and kwargs['extend']=='max' )
+            if extend_min and extend_max:
+                kwargs['extend'] = 'both'
+            elif extend_min:
+                kwargs['extend'] = 'min'
+            elif extend_max:
+                kwargs['extend'] = 'max'
+        return fig.colorbar(m, **kwargs)
+
     ############################################################
     ##
     def meshContour(self, plotnum, xvals, yvals, zvals, levels=10,
@@ -2162,7 +2192,7 @@ class Plotter:
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
-                  zorders=None, PLcolorscale='',alpha=0.5 ):
+                  zorders=None, PLcolorscale='',alpha=0.5,vlimits=[None,None] ):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional
@@ -2229,6 +2259,7 @@ class Plotter:
                 | zorders ([int]) list of zorders for drawing sequence, highest is last (optional)
                 | PLcolorscale (?) Plotly parameter ? (optional)
                 | alpha (float): fill alpha  (optional)
+                | vlimits ([float,float]): force upper and lower Z limits if not None
 
             Returns:
                 | the axis object for the plot
@@ -2325,7 +2356,7 @@ class Plotter:
       #do the plot
       if contourFill:
         pmplotcf = ax.contourf(xvals, yvals, zvals, levels,
-          cmap=meshCmap, zorder=zorder,alpha=alpha)
+          cmap=meshCmap, zorder=zorder,alpha=alpha,vmin=vlimits[0],vmax=vlimits[1])
 
         if contourLine:
           pmplot = ax.contour(xvals, yvals, zvals, levels, cmap=None, linewidths=contLinWid,
@@ -2371,6 +2402,7 @@ class Plotter:
                           str = '{0:e}'.format(val)
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
+        
           else:
               ticks,  ticklabels = list(zip(*cbarcustomticks))
               # cbar = self.fig.colorbar(pmplotcf,ticks=ticks, orientation=cbarorientation)
@@ -2390,6 +2422,12 @@ class Plotter:
       #scale the axes
       if pltaxis is not None:
           ax.axis(pltaxis)
+    #   if vlimits[0] is None and vlimits[1] is None:
+    #       pass
+    #   else:
+    #     # https://stackoverflow.com/questions/43150687/colorbar-limits-are-not-respecting-set-vmin-vmax-in-plt-contourf-how-can-i-more
+    #     plt.colorbar(ax, boundaries=np.linspace(vlimits[0], vlimits[1], levels))
+    #     colorbar = self.clippedcolorbar(pmplotcf)
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize)
