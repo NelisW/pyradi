@@ -1588,14 +1588,14 @@ class Plotter:
         if x.ndim>1:
             xx=x
         else:
-            if type(x)==type(pd.Series()):
+            if type(x)==type(object):
                 x = x.values
             xx=x.reshape(-1, 1)
 
       if y.ndim>1:
           yy=y
       else:
-          if type(y)==type(pd.Series()):
+          if type(y)==type(object):
               y = y.values
           yy=y.reshape(-1, 1)
 
