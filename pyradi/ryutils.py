@@ -1067,7 +1067,7 @@ def convertSpectralDomain(inspectraldomain,  type=''):
 
 ################################################################
 ##
-def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
+def convertSpectralDensity(inspectraldomain,  inspectralquantity, type='',outspecdomainFix=False,outspecdomain=None):
     """Convert spectral density quantities, i.e. between W/(m^2.um), W/(m^2.cm^-1) and W/(m^2.Hz).
 
     In string variable type, the 'from' domain and 'to' domains are indicated each with a
@@ -1099,6 +1099,8 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
         |    'fn' convert from per frequency interval density to per wavenumber interval density
         |    'nl' convert from per wavenumber interval density to per wavelength interval density
         |    'nf' convert from per wavenumber interval density to per frequency interval density
+        | outspecdomainFix(bool): if true resphape the first return vec into (-1,1)
+        | outspecdomain (np.array[M,] or [M,1]): if not None interpolate output to this vector
 
     Returns:
         | ([N,1],[N,1]): outspectraldomain and outspectralquantity
@@ -1138,6 +1140,15 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type=''):
                   'nf': lambda quant: quant / (100 * constants.c),
                   'fl': lambda quant: quant / (constants.c *1.0e-6 / ((spec * 1.0e-6)**2)),
                   }.get(type, lambda quant: np.zeros(shape=(0, 0)) )(quant)
+
+    if outspecdomain is not None:
+        from scipy.interpolate import  interp1d
+        intfn = interp1d(outspectraldomain.reshape(-1,),outspectralquantity.reshape(-1,))
+        outspectralquantity = intfn(outspecdomain).reshape(-1,1)
+        outspectraldomain = outspecdomain
+
+    if outspecdomainFix:
+        outspectraldomain = outspectraldomain.reshape(-1,1)
 
     return (outspectraldomain,outspectralquantity)
 

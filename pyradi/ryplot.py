@@ -873,7 +873,7 @@ class Plotter:
 
             Args:
                 | subplotNumer (int) : number of the subplot
-                | x (double): horizontal value used for line
+                | x (double): vertical value used for line
 
             Returns:
                 | A tuple with two arrays for line (x-coords,y-coords)
@@ -899,7 +899,7 @@ class Plotter:
         Subplot numbers range from 1 upwards.
 
         Use as follows to draw a horizontal line in plot:
-            p.plot(1,*p.horizontalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
+            p.plot(1,*p.horizontalLineCoords(subplotNum=1,y=freq),plotCol=['k'])
 
             Args:
                 | subplotNumer (int) : number of the subplot
