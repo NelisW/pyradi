@@ -1578,6 +1578,12 @@ class Plotter:
       if self.useplotly:
           self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
 
+
+      if isinstance(x, pd.Series):
+        x = x.values
+      if isinstance(y, pd.Series):
+        y = y.values
+
       xisList = False
       if isinstance(x, list):
         xx = x
