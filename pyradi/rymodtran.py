@@ -47,7 +47,8 @@ import re
 import sys
 import numpy as np
 import os.path
-
+import pandas as pd
+import json
 
 if sys.version_info[0] > 2:
     # from io import StringIO
@@ -56,6 +57,599 @@ if sys.version_info[0] > 2:
 else:
     from string import maketrans
     import StringIO
+
+
+##########################################################################################
+climatics = [
+'user-defined uniform','Tropical','Mid-Latitude Summer','Mid-Latitude Winter',
+'Sub-Arctic Summer','Sub-Arctic Winter','1976 US Standard','user-defined layer',
+'user-defined layers by pressure']
+aerosols = [
+'no aerosol','Rural 23 km',
+'Rural 5 km','Navy maritime','Maritime','Urban','Tropospheric',
+'user defined','Fog (advective)','Fog  (radiative)','Desert']
+
+
+class extracttape6:
+    """Class to collate all functions reading tape6 together, automatically export to json and latex.
+    """
+
+
+    def __init__(self, tp6name):
+
+        self.tp6name = tp6name
+        self.tp6tojsonlatex()
+
+    def refind(self, line,pattern,warn=True):
+        try:
+            found = re.search(pattern, line).group(1)
+        except AttributeError:
+            if warn:
+                # later expand with proper error handling
+                print(f'{pattern} not found')
+            found = None
+        return found
+
+
+
+    def extractAerosolAlts(self, line):
+        """Find lower and upper altitude for aerosol layers in standard modtran atmos.
+        BOUNDARY LAYER (0-2KM)     ...............
+        """
+        hlo =  float(self.refind(line,r'^\s*.+\s*\((.+?)-.+\)\s+\s+.*$',warn=True))
+        hhi =  float(self.refind(line,r'^\s*.+\s*\(.+-(.+?)KM\)\s+\s+.*$',warn=True))
+        return hlo,hhi
+
+
+    def findPathRadianceMode(self, lines,tp6data):
+        var = None
+        for line in lines:
+            if 'PROGRAM WILL COMPUTE ' in line:
+                var = self.refind(line,r'PROGRAM WILL COMPUTE\s*(.+?)\s*$')
+                tp6data['path radiance mode'] = var.lower()
+        return var,tp6data
+
+
+    def findScatterMode(self, lines,tp6data):
+        var = {'scatter mode':'single scattering'}
+        tp6data['scatter mode'] = 'single scattering'
+        for line in lines:
+            if 'Calculations will be done using ' in line:
+                var = self.refind(line,r'Calculations will be done using\s*(.+?)\.$')
+                tp6data['scatter mode'] = var
+                return var,tp6data
+        return var,tp6data
+
+
+    def findSMetRange(self, lines,tp6data):
+        var = 'default value'
+        for line in lines:
+            if 'METEOROLOGICAL RANGE' in line:
+                var = float(self.refind(line,r'METEOROLOGICAL RANGE =\s*(.+?)\s*KM.*$'))
+                break
+        tp6data['meteorological range'] = var
+        return var,tp6data
+
+
+    def findWindSpeed(self, lines,tp6data):
+        var = None
+        var2 = None
+        tp6data['wind speed'] = None
+        tp6data['wind speed 24hr'] = None
+        for line in lines:
+            if var is None and 'METEOROLOGICAL RANGE' in line:
+                var = float(self.refind(line,r'.*WIND =\s*(.+?)\s*M/S.*$',warn=True))
+                tp6data['wind speed'] = var
+            if var is None and 'WIND SPEED =' in line:
+                var = float(self.refind(line,r'^\s*WIND SPEED =\s+(.+?)\s+M/SEC.*$',warn=True))
+                tp6data['wind speed'] = var
+            if 'WIND SPEED (24 HR AVERAGE) =' in line:
+                var2 =float( self.refind(line,r'^\s*WIND SPEED \(24 HR AVERAGE\) =\s+(.+?)\s+M/SEC.*$',warn=True))
+                tp6data['wind speed 24hr'] = var2
+
+            if var is not None and var2 is not None:
+                return (var,var2),tp6data
+        return (var,var2),tp6data
+
+    def findProfiles(self, lines,tp6data):
+        var = None
+        cntr = 0
+        modelnumber = None
+        df = pd.DataFrame()
+        # first to the case with user-supplied layers
+        for line in lines:
+            if 'MODEL ATMOSPHERE NO.' in line:
+                modelnumber = int(self.refind(line,r'\s*MODEL ATMOSPHERE NO\.\s*(.+?)\s*$',warn=True))
+                if modelnumber != 7:
+                    break
+        if modelnumber == 7:
+            for line in lines:
+                if cntr==3:
+                    if len(line) < 2:
+                        break
+                    else:
+                        if 'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)' in line:
+                            line = line.replace('FOG2 (RADIATI0N)    FOG2 (RADIATI0N)','FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
+                        if 'FOG1 (ADVECTTION)' in line:
+                            line = line.replace('FOG1 (ADVECTTION)','FOG1_(ADVECTTION)')
+                        if 'USER DEFINED' in line:
+                            line = line.replace('USER DEFINED','USER DEFINED')
+                        lst = line.strip().split()
+                        df = df.append(pd.DataFrame([lst],index=None))
+                if 'Z         P        T     REL H    H2O' in line:
+                    cntr += 1
+                if '(KM)      (MB)     (K)     (%)  (GM / M3)  TYPE' in line:
+                    cntr += 1
+                if '[Before scaling]' in line:
+                    cntr += 1
+            if cntr > 0:
+                try:
+                    df.columns = ['Height km','Pressure mB','Temperature K','RelHum %','H2O g/m3','Aero Type','Aero Prof','Aero Season']
+                except:
+                    print('Probably spaces resulting in additional columns')
+                    print(df)
+                df = df.fillna('')
+                for col in df.columns[:5]:
+                    df[col] = df[col].astype(float)
+                for col in df.columns[5:]:
+                    df[col] = df[col].str.replace('_',' ')
+                    df[col] = df[col].str.replace('AEROSOL','')
+                    df[col] = df[col].str.lower()
+
+
+
+
+            #  find aerosol extinction
+            cntr = 0
+            dfh = pd.DataFrame()
+            for line in lines:
+                if cntr==2:
+                    if len(line) < 2:
+                        break
+                    else:
+                        lst = line.strip().split()
+                        dfh = dfh.append(pd.DataFrame([lst],index=None))
+                elif 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line:
+                    cntr += 1
+                elif '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line:
+                    cntr += 1
+
+
+            dfh.columns = ['layer','Height km','Pressure mB','Temperature K','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
+            dfh = dfh.fillna('')
+            dfh['aeroextinc'] = dfh['AEROSOL 1'].astype(float) +dfh['AEROSOL 2'].astype(float)+dfh['AEROSOL 3'].astype(float)+dfh['AEROSOL 4'].astype(float)
+            dfh['visibility'] = np.log(50) / (dfh['aeroextinc']+0.01159)
+            dfh = dfh.drop(['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'],axis=1)
+            for col in dfh.columns:
+                dfh[col] = dfh[col].astype(float)
+            dfh = dfh.drop(['Pressure mB','Temperature K','RelHum %'],axis=1)
+
+            # now attach aerosol info
+            dfh = dfh.merge(df,on='Height km')
+            dfh = dfh[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+
+            var =  dfh.to_dict(orient='records')
+            tp6data['Profiles'] = var
+        # now do modtran-supplied layers
+        else:
+            aerolayers = {}
+            # first find boundary layer type
+            cntr = 0
+            for line in lines:
+                # if 'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)' in line:
+                #     line = line.replace('FOG2 (RADIATI0N)    FOG2 (RADIATI0N)','FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
+                if cntr==1:
+                    if 'BOUNDARY LAYER' in line:
+                        aerotype = line[33:58].lower()
+                        aerotype = aerotype if 'aerosol'not in aerotype else aerotype.replace('aerosol','')
+                        aerotype = aerotype.replace('_',' ') if '_' in aerotype else aerotype
+                        hlo,hhi = self.extractAerosolAlts(line)
+                        aerolayers[(hlo,hhi)] = [aerotype.strip(),'','']
+                    if 'TROPOSPHERE' in line:
+                        aerotype = line[33:58].lower()
+                        aerotype = aerotype if 'aerosol'not in aerotype else aerotype.replace('aerosol','')
+                        aerotype = aerotype.replace('_',' ') if '_' in aerotype else aerotype
+                        aeroprofile = line[58:83].lower()
+                        aeroprofile = aeroprofile if 'aerosol'not in aeroprofile else aeroprofile.replace('aerosol','')
+                        aeroprofile = aeroprofile.replace('_',' ') if '_' in aeroprofile else aeroprofile
+                        aeroseason = line[83:].lower()
+                        aeroseason = aeroseason if 'aerosol'not in aeroseason else aeroseason.replace('aerosol','')
+                        aeroseason = aeroseason.replace('_',' ') if '_' in aeroseason else aeroseason
+                        hlo,hhi = self.extractAerosolAlts(line)
+                        aerolayers[(hlo,hhi)] = [aerotype.strip(),aeroprofile.strip(),aeroseason.strip()]
+                    if 'STRATOSPHERE' in line:
+                        aerotype = line[33:58].lower()
+                        aerotype = aerotype if 'aerosol'not in aerotype else aerotype.replace('aerosol','')
+                        aerotype = aerotype.replace('_',' ') if '_' in aerotype else aerotype
+                        aeroprofile = line[58:83].lower()
+                        aeroprofile = aeroprofile if 'aerosol'not in aeroprofile else aeroprofile.replace('aerosol','')
+                        aeroprofile = aeroprofile.replace('_',' ') if '_' in aeroprofile else aeroprofile
+                        aeroseason = line[83:].lower()
+                        aeroseason = aeroseason if 'aerosol'not in aeroseason else aeroseason.replace('aerosol','')
+                        aeroseason = aeroseason.replace('_',' ') if '_' in aeroseason else aeroseason
+                        hlo,hhi = self.extractAerosolAlts(line)
+                        aerolayers[(hlo,hhi)] = [aerotype.strip(),aeroprofile.strip(),aeroseason.strip()]
+                    if 'UPPER ATMOS' in line:
+                        aerotype = line[33:58].lower()
+                        aerotype = aerotype if 'aerosol'not in aerotype else aerotype.replace('aerosol','')
+                        aerotype = aerotype.replace('_',' ') if '_' in aerotype else aerotype
+                        aeroprofile = line[58:83].lower()
+                        aeroprofile = aeroprofile if 'aerosol'not in aeroprofile else aeroprofile.replace('aerosol','')
+                        aeroprofile = aeroprofile.replace('_',' ') if '_' in aeroprofile else aeroprofile
+                        aeroseason = line[83:].lower()
+                        aeroseason = aeroseason if 'aerosol'not in aeroseason else aeroseason.replace('aerosol','')
+                        aeroseason = aeroseason.replace('_',' ') if '_' in aeroseason else aeroseason
+                        hlo,hhi = self.extractAerosolAlts(line)
+                        aerolayers[(hlo,hhi)] = [aerotype.strip(),aeroprofile.strip(),aeroseason.strip()]
+                        break
+                if 'REGIME                      AEROSOL TYPE             PROFILE                  SEASON' in line:
+                    cntr += 1
+
+            dfh = pd.DataFrame()
+            #  find height,temp, pressure,humidity
+            for line in lines:
+                if cntr==3:
+                    if len(line) < 2:
+                        break
+                    else:
+                        if 'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)' in line:
+                            line = line.replace('FOG2 (RADIATI0N)    FOG2 (RADIATI0N)','FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
+                        if 'FOG1 (ADVECTTION)' in line:
+                            line = line.replace('FOG1 (ADVECTTION)','FOG1_(ADVECTTION)')
+                        if 'USER DEFINED' in line:
+                            line = line.replace('USER DEFINED','USER DEFINED')
+                        lst = line.strip().split()
+                        dfh = dfh.append(pd.DataFrame([lst],index=None))
+                if 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line \
+                    or 'Z         P        T     REL H    H2O                          AEROSOL' in line:
+                    cntr += 1
+                if '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line \
+                    or '(KM)      (MB)     (K)     (%)  (GM / M3)  TYPE                 PROFILE' in line :
+                    cntr += 1
+                if '[Before scaling]' in line:
+                    # the first bump  'BOUNDARY LAYER' would not have occurred if we reach here, both cases count to 3
+                    cntr += 1
+            if cntr > 0:
+                # print(dfh.shape)
+                if dfh.shape[1]==14:
+                    dfh.columns = ['layer','Height km','Pressure mB','Temperature K','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
+                    dfh = dfh.fillna('')
+                    dfh['aeroextinc'] = dfh['AEROSOL 1'].astype(float) +dfh['AEROSOL 2'].astype(float)+dfh['AEROSOL 3'].astype(float)+dfh['AEROSOL 4'].astype(float)
+                    dfh['visibility'] = np.log(50) / (dfh['aeroextinc']+0.01159)
+                    dfh = dfh.drop(['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'],axis=1)
+                    for col in dfh.columns:
+                        dfh[col] = dfh[col].astype(float)
+                    Tk = dfh['Temperature K'].values
+                    absHum = (dfh["RelHum %"]/100.) * (216.685/Tk)*6.11657 * np.exp(24.9215*(1-273.16/Tk)) * (273.16/Tk) **5.06
+                    dfh["H2O g/m3"] =  absHum
+                    # prepare aerosol df for later merging
+                    dfa = pd.DataFrame()
+                    heights = dfh['Height km'].values
+                    for height in heights:
+                        for key in aerolayers.keys():
+                            if height >= key[0] and height < key[1]:
+                                if len( aerolayers[key]) < 4:
+                                    aerolayers[key].append(height)
+                                dfa = dfa.append(pd.DataFrame([aerolayers[key]]))
+                    dfa.columns = ["Aero Type","Aero Prof","Aero Season","Height km"]
+                    # link the two dataframes on common
+                    df = dfa.merge(dfh,on='Height km')
+                    # reorder columns to be same as for model 7
+                    # print(df)
+                    df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+                    var =  df.to_dict(orient='records')
+                    tp6data['Profiles'] = var
+
+                elif  dfh.shape[1] == 8:
+                    dfh.columns = ['Height km','Pressure mB','Temperature K','RelHum %','H2O g/m3','Aero Type','Aero Prof','Aero Season']
+                    dfh = dfh.fillna('')
+                    for col in dfh.columns[:5]:
+                        dfh[col] = dfh[col].astype(float)
+                    for col in dfh.columns[5:]:
+                        dfh[col] = dfh[col].str.replace('_',' ')
+                        dfh[col] = dfh[col].str.replace('AEROSOL','')
+                        dfh[col] = dfh[col].str.lower()
+                    # prepare aerosol df for later merging
+
+                    # link the two dataframes on common
+                    # dfh = dfh.merge(dfa,on='Height km')
+                    # reorder columns to be same as for model 7
+                    # print(dfh)
+                    # dfh = dfh[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+                    dfh = dfh[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season"]]
+                    var =  dfh.to_dict(orient='records')
+                    tp6data['Profiles'] = var
+                # elif  dfh.shape[1] == 9:
+                #     pass
+
+                else:
+                    print('unknown table layout')
+                    print(dfh.shape)
+                    print(dfh)
+
+        if modelnumber is not None:
+            tp6data['climatic model'] = climatics[modelnumber]
+
+        return var,tp6data
+
+
+    def findPath(self, lines,tp6data):
+        var = {}
+        fields = ['SLANT PATH TO SPACE (OR GROUND)','SLANT PATH No.  1, H1ALT TO H2ALT','HORIZONTAL PATH']
+        done = False
+        for line in lines:
+            for field in fields:
+                if field in line:
+                    field = field.lower()
+                    var['path type'] = field.replace(' No.  1,','') if ' No.  1' in field else field
+                    done = True
+            if done:
+                break
+        cntr = 0
+        fields = ['H1ALT','H2ALT','OBSZEN','HRANGE','ECA','BCKZEN','HMIN','BENDING','CKRANG','LENN']
+        for line in lines:
+            if cntr>0:
+                for field in fields:
+                    if field in line:
+                        var[field] = float(self.refind(line,f'{field}\\s*=\\s*(.+?)\\s.*$'))
+                if 'LENN' in line:
+                    var['LENN'] = float(self.refind(line,r'LENN\s*=\s*(.+?)\s*.*$'))
+                    break
+            if 'SUMMARY OF LINE-OF-SIGHT No.  1 GEOMETRY CALCULATION' in line:
+                cntr += 1
+        tp6data['Path'] = var
+        return var,tp6data
+
+
+    def findSingleScatter(self, lines,tp6data):
+        var = None
+        cntr = 0
+        fields = ['LATITUDE AT H1ALT','LONGITUDE AT H1ALT','SUBSOLAR LATITUDE','SUBSOLAR LONGITUDE','TIME (<0 UNDEF)','PATH AZIMUTH (FROM H1ALT TO H2ALT)']
+        for line in lines:
+            if cntr>0:
+                for field in fields:
+                    if field in line:
+                        sfield = field.replace('(','\\(').replace(')','\\)')
+                        var[field] = float(self.refind(line,f'{sfield}\\s*=\\s*(.+?)\\s.*$'))
+                if 'DAY OF THE YEAR' in line:
+                    var['DAY OF THE YEAR'] = float(self.refind(line,r'DAY OF THE YEAR\s*=\s*(.+?)\s*.*$'))
+                    break
+            if 'SINGLE SCATTERING CONTROL PARAMETERS SUMMARY' in line:
+                cntr += 1
+                var = {}
+        tp6data['SingleScat parameters'] = var
+        return var,tp6data
+
+
+    def findExtraTerresSource(self, lines,tp6data):
+        var = None
+        for line in lines:
+            if 'EXTRATERRESTIAL SOURCE IS THE' in line:
+                var = self.refind(line,r'EXTRATERRESTIAL SOURCE IS THE\s*(.+?)\s*$')
+                tp6data['extra terrestial source'] = var.lower()
+                return var,tp6data
+        return var,tp6data
+
+
+    def findPhaseFunction(self, lines,tp6data):
+        var = None
+        for line in lines:
+            if 'PHASE FUNCTION FROM' in line:
+                var = self.refind(line,r'PHASE FUNCTION FROM\s*(.+?)\s*$')
+                tp6data['phase function'] = var.lower()
+                return var,tp6data
+        return var,tp6data
+
+
+    def findFreqRange(self, lines,tp6data):
+        var = None
+        cntr = 0
+        fields = ['IV1','IV2','IDV']
+        for line in lines:
+            if cntr>0:
+                for field in fields:
+                    if field in line:
+                        var[field] = float(self.refind(line,f'{field}\\s*=\\s*(.+?)\\sCM-1.*$'))
+                if 'IFWHM' in line:
+                    var['IFWHM'] = float(self.refind(line,r'IFWHM\s*=\s*(.+?)\sCM-1.*$'))
+                    break
+            if 'FREQUENCY RANGE' in line:
+                cntr += 1
+                var = {}
+        tp6data['Frequency range'] = var
+        return var,tp6data
+
+
+    def findAlbedo(self, lines,tp6data):
+        var = {}
+        cntr = 0
+        for line in lines:
+            if cntr==1:
+                if 'Boundary Layer' not in line:
+                    var['albedo name'] = line.strip()
+                cntr += 1
+            elif cntr==2:
+                cntr += 1
+                pass
+                # var['albedo line'] = line.strip()
+            elif cntr==3:
+                if ' Using surface' in line:
+                    var['using surface'] = self.refind(line,f' Using surface:\s*(.+?)\s*$')
+                cntr += 1
+            elif cntr==4:
+                if ' From file' in line:
+                    var['from file'] = self.refind(line,f' From file:\s*(.+?)\s*$')
+                break
+
+            elif cntr==0:
+                if 'IMAGED PIXEL' in line:
+                    if ' The IMAGED PIXEL' in line:
+                        cntr += 1
+                        var['albedo model'] = line[40:].strip()
+
+        for line in lines:
+            if 'AREA-AVERAGED GROUND EMISSIVITY' in line:
+                areaemis = self.refind(line,r'\s+AREA-AVERAGED GROUND EMISSIVITY\s*=\s*(.+?)\s*$')
+                var['area emissivity'] = float(areaemis)
+            if 'IMAGED-PIXEL' in line and 'DIRECTIONAL EMISSIVITY' in line:
+                directemis = self.refind(line,r'\s+IMAGED-PIXEL.+DIRECTIONAL EMISSIVITY\s*=\s*(.+?)\s*$')
+                var['directional emissivity'] = float(directemis)
+
+        tp6data['albedo'] = var
+        return var,tp6data
+
+#  AREA-AVERAGED GROUND EMISSIVITY =      1.000
+#  IMAGED-PIXEL No.  1 DIRECTIONAL EMISSIVITY =      1.000
+
+    def writeLaTeX(self, tp6data,filel):
+        llines = []
+        if len(tp6data['notes']) > 2:
+            llines.append("\\textit{{{}}} ".format(tp6data['notes']))
+        if 'climatic model' in tp6data.keys():
+            llines.append(f"Using the {tp6data['climatic model']} climatic model, ")
+        if 'Profiles' in tp6data.keys():
+            llines.append(f"{tp6data['Profiles'][0]['Aero Type']} aerosol, ")
+        else:
+            print('*** No profile data in json file')
+        if 'meteorological range' in tp6data.keys(): 
+            if isinstance(tp6data['meteorological range'], str):
+                llines.append(f"meteorological range {tp6data['meteorological range']}, ")
+            else:
+                llines.append(f"meteorological range {tp6data['meteorological range']:.3f}~""\si{\kilo\metre}, ")
+        if 'wind speed 24hr' in tp6data.keys():
+            if tp6data['wind speed 24hr'] is not None:
+                llines.append(f" 24 h wind speed {tp6data['wind speed 24hr']}~""\si{\metre\per\second}, ")
+        if tp6data['wind speed'] is not None:
+            llines.append(f"wind speed {tp6data['wind speed']:.1f}~""\si{\metre\per\second}. ")
+        if 'Profiles' in tp6data.keys():
+            llines.append(f"At the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~""\si{\kilo\metre} ")
+            llines.append("the conditions are:  ")
+            llines.append(f"pressure {tp6data['Profiles'][0]['Pressure mB']:.1f}~""\si{\milli\\bar}, ")
+            llines.append(f"temperature {tp6data['Profiles'][0]['Temperature K']:.1f}~""\si{\kelvin}, ")
+            llines.append(f"relative humidity {tp6data['Profiles'][0]['RelHum %']:.1f}""\\%, ")
+            llines.append(f"absolute humidity {tp6data['Profiles'][0]['H2O g/m3']:.2f}~""\si{\gram\per\metre\cubed}, ")
+            if 'aeroextinc' in tp6data['Profiles'][0].keys():
+                llines.append(f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
+            if 'visibility' in tp6data['Profiles'][0].keys():
+                llines.append(f"visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\si{\kilo\metre}. ")
+
+        if 'path radiance mode' in tp6data.keys():
+            llines.append(f"Path radiance mode is {tp6data['path radiance mode']}"". ")
+        if 'scatter mode' in tp6data.keys():
+            llines.append(f"Scatter mode is {tp6data['scatter mode']}"". ")
+
+        if 'SingleScat parameters' in tp6data.keys():
+            if  tp6data['SingleScat parameters'] is not None:
+                if 'LATITUDE AT H1ALT' in tp6data['SingleScat parameters'].keys():
+                    llines.append(f"Location lat/long at H1 ")
+                    llines.append(f"{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\si{\degree}N")
+                    llines.append(f"/{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\si{\degree}W. ")
+                if 'SUBSOLAR LATITUDE' in tp6data['SingleScat parameters'].keys():
+                    llines.append(f"Subsolar lat/long ")
+                    llines.append(f"{tp6data['SingleScat parameters']['SUBSOLAR LATITUDE']:.2f}""\si{\degree}N")
+                    llines.append(f"/{tp6data['SingleScat parameters']['SUBSOLAR LONGITUDE']:.2f}""\si{\degree}W. ")
+                llines.append(f"Day of the year {int(tp6data['SingleScat parameters']['DAY OF THE YEAR'])}, ")
+        if 'phase function' in tp6data.keys():
+            llines.append(f"Scattering phase function is {tp6data['phase function']}. ")
+        if 'extra terrestial source' in tp6data.keys():
+            llines.append(f"Extra terrestial source is the {tp6data['extra terrestial source']}. ")
+
+        if 'Path' in tp6data.keys():
+            if tp6data['Path'] is not None:
+                llines.append(f"\n\nPath definition: ")
+                if 'LENN' in  tp6data['Path']:
+                    if tp6data['Path']['LENN'] < 0.5:
+                        llines.append(f"short ")
+                else:
+                    llines.append(f"long ")
+                if 'path type' in  tp6data['Path']:
+                    llines.append(f"{tp6data['Path']['path type']}, ")
+                if 'H1ALT' in  tp6data['Path']:
+                    llines.append(f"H1 (start) altitude {tp6data['Path']['H1ALT']:.3f}~""\si{\kilo\metre}, ")
+                if 'H2ALT' in  tp6data['Path']:
+                    llines.append(f"H2 (final) altitude {tp6data['Path']['H2ALT']:.3f}~""\si{\kilo\metre}, ")
+                if 'OBSZEN' in  tp6data['Path']:
+                    llines.append(f"observer zenith angle {tp6data['Path']['OBSZEN']:.6f}""\si{\degree}, ")
+                if 'HRANGE' in  tp6data['Path']:
+                    llines.append(f"path range {tp6data['Path']['HRANGE']:.3f}~""\si{\kilo\metre}, ")
+                if 'ECA' in  tp6data['Path']:
+                    llines.append(f"subtended earth center angle {tp6data['Path']['ECA']:.6f}""\si{\degree}, ")
+                if 'BCKZEN' in  tp6data['Path']:
+                    llines.append(f"zenith angle from final altitude back to sensor {tp6data['Path']['BCKZEN']:.6f}""\si{\degree}, ")
+                if 'HMIN' in  tp6data['Path']:
+                    llines.append(f"minimum altitude {tp6data['Path']['HMIN']:.3f}~""\si{\kilo\metre}, ")
+                if 'BENDING' in  tp6data['Path']:
+                    llines.append(f"path bending {tp6data['Path']['BENDING']:.6f}""\si{\degree}, ")
+                if 'CKRANG' in  tp6data['Path']:
+                    llines.append(f"slant range for k-distribution output {tp6data['Path']['CKRANG']:.3f}~""\si{\kilo\metre}.")
+        else:
+            print('*** No path information in json file')
+
+
+        if 'Frequency range' in tp6data.keys():
+            if tp6data['Frequency range'] is not None:
+                llines.append(f"\n\nFrequency range: ")
+                llines.append(f"spectral range lower bound {tp6data['Frequency range']['IV1']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
+                llines.append(f"spectral range upper bound {tp6data['Frequency range']['IV2']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
+                llines.append(f"spectral increment {tp6data['Frequency range']['IDV']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
+                llines.append(f"slit function full width at half maximum {tp6data['Frequency range']['IFWHM']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}.")
+            else:
+                print('*** No frequency information in json file')
+
+        if 'albedo' in tp6data.keys():
+            if tp6data['albedo'] is not None:
+                llines.append(f"\n\nAlbedo and emissivity: ")
+                if 'albedo model' in tp6data['albedo'].keys():
+                    llines.append(f"{tp6data['albedo']['albedo model']}, ")
+                if 'albedo name' in tp6data['albedo'].keys():
+                    llines.append(f"albedo name \\verb+{tp6data['albedo']['albedo name']}+, ")
+                if 'using surface' in tp6data['albedo'].keys():
+                    llines.append(f"using surface \\verb+{tp6data['albedo']['using surface']}+, ")
+                if 'from file' in tp6data['albedo'].keys():
+                    llines.append(f"from file \\verb+{tp6data['albedo']['from file']}+, ")
+                if 'area emissivity' in tp6data['albedo'].keys():
+                    llines.append(f"area emissivity {tp6data['albedo']['area emissivity']}, ")
+                if 'directional emissivity' in tp6data['albedo'].keys():
+                    llines.append(f"directional emissivity {tp6data['albedo']['directional emissivity']}. ")
+
+
+        with open(filel,'w') as fout:
+            for lline in llines:
+                fout.write(lline)
+
+
+    def tp6tojsonlatex(self):
+        tp6data = {}
+        with open(self.tp6name,'r') as fin:
+            lines = fin.readlines()
+            _,tp6data = self.findPathRadianceMode(lines,tp6data)
+            _,tp6data = self.findScatterMode(lines,tp6data)
+            _,tp6data = self.findSMetRange(lines,tp6data)
+            _,tp6data = self.findWindSpeed(lines,tp6data)
+            _,tp6data = self.findPath(lines,tp6data)
+            _,tp6data = self.findSingleScatter(lines,tp6data)
+            _,tp6data = self.findExtraTerresSource(lines,tp6data)
+            _,tp6data = self.findPhaseFunction(lines,tp6data)
+            _,tp6data = self.findFreqRange(lines,tp6data)
+            _,tp6data = self.findProfiles(lines,tp6data)
+            _,tp6data = self.findAlbedo(lines,tp6data)
+
+            filenamen = self.tp6name.replace('.tp6','.notes')
+            if os.path.exists(filenamen):
+                with open(filenamen,'r') as finn:
+                    linesn = finn.readlines()
+                    tp6data['notes'] = ' '.join(linesn)
+            else:
+                tp6data['notes'] = ''
+
+        jsonfile = self.tp6name.replace('.tp6','tp6.json')
+        with open(jsonfile, "w") as fout:
+            json.dump(tp6data, fout, indent=4)
+
+        latexfile = self.tp6name.replace('.tp6','.tex')
+        self.writeLaTeX(tp6data,latexfile)
+
+        return tp6data
 
 
 ##############################################################################
