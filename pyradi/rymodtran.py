@@ -517,6 +517,7 @@ class extracttape6:
 
     def writeLaTeX(self, tp6data,filel):
         llines = []
+        llines.append("\\textbf{{{}}}: ".format(tp6data['filename']))
         if len(tp6data['notes']) > 2:
             llines.append("\\textit{{{}}} ".format(tp6data['notes']))
         if 'climatic model' in tp6data.keys():
@@ -635,6 +636,7 @@ class extracttape6:
 
     def tp6tojsonlatex(self):
         tp6data = {}
+        tp6data['filename'] = os.path.basename(self.tp6name)
         with open(self.tp6name,'r') as fin:
             lines = fin.readlines()
             _,tp6data = self.findPathRadianceMode(lines,tp6data)
