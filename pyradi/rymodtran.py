@@ -39,6 +39,8 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
+import pyradi.ryfiles as ryfiles
+
 __version__= "$Revision$"
 __author__= 'pyradi team'
 __all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','runModtranModrootIn','variationTape5File']
@@ -72,6 +74,10 @@ aerosols = [
 
 class extracttape6:
     """Class to collate all functions reading tape6 together, automatically export to json and latex.
+
+    This file only reads tp6 files created by Modtran 5.
+    Tested on MODTRAN 5.2.0.0
+
     """
 
 
@@ -116,7 +122,11 @@ class extracttape6:
         for line in lines:
             if 'Calculations will be done using ' in line:
                 var = self.refind(line,r'Calculations will be done using\s*(.+?)\.$')
-                tp6data['scatter mode'] = var
+                tp6data['scatter mode'] = var.lower()
+                return var,tp6data
+            if 'CALCULATIONS WILL BE DONE USING ' in line:
+                var = self.refind(line,r'CALCULATIONS WILL BE DONE USING\s*(.+?)\.$')
+                tp6data['scatter mode'] = var.lower()
                 return var,tp6data
         return var,tp6data
 
@@ -426,7 +436,7 @@ class extracttape6:
                         sfield = field.replace('(','\\(').replace(')','\\)')
                         var[field] = float(self.refind(line,f'{sfield}\\s*=\\s*(.+?)\\s.*$'))
                 if 'DAY OF THE YEAR' in line:
-                    var['DAY OF THE YEAR'] = float(self.refind(line,r'DAY OF THE YEAR\s*=\s*(.+?)\s*.*$'))
+                    var['DAY OF THE YEAR'] = float(self.refind(line,r'DAY OF THE YEAR\s*=\s*(.+?)\s+.*$'))
                     break
             if 'SINGLE SCATTERING CONTROL PARAMETERS SUMMARY' in line:
                 cntr += 1
@@ -440,7 +450,7 @@ class extracttape6:
         for line in lines:
             if 'EXTRATERRESTIAL SOURCE IS THE' in line:
                 var = self.refind(line,r'EXTRATERRESTIAL SOURCE IS THE\s*(.+?)\s*$')
-                tp6data['extra terrestial source'] = var.lower()
+                tp6data['extra terrestrial source'] = var.lower()
                 return var,tp6data
         return var,tp6data
 
@@ -512,14 +522,16 @@ class extracttape6:
         tp6data['albedo'] = var
         return var,tp6data
 
-#  AREA-AVERAGED GROUND EMISSIVITY =      1.000
-#  IMAGED-PIXEL No.  1 DIRECTIONAL EMISSIVITY =      1.000
+
 
     def writeLaTeX(self, tp6data,filel):
         llines = []
-        llines.append("\\textbf{{{}}}: ".format(tp6data['filename']))
+        filename = ryfiles.latex_escape(tp6data['filename']).strip()
+        llines.append("\n\n\\textbf{{{}}}: ".format(filename))
         if len(tp6data['notes']) > 2:
-            llines.append("\\textit{{{}}} ".format(tp6data['notes']))
+            llines.append("\\textit{{{}}} ".format(tp6data['notes'].strip()))
+            llines.append('\n\n')
+            
         if 'climatic model' in tp6data.keys():
             llines.append(f"Using the {tp6data['climatic model']} climatic model, ")
         if 'Profiles' in tp6data.keys():
@@ -533,9 +545,10 @@ class extracttape6:
                 llines.append(f"meteorological range {tp6data['meteorological range']:.3f}~""\si{\kilo\metre}, ")
         if 'wind speed 24hr' in tp6data.keys():
             if tp6data['wind speed 24hr'] is not None:
-                llines.append(f" 24 h wind speed {tp6data['wind speed 24hr']}~""\si{\metre\per\second}, ")
-        if tp6data['wind speed'] is not None:
-            llines.append(f"wind speed {tp6data['wind speed']:.1f}~""\si{\metre\per\second}. ")
+                llines.append(f" 24-hour wind speed {tp6data['wind speed 24hr']}~""\si{\metre\per\second}, ")
+        if 'wind speed' in tp6data.keys():
+            if tp6data['wind speed'] is not None:
+                llines.append(f"current wind speed {tp6data['wind speed']:.1f}~""\si{\metre\per\second}. ")
         if 'Profiles' in tp6data.keys():
             llines.append(f"\n\nAt the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~""\si{\kilo\metre} ")
             llines.append("the conditions are:  ")
@@ -547,7 +560,7 @@ class extracttape6:
             if 'aeroextinc' in tp6data['Profiles'][0].keys():
                 llines.append(f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
             if 'visibility' in tp6data['Profiles'][0].keys():
-                llines.append(f"visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\si{\kilo\metre}. ")
+                llines.append(f"Koschmieder visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\si{\kilo\metre}. ")
 
         if 'path radiance mode' in tp6data.keys():
             llines.append(f"Path radiance mode is {tp6data['path radiance mode']}"". ")
@@ -559,16 +572,19 @@ class extracttape6:
                 if 'LATITUDE AT H1ALT' in tp6data['SingleScat parameters'].keys():
                     llines.append(f"Location lat/long at H1 ")
                     llines.append(f"{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\si{\degree}N")
-                    llines.append(f"/{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\si{\degree}W. ")
+                    llines.append(f"/{tp6data['SingleScat parameters']['LONGITUDE AT H1ALT']:.2f}""\si{\degree}W. ")
                 if 'SUBSOLAR LATITUDE' in tp6data['SingleScat parameters'].keys():
                     llines.append(f"Subsolar lat/long ")
                     llines.append(f"{tp6data['SingleScat parameters']['SUBSOLAR LATITUDE']:.2f}""\si{\degree}N")
                     llines.append(f"/{tp6data['SingleScat parameters']['SUBSOLAR LONGITUDE']:.2f}""\si{\degree}W. ")
-                llines.append(f"Day of the year {int(tp6data['SingleScat parameters']['DAY OF THE YEAR'])}, ")
+                if 'DAY OF THE YEAR' in tp6data['SingleScat parameters'].keys():
+                    llines.append(f"Day of the year {int(tp6data['SingleScat parameters']['DAY OF THE YEAR'])}, ")
+                if 'TIME (<0 UNDEF)' in tp6data['SingleScat parameters'].keys():
+                    llines.append(f" Greenwich time {tp6data['SingleScat parameters']['TIME (<0 UNDEF)']:.2f}. ")
         if 'phase function' in tp6data.keys():
             llines.append(f"Scattering phase function is {tp6data['phase function']}. ")
-        if 'extra terrestial source' in tp6data.keys():
-            llines.append(f"Extra terrestial source is the {tp6data['extra terrestial source']}. ")
+        if 'extra terrestrial source' in tp6data.keys():
+            llines.append(f"Extra terrestrial source is the {tp6data['extra terrestrial source']}. ")
 
         if 'Path' in tp6data.keys():
             if tp6data['Path'] is not None:
@@ -614,31 +630,63 @@ class extracttape6:
 
         if 'albedo' in tp6data.keys():
             if tp6data['albedo'] is not None:
-                llines.append(f"\n\nAlbedo and emissivity: ")
+                doheading = True
                 if 'albedo model' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"{tp6data['albedo']['albedo model']}, ")
                 if 'albedo name' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"albedo name \\verb+{tp6data['albedo']['albedo name']}+, ")
                 if 'using surface' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"using surface \\verb+{tp6data['albedo']['using surface']}+, ")
                 if 'from file' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"from file \\verb+{tp6data['albedo']['from file']}+, ")
                 if 'area emissivity' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"area emissivity {tp6data['albedo']['area emissivity']}, ")
                 if 'directional emissivity' in tp6data['albedo'].keys():
+                    if doheading:
+                        llines.append(f"\n\nAlbedo and emissivity: ")
+                        doheading = False
                     llines.append(f"directional emissivity {tp6data['albedo']['directional emissivity']}. ")
 
+        llines.append('\n\n')
 
         with open(filel,'w') as fout:
             for lline in llines:
-                fout.write(lline)
+                fout.write(f'{lline}\n')
+
+
+    def testmodtranversion5(self,lines):
+        for line in lines[0:20]:
+            if 'MODTRAN(R)5' in line or 'MODTRAN5' in line:
+                return True
+            if 'MODTRAN4' in line:
+                return False 
+        return False
 
 
     def tp6tojsonlatex(self):
         tp6data = {}
+        print(self.tp6name)
         tp6data['filename'] = os.path.basename(self.tp6name)
         with open(self.tp6name,'r') as fin:
             lines = fin.readlines()
+            if not self.testmodtranversion5(lines):
+                print('This file only reads tp6 files created by Modtran 5\nTested on MODTRAN 5.2.0.0')
+                exit(-1)
             _,tp6data = self.findPathRadianceMode(lines,tp6data)
             _,tp6data = self.findScatterMode(lines,tp6data)
             _,tp6data = self.findSMetRange(lines,tp6data)
@@ -655,7 +703,7 @@ class extracttape6:
             if os.path.exists(filenamen):
                 with open(filenamen,'r') as finn:
                     linesn = finn.readlines()
-                    tp6data['notes'] = ' '.join(linesn)
+                    tp6data['notes'] = ' '.join(linesn).strip()
             else:
                 tp6data['notes'] = ''
 

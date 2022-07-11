@@ -208,18 +208,18 @@ class VersionInformation():
     @staticmethod
     def _latex_escape(str_):
         CHARS = {
-            '&':  r'\&',
-            '%':  r'\%',
-            '$':  r'\$',
-            '#':  r'\#',
-            '_':  r'\_',
-            '{':  r'\letteropenbrace{}',
-            '}':  r'\letterclosebrace{}',
-            '~':  r'\lettertilde{}',
-            '^':  r'\letterhat{}',
-            '\\': r'\letterbackslash{}',
-            '>':  r'\textgreater',
-            '<':  r'\textless',
+        '&':  r'\&',
+        '%':  r'\%',
+        '$':  r'\$',
+        '#':  r'\#',
+        '_':  r'\_',
+        '{':  r'\{',
+        '}':  r'\}',
+        '~':  r'\textasciitilde{}',
+        '^':  r'\^{}',
+        '\\': r'\textbackslash{}',
+        '>':  r'\textgreater{}',
+        '<':  r'\textless{}',
         }
         return u"".join([CHARS.get(c, c) for c in str_])
 

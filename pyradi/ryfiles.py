@@ -46,7 +46,7 @@ __all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
          'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
          'open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
          'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms'
-         'mergeDFS']
+         'mergeDFS','latex_escape']
 
 import sys
 import numpy as np
@@ -57,7 +57,22 @@ from skimage.io import imread, imsave
 
 
 
-
+def latex_escape(str_):
+    CHARS = {
+        '&':  r'\&',
+        '%':  r'\%',
+        '$':  r'\$',
+        '#':  r'\#',
+        '_':  r'\_',
+        '{':  r'\{',
+        '}':  r'\}',
+        '~':  r'\textasciitilde{}',
+        '^':  r'\^{}',
+        '\\': r'\textbackslash{}',
+        '>':  r'\textgreater{}',
+        '<':  r'\textless{}',
+    }
+    return u"".join([CHARS.get(c, c) for c in str_])
 
 
 
@@ -1591,5 +1606,10 @@ if __name__ == '__main__':
             print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
 
 
+    mystr = 'a&b%c$d#e_f{g}h~i^j\\k>l<m'
+    print(latex_escape(mystr))
+
+
     #######################################################################
+
     print('\nmodule ryfiles done!')
