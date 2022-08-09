@@ -3197,14 +3197,14 @@ class Plotter:
                 | No exception is raised.
         """
 
-        # if required convert 1D arrays into 2D arrays
-        if type(x)==type(pd.Series()):
+        if isinstance(x, pd.Series):
             x = x.values
-        if type(y)==type(pd.Series()):
+        if isinstance(y, pd.Series):
             y = y.values
-        if type(z)==type(pd.Series()):
+        if isinstance(z, pd.Series):
             z = z.values
 
+        # if required convert 1D arrays into 2D arrays
         if x.ndim < 2:
             x = x.reshape(-1,1)
         if y.ndim < 2:

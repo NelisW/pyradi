@@ -35,7 +35,7 @@ from __future__ import unicode_literals
 __version__= ""
 __author__='M Konnik and CJ Willers'
 __all__=['distribution_exp','distribution_lognormal','distribution_inversegauss','distribution_logistic',
-'distribution_wald','distributions_generator','validateParam','checkParamsNum']
+'distribution_wald','distributions_generator','validateParam','checkParamsNum','unifomOnSphere']
 
 import sys
 import numpy as np
@@ -619,6 +619,31 @@ def checkParamsNum(funcName,distribName,runDistribName,distribParams,correctNum)
 
     return proceed
 
+
+##########################################################################################3
+def unifomOnSphere(number,dimension=3):
+    """Create a set of n-dimensional vectors normally distributed on a sphere
+
+    https://math.stackexchange.com/questions/444700/uniform-distribution-on-the-surface-of-unit-sphere
+    https://stackoverflow.com/questions/59954810/generate-random-points-on-10-dimensional-unit-sphere
+
+
+    Args:
+        | number (int):  Number of points on sphere
+        | dimension (int):  dimensionality of the normalised vector
+
+    Returns:
+        | vec (np.array): array of 3-D points 
+
+    Raises:
+        | No exception is raised.
+    """
+
+    vec = np.random.normal(0,1,(number,dimension))
+    vec = vec/ np.linalg.norm(vec,axis=1).reshape(-1,1)
+    return vec
+
+
 ################################################################
 ################################################################
 ##
@@ -631,6 +656,13 @@ if __name__ == '__main__':
     rit = ryutils.intify_tuple
 
     doAll = False
+
+    # numpoints = 10
+    # vec = unifomOnSphere(numpoints)
+    # import pyradi.ryplot as ryplot
+    # p = ryplot.Plotter(1,1,1)
+    # p.plot3d(1, vec[:,0],vec[:,1],vec[:,2], markers='.',linewidths=[0], linestyle='-')
+    # p.saveFig('randomonunitsphere.png')
 
     #no tests at this time
 
