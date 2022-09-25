@@ -44,6 +44,8 @@ __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
             'savePlot']
 
+
+
 import numpy as np
 import pandas as pd
 import math
@@ -83,6 +85,14 @@ except ImportError:
     imported_plotly = False
 
 from datetime import datetime
+
+
+plt.rcParams.update({
+    "figure.facecolor":  (1.0, 1.0, 1.0, 0),  # red   with alpha = 30%
+    "axes.facecolor":    (1.0, 1.0, 1.0, 0),  # green with alpha = 50%
+    "savefig.facecolor": (1.0, 1.0, 1.0, 0),  # blue  with alpha = 20%
+})
+
 
 ####################################################################
 ##
@@ -698,7 +708,7 @@ class Plotter:
     ############################################################
     ##
     def saveFig(self, filename='mpl.png',dpi=300,bbox_inches='tight',\
-                pad_inches=0.1, useTrueType = True):
+                pad_inches=0.1, useTrueType = True,transparent=False):
         """Save the plot to a disk file, using filename, dpi specification and bounding box limits.
 
         One of matplotlib's design choices is a bounding box strategy  which may result in a bounding box
@@ -743,12 +753,12 @@ class Plotter:
 
         if len(filename)>0:
             if self.bbox_extra_artists:
-                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
-                            pad_inches=pad_inches,\
-                            bbox_extra_artists= self.bbox_extra_artists);
+                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,transparent=transparent,
+                            pad_inches=pad_inches,
+                            bbox_extra_artists= self.bbox_extra_artists,);
             else:
-                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
-                            pad_inches=pad_inches);
+                self.fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,transparent=transparent,
+                            pad_inches=pad_inches)
 
 
     ############################################################
@@ -1609,6 +1619,8 @@ class Plotter:
 
       pkey = (self.nrow, self.ncol, plotnum)
       ax = self.subplots[pkey]
+
+      ax.set_facecolor('white')
 
       if drawGrid:
           ax.grid(True)

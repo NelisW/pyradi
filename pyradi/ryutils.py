@@ -1182,7 +1182,7 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     Examples:
         t = np.linspace(-4, 4, 500)
         y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
-        ysg = savitzky_golay(y, window_size=31, order=4)
+        ysg = savitzkyGolay1D(y, window_size=31, order=4)
         import matplotlib.pyplot as plt
         plt.plot(t, y, label='Noisy signal')
         plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
