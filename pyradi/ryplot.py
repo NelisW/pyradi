@@ -51,8 +51,13 @@ import pandas as pd
 import math
 import sys
 import itertools
+import os
 
 import matplotlib as mpl
+print(os.environ['DISPLAY'])
+if len(os.environ['DISPLAY'])<5:
+  mpl.use('Agg')
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.font_manager import FontProperties
@@ -88,9 +93,9 @@ from datetime import datetime
 
 
 plt.rcParams.update({
-    "figure.facecolor":  (1.0, 1.0, 1.0, 0),  # red   with alpha = 30%
-    "axes.facecolor":    (1.0, 1.0, 1.0, 0),  # green with alpha = 50%
-    "savefig.facecolor": (1.0, 1.0, 1.0, 0),  # blue  with alpha = 20%
+    "figure.facecolor":  'w',  
+    "axes.facecolor":    'w',  
+    "savefig.facecolor": 'w',  
 })
 
 
@@ -4115,7 +4120,7 @@ from contextlib import contextmanager
 
 @contextmanager
 def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
-                 figuretitle=None, figsize=(9,9), saveName=None):
+                 figuretitle=None, figsize=(9,9), saveName=None,BGtransparent=False):
     """Uses 'with' statement to create a plot and save to file on exit.
 
     Use as follows::
@@ -4136,6 +4141,7 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
         | figuretitle (string): the overall heading for the figure
         | figsize ((w,h)): the figure size in inches
         | saveName str or [str]: string or list of save filenames
+        | BGtransparent (bool): True makes  opaque, False makes transparent
 
     Returns:
         | The plotting object, used to populate the plot (see example)
@@ -4150,10 +4156,10 @@ def savePlot(fignumber=0,subpltnrow=1,subpltncol=1,
     finally:
         if saveName is not None:
             if isinstance(saveName, str):
-                p.saveFig(filename=saveName)
+                p.saveFig(filename=saveName, transparent=BGtransparent)
             else:
                 for fname in saveName:
-                    p.saveFig(filename=fname)
+                    p.saveFig(filename=fname, transparent=BGtransparent)
 
 
 ################################################################
@@ -4586,7 +4592,7 @@ if 'turbo' in plt.colormaps():
     # print(f'Name "turbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(turbo_colormap_data)
-    plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shape[0]))
+    plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
 
 if 'iturbo' in plt.colormaps():
     pass
@@ -4606,8 +4612,9 @@ if __name__ == '__main__':
     import datetime as dt
     import ryutils
     rit = ryutils.intify_tuple
+    print(f"os.environ['DISPLAY']={os.environ['DISPLAY']}")
 
-    doAll = False
+    doAll = True
 
     if doAll:
         p = Plotter(1,2,3,figsize=(12,12))
@@ -4664,7 +4671,7 @@ if __name__ == '__main__':
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
         sp.saveFig('stackplot.png')
 
-    if doAll:    #next line include both 0 and 360 degrees, i.e., overlap on edge
+    if False:    #next line include both 0 and 360 degrees, i.e., overlap on edge
         angled = np.linspace(0.,360.,25)
         angler = np.pi * angled / 180.
         grange = np.linspace(500.,4000.,8)
@@ -4680,7 +4687,7 @@ if __name__ == '__main__':
         launch /= np.max(launch)
 
         pm = Plotter(1,1,2,figsize=(16,8))
-        pm.polarMesh(1,angler+np.pi, grange, launch.T,
+        pm.polarMesh(1,anglerg+np.pi, grangeg, launch,
             ptitle='Probability of launch for height {:.0f} [m]'.format(height),
             radscale=[0, 4000], cbarshow=True,
             cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
@@ -4781,13 +4788,14 @@ if __name__ == '__main__':
         #    I.saveFig('HistoEq.eps')
 
         ############################################################################
-        # demonstrate dates on the x-axis
-        dates = ['01/02/1991','01/03/1991','01/04/1991']
-        x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
-        y = np.asarray(list(range(len(x))))
-        pd = Plotter(1)
-        pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
-        pd.saveFig('plotdateX.png')
+        if False:
+          # demonstrate dates on the x-axis
+          dates = ['01/02/1991','01/03/1991','01/04/1991']
+          x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
+          y = np.asarray(list(range(len(x))))
+          pd = Plotter(1)
+          pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
+          pd.saveFig('plotdateX.png')
 
         #demonstrate the use of arbitrary x-axis tick marks
         x = np.asarray([1, 2, 3, 4])
@@ -4800,7 +4808,7 @@ if __name__ == '__main__':
     #demonstrate the use of a polar mesh plot radial scales
     #create the radial and angular vectors
 
-    if doAll:
+    if False:
         r = np.linspace(0,1.25,100)
         p = np.linspace(0,2*np.pi,100)
         P,R = np.meshgrid(p,r)
