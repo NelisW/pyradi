@@ -54,9 +54,9 @@ import itertools
 import os
 
 import matplotlib as mpl
-print(os.environ['DISPLAY'])
-if len(os.environ['DISPLAY'])<5:
-  mpl.use('Agg')
+# print(os.environ['DISPLAY'])
+# if len(os.environ['DISPLAY'])<5:
+#   mpl.use('Agg')
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
