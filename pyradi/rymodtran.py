@@ -1000,12 +1000,12 @@ def loadtape7(filename, colspec = []):
     s = s + ''.join(lines[headline+1+deltaHead:-1])
 
     #read the string in from a StringIO in-memory file
-    # lines = np.ndfromtxt(io.StringIO(s), dtype=None,  names=True)
+    # lines = np.genfromtxt(io.StringIO(s), dtype=None,  names=True)
     if sys.version_info[0] > 2:
-        # lines = np.ndfromtxt(StringIO(s), dtype=None,  names=True)
-        lines = np.ndfromtxt(BytesIO(s.encode('utf-8')), dtype=None,  names=True)
+        # lines = np.genfromtxt(StringIO(s), dtype=None,  names=True)
+        lines = np.genfromtxt(BytesIO(s.encode('utf-8')), dtype=None,  names=True)
     else:
-        lines = np.ndfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
+        lines = np.genfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
 
     # print('lines=',lines)
 
