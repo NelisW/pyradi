@@ -1217,8 +1217,8 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     from math import factorial
 
     try:
-        window_size = np.abs(np.int(window_size))
-        order = np.abs(np.int(order))
+        window_size = np.abs(int(window_size))
+        order = np.abs(int(order))
     except ValueError as msg:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
@@ -1875,7 +1875,7 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
             dat = np.genfromtxt(StringIO(dat),delimiter=",")
 
         if wavelen is not None:
-            vlam = np.interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
+            vlam = interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
         else:
             wavelen = dat[:,0]/1000.
             vlam = dat[:,1]
@@ -2297,11 +2297,11 @@ class Spectral(object):
             wn = np.linspace(wnmin, wnmax, int((wnmax-wnmin)/wninc))
             wl = 1e4 / self.wn
             if np.mean(np.diff(self.wn,axis=0)) > 0:
-                s = np.interp(wn,self.wn[:,0], self.value[:,0])
-                o = np.interp(wn,other.wn[:,0], other.value[:,0])
+                s = interp(wn,self.wn[:,0], self.value[:,0])
+                o = interp(wn,other.wn[:,0], other.value[:,0])
             else:
-                s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
-                o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+                s = interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
+                o = interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
         elif self.wn is     None and other.wn is not None:
             o = other.value
             s = self.value
@@ -3085,7 +3085,7 @@ if __name__ == '__main__':
         filename = 'rawFile.bin'
         # create a temporary image for subsampling
         img = drawCheckerboard(rows=2**11, cols=2*11, numPixInBlock=2**4, imageMode='L', 
-                colour1=0, colour2=1, imageReturnType='nparray',datatype=np.float)
+                colour1=0, colour2=1, imageReturnType='nparray',datatype=float)
         # do the filtering and averaging
         imgo = blurryextract(img, inputOrigin=[10,10], outputSize=[64,64], sigma=3, blocksize=[2,4])
         # confirm image
