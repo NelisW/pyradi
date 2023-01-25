@@ -130,6 +130,9 @@ def mybyte(x):
     ans = ord(x)
     return ans
 
+def mypass(x):
+    return x
+
 def myRGB(x):
     # three bytes with RGB values 
     # TODO need to write error catch routine
@@ -414,7 +417,7 @@ def readPTWHeader(ptwfilename):
     Header.h_IRUSBilletSpeed = myfloat(headerinfo[124:128]) # IRUS
     Header.h_IRUSBilletDiameter = myfloat(headerinfo[128:132]) # IRUS
     Header.h_IRUSBilletShape = myint(headerinfo[132:134]) #IRUS
-    Header.h_Reserved134 = mybyte(headerinfo[134:141])
+    Header.h_Reserved134 = headerinfo[134:141]
     Header.h_Emissivity = myfloat(headerinfo[141:145])
     Header.h_Ambiant = myfloat(headerinfo[145:149])
     Header.h_Distance = myfloat(headerinfo[149:153])
@@ -422,7 +425,7 @@ def readPTWHeader(ptwfilename):
     Header.h_IRUSInductorPower = mylong(headerinfo[154:158]) # IRUS
     Header.h_IRUSInductorVoltage = myint(headerinfo[158:160]) # IRUS
     Header.h_IRUSInductorFrequency = mylong(headerinfo[160:164]) # IRUS
-    Header.h_Reserved164 = mybyte(headerinfo[164:169])
+    Header.h_Reserved164 = headerinfo[164:169]
     Header.h_IRUSSynchronization = ord(headerinfo[169:170]) # IRUS
     Header.h_AtmTransmission = myfloat(headerinfo[170:174])
     Header.h_ExtinctionCoeficient = myfloat(headerinfo[174:178])
@@ -445,9 +448,10 @@ def readPTWHeader(ptwfilename):
         Header.h_CameraSerialNumber = terminateStrOnZero(headerinfo[220:231])
         
         
-    Header.h_Reserved231 = mybyte(headerinfo[231:239])
-    Header.h_DetectorCode = myint(headerinfo[239:243])
-    Header.h_DetectorGain = my(headerinfo[245:247])
+    Header.h_Reserved231 = headerinfo[231:239]
+    Header.h_DetectorCode1 = myint(headerinfo[239:241])
+    Header.h_DetectorCode2 = myint(headerinfo[241:243])
+    Header.h_DetectorGain = myint(headerinfo[245:247])
 
     
     
@@ -815,6 +819,10 @@ def showHeader(Header):
 
     #print Header.h_Millieme
     print ('Camera Name {}'.format(Header.h_CameraName))
+    print ('Detector Code1 {}'.format(Header.h_DetectorCode1))
+    print ('Detector Code2 {}'.format(Header.h_DetectorCode2))
+    print ('Detector Gain {}'.format(Header.h_DetectorGain))
+
     print ('Lens {}'.format(Header.h_LensName))
     print ('Filter {}'.format(Header.h_FilterName))
     print ('Aperture Name {}'.format( Header.h_ApertureName))

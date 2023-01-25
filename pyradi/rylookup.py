@@ -89,11 +89,12 @@ class RadLookup:
     function parameter.
 
     Spectral data parameter may be either a filename (data read from file) or a
-    numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  The data file
-    must have two columns: first column is wavelength, and second
-    column is the spectral value at this wavelength.  Data read in from the file
-    will be interpolated to (nuMin, nuMax,nuInc) scale. If the parameter is None,
-    then unity spectral values will be used.
+    numpy array np.array(:,1) with the data on (nuMin, nuMax,nuInc) scale.  
+    If the parameter is None, then unity spectral values will be used.
+    The data file must have two columns: first column is wavelength, and second
+    column is the spectral value at this wavelength.  All other columns are ignored. 
+    The spectral data in the second column must be normalised.
+    Data read in from the file  will be interpolated to (nuMin, nuMax,nuInc) scale. 
 
     The camera calibration data set requires the following data:
 

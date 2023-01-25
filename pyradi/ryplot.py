@@ -1589,6 +1589,8 @@ class Plotter:
           Raises:
               | No exception is raised.
       """
+
+     
       #Initialize plotlyPlot call when Plotly is activated
       if self.useplotly:
           self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
