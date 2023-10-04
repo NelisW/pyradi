@@ -2447,12 +2447,12 @@ class Plotter:
       #scale the axes
       if pltaxis is not None:
           ax.axis(pltaxis)
-    #   if vlimits[0] is None and vlimits[1] is None:
-    #       pass
-    #   else:
-    #     # https://stackoverflow.com/questions/43150687/colorbar-limits-are-not-respecting-set-vmin-vmax-in-plt-contourf-how-can-i-more
-    #     plt.colorbar(ax, boundaries=np.linspace(vlimits[0], vlimits[1], levels))
-    #     colorbar = self.clippedcolorbar(pmplotcf)
+      if vlimits[0] is None and vlimits[1] is None:
+          pass
+      else:
+        # https://stackoverflow.com/questions/43150687/colorbar-limits-are-not-respecting-set-vmin-vmax-in-plt-contourf-how-can-i-more
+        plt.colorbar(ax, boundaries=np.linspace(vlimits[0], vlimits[1], levels))
+        # colorbar = self.clippedcolorbar(pmplotcf)
 
       if(ptitle is not None):
           ax.set_title(ptitle, fontsize=titlefsize)
