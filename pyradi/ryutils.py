@@ -1875,7 +1875,7 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
             dat = np.genfromtxt(StringIO(dat),delimiter=",")
 
         if wavelen is not None:
-            vlam = interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
+            vlam = np.interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
         else:
             wavelen = dat[:,0]/1000.
             vlam = dat[:,1]
@@ -2297,11 +2297,11 @@ class Spectral(object):
             wn = np.linspace(wnmin, wnmax, int((wnmax-wnmin)/wninc))
             wl = 1e4 / self.wn
             if np.mean(np.diff(self.wn,axis=0)) > 0:
-                s = interp(wn,self.wn[:,0], self.value[:,0])
-                o = interp(wn,other.wn[:,0], other.value[:,0])
+                s = np.interp(wn,self.wn[:,0], self.value[:,0])
+                o = np.interp(wn,other.wn[:,0], other.value[:,0])
             else:
-                s = interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
-                o = interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
+                s = np.interp(wn,np.flipud(self.wn[:,0]), np.flipud(self.value[:,0]))
+                o = np.interp(wn,np.flipud(other.wn[:,0]), np.flipud(other.value[:,0]))
         elif self.wn is     None and other.wn is not None:
             o = other.value
             s = self.value
