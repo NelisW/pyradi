@@ -76,6 +76,9 @@ from mpl_toolkits.axisartist.grid_finder import MaxNLocator
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LinearSegmentedColormap as LSC
 
+import matplotlib.ticker as ticker
+
+
 # see if plotly is available
 try:
     # __import__('plotly.tools')
@@ -1673,10 +1676,19 @@ class Plotter:
           ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNY))
 
       if yScientific:
+          
+        #   ax.set_ylim(10**powerLimits[2], 10**powerLimits[3])
+        # #   ax.set_ylim(10**-7, 10**-1)
+        #   ax.set_yscale('log',base=10)
+        #   ax.yaxis.set_major_locator(ticker.LogLocator(base=10, numticks=15))      
+
           formy = plt.ScalarFormatter()
           formy.set_powerlimits([powerLimits[2], powerLimits[3]])
           formy.set_scientific(True)
           ax.yaxis.set_major_formatter(formy)
+        #   ax.yaxis.TickLabelFormat = '%.2e';
+        #   formy = plt.FormatStrFormatter('%.3e')
+        #   ax.yaxis.set_major_formatter(formy)
 
       # this user-defined format setting is given at the end of the function.
     #   # override the format with user defined
