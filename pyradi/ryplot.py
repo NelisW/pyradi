@@ -4606,14 +4606,14 @@ if 'turbo' in plt.colormaps():
     # print(f'Name "turbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(turbo_colormap_data)
-    plt.set_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
+    mpl.colormaps.register(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
 
 if 'iturbo' in plt.colormaps():
     pass
     # print(f'Name "iturbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-    plt.set_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
+    mpl.colormaps.register(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 
 
 ################################################################
