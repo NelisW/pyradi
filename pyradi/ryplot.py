@@ -3870,7 +3870,7 @@ class Plotter:
     ############################################################
     ##
     def setup_pie_axes(self,fig, rect, thetaAxis, radiusAxis,radLabel='',angLabel='',numAngGrid=5, 
-        numRadGrid=10,drawGrid=True, degreeformatter="%d$^\circ$"):
+        numRadGrid=10,drawGrid=True, degreeformatter=r"%d$^\circ$"):
         """Sets up the axes_grid for the pie plot, not using regulat Matplotlib axes.
 
         http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html
@@ -3951,7 +3951,7 @@ class Plotter:
                     radangfsize = 12, 
                     xytickfsize = 10,
                     zorders=None, clip_on=True,
-                    degreeformatter="%d$^\circ$"  ):
+                    degreeformatter=r"%d$^\circ$"  ):
         """Plots data in pie section on a polar grid.
 
             Args:
@@ -4606,14 +4606,14 @@ if 'turbo' in plt.colormaps():
     # print(f'Name "turbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(turbo_colormap_data)
-    plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
+    plt.set_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
 
 if 'iturbo' in plt.colormaps():
     pass
     # print(f'Name "iturbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-    plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
+    plt.set_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 
 
 ################################################################
