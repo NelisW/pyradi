@@ -3087,9 +3087,10 @@ class Plotter:
     ############################################################
     ##
     def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None,
-                  cmap=plt.cm.gray, titlefsize=12, cbarshow=False,
+                  cmap=plt.cm.gray, titlefsize=12, cbarshow=False,cblabel='',
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
-                  labelfsize=10, xylabelfsize = 12,interpolation=None):
+                  labelfsize=10, xylabelfsize = 12,interpolation=None,extent=None,
+                  axes='off'):
       """Creates a subplot and show the image using the colormap provided.
 
             Args:
@@ -3101,12 +3102,15 @@ class Plotter:
                 | cmap: matplotlib colormap, default gray (optional)
                 | fsize (int): title font size, default 12pt (optional)
                 | cbarshow (bool): if true, the show a colour bar (optional)
+                | cblabel (str):  colour bar label (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)  (optional)
                 | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels  (optional)
                 | cbarfontsize (int): font size for colour bar  (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | interpolation (str):   'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'(optional, see pyplot.imshow)
+                | extent []: extent of the x and y axes for display  (optional)
+                | axes 'on' or 'off':  display x y axes
 
             Returns:
                 | the axis object for the plot
@@ -3124,15 +3128,19 @@ class Plotter:
 
       ax = self.subplots[pkey]
 
-      cimage = ax.imshow(img, cmap,interpolation=interpolation)
+      if extent is None:
+        cimage = ax.imshow(img, cmap,interpolation=interpolation)
+      else:
+        cimage = ax.imshow(img, cmap,interpolation=interpolation,extent=extent)
 
       if xlabel is not None:
           ax.set_xlabel(xlabel, fontsize=xylabelfsize)
 
       if ylabel is not None:
           ax.set_ylabel(ylabel, fontsize=xylabelfsize)
-
-      ax.axis('off')
+      
+      ax.axis(axes)
+      
       if cbarshow is True:
           #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
           divider = make_axes_locatable(ax)
@@ -3143,17 +3151,17 @@ class Plotter:
 
           if not cbarcustomticks:
             if cbarorientation == 'vertical':
-              cbar = self.fig.colorbar(cimage,cax=cax)
+              cbar = self.fig.colorbar(cimage,cax=cax,label=cblabel)
             else:
-              cbar = self.fig.colorbar(cimage,orientation=cbarorientation)
+              cbar = self.fig.colorbar(cimage,orientation=cbarorientation,label=cblabel)
 
           else:
               ticks,  ticklabels = list(zip(*cbarcustomticks))
 
               if cbarorientation == 'vertical':
-                cbar = self.fig.colorbar(cimage,ticks=ticks, cax=cax)
+                cbar = self.fig.colorbar(cimage,ticks=ticks, cax=cax,label=cblabel)
               else:
-                cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation)
+                cbar = self.fig.colorbar(cimage,ticks=ticks, orientation=cbarorientation,label=cblabel)
 
               if cbarorientation == 'vertical':
                   cbar.ax.set_yticklabels(ticklabels)
@@ -3179,7 +3187,7 @@ class Plotter:
     def plot3d(self, plotnum, x, y, z, ptitle=None, xlabel=None, ylabel=None, zlabel=None,
                plotCol=[], linewidths=None, pltaxis=None, label=None, legendAlpha=0.0, titlefsize=12,
                xylabelfsize = 12, xInvert=False, yInvert=False, zInvert=False,scatter=False,
-               markers=None, markevery=None, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None,
+               markers=None, markevery=None, markersize=6, azim=45, elev=30, zorders=None, clip_on=True, edgeCol=None,
                linestyle='-'):
         """3D plot on linear scales for x y z input sets.
 
@@ -3214,6 +3222,7 @@ class Plotter:
                 | scatter (bool): draw only the points, no lines (optional)
                 | markers ([string]): markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)): subsample when using markers (optional)
+                | markersize (float): marker size (optional)
                 | azim (float): graph view azimuth angle  [degrees] (optional)
                 | elev (float): graph view evelation angle  [degrees] (optional)
                 | zorder ([int]): list of zorder for drawing sequence, highest is last (optional)
@@ -3293,17 +3302,17 @@ class Plotter:
             if linewidths is not None:
                 if scatter:
                     ax.scatter(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
-                        marker=marker, zorder=zorder, clip_on=clip_on)
+                        marker=marker, zorder=zorder, clip_on=clip_on,markersize=markersize)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
-                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL)
+                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL,markersize=markersize)
             else:
                 if scatter:
                     ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
-                        zorder=zorder, clip_on=clip_on)
+                        zorder=zorder, clip_on=clip_on,markersize=markersize)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
-                        markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL)
+                        markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL,markersize=markersize)
 
             # Plotly 3D plot setup
             if self.useplotly:
@@ -3870,7 +3879,7 @@ class Plotter:
     ############################################################
     ##
     def setup_pie_axes(self,fig, rect, thetaAxis, radiusAxis,radLabel='',angLabel='',numAngGrid=5, 
-        numRadGrid=10,drawGrid=True, degreeformatter="%d$^\circ$"):
+        numRadGrid=10,drawGrid=True, degreeformatter=r"%d$^\circ$"):
         """Sets up the axes_grid for the pie plot, not using regulat Matplotlib axes.
 
         http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html
@@ -3951,7 +3960,7 @@ class Plotter:
                     radangfsize = 12, 
                     xytickfsize = 10,
                     zorders=None, clip_on=True,
-                    degreeformatter="%d$^\circ$"  ):
+                    degreeformatter=r"%d$^\circ$"  ):
         """Plots data in pie section on a polar grid.
 
             Args:
@@ -4608,12 +4617,12 @@ else:
     mpl_data = RGBToPyCmap(turbo_colormap_data)
     plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
 
-if 'iturbo' in plt.colormaps():
-    pass
-    # print(f'Name "iturbo" already used in plt.colormaps()')
-else:
-    mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-    plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
+# if 'iturbo' in plt.colormaps():
+#     pass
+#     # print(f'Name "iturbo" already used in plt.colormaps()')
+# else:
+#     mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
+#     plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 
 
 ################################################################

@@ -168,9 +168,9 @@ class PlanckConstants:
         print('c1qm = {:.14e} with wavelenth in m'.format(self.c1qm))
         print('c2m = {:.14e} with wavelenth in m'.format(self.c2m))
         print(' ')
-        print('c1el = {:.14e} with wavelenth in $\mu$m'.format(self.c1el))
-        print('c1ql = {:.14e} with wavelenth in $\mu$m'.format(self.c1ql))
-        print('c2l = {:.14e} with wavelenth in $\mu$m'.format(self.c2l))
+        print(r'c1el = {:.14e} with wavelenth in $\mu$m'.format(self.c1el))
+        print(r'c1ql = {:.14e} with wavelenth in $\mu$m'.format(self.c1ql))
+        print(r'c2l = {:.14e} with wavelenth in $\mu$m'.format(self.c2l))
         print(' ')
         print('c1en = {:.14e} with wavenumber in cm$^{{-1}}$'.format(self.c1en))
         print('c1qn = {:.14e} with wavenumber in cm$^{{-1}}$'.format(self.c1qn))
@@ -1101,8 +1101,8 @@ if __name__ == '__main__':
         Mel = planck(wl, 300, type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
 
         lp = ryplot.Plotter(1)
-        lp.semilogX(1,wl,Mel,"Planck law exitance for 300 K source","Wavelength [$\mu$m]",
-            "Exitance [W/(m$^2$.$\mu$m)]")
+        lp.semilogX(1,wl,Mel,"Planck law exitance for 300 K source",r"Wavelength [$\mu$m]",
+            r"Exitance [W/(m$^2$.$\mu$m)]")
         lp.saveFig('M300k.eps')
 
         #plot all the planck functions.
@@ -1123,8 +1123,8 @@ if __name__ == '__main__':
             legend.append("{0:.0f} K".format(temp))
 
         fplanck = ryplot.Plotter(1, 2, 3,"Planck's Law", figsize=(18, 12))
-        fplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
-            "Exitance [W/(m$^2$.$\mu$m)]",legendAlpha=0.5, label=legend, \
+        fplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain",r"Wavelength [$\mu$m]", \
+            r"Exitance [W/(m$^2$.$\mu$m)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[0.1, 100, 1e-2, 1e9])
         fplanck.logLog(2, n, Men, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
             "Exitance [W/(m$^2$.cm$^{-1}$)]",legendAlpha=0.5, label=legend, \
@@ -1133,8 +1133,8 @@ if __name__ == '__main__':
             "Exitance [W/(m$^2$.Hz)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[3e12, 3e15, 1e-20, 1e-6])
 
-        fplanck.logLog(4, wl, Mql, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
-            "Exitance [q/(s.m$^2$.$\mu$m)]",legendAlpha=0.5, label=legend, \
+        fplanck.logLog(4, wl, Mql, "Photon Rate, Wavelength Domain",r"Wavelength [$\mu$m]", \
+            r"Exitance [q/(s.m$^2$.$\mu$m)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[0.1, 100, 1e-0, 1e27])
         fplanck.logLog(5, n, Mqn, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
             "Exitance [q/(s.m$^2$.cm$^{-1}$)]",legendAlpha=0.5, label=legend, \
@@ -1155,8 +1155,8 @@ if __name__ == '__main__':
         Mqf = dplanck(f,  np.asarray(temperature).reshape(-1,1), type='qf') # [q/(s.m$^2$.Hz.K)]
 
         fdplanck = ryplot.Plotter(2, 2, 3,"Planck's Law Temperature Derivative", figsize=(18, 12))
-        fdplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain","Wavelength [$\mu$m]", \
-            "dM/dT [W/(m$^2$.$\mu$m.K)]",legendAlpha=0.5, label=legend, \
+        fdplanck.logLog(1, wl, Mel, "Radiant, Wavelength Domain",r"Wavelength [$\mu$m]", \
+            r"dM/dT [W/(m$^2$.$\mu$m.K)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[0.1, 100, 1e-5, 1e5])
         fdplanck.logLog(2, n, Men, "Radiant, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
             "dM/dT [W/(m$^2$.cm$^{-1}$.K)]",legendAlpha=0.5, label=legend, \
@@ -1165,8 +1165,8 @@ if __name__ == '__main__':
             "dM/dT [W/(m$^2$.Hz.K)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[3e12, 3e15, 1e-20, 1e-10])
 
-        fdplanck.logLog(4, wl, Mql, "Photon Rate, Wavelength Domain","Wavelength [$\mu$m]", \
-            "dM/dT [q/(s.m$^2$.$\mu$m.K)]",legendAlpha=0.5, label=legend, \
+        fdplanck.logLog(4, wl, Mql, "Photon Rate, Wavelength Domain",r"Wavelength [$\mu$m]", \
+            r"dM/dT [q/(s.m$^2$.$\mu$m.K)]",legendAlpha=0.5, label=legend, \
                         pltaxis=[0.1, 100, 1e-0, 1e24])
         fdplanck.logLog(5, n, Mqn, "Photon Rate, Wavenumber Domain","Wavenumber [cm$^{-1}$]", \
             "dM/dT [q/(s.m$^2$.cm$^{-1}$.K)]",legendAlpha=0.5, label=legend, \
