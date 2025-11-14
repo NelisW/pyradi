@@ -498,11 +498,11 @@ class extracttape6:
                 # var['albedo line'] = line.strip()
             elif cntr==3:
                 if ' Using surface' in line:
-                    var['using surface'] = self.refind(line,f' Using surface:\s*(.+?)\s*$')
+                    var['using surface'] = self.refind(line,r' Using surface:\s*(.+?)\s*$')
                 cntr += 1
             elif cntr==4:
                 if ' From file' in line:
-                    var['from file'] = self.refind(line,f' From file:\s*(.+?)\s*$')
+                    var['from file'] = self.refind(line,r' From file:\s*(.+?)\s*$')
                 break
 
             elif cntr==0:
@@ -542,25 +542,25 @@ class extracttape6:
             if isinstance(tp6data['meteorological range'], str):
                 llines.append(f"meteorological range {tp6data['meteorological range']}, ")
             else:
-                llines.append(f"meteorological range {tp6data['meteorological range']:.3f}~""\si{\kilo\metre}, ")
+                llines.append(f"meteorological range {tp6data['meteorological range']:.3f}~""\\si{\\kilo\\metre}, ")
         if 'wind speed 24hr' in tp6data.keys():
             if tp6data['wind speed 24hr'] is not None:
-                llines.append(f" 24-hour wind speed {tp6data['wind speed 24hr']}~""\si{\metre\per\second}, ")
+                llines.append(f" 24-hour wind speed {tp6data['wind speed 24hr']}~""\\si{\\metre\\per\\second}, ")
         if 'wind speed' in tp6data.keys():
             if tp6data['wind speed'] is not None:
-                llines.append(f"current wind speed {tp6data['wind speed']:.1f}~""\si{\metre\per\second}. ")
+                llines.append(f"current wind speed {tp6data['wind speed']:.1f}~""\\si{\\metre\\per\\second}. ")
         if 'Profiles' in tp6data.keys():
-            llines.append(f"\n\nAt the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~""\si{\kilo\metre} ")
+            llines.append(f"\n\nAt the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~""\\si{\\kilo\\metre} ")
             llines.append("the conditions are:  ")
-            llines.append(f"pressure {tp6data['Profiles'][0]['Pressure mB']:.1f}~""\si{\milli\\bar}, ")
-            llines.append(f"temperature {tp6data['Profiles'][0]['Temperature K']:.1f}~""\si{\kelvin} / ")
-            llines.append(f"{tp6data['Profiles'][0]['Temperature K']-273.16:.1f}~""\si{\celsius}, ")
+            llines.append(f"pressure {tp6data['Profiles'][0]['Pressure mB']:.1f}~""\\si{\\milli\\bar}, ")
+            llines.append(f"temperature {tp6data['Profiles'][0]['Temperature K']:.1f}~""\\si{\\kelvin} / ")
+            llines.append(f"{tp6data['Profiles'][0]['Temperature K']-273.16:.1f}~""\\si{\\celsius}, ")
             llines.append(f"relative humidity {tp6data['Profiles'][0]['RelHum %']:.1f}""\\%, ")
-            llines.append(f"absolute humidity {tp6data['Profiles'][0]['H2O g/m3']:.2f}~""\si{\gram\per\metre\cubed}, ")
+            llines.append(f"absolute humidity {tp6data['Profiles'][0]['H2O g/m3']:.2f}~""\\si{\\gram\\per\\metre\\cubed}, ")
             if 'aeroextinc' in tp6data['Profiles'][0].keys():
-                llines.append(f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
+                llines.append(f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
             if 'visibility' in tp6data['Profiles'][0].keys():
-                llines.append(f"Koschmieder visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\si{\kilo\metre}. ")
+                llines.append(f"Koschmieder visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\\si{\\kilo\\metre}. ")
 
         if 'path radiance mode' in tp6data.keys():
             llines.append(f"Path radiance mode is {tp6data['path radiance mode']}"". ")
@@ -571,12 +571,12 @@ class extracttape6:
             if  tp6data['SingleScat parameters'] is not None:
                 if 'LATITUDE AT H1ALT' in tp6data['SingleScat parameters'].keys():
                     llines.append(f"Location lat/long at H1 ")
-                    llines.append(f"{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\si{\degree}N")
-                    llines.append(f"/{tp6data['SingleScat parameters']['LONGITUDE AT H1ALT']:.2f}""\si{\degree}W. ")
+                    llines.append(f"{tp6data['SingleScat parameters']['LATITUDE AT H1ALT']:.2f}""\\si{\\degree}N")
+                    llines.append(f"/{tp6data['SingleScat parameters']['LONGITUDE AT H1ALT']:.2f}""\\si{\\degree}W. ")
                 if 'SUBSOLAR LATITUDE' in tp6data['SingleScat parameters'].keys():
                     llines.append(f"Subsolar lat/long ")
-                    llines.append(f"{tp6data['SingleScat parameters']['SUBSOLAR LATITUDE']:.2f}""\si{\degree}N")
-                    llines.append(f"/{tp6data['SingleScat parameters']['SUBSOLAR LONGITUDE']:.2f}""\si{\degree}W. ")
+                    llines.append(f"{tp6data['SingleScat parameters']['SUBSOLAR LATITUDE']:.2f}""\\si{\\degree}N")
+                    llines.append(f"/{tp6data['SingleScat parameters']['SUBSOLAR LONGITUDE']:.2f}""\\si{\\degree}W. ")
                 if 'DAY OF THE YEAR' in tp6data['SingleScat parameters'].keys():
                     llines.append(f"Day of the year {int(tp6data['SingleScat parameters']['DAY OF THE YEAR'])}, ")
                 if 'TIME (<0 UNDEF)' in tp6data['SingleScat parameters'].keys():
@@ -597,23 +597,23 @@ class extracttape6:
                 if 'path type' in  tp6data['Path']:
                     llines.append(f"{tp6data['Path']['path type']}, ")
                 if 'H1ALT' in  tp6data['Path']:
-                    llines.append(f"H1 (start) altitude {tp6data['Path']['H1ALT']:.3f}~""\si{\kilo\metre}, ")
+                    llines.append(f"H1 (start) altitude {tp6data['Path']['H1ALT']:.3f}~""\\si{\\kilo\\metre}, ")
                 if 'H2ALT' in  tp6data['Path']:
-                    llines.append(f"H2 (final) altitude {tp6data['Path']['H2ALT']:.3f}~""\si{\kilo\metre}, ")
+                    llines.append(f"H2 (final) altitude {tp6data['Path']['H2ALT']:.3f}~""\\si{\\kilo\\metre}, ")
                 if 'OBSZEN' in  tp6data['Path']:
-                    llines.append(f"observer zenith angle {tp6data['Path']['OBSZEN']:.6f}""\si{\degree}, ")
+                    llines.append(f"observer zenith angle {tp6data['Path']['OBSZEN']:.6f}""\\si{\\degree}, ")
                 if 'HRANGE' in  tp6data['Path']:
-                    llines.append(f"path range {tp6data['Path']['HRANGE']:.3f}~""\si{\kilo\metre}, ")
+                    llines.append(f"path range {tp6data['Path']['HRANGE']:.3f}~""\\si{\\kilo\\metre}, ")
                 if 'ECA' in  tp6data['Path']:
-                    llines.append(f"subtended earth center angle {tp6data['Path']['ECA']:.6f}""\si{\degree}, ")
+                    llines.append(f"subtended earth center angle {tp6data['Path']['ECA']:.6f}""\\si{\\degree}, ")
                 if 'BCKZEN' in  tp6data['Path']:
-                    llines.append(f"zenith angle from final altitude back to sensor {tp6data['Path']['BCKZEN']:.6f}""\si{\degree}, ")
+                    llines.append(f"zenith angle from final altitude back to sensor {tp6data['Path']['BCKZEN']:.6f}""\\si{\\degree}, ")
                 if 'HMIN' in  tp6data['Path']:
-                    llines.append(f"minimum altitude {tp6data['Path']['HMIN']:.3f}~""\si{\kilo\metre}, ")
+                    llines.append(f"minimum altitude {tp6data['Path']['HMIN']:.3f}~""\\si{\\kilo\\metre}, ")
                 if 'BENDING' in  tp6data['Path']:
-                    llines.append(f"path bending {tp6data['Path']['BENDING']:.6f}""\si{\degree}, ")
+                    llines.append(f"path bending {tp6data['Path']['BENDING']:.6f}""\\si{\\degree}, ")
                 if 'CKRANG' in  tp6data['Path']:
-                    llines.append(f"slant range for k-distribution output {tp6data['Path']['CKRANG']:.3f}~""\si{\kilo\metre}.")
+                    llines.append(f"slant range for k-distribution output {tp6data['Path']['CKRANG']:.3f}~""\\si{\\kilo\\metre}.")
         else:
             print('*** No path information in json file')
 
@@ -621,10 +621,10 @@ class extracttape6:
         if 'Frequency range' in tp6data.keys():
             if tp6data['Frequency range'] is not None:
                 llines.append(f"\n\nFrequency range: ")
-                llines.append(f"spectral range lower bound {tp6data['Frequency range']['IV1']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
-                llines.append(f"spectral range upper bound {tp6data['Frequency range']['IV2']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
-                llines.append(f"spectral increment {tp6data['Frequency range']['IDV']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}, ")
-                llines.append(f"slit function full width at half maximum {tp6data['Frequency range']['IFWHM']:.0f}~""\si[per-mode=reciprocal]{\centi\metre\\tothe{-1}}.")
+                llines.append(f"spectral range lower bound {tp6data['Frequency range']['IV1']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(f"spectral range upper bound {tp6data['Frequency range']['IV2']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(f"spectral increment {tp6data['Frequency range']['IDV']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(f"slit function full width at half maximum {tp6data['Frequency range']['IFWHM']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}.")
             else:
                 print('*** No frequency information in json file')
 
@@ -1333,7 +1333,7 @@ if __name__ == '__main__':
         wavelen = ryutils.convertSpectralDomain(tape7[:,0],  type='nl')
         mT = ryplot.Plotter(1, 1, 1,"Modtran Tropical, 23 km Visibility (Rural)"\
                            + ", 5 km Path Length",figsize=(12,6))
-        mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\mu$m]", "Transmittance",
+        mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\\mu$m]", "Transmittance",
                label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
                maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
         mT.saveFig('ModtranPlot.png')
@@ -1409,7 +1409,7 @@ if __name__ == '__main__':
         for i in [1,2,3,4]:
           wl, Lpath = ryutils.convertSpectralDensity(skyrad[:,0], skyrad[:,i],'nl')
           Lpath *= 1.0e4
-          sr.plot(i,  wl, Lpath, "","Wavelength [$\mu$m]","L [W/(m$^2$.sr.$\mu$m)]",
+          sr.plot(i,  wl, Lpath, "","Wavelength [$\\mu$m]","L [W/(m$^2$.sr.$\\mu$m)]",
                  label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
                  maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
           totinband = - np.trapz(Lpath.reshape(-1, 1),wl,axis=0)[0]
