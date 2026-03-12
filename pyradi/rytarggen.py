@@ -457,7 +457,8 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     else:
         assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / np.mean(imghd5['image/wavelength'][()]))        
         # imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'][()])
-    conversion =  1.0 if 'q/' in imghd5['image/LinUnits'][()][:3] \
+   
+    conversion =  1.0 if b'q/' in imghd5['image/LinUnits'][()][:3] \
                                         else 1. / imghd5['image/joule_per_photon'][()]
     assigncheck(imghd5,'image/conversion',conversion)                                 
     # imghd5['image/conversion'] = conversion
@@ -617,7 +618,7 @@ def calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax):
     
     temp = np.linspace(0.99*float(tmin), 1.01*float(tmax), 100).reshape(-1,1)
     # radiance in q/(s.m2)
-    rad = np.trapz(sysresp * ryplanck.planck(wavelength, temp,
+    rad = np.trapezoid(sysresp * ryplanck.planck(wavelength, temp,
            type='ql'),wavelength, axis=0).reshape(-1,1) / np.pi
     fintpLE = interpolate.interp1d(rad.reshape(-1,), temp.reshape(-1,))
     fintpEL = interpolate.interp1d(temp.reshape(-1,), rad.reshape(-1,))

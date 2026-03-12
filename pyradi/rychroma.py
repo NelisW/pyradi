@@ -43,7 +43,13 @@ __all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','rgb2CIExy',
 
 import sys
 import os
-import pkg_resources
+# import pkg_resources
+# handling older Python versions < 3.9
+try:
+    from importlib import resources
+except ImportError:
+    import importlib_resources as resources
+
 from numbers import Number
 if sys.version_info[0] > 2:
     from io import StringIO
@@ -119,9 +125,9 @@ def chromaticityforSpectralL(spectral,radiance,xbar,ybar,zbar):
         | No exception is raised.
     """
 
-    X=np.trapz(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
-    Y=np.trapz(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
-    Z=np.trapz(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
+    X=np.trapezoid(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
+    Y=np.trapezoid(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
+    Z=np.trapezoid(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
 
     x=X/(X+Y+Z)
     y=Y/(X+Y+Z)
@@ -158,9 +164,9 @@ def XYZforSpectralL(spectral,radiance,xbar,ybar,zbar):
         | No exception is raised.
     """
 
-    X=np.trapz(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
-    Y=np.trapz(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
-    Z=np.trapz(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
+    X=np.trapezoid(radiance.reshape(-1, 1)*xbar.reshape(-1, 1),spectral, axis=0)
+    Y=np.trapezoid(radiance.reshape(-1, 1)*ybar.reshape(-1, 1),spectral, axis=0)
+    Z=np.trapezoid(radiance.reshape(-1, 1)*zbar.reshape(-1, 1),spectral, axis=0)
 
 
     return [X[0], Y[0], Z[0]]
@@ -212,9 +218,12 @@ def loadCIEbar(specvec, stype):
     #load data file from the pyradi directories, not local dir
     resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
     resource_path = os.path.join('data', 'colourcoordinates','ciexyz31_1.txt')
-    dat = pkg_resources.resource_string(resource_package, resource_path)
+    # dat = pkg_resources.resource_string(resource_package, resource_path)
+    dat = resources.files(resource_package).joinpath(resource_path)
     if sys.version_info[0] > 2:
-        cie = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",",skiprows=1)
+        with dat.open('r') as f:
+            cie = np.loadtxt(f,delimiter=",",skiprows=1)
+        # cie = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",",skiprows=1)
     else:
         cie = np.genfromtxt(StringIO(dat),delimiter=",",skip_header=1)
     cie = cie.reshape(-1,4)

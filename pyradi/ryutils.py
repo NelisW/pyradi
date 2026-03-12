@@ -61,7 +61,22 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 from matplotlib.collections import PatchCollection
 import os
-import pkg_resources
+
+# import pkg_resources
+# handling older Python versions < 3.9
+try:
+    from importlib import resources
+except ImportError:
+    import importlib_resources as resources
+
+# handling older Python versions < 3.8
+# pip install importlib-metadata
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
+
+
 from numbers import Number
 if sys.version_info[0] > 2:
     from io import StringIO
@@ -106,9 +121,15 @@ except ImportError:
 
 
 try:
-    import pkg_resources
+    # import pkg_resources
+    # handling older Python versions < 3.9
+    try:
+        from importlib import resources
+    except ImportError:
+        import importlib_resources as resources
+        
 except ImportError:
-    pkg_resources = None
+    importlibresources = None
 
 timefmt = '%a %b %d %H:%M:%S %Y %Z'
 
@@ -151,9 +172,10 @@ class VersionInformation():
                     self.packages.append((module, ns_l["version"]))
                 except Exception as e:
                     try:
-                        if pkg_resources is None:
+                        if importlibresources is None:
                             raise
-                        version = pkg_resources.require(module)[0].version
+                        # version = pkg_resources.require(module)[0].version
+                        version = metadata.version('module_name')
                         self.packages.append((module, version))
                     except Exception as e:
                         self.packages.append((module, str(e)))
@@ -348,7 +370,7 @@ def update_progress(progress, bar_length=20):
 ##############################################################################
 ##
 def solidAngleSquare(width,breadth,height,stype,numsamples):
-    """Calculate the solid angle of a rectagular plate from a point on the normal at its centre
+    r"""Calculate the solid angle of a rectagular plate from a point on the normal at its centre
 
     The solid angle of a rectangular flat surface, with dimensions $W$ and $D$, as seen from a 
     reference point centered above the surface, is determined by the integral of the projected 
@@ -397,7 +419,7 @@ def solidAngleSquare(width,breadth,height,stype,numsamples):
     else:
         return None
 
-    solidAngle = np.trapz(np.ravel(gv), dx=breadth*width/(numsamples**2))/(height*height)
+    solidAngle = np.trapezoid(np.ravel(gv), dx=breadth*width/(numsamples**2))/(height*height)
     return solidAngle
 
 
@@ -591,7 +613,7 @@ def upMu(uprightMu=True, textcomp=False):
                 '\\usepackage{helvet}',  # set the normal font here
                 '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
                 '\\sansmath']  # <- tricky! -- gotta actually tell tex to use!
-                upmu = '\si{\micro}'
+                upmu = r'\si{\micro}'
             else:
                 mpl.rcParams['text.latex.preamble'] = [
                 '\\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
@@ -998,7 +1020,7 @@ def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
     The data in  spectralToProcess and  spectralBaseline must both be sampled at the same
     domain values     as specified in spectraldomain.
 
-    The integral is calculated with numpy/scipy trapz trapezoidal integration function.
+    The integral is calculated with numpy/scipy trapezoid trapezoidal integration function.
 
     Args:
         | inspectraldomain (np.array[N,] or [N,1]):  spectral domain in wavelength, frequency or wavenumber.
@@ -1013,8 +1035,8 @@ def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
         | No exception is raised.
     """
 
-    num=np.trapz(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
-    den=np.trapz(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    num=np.trapezoid(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    den=np.trapezoid(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
     return num/den
 
 
@@ -1868,9 +1890,12 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
         #load data file from the pyradi directories, not local dir
         resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
         resource_path = os.path.join('data', 'photometry',vlamname)
-        dat = pkg_resources.resource_string(resource_package, resource_path)
+        # dat = pkg_resources.resource_string(resource_package, resource_path)
+        dat = resources.files(resource_package).joinpath(resource_path)
         if sys.version_info[0] > 2:
-            dat = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",")
+            # dat = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",")
+            with dat.open('r') as f:
+                dat = np.loadtxt(f,delimiter=",",skiprows=1)
         else:
             dat = np.genfromtxt(StringIO(dat),delimiter=",")
 
@@ -1889,11 +1914,12 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
 # to calculate the MTF degradation from the pupil function
 def calcMTFwavefrontError(sample, wfdisplmnt, xg, yg, specdef,
                      samplingStride = 1,clear='Clear'):
-    """Given a mirror figure error, calculate MTF degradation from ideal
+    r"""Given a mirror figure error, calculate MTF degradation from ideal
     
     An aperture has an MTF determined by its shape.  A clear aperture has
     zero phase delay and the MTF is determined only by the aperture shape.
     Any phase delay/error in the wavefront in the aperture will result in a 
+    
     lower MTF than the clear aperture diffraction MTF.
     
     This function calculates the MTF degradation attributable to a wavefront
@@ -2464,8 +2490,8 @@ class Spectral(object):
                 xvaln = 1e4 / xvall
                 yval = np.array([self.value,self.value])
 
-            p.plot(1,xvall,yval,heading,'Wavelength $\mu$m', ytitle)
-            p.plot(2,xvaln,yval,heading,'Wavenumber cm$^{-1}$', ytitle)
+            p.plot(1,xvall,yval,heading,r'Wavelength $\mu$m', ytitle)
+            p.plot(2,xvaln,yval,heading,r'Wavenumber cm$^{-1}$', ytitle)
 
             p.saveFig(ryfiles.cleanFilename(filename))
 
@@ -2877,7 +2903,7 @@ class Target(Spectral):
     ############################################################
     ##
     def radiance(self, units='el'):
-        """Returns radiance spectral for target
+        r"""Returns radiance spectral for target
 
         The type of spectral is one of the following:
            type='el  [W/(m$^2$.$\mu$m)]
@@ -3233,21 +3259,21 @@ if __name__ == '__main__':
     if doAll:
         p = ryplot.Plotter(1,1,1)
         vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format('CIE Photopic VM($\lambda$)')])
+        p.plot(1,wl,vlam,label=['{} equation'.format(r'CIE Photopic VM($\lambda$)')])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format("CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=['{} equation'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=np.linspace(0.3, 0.8, 200), eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format("CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=['{} equation'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
 
         vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format('CIE Photopic VM($\lambda$)')])
+        p.plot(1,wl,vlam,label=['{} table'.format(r'CIE Photopic VM($\lambda$)')])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format("CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=['{} table'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
         vlam,wl = luminousEfficiency(vlamtype='CIE2008v2', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format('CIE 2008 V($\lambda$) 2 deg')])
+        p.plot(1,wl,vlam,label=['{} table'.format(r'CIE 2008 V($\lambda$) 2 deg')])
         vlam,wl = luminousEfficiency(vlamtype='CIE2008v10', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,'Luminous Efficiency','Wavelength $\mu$m','Efficiency',
-            label=['{} table'.format('CIE 2008 V($\lambda$) 10 deg')])
+        p.plot(1,wl,vlam,'Luminous Efficiency',r'Wavelength $\mu$m','Efficiency',
+            label=['{} table'.format(r'CIE 2008 V($\lambda$) 10 deg')])
         p.saveFig('vlam.png')
 
 
@@ -3381,9 +3407,9 @@ if __name__ == '__main__':
         _,radiancewn1 = convertSpectralDensity(wl,radiancewl, 'ln')
         radiancewn2 = ryplanck.planck(wn,1000, 'en') / np.pi
         p = ryplot.Plotter(2,1,3,figsize=(18,6))
-        p.plot(1,wl, radiancewl,'Planck radiance','Wavelength $\mu$m', 'Radiance W/(m$^2$.sr.$\mu$m)')
-        p.plot(2,wn, radiancewn1,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
-        p.plot(3,wn, radiancewn2,'Planck radiance','Wavenumber cm$^{-1}$', 'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+        p.plot(1,wl, radiancewl,'Planck radiance',r'Wavelength $\mu$m', r'Radiance W/(m$^2$.sr.$\mu$m)')
+        p.plot(2,wn, radiancewn1,'Planck radiance',r'Wavenumber cm$^{-1}$', r'Radiance W/(m$^2$.sr.cm$^{-1}$)')
+        p.plot(3,wn, radiancewn2,'Planck radiance',r'Wavenumber cm$^{-1}$', r'Radiance W/(m$^2$.sr.cm$^{-1}$)')
         p.saveFig('densconvert.png')
 
     if  doAll:
@@ -3514,7 +3540,7 @@ if __name__ == '__main__':
 
         ##------------------------- plot sample detector ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
-        smpleplt.plot(1, wavelength, responsivities, "Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength [$\mu$m]',\
+        smpleplt.plot(1, wavelength, responsivities, r"Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength [$\mu$m]',\
                    r'Responsivity', \
                    ['r', 'g', 'y','k', 'b', 'm'],label=parameterTxt)
         smpleplt.saveFig('responsivityVar'+figtype)
@@ -3568,7 +3594,7 @@ if __name__ == '__main__':
         absh = abshumidity(temperature).reshape(-1,1)
         data = np.hstack((data,absh))
         data = np.hstack((data, 100 * np.reshape((data[:,1]-data[:,2])/data[:,2],(-1,1))))
-        print('        deg C          Testvalue           Fn value       \% Error')
+        print(r'        deg C          Testvalue           Fn value       \% Error')
         print(data)
 
         p=ryplot.Plotter(1)

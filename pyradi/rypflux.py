@@ -216,10 +216,10 @@ class PFlux:
 
 
         self.dfPhotRates['k'] = (self.dfPhotRates['Irradiance-lm/m2']) / (\
-                        self.dfPhotRates['FracPhotop'] * 683 * np.trapz(photLumEff.reshape(-1,1) * \
+                        self.dfPhotRates['FracPhotop'] * 683 * np.trapezoid(photLumEff.reshape(-1,1) * \
                                     ryplanck.planckel(wl, self.dfPhotRates['ColourTemp']),wl, axis=0)\
                         + \
-                        (1-self.dfPhotRates['FracPhotop']) * 1700 * np.trapz(scotLumEff.reshape(-1,1) * \
+                        (1-self.dfPhotRates['FracPhotop']) * 1700 * np.trapezoid(scotLumEff.reshape(-1,1) * \
                                     ryplanck.planckel(wl, self.dfPhotRates['ColourTemp']),wl, axis=0))                           \
 
         if specranges is not None:
@@ -246,7 +246,7 @@ class PFlux:
 
 
             self.dfPhotRates['Radiance-q/(s.m2.sr)-{}'.format(specrange)] = (self.dfPhotRates['k'] /np.pi ) * \
-                np.trapz(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
+                np.trapezoid(self.specranges[specrange][1] * ryplanck.planck(spec, self.dfPhotRates['ColourTemp'],stype),spec, axis=0)
 
         self.dfPhotRates.sort_values(by='Irradiance-lm/m2',inplace=True)
         self.dfPhotRates = self.dfPhotRates.reindex(sorted(self.dfPhotRates.columns), axis=1)

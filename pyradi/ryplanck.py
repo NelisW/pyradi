@@ -917,7 +917,7 @@ if __name__ == '__main__':
         peakM =  1.28665e-11*tmprtr**5
         spectralPeakM = 2897.9/tmprtr
         spectralPeak = wl[M.argmax()]
-        I=np.trapz(M, wl)
+        I=np.trapezoid(M, wl)
         psum = planckInt(wl1, wl2, tmprtr, type='el')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr**4
@@ -937,7 +937,7 @@ if __name__ == '__main__':
         peakM =  2.1010732e11*tmprtr*tmprtr*tmprtr*tmprtr
         spectralPeakM = 3669.7/tmprtr
         spectralPeak = wl[M.argmax()]
-        I=np.trapz(M, wl)
+        I=np.trapezoid(M, wl)
         psum = planckInt(wl1, wl2, tmprtr, type='ql')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
@@ -962,7 +962,7 @@ if __name__ == '__main__':
         peakM =  5.95664593e-19*tmprtr*tmprtr*tmprtr
         spectralPeakM = 5.8788872e10*tmprtr
         spectralPeak = f[M.argmax()]
-        I=np.trapz(M, f)
+        I=np.trapezoid(M, f)
         psum = planckInt(f1, f2, tmprtr, type='ef')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr*tmprtr*tmprtr*tmprtr
@@ -982,7 +982,7 @@ if __name__ == '__main__':
         peakM = 1.965658e4*tmprtr*tmprtr
         spectralPeakM = 3.32055239e10*tmprtr
         spectralPeak = f[M.argmax()]
-        I=np.trapz(M, f)
+        I=np.trapezoid(M, f)
         psum = planckInt(f1, f2, tmprtr, type='qf')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
@@ -1007,7 +1007,7 @@ if __name__ == '__main__':
         peakM =  1.78575759e-8*tmprtr*tmprtr*tmprtr
         spectralPeakM = 1.9609857086*tmprtr
         spectralPeak = n[M.argmax()]
-        I=np.trapz(M, n)
+        I=np.trapezoid(M, n)
         psum = planckInt(n1, n2, tmprtr, type='en')
         sblf = stefanboltzman(tmprtr, 'e')
         sbl=5.67033e-8*tmprtr*tmprtr*tmprtr*tmprtr
@@ -1027,7 +1027,7 @@ if __name__ == '__main__':
         peakM = 5.892639e14*tmprtr*tmprtr
         spectralPeakM = 1.1076170659*tmprtr
         spectralPeak =  n[M.argmax()]
-        I=np.trapz(M, n)
+        I=np.trapezoid(M, n)
         psum = planckInt(n1, n2, tmprtr, type='qn')
         sblf = stefanboltzman(tmprtr, 'q')
         sbl=1.5204e+15*tmprtr*tmprtr*tmprtr
@@ -1188,9 +1188,9 @@ if __name__ == '__main__':
         wl=np.arange(3.5, 5, 0.001)
         #MTV flare temperature is 2200 K. emissivity=0.15
         flareEmis = 0.15
-        flareM = flareEmis * np.trapz(planckel(wl,2200).reshape(-1, 1),wl, axis=0)[0]
+        flareM = flareEmis * np.trapezoid(planckel(wl,2200).reshape(-1, 1),wl, axis=0)[0]
         #aircraft fuselage temperature is 250 K. emissivity=1,
-        aircraftM =  np.trapz(planckel(wl,250).reshape(-1, 1),wl, axis=0)[0]
+        aircraftM =  np.trapezoid(planckel(wl,250).reshape(-1, 1),wl, axis=0)[0]
         print('Mflare={0:.2f} W/m2 \nMaircraft={1:.1f} W/m2'.format(flareM, aircraftM))
         print('Colour ratio: ratio={0:.3e} minimum number of bits required={1:.1f}'.\
             format(flareM/aircraftM,  np.log2(flareM/aircraftM)))

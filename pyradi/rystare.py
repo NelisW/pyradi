@@ -1858,7 +1858,7 @@ def nElecCntThermalScene(wl, tmptr, emis, tauAtmo, tauFilt, tauOpt, quantEff, in
     
     L = emis * tauAtmo * tauFilt * tauOpt * quantEff * \
             ryplanck.planck(wl, tmptr, type='ql')/np.pi
-    L = np.trapz( L, x=wl,axis=0)
+    L = np.trapezoid( L, x=wl,axis=0)
     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
     return n
     
@@ -1893,7 +1893,7 @@ def nEcntThermalOptics(wl, tmptrOpt, tauFilt, tauOpt, quantEff, inttime, pfrac, 
     
     L = tauFilt * (1.0 - tauOpt) * quantEff * \
             ryplanck.planck(wl, tmptrOpt, type='ql')/np.pi
-    L = np.trapz( L, x=wl,axis=0)
+    L = np.trapezoid( L, x=wl,axis=0)
     n = np.pi * inttime * pfrac * detarea * L / (4 * fno**2)
     return n    
 
@@ -1934,7 +1934,7 @@ def nElecCntReflSun(wl, tauSun, tauAtmo=1, tauFilt=1, tauOpt=1, quantEff=1,
     
     L =  emissun * tauAtmo * tauFilt * tauOpt * tauSun * quantEff * \
             rhoTarg * ryplanck.planck(wl, tmprt, type='ql')/np.pi
-    L = np.trapz( L, x=wl,axis=0)
+    L = np.trapezoid( L, x=wl,axis=0)
     n = np.pi * inttime * pfrac * detarea * L * 2.17e-5 * cosTarg / (4 * fno**2)
 
     return n
@@ -2603,7 +2603,7 @@ if __name__ == '__main__':
             # for sigma in [0.1]:
                 rv = norm.rvs(loc=1, scale=sigma, size=10000)
                 histl, binsl = np.histogram(limitzero(rv,thres), bins=100)
-                q.plot(1,(binsl[1:]+binsl[:-1])/2.,histl/(binsl[1]-binsl[0]),label=['Clipped, $\sigma$={}'.format(sigma)])   
+                q.plot(1,(binsl[1:]+binsl[:-1])/2.,histl/(binsl[1]-binsl[0]),label=[r'Clipped, $\sigma$={}'.format(sigma)])   
 
 
     #----------  how to use example code ---------------------

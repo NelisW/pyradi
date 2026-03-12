@@ -253,7 +253,7 @@ def Responsivity(wavelength, quantumEffic):
 ################################################################################
 #
 def DStar(areaDet, deltaFreq, iNoise, responsivity):
-    """
+    r"""
     The spectral D* is the signal-to-noise output when 1 W of monochromatic
     radiant flux is incident on 1 cm2 detector area, within a
     noise-equivalent bandwidth of 1 Hz.
@@ -432,7 +432,7 @@ def Noise(tempDet, IVbeta, Isat, iPhoto, vBias=0):
 ################################################################################
 #
 def DstarSpectralFlatPhotonLim(Tdetec, Tenvironment,epsilon):
-    """
+    r"""
     This function calculates the photon noise limited D* of a detector with
     unlimited spectral response. This case does not apply to photon detectors.
     The absorption is assumed spectrally flat.
@@ -473,7 +473,7 @@ if __name__ == '__main__':
     for Tdetec in Tdetector:
         dStar = DstarSpectralFlatPhotonLim(Tdetec,Tenvironment,1)
         dstarP.semilogY(1,Tenvironment,dStar,'',\
-            r'Environmental temperature [K]','D* [cm.\sqrt{Hz}/W]',
+            r'Environmental temperature [K]',r'D* [cm.\sqrt{Hz}/W]',
             pltaxis=[0, 600, 1e9, 1e13])
     currentP = dstarP.getSubPlot(1)
     for xmaj in currentP.xaxis.get_majorticklocs():
@@ -495,7 +495,7 @@ if __name__ == '__main__':
         for wlc in wavelength:
             wl =  np.linspace(wlc/100, wlc, 1000).reshape(-1, 1)
             LbackLambda = ryplanck.planck(wl,temperature, type='ql')/np.pi
-            Lback = np.trapz(LbackLambda.reshape(-1, 1),wl, axis=0)[0]
+            Lback = np.trapezoid(LbackLambda.reshape(-1, 1),wl, axis=0)[0]
             Eback = Lback * np.pi * (np.sin(halfApexAngle)) ** 2
             # funny construct is to prevent divide by zero
             tempvar = np.sqrt(eta/(Eback+(Eback==0))) * (Eback!=0) + 0 * (Eback==0)
@@ -657,10 +657,10 @@ if __name__ == '__main__':
         solidAngBkg) / (np.pi )
 
     #photocurrent from both QE&QL and R&EL spectral data should have same values.
-    iSourceE = np.trapz(EsourceEL * areaDet * responsivity, wavelength)
-    iBkgE = np.trapz(EbkgEL * areaDet * responsivity, wavelength)
-    iSourceQ = np.trapz(EsourceQL * areaDet * quantumEffic * const.e,wavelength)
-    iBkgQ = np.trapz(EbkgQL * areaDet * quantumEffic * const.e, wavelength)
+    iSourceE = np.trapezoid(EsourceEL * areaDet * responsivity, wavelength)
+    iBkgE = np.trapezoid(EbkgEL * areaDet * responsivity, wavelength)
+    iSourceQ = np.trapezoid(EsourceQL * areaDet * quantumEffic * const.e,wavelength)
+    iBkgQ = np.trapezoid(EbkgQL * areaDet * quantumEffic * const.e, wavelength)
     iTotalE = iSourceE + iBkgE
     iTotalQ = iSourceQ + iBkgQ
 
