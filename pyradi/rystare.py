@@ -61,6 +61,7 @@ import scipy.constants as const
 from scipy import interpolate
 import re
 
+import pyradi.ryhdf5 as ryhdf5 # TODO:   fix for all functions removed from ryfiles 
 import pyradi.ryfiles as ryfiles
 import pyradi.ryutils as ryutils
 import pyradi.ryplot as ryplot
