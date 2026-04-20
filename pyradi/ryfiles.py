@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
@@ -22,42 +21,62 @@
 ################################################################
 """
 This module provides functions for file input/output. These are all wrapper
-functions, based on existing functions in other Python classes. Functions are 
-provided to save a two-dimensional array to a text file, load selected columns 
-of data from a text file, load a column header line, compact strings to include 
-only legal filename characters, and a function from the Python Cookbook to 
+functions, based on existing functions in other Python classes. Functions are
+provided to save a two-dimensional array to a text file, load selected columns
+of data from a text file, load a column header line, compact strings to include
+only legal filename characters, and a function from the Python Cookbook to
 recursively match filename patterns.
 
 See the __main__ function for examples of use.
 
-This package was partly developed to provide additional material in support of students 
-and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
+This package was partly developed to provide additional material in support of students
+and readers of the book Electro-Optical System Analysis and Design: A Radiometry
 Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-__version__= "$Revision$"
-__author__='pyradi team'
-__all__=['saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile', 
-         'cleanFilename', 'listFiles','readRawFrames','writeRawFrames',
-         'rawFrameToImageFile',
-         'arrayToLaTex','epsLaTexFigure','execOnFiles',
-         'read2DLookupTable', 
-         'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
-         'open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
-         'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms'
-         'mergeDFS','latex_escape']
+__version__ = "$Revision$"
+__author__ = 'pyradi team'
+__all__ = [
+    'saveHeaderArrayTextFile', 'loadColumnTextFile', 'loadHeaderTextFile',
+    'cleanFilename', 'listFiles', 'readRawFrames', 'writeRawFrames',
+    'rawFrameToImageFile',
+    'arrayToLaTex', 'epsLaTexFigure', 'execOnFiles',
+    'read2DLookupTable',
+    'downloadFileUrl', 'unzipGZipfile', 'untarTarfile', 'downloadUntar',
+    'mergeDFS', 'latex_escape',
+]
 
-import sys
+import errno
+import fnmatch
+import gzip
+import io
+import os
+import os.path
+import re
+import subprocess
+import tarfile
+import time
+import urllib.error
+import urllib.request
+from numbers import Number
+
 import numpy as np
-import os.path, fnmatch
-from matplotlib import cm as mcm
-import h5py
-from skimage.io import imread, imsave
 
 
-
+################################################################
 def latex_escape(str_):
+    """Escape special LaTeX characters in a string.
+
+    Args:
+        | str_ (string): input string potentially containing LaTeX special chars.
+
+    Returns:
+        | (string): string with special characters replaced by LaTeX escape sequences.
+
+    Raises:
+        | No exception is raised.
+    """
     CHARS = {
         '&':  r'\&',
         '%':  r'\%',
@@ -75,15 +94,13 @@ def latex_escape(str_):
     return u"".join([CHARS.get(c, c) for c in str_])
 
 
-
 ################################################################
-def saveHeaderArrayTextFile(filename,dataArray, header=None,
+def saveHeaderArrayTextFile(filename, dataArray, header=None,
         comment=None, delimiter=None):
-    """Save a numpy array to a file, included header lines.
+    """Save a numpy array to a file, with optional header lines.
 
     This function saves a two-dimensional array to a text file, with
-    an optional user-defined header. This functionality will be part of
-    numpy 1.7, when released.
+    an optional user-defined header.
 
     Args:
         | filename (string): name of the output ASCII flatfile.
@@ -98,40 +115,28 @@ def saveHeaderArrayTextFile(filename,dataArray, header=None,
     Raises:
         | No exception is raised.
     """
-    #open required file
-    if sys.version_info[0] > 2:
-        file=open(filename, 'wb')
-    else:
-        file=open(filename, 'wt')
-
-    #write the header info to the output file
-    if (header is not None):
-        for line in header.split('\n'):
-            if sys.version_info[0] > 2:
-                file.write((comment+line+'\n').encode('utf-8'))
-            else:
-                file.write(comment+line+'\n')
-
-    #then write the array, using the file handle (and not filename)
-    np.savetxt(file, dataArray, delimiter=delimiter)
-    #neatly close the file
-    file.close()
+    with open(filename, 'wb') as f:
+        if header is not None:
+            for line in header.split('\n'):
+                f.write((comment + line + '\n').encode('utf-8'))
+        # np.savetxt does not accept delimiter=None in numpy 2.x; use ' ' as the default.
+        np.savetxt(f, dataArray, delimiter=delimiter if delimiter is not None else ' ')
 
 
 ################################################################
-def loadColumnTextFile(filename, loadCol=[1],  \
-        comment=None, normalize=0, skiprows=0, delimiter=None,\
-        abscissaScale=1,ordinateScale=1, abscissaOut=None, returnAbscissa=False):
+def loadColumnTextFile(filename, loadCol=[1],
+        comment=None, normalize=0, skiprows=0, delimiter=None,
+        abscissaScale=1, ordinateScale=1, abscissaOut=None, returnAbscissa=False):
     """Load selected column data from a text file, processing as specified.
 
-    This function loads column data from a text file, scaling and interpolating 
-    the read-in data, according to user specification. The first 0'th column has 
-    special significance: it is considered the abscissa (x-values) of the data 
+    This function loads column data from a text file, scaling and interpolating
+    the read-in data, according to user specification. The first 0'th column has
+    special significance: it is considered the abscissa (x-values) of the data
     set, while the remaining columns are any number of ordinate (y-value) vectors.
-    The user passes a list of columns to be read (default is [1]) - only these 
-    columns are read, processed and returned when the function exits.The user 
-    also passes an abscissa vector to which the input data is interpolated and 
-    then subsequently amplitude scaled or normalised.  
+    The user passes a list of columns to be read (default is [1]) - only these
+    columns are read, processed and returned when the function exits. The user
+    also passes an abscissa vector to which the input data is interpolated and
+    then subsequently amplitude scaled or normalised.
 
     Note: leave only single separators (e.g. spaces) between columns!
     Also watch out for a single space at the start of line.
@@ -150,58 +155,50 @@ def loadColumnTextFile(filename, loadCol=[1],  \
 
     Returns:
         | ordinatesOut (np.array[N,M]): The interpolated, M columns of N rows, processed array.
-        | abscissaOut (np.array[N,M]): The ascissa where the ordinates are interpolated
+        | abscissaOut (np.array[N,M]): The abscissa where the ordinates are interpolated
 
     Raises:
         | No exception is raised.
     """
-    
-    from scipy.interpolate import interp1d
-
-    #prepend the 0'th column to the rest of the list, make local copy first
+    # Prepend the 0'th column to the rest of the list; make a local copy first.
     ldCol = loadCol[:]
     ldCol.insert(0, 0)
 
-    #load first column as well as user-specified column from the
-    # given file, scale as prescribed
     coldata = np.loadtxt(filename, usecols=ldCol,
-            comments=comment,  skiprows=skiprows,
+            comments=comment, skiprows=skiprows,
             delimiter=delimiter)
 
-    abscissa = abscissaScale * coldata[:,0]
-    ordinate = ordinateScale * coldata[:,1:]
+    abscissa = abscissaScale * coldata[:, 0]
+    ordinate = ordinateScale * coldata[:, 1:]
 
-    if  abscissaOut is not None:
-        #convert to [N, ] array
-        abscissaOut=abscissaOut.reshape(-1,)
-        #inpterpolate read values with the given inut vec
-        f=interp1d(abscissa,  ordinate, axis=0)
-        interpValue=f(abscissaOut)
+    if abscissaOut is not None:
+        from scipy.interpolate import interp1d
+        abscissaOut = abscissaOut.reshape(-1,)
+        f = interp1d(abscissa, ordinate, axis=0)
+        interpValue = f(abscissaOut)
     else:
         interpValue = ordinate
         abscissaOut = abscissa
 
-    #if read-in values must be normalised.
     if normalize != 0:
-        interpValue /= np.max(interpValue,axis=0)
+        interpValue /= np.max(interpValue, axis=0)
 
     if returnAbscissa:
-        return interpValue, abscissaOut.reshape(-1,1)
+        return interpValue, abscissaOut.reshape(-1, 1)
     else:
         return interpValue
 
 
 ################################################################################
 def loadHeaderTextFile(filename, loadCol=[1], comment=None):
-    """Loads column header data in the first string of a text file.
+    """Load column header data from the first line of a text file.
 
-    loads column header data from a file, from the first row.
-    Headers must be delimited by commas. The function [LoadColumnTextFile] provides
-    more comprehensive capabilties.
+    Headers must be delimited by commas. The function loadColumnTextFile provides
+    more comprehensive capabilities.
 
     Args:
         | filename (string): the name of the input ASCII flatfile.
-        | loadCol ([int]): list of numbers, the column headers to be loaded , default value is column 1
+        | loadCol ([int]): list of numbers, the column headers to be loaded, default value is column 1
         | comment (string): the symbol to comment out lines
 
     Returns:
@@ -210,34 +207,23 @@ def loadHeaderTextFile(filename, loadCol=[1], comment=None):
     Raises:
         | No exception is raised.
     """
-
     if isinstance(filename, str):
-        infile = open(filename, 'rb')
+        infile = open(filename, 'r')
     else:
         infile = filename
 
     line = infile.readline()
-    if sys.version_info[0] > 2:
-        line = line.lstrip((' '+comment).encode('utf-8')).split(','.encode('utf-8'))
-    else:
-        line = line.lstrip(' '+comment).split(',')
-    #get rid of leading and trailing whitespace
-    list=[x.strip() for x in line]
-    #select only those column headers required
-    if sys.version_info[0] > 2:
-        rtnList =[list[i].decode('utf-8') for i in loadCol ]
-    else:
-        rtnList =[list[i] for i in loadCol ]
-
-    return rtnList
+    strip_chars = ' ' + (comment or '')
+    header_items = [x.strip() for x in line.lstrip(strip_chars).split(',')]
+    return [header_items[i] for i in loadCol]
 
 
 ################################################################
-def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>*?"):
+def cleanFilename(sourcestring, removestring=" %:/,.\\[]<>*?"):
     """Clean a string by removing selected characters.
 
-    Creates a legal and 'clean' source string from a string by removing some 
-    clutter and  characters not allowed in filenames.
+    Creates a legal and 'clean' source string from a string by removing some
+    clutter and characters not allowed in filenames.
     A default set is given but the user can override the default string.
 
     Args:
@@ -250,14 +236,12 @@ def cleanFilename(sourcestring,  removestring =" %:/,.\\[]<>*?"):
     Raises:
         | No exception is raised.
     """
-    #remove the undesireable characters
     return ''.join([c for c in sourcestring if c not in removestring])
 
 
-
 ################################################################
-def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None, proxy=None):
-    """Download and untar a compressed tar archive, and save all files to the specified directory.
+def downloadUntar(tgzFilename, url, destinationDir=None, tarFilename=None, proxy=None):
+    """Download and untar a compressed tar archive, saving all files to the specified directory.
 
     The tarfilename is used to open the tar file, extracting to the destinationDir specified.
     If no destinationDir is given, the local directory '.' is used.
@@ -272,60 +256,45 @@ def downloadUntar(tgzFilename, url, destinationDir=None,  tarFilename=None, prox
         | proxy (string): path to proxy server (optional).
 
         The proxy string is something like this
-        proxy = {'https':r'https://username:password@proxyname:portnumber'}	  
+        proxy = {'https':r'https://username:password@proxyname:portnumber'}
 
     Returns:
         | ([string]): list of filenames saved, or None if failed.
- 
+
     Raises:
         | Exceptions are handled internally and signaled by return value.
     """
+    dirname = destinationDir if destinationDir is not None else '.'
+    tarname = tarFilename if tarFilename is not None else tgzFilename + '.tar'
 
-    import os
-
-    if destinationDir is None:
-        dirname = '.'
-    else:
-        dirname = destinationDir
-
-    if tarFilename is None:
-        tarname = tgzFilename + '.tar'
-    else:
-        tarname = tarFilename
-
-    tgzPath = os.path.join(destinationDir, tgzFilename)
-    if  os.path.isfile(tgzPath):
+    tgzPath = os.path.join(dirname, tgzFilename)
+    if os.path.isfile(tgzPath):
         tgzAvailable = True
-        # print('{} is already available, download not required'.format(tgzPath))
-    else:    
-        urlfile = url+tgzFilename
-        # print("Attempting to download the data file {}".format(urlfile))
-        if downloadFileUrl(url = urlfile, proxy = proxy) is None:
+    else:
+        urlfile = url + tgzFilename
+        if downloadFileUrl(url=urlfile, proxy=proxy) is None:
             print('\ndownload failed, please check url or internet connection')
             tgzAvailable = False
         else:
             tgzAvailable = True
+
     result = []
-    if tgzAvailable == True:
-        if unzipGZipfile(tgzPath,tarname) is None:
-            print('Unzipping the tgz file {} to dir {} failed'.format(tgzPath,tarname))
+    if tgzAvailable:
+        if unzipGZipfile(tgzPath, tarname) is None:
+            print('Unzipping the tgz file {} to dir {} failed'.format(tgzPath, tarname))
         else:
-            result = untarTarfile(tarname,destinationDir)
+            result = untarTarfile(tarname, dirname)
             if result is None:
-                print('untarTarfile failed for {} to {}'.format(tarname,destinationDir))
-                filesAvailable = False
-            else:
-                filesAvailable = True
-                # print('Sucessfully extracted:\n{}'.format(result))
+                print('untarTarfile failed for {} to {}'.format(tarname, dirname))
 
     return result
 
 
 ################################################################
 def untarTarfile(tarfilename, saveDirname=None):
-    """Untar a tar archive, and save all files to the specified directory.
+    """Untar a tar archive, saving all files to the specified directory.
 
-    The tarfilename is used to open a file, extraxting to the saveDirname specified.
+    The tarfilename is used to open a file, extracting to the saveDirname specified.
     If no saveDirname is given, the local directory '.' is used.
 
     Args:
@@ -338,15 +307,7 @@ def untarTarfile(tarfilename, saveDirname=None):
     Raises:
         | Exceptions are handled internally and signaled by return value.
     """
-
-    if saveDirname is None:
-        dirname = '.'
-    else:
-        dirname = saveDirname
-
-    import tarfile
-    import os
-    import errno
+    dirname = saveDirname if saveDirname is not None else '.'
 
     try:
         os.makedirs(dirname)
@@ -355,16 +316,10 @@ def untarTarfile(tarfilename, saveDirname=None):
             print('Unable to create directory {}'.format(dirname))
             return None
 
+    with tarfile.open(tarfilename, 'r') as f:
+        filenames = f.getnames()
+        f.extractall(dirname, filter='data')
 
-    f = tarfile.open(tarfilename, 'r')
-    filenames = f.getnames()
-    f.extractall(dirname)
-    f.close()
-
-    # filexextracted = []
-    # for filename in filenames:
-    #     if not os.path.isfile(os.path.join(dirname, filename)):
-    #         filexextracted.append(filename)
     return filenames
 
 
@@ -372,8 +327,8 @@ def untarTarfile(tarfilename, saveDirname=None):
 def unzipGZipfile(zipfilename, saveFilename=None):
     """Unzip a file that was compressed using the gzip format.
 
-    The zipfilename is used to open a file, to the saveFilename specified.
-    If no saveFilename is given, the basename of the zipfilename is used, 
+    The zipfilename is used to open a file, saving to the saveFilename specified.
+    If no saveFilename is given, the basename of the zipfilename is used,
     but with the file extension removed.
 
     Args:
@@ -386,35 +341,26 @@ def unzipGZipfile(zipfilename, saveFilename=None):
     Raises:
         | Exceptions are handled internally and signaled by return value.
     """
+    filename = saveFilename if saveFilename is not None else os.path.basename(zipfilename)[:-4]
 
-    if saveFilename is None:
-        filename = os.path.basename(zipfilename)[:-4]
-    else:
-        filename = saveFilename
-
-    import gzip
-    #get file handle
-    f = gzip.open(zipfilename, 'rb')
     try:
-        # Open file for writing
-        with open(filename, "wb") as file:
-            file.write(f.read())
-    except:
+        with gzip.open(zipfilename, 'rb') as f_in:
+            with open(filename, 'wb') as f_out:
+                f_out.write(f_in.read())
+    except Exception:
         print('Unzipping of {} failed'.format(zipfilename))
         return None
-    finally:
-        f.close()
 
     return filename
 
 
 ################################################################
-def downloadFileUrl(url,  saveFilename=None, proxy=None):
+def downloadFileUrl(url, saveFilename=None, proxy=None):
     """Download a file, given a URL.
 
     The URL is used to download a file, to the saveFilename specified.
     If no saveFilename is given, the basename of the URL is used.
-    Before doownloading, first test to see if the file already exists.
+    Before downloading, first test to see if the file already exists.
 
     Args:
         | url (string): the url to be accessed.
@@ -423,7 +369,6 @@ def downloadFileUrl(url,  saveFilename=None, proxy=None):
 
         The proxy string is something like this
         proxy = {'https':r'https://username:password@proxyname:portnumber'}
-        
 
     Returns:
         | (string): Filename saved, or None if failed.
@@ -431,92 +376,51 @@ def downloadFileUrl(url,  saveFilename=None, proxy=None):
     Raises:
         | Exceptions are handled internally and signaled by return value.
     """
-
-    if saveFilename is None:
-        filename = os.path.basename(url)
-    else:
-        filename = saveFilename
+    filename = saveFilename if saveFilename is not None else os.path.basename(url)
 
     if os.path.exists(filename):
-        pass
-    else:
+        return filename
 
-        if sys.version_info[0] > 2:
-            import urllib
-            from urllib import request
-            import urllib.error 
-            from urllib.error import HTTPError 
-            
-            try:
-            
-                if (proxy != None):
-                    h_proxy = request.ProxyHandler(proxy)
-                    auth = request.HTTPBasicAuthHandler()
-                    opener = request.build_opener(h_proxy, auth, request.HTTPHandler)
-                    request.install_opener(opener)   
-                    
-                #get file handle
-                f = request.urlopen(url)
-                # Open file for writing
-                with open(filename, "wb") as file:
-                    file.write(f.read())
-            #handle errors
-            except urllib.error.HTTPError as e:
-               print('HTTP Error: {} for {}'.format(e.code, url))
-               return None
-            except urllib.error.URLError as e:
-               print('URL Error: {} for {}'.format(e.reason, url))
-               return None
-        else:
-            import urllib2
-            from urllib2 import HTTPError
+    try:
+        if proxy is not None:
+            h_proxy = urllib.request.ProxyHandler(proxy)
+            auth = urllib.request.HTTPBasicAuthHandler()
+            opener = urllib.request.build_opener(h_proxy, auth, urllib.request.HTTPHandler)
+            urllib.request.install_opener(opener)
 
-            try:
-                if (proxy != None):
-                    h_proxy = urllib2.ProxyHandler(proxy)
-                    auth = urllib2.HTTPBasicAuthHandler()
-                    opener = urllib2.build_opener(h_proxy, auth, urllib2.HTTPHandler)
-                    urllib2.install_opener(opener)   
-                    
-                #get file handle
-                f = urllib2.urlopen(url)
-                # Open file for writing
-                with open(filename, "wb") as file:
-                    file.write(f.read())
-            #handle errors
-            except urllib2.HTTPError as e:
-               print('HTTP Error: {} for {}'.format(e.code, url))
-               return None
-            except urllib2. URLError as e:
-               print('URL Error: {} for {}'.format(e.reason, url))
-               return None
+        with urllib.request.urlopen(url) as response:
+            with open(filename, 'wb') as f:
+                f.write(response.read())
+    except urllib.error.HTTPError as e:
+        print('HTTP Error: {} for {}'.format(e.code, url))
+        return None
+    except urllib.error.URLError as e:
+        print('URL Error: {} for {}'.format(e.reason, url))
+        return None
 
     return filename
 
 
 ################################################################
-def execOnFiles(cmdline, root, patterns='*', recurse=1, return_folders=0, useRegex=False, printTask=False):
-    """execute a program on a list of files/directories meeting specific requirement
+def execOnFiles(cmdline, root, patterns='*', recurse=1, return_folders=0,
+                useRegex=False, printTask=False):
+    """Execute a program on a list of files/directories meeting specific requirements.
 
-        Seek files recursively and then execute a program on those files. 
-        The program is defined as a command line string as would be types on
-        a terminal, except that a token is given in the place where the 
-        filename must be.  The token is  a string '{0}' (with the braces as shown).
-        During execution the token is replaced with the filename found in the recursive search.
-        This replacement is done with the standard string formatter, where the filename 
-        replaces all occurences of {0}:
+    Seek files recursively and then execute a program on those files.
+    The program is defined as a command line string as would be typed on
+    a terminal, except that a token '{0}' is given in place of the filename.
+    During execution the token is replaced with the filename found in the recursive search:
         task = cmdline.format(filename)
 
-        Example: cmdline = 'bmpp -l eps.object {0}'
-
+    Example: cmdline = 'bmpp -l eps.object {0}'
 
     Args:
         | cmdline (str): string that defines the program to be executed
         | root (string): directory root from where the search must take place
         | patterns (string): glob/regex pattern for filename matching
-        | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
+        | recurse (int): flag to indicate if subdirectories must also be searched (optional)
         | return_folders (int): flag to indicate if folder names must also be returned (optional)
-        | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
+        | useRegex (bool): flag to indicate if patterns are regular expression strings (optional)
         | printTask (bool): flag to indicate if the commandline must be printed (optional)
 
     Returns:
@@ -525,44 +429,36 @@ def execOnFiles(cmdline, root, patterns='*', recurse=1, return_folders=0, useReg
     Raises:
         | No exception is raised.
     """
-    import subprocess
-    import time
-
-    if cmdline is  None:
+    if cmdline is None:
         return
-    else:
-        filenames = listFiles(root, patterns, recurse, return_folders, useRegex)
-        for filename in filenames:
-            filename = os.path.join(*filename.split('\\'))
-            task = cmdline.format(filename)
-            if printTask:
-                print(task)
-            # execute the run
-            p=subprocess.Popen(task)          
-            while  p.poll() == None:
-                time.sleep(0.5)
 
+    filenames = listFiles(root, patterns, recurse, return_folders, useRegex)
+    for filename in filenames:
+        filename = os.path.join(*filename.split('\\'))
+        task = cmdline.format(filename)
+        if printTask:
+            print(task)
+        p = subprocess.Popen(task)
+        while p.poll() is None:
+            time.sleep(0.5)
 
 
 ################################################################
-#lists the files in a directory and subdirectories
-#this code is adapted from a recipe in the Python Cookbook
 def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
-    """Lists the files/directories meeting specific requirement
+    """List files/directories matching a specific pattern.
 
-        Returns a list of file paths to files in a file system, searching a 
-        directory structure along the specified path, looking for files 
-        that matches the glob pattern. If specified, the search will continue 
-        into sub-directories.  A list of matching names is returned. The 
-        function supports a local or network reachable filesystem, but not URLs.
+    Returns a list of file paths in a file system, searching a directory structure
+    along the specified path, looking for files that match the glob pattern. If
+    specified, the search will continue into sub-directories. The function supports
+    a local or network reachable filesystem, but not URLs.
 
     Args:
         | root (string): directory root from where the search must take place
-        | patterns (string): glob/regex pattern for filename matching. Multiple pattens 
+        | patterns (string): glob/regex pattern for filename matching. Multiple patterns
           may be present, each one separated by ;
-        | recurse (unt): flag to indicate if subdirectories must also be searched (optional)
+        | recurse (int): flag to indicate if subdirectories must also be searched (optional)
         | return_folders (int): flag to indicate if folder names must also be returned (optional)
-        | useRegex (bool): flag to indicate if patterns areregular expression strings (optional)
+        | useRegex (bool): flag to indicate if patterns are regular expression strings (optional)
 
     Returns:
         | A list with matching file/directory names
@@ -570,100 +466,69 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
     Raises:
         | No exception is raised.
     """
-    if useRegex:
-        import re
-
-    # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
     filenames = []
     filertn = []
 
-    if sys.version_info[0] < 3:
+    for dirpath, dirnames, files in os.walk(root):
+        if dirpath == root or recurse:
+            for filen in files:
+                filenames.append(os.path.abspath(os.path.join(dirpath, filen)))
+            if return_folders:
+                for dirn in dirnames:
+                    filenames.append(os.path.abspath(os.path.join(dirpath, dirn)))
 
-        # Collect input and output arguments into one bunch
-        class Bunch(object):
-            def __init__(self, **kwds): self.__dict__.update(kwds)
-        arg = Bunch(recurse=recurse, pattern_list=pattern_list,
-                                return_folders=return_folders, results=[])
+    for name in filenames:
+        if return_folders or os.path.isfile(name):
+            for pattern in pattern_list:
+                # Both glob and regex are matched against the basename only,
+                # so that results are consistent regardless of the CWD.
+                basename = os.path.basename(name)
+                if useRegex:
+                    if re.compile(pattern).search(basename):
+                        filertn.append(name)
+                        break
+                else:
+                    if fnmatch.fnmatch(basename, pattern):
+                        filertn.append(name)
+                        break
 
-        def visit(arg, dirname, files):
-            # Append to arg.results all relevant files (and perhaps folders)
-            for name in files:
-                fullname = os.path.normpath(os.path.join(dirname, name))
-                if arg.return_folders or os.path.isfile(fullname):
-                    for pattern in arg.pattern_list:
-                        if useRegex:
-                            #search returns None is pattern not found
-                            regex = re.compile(pattern)
-                            if regex.search(name):
-                                arg.results.append(fullname)
-                                break
-                        else:
-                            if fnmatch.fnmatch(name, pattern):
-                                arg.results.append(fullname)
-                                break
-            # Block recursion if recursion was disallowed
-            if not arg.recurse: files[:]=[]
-        os.path.walk(root, visit, arg)
-        return arg.results
-
-    else: #python 3
-        for dirpath,dirnames,files in os.walk(root):
-            if dirpath==root or recurse:
-                for filen in files:
-                    # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
-                    filenames.append(os.path.relpath(os.path.join(dirpath,filen)))
-                if return_folders:
-                    for dirn in dirnames:
-                        # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
-                        filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
-
-        for name in filenames:
-            if return_folders or os.path.isfile(name):
-                for pattern in pattern_list:
-                    if useRegex:
-                        #search returns None is pattern not found
-                        regex = re.compile(pattern)
-                        if regex.search(name):
-                            filertn.append(name)
-                            break
-                    else:
-                        # split only the filename to compare, discard folder path
-                        if fnmatch.fnmatch(os.path.basename(name), pattern):
-                            filertn.append(name)
-                            break
     return filertn
 
-#function to delete files in specified directory
-#  first parameter defines if the search must be recursively 0=not, 1=recursive
-#  second parameter specifies the path
-#  third parameter specifies the file patterns to erase
-#the user is promted before the files are deleted
-def QueryDelete(recurse,tdir,patn,instr=""):
-    thefiles = listFiles(tdir,patn,recurse)
-    if len(thefiles)>0:
+
+################################################################
+def QueryDelete(recurse, tdir, patn, instr=""):
+    """Delete files matching a pattern, after prompting the user for confirmation.
+
+    Args:
+        | recurse (int): flag to indicate if the search must be recursive (0=no, 1=yes)
+        | tdir (string): directory to search
+        | patn (string): file pattern to match
+        | instr (string): pre-supplied answer ('y' to skip the prompt)
+
+    Returns:
+        | Nothing.
+
+    Raises:
+        | No exception is raised.
+    """
+    thefiles = listFiles(tdir, patn, recurse)
+    if len(thefiles) > 0:
         for filename in thefiles:
             print(filename)
         if len(instr) == 0:
-            if sys.version_info[0] < 3:
-                instr=raw_input("Delete these files? (y/n)")
-            else:
-                instr=input("Delete these files? (y/n)")
-        if instr=='y':
+            instr = input("Delete these files? (y/n)")
+        if instr == 'y':
             for filename in thefiles:
                 os.remove(filename)
 
 
 ################################################################
-##
 def rawFrameToImageFile(image, filename):
-    """Writes a single raw image frame to image file.
-    The file type must be given, e.g. png or jpg.
-    The image need not be scaled beforehand, it is done prior 
-    to writing out the image. Could be one of
-    BMP, JPG, JPEG, PNG, PPM, TIFF, XBM, XPM)
-    but the file types available depends
-    on the QT imsave plugin in use.
+    """Write a single raw image frame to an image file.
+
+    The file type is determined by the extension (e.g. png or jpg).
+    The image is normalised to [0, 255] prior to writing.
 
     Args:
         | image (np.ndarray): two-dimensional array representing an image
@@ -675,72 +540,49 @@ def rawFrameToImageFile(image, filename):
     Raises:
         | No exception is raised.
     """
-    #normalise input image (img) data to between 0 and 1
-    from scipy import ndimage
-
-    # print(filename)
+    import imageio
     imin = image.min()
     imax = image.max()
-    # print('{}   {}   {}'.format(image.mean(),imin, imax))
-    image = 255*(image.astype(np.float64) - imin ) / (imax - imin)
-    # print(image.mean())
-
-    # http://scikit-image.org/docs/dev/api/skimage.io.html#imsave
-    # import skimage.io as io
-    # io.imsave(filename, image) 
-    # https://docs.scipy.org/doc/scipy-1.1.0/reference/generated/scipy.misc.imsave.html
-    # import scipy.misc
-    # scipy.misc.imsave(filename, image)
-    # https://stackoverflow.com/questions/51815361/scipy-imsave-and-imread-change-format
-    import imageio 
+    image = 255 * (image.astype(np.float64) - imin) / (imax - imin)
     imageio.imwrite(filename, image.astype(np.uint8))
 
 
-
 ################################################################
-##
 def writeRawFrames(fname, img, vartype, writeFrames=[]):
-    """ Write selected multiple 2D frames from a 3D array to a raw data file.
+    """Write selected multiple 2D frames from a 3D array to a raw data file.
 
-        The array must be a two dimensional or three dimensional array.
-        The row and column size remains as in the input data.
-        Frames increase over the first dimension of the 3D array. 
-        Frames of different data types can be written according to the user specification.  
-        The user can specify which frames must be written (if not all the frames).
+    The array must be two-dimensional or three-dimensional.
+    Frames increase over the first dimension of the 3D array.
 
     Args:
         | fname (string): filename
         | img (np.array(:,:,:) or np.array(:,:)): array to be written to disk
-        | vartype (np.dtype): numpy data type of data to be read
+        | vartype (np.dtype): numpy data type of data to be written
         |                                      int8, int16, int32, int64
         |                                      uint8, uint16, uint32, uint64
         |                                      float16, float32, float64
-        | writeFrames ([int]): optional list of frames to load, zero-based , 
-        |                      empty list (default) loads all frames
+        | writeFrames ([int]): optional list of frames to write, zero-based;
+        |                      empty list (default) writes all frames
 
     Returns:
-        | message (string) : empty if successful, fail message otherwise
+        | message (string): empty if successful, fail message otherwise
 
     Raises:
         | No exception is raised.
     """
-
-    # convert twoD to threeD
-    if len(img.shape)==2:
-        img = img[None, ... ]
-    elif len(img.shape)==3:
+    if len(img.shape) == 2:
+        img = img[None, ...]
+    elif len(img.shape) == 3:
         pass
     else:
         return 'Input array rank inappropriate: {}'.format(img.shape)
 
-    # if frame list not supplied build complete set
     if not writeFrames:
-        writeFrames = range(0,img.shape[0])
+        writeFrames = range(0, img.shape[0])
 
     try:
         with open(fname, 'wb') as fout:
-            # write only the required frames
-            img[writeFrames,:,:].astype(vartype).tofile(fout)
+            img[writeFrames, :, :].astype(vartype).tofile(fout)
     except IOError:
         return 'Error when writing file'
 
@@ -748,13 +590,11 @@ def writeRawFrames(fname, img, vartype, writeFrames=[]):
 
 
 ################################################################
-##
 def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
-    """ Loading multi-frame two-dimensional arrays from a raw data file of known data type.
+    """Load multi-frame two-dimensional arrays from a raw data file of known data type.
 
-        The file must consist of multiple frames, all with the same number of rows and columns.
-        Frames of different data types can be read, according to the user specification.  
-        The user can specify which frames must be loaded (if not the whole file).
+    The file must consist of multiple frames, all with the same number of rows and columns.
+    Frames of different data types can be read according to the user specification.
 
     Args:
         | fname (string): filename
@@ -764,76 +604,58 @@ def readRawFrames(fname, rows, cols, vartype, loadFrames=[]):
         |                                      int8, int16, int32, int64
         |                                      uint8, uint16, uint32, uint64
         |                                      float16, float32, float64
-        | loadFrames ([int]): optional list of frames to load, zero-based , empty list (default) loads all frames
+        | loadFrames ([int]): optional list of frames to load, zero-based;
+        |                     empty list (default) loads all frames
 
     Returns:
-        | frames (int) : number of frames in the returned data set,
-        |                      0 if error occurred
-        | rawShaped (np.ndarray): vartype numpy array of dimensions (frames,rows,cols),
-        |                                              None if error occurred
+        | frames (int): number of frames in the returned data set, 0 if error occurred
+        | rawShaped (np.ndarray): vartype numpy array of dimensions (frames, rows, cols),
+        |                         None if error occurred
 
     Raises:
         | Exception is raised if IOError
     """
-
     frames = 0
     rawShaped = None
-
-    # load all frames in the file
 
     if not loadFrames:
         try:
             with open(fname, 'rb') as fin:
-                data = np.fromfile(fin, vartype,-1)
-
+                data = np.fromfile(fin, vartype, -1)
         except IOError:
-            #print('  File not found, returning {0} frames'.format(frames))
             return int(frames), rawShaped
-
-    # load only frames requested
-
     else:
         try:
-            framesize = rows * cols;
+            framesize = rows * cols
             lastframe = max(loadFrames)
             data = None
 
             with open(fname, 'rb') as fin:
-                for frame in range(0, lastframe+1, 1):
-                    dataframe = np.fromfile(fin, vartype,framesize)
+                for frame in range(0, lastframe + 1):
+                    dataframe = np.fromfile(fin, vartype, framesize)
                     if frame in loadFrames:
-                        if data is None:
-                            data = dataframe
-                        else:
-                            data = np.concatenate((data, dataframe))
-
+                        data = dataframe if data is None else np.concatenate((data, dataframe))
         except IOError:
-            #print('  File not found, returning {0} frames'.format(frames))
             return int(frames), rawShaped
 
     frames = data.size / (rows * cols)
     sizeCheck = frames * rows * cols
 
     if sizeCheck == data.size:
-        rawShaped = data.reshape(int(frames), int(rows) ,int(cols))
-        #print('  Returning {0} frames of size {1} x {2} and data type {3} '.format(  \
-        #rawShaped.shape[0],rawShaped.shape[1],rawShaped.shape[2],rawShaped.dtype))
-    else:
-        #print('  Calculated size = {0}, actual size = {1}, returning  {3} frames '.format(sizeCheck,data.size,frames) )
-        pass
+        rawShaped = data.reshape(int(frames), int(rows), int(cols))
 
     return int(frames), rawShaped
 
 
 ################################################################
-##
-def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None, filemode='a', strPost=''):
-    """ Write the LaTeX code to include an eps graphic as a latex figure.
-        The text is added to an existing file.
+def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None,
+                   filemode='a', strPost=''):
+    """Write the LaTeX code to include an eps graphic as a latex figure.
 
+    The text is appended to an existing file.
 
     Args:
-        | fname (string):  text writing output path and filename.
+        | filename (string): text writing output path and filename.
         | epsname (string): filename/path to eps file (relative to where the LaTeX document is built).
         | caption (string): figure caption
         | scale (double): figure scale to textwidth [0..1]
@@ -847,43 +669,43 @@ def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None, filemode
     Raises:
         | No exception is raised.
     """
-
     with open(filename, filemode) as outfile:
         outfile.write('\\begin{figure}[tb]\n')
         outfile.write('\\centering\n')
         if scale is not None or vscale is not None:
             scale = 1 if scale is None else scale
             vscale = 1 if vscale is None else vscale
-            outfile.write('\\includegraphics[width={0}\\textwidth,height={1}\\textheight,keepaspectratio]{{{2}}}\n'.\
-                format(scale, vscale, epsname))
+            outfile.write(
+                '\\includegraphics[width={0}\\textwidth,height={1}\\textheight,'
+                'keepaspectratio]{{{2}}}\n'.format(scale, vscale, epsname)
+            )
         else:
             outfile.write('\\includegraphics{{{0}}}\n'.format(epsname))
-        outfile.write('\\caption{{{0}. \label{{fig:{1}}}}}\n'.format(caption,epsname))
+        outfile.write('\\caption{{{0}. \\label{{fig:{1}}}}}\n'.format(caption, epsname))
         outfile.write('\\end{figure}\n')
         outfile.write('{}\n'.format(strPost))
         outfile.write('\n')
 
+
 ################################################################
-##
-def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e', filemode='wt'):
-    """ Write a numpy array to latex table format in output file.
+def arrayToLaTex(filename, arr, header=None, leftCol=None,
+                 formatstring='%10.4e', filemode='w'):
+    """Write a numpy array to latex table format in an output file.
 
-        The table can contain only the array data (no top header or
-        left column side-header), or you can add either or both of the
-        top row or side column headers. Leave 'header' or 'leftcol' as
-        None is you don't want these.
+    The table can contain only the array data (no top header or left column
+    side-header), or you can add either or both of the top row or side column
+    headers. Leave 'header' or 'leftCol' as None if you don't want these.
 
-        The output format of the array data can be specified, i.e.
-        scientific notation or fixed decimal point.
+    The output format of the array data can be specified, i.e.
+    scientific notation or fixed decimal point.
 
     Args:
-        | fname (string): text writing output path and filename
+        | filename (string): text writing output path and filename
         | arr (np.array[N,M]): array with table data
         | header (string): column header in final latex format (optional)
         | leftCol ([string]): left column each row, in final latex format (optional)
         | formatstring (string): output format precision for array data (see np.savetxt) (optional)
-        | filemode (string): file open mode [a=append, w=new file][t=text, b=binary] 
-          use binary for Python 3 (optional)
+        | filemode (string): file open mode — 'w' (default, new file) or 'a' (append)
 
     Returns:
         | None, writes a file to disk
@@ -891,104 +713,61 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,formatstring='%10.4e',
     Raises:
         | No exception is raised.
     """
+    # np.savetxt always writes bytes internally, so we capture it via BytesIO
+    # and decode to str — this way the outer file stays in clean text mode.
+    def _savetxt_str(data):
+        buf = io.BytesIO()
+        np.savetxt(buf, data, fmt=formatstring, delimiter='&', newline='\\\\\n')
+        return buf.getvalue().decode('utf-8')
 
-    # it seems that savetxt does not like unicode strings
-    formatstring = formatstring.encode('ascii')
+    # Normalise filemode: strip any 'b' so we always open in text mode.
+    filemode = filemode.replace('b', '') or 'w'
 
-    if leftCol is None:
-        numcols = arr.shape[1]
-    else:
-        numcols = arr.shape[1] + 1
+    numcols = arr.shape[1] if leftCol is None else arr.shape[1] + 1
 
-    if sys.version_info[0] > 2:
-        formatstring = formatstring.decode('utf-8')
-        if 't' in filemode:
-            filemode = filemode.replace('t','b') 
+    with open(filename, filemode) as f:
+        f.write('\\begin{{tabular}}{{ {0} }}\n\\hline\n'.format('|' + numcols * 'c|'))
 
-        file=open(filename, filemode)
-        file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|').encode('utf-8'))
-
-        #write the header
         if header is not None:
-            # first column for header
             if leftCol is not None:
-                file.write('{0} & '.format(leftCol[0]).encode('utf-8'))
-            #rest of the header
-            file.write('{0}\\\\\hline\n'.format(header).encode('utf-8'))
+                f.write('{0} & '.format(leftCol[0]))
+            f.write('{0}\\\\\\hline\n'.format(header))
 
-        #write the array data
         if leftCol is None:
-            #then write the array, using the file handle (and not filename)
-            np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
+            f.write(_savetxt_str(arr))
         else:
-            # first write left col for each row, then array data for that row
-            for i,entry in enumerate(leftCol[1:]):
-                file.write((entry+'&').encode('utf-8'))
-                np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
+            for i, entry in enumerate(leftCol[1:]):
+                f.write(entry + '&')
+                f.write(_savetxt_str(arr[i].reshape(1, -1)))
 
-        file.write('\hline\n\end{tabular}\n\n'.encode('utf-8'))
-        file.close()
-    else: # python 2.7
-        file=open(filename, filemode)
-        file.write('\\begin{{tabular}}{{ {0} }}\n\hline\n'.format('|'+ numcols*'c|'))
-
-        #write the header
-        if header is not None:
-            # first column for header
-            if leftCol is not None:
-                file.write('{0} & '.format(leftCol[0]))
-            #rest of the header
-            file.write('{0}\\\\\hline\n'.format(header))
-
-        #write the array data
-        if leftCol is None:
-            #then write the array, using the file handle (and not filename)
-            np.savetxt(file, arr, fmt=formatstring,  delimiter='&',newline='\\\\\n')
-        else:
-            # first write left col for each row, then array data for that row
-            for i,entry in enumerate(leftCol[1:]):
-                file.write(entry+'&')
-                np.savetxt(file, arr[i].reshape(1,-1), fmt=formatstring, delimiter='&',newline='\\\\\n')
-
-        file.write('\hline\n\end{tabular}\n\n')
-        file.close()
+        f.write('\\hline\n\\end{tabular}\n\n')
 
 
 ################################################################
-##
 def read2DLookupTable(filename):
-    """ Read a 2D lookup table and extract the data.
+    """Read a 2D lookup table and extract the data.
 
-        The table has the following format: ::
+    The table has the following format::
 
-            line 1: xlabel ylabel title
-            line 2: 0 (vector of y (col) abscissa)
-            lines 3 and following: (element of x (row) abscissa), followed
-            by table data.
+        line 1: xlabel ylabel title
+        line 2: 0 (vector of y (col) abscissa)
+        lines 3 and following: (element of x (row) abscissa), followed by table data.
 
-        From line/row 3 onwards the first element is the x abscissa value
-        followed by the row of data, one point for each y abscissa value.
-        
-        The file format can depicted as follows: ::
+    The file format can be depicted as follows::
 
-            x-name y-name ordinates-name
-            0 y1 y2 y3 y4
-            x1 v11 v12 v13 v14
-            x2 v21 v22 v23 v24
-            x3 v31 v32 v33 v34
-            x4 v41 v42 v43 v44
-            x5 v51 v52 v53 v54
-            x6 v61 v62 v63 v64
-
-        This function reads the file and returns the individual data items.
+        x-name y-name ordinates-name
+        0 y1 y2 y3 y4
+        x1 v11 v12 v13 v14
+        x2 v21 v22 v23 v24
+        x3 v31 v32 v33 v34
 
     Args:
-        | fname (string): input path and filename
+        | filename (string): input path and filename
 
     Returns:
-        | xVec ((np.array[N])): x abscissae
-        | yVec ((np.array[M])): y abscissae
-        | data ((np.array[N,M])): data corresponding the x,y
+        | xVec (np.array[N]): x abscissae
+        | yVec (np.array[M]): y abscissae
+        | data (np.array[N,M]): data corresponding to x, y
         | xlabel (string): x abscissa label
         | ylabel (string): y abscissa label
         | title (string): dataset title
@@ -996,401 +775,99 @@ def read2DLookupTable(filename):
     Raises:
         | No exception is raised.
     """
-    import numpy  as np
-
-    with open(filename,'r') as f:
-        lines = f.readlines()
-        xlabel, ylabel, title = lines[0].split()
+    with open(filename, 'r') as f:
+        xlabel, ylabel, title = f.readlines()[0].split()
     aArray = np.loadtxt(filename, skiprows=1, dtype=float)
     xVec = aArray[1:, 0]
-    yVec = aArray[0, 1:] 
+    yVec = aArray[0, 1:]
     data = aArray[1:, 1:]
-    return(xVec, yVec, data, xlabel, ylabel, title)
+    return xVec, yVec, data, xlabel, ylabel, title
 
-######################################################################################
-def open_HDF(filename, mode='r'):
-    """Open and return an HDF5 file with the given filename.
 
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Default open mode is read, cam be overridden by any of these:
-    'r', 'r+', 'w', 'w-'/'x', 'a'
-    https://h5py.readthedocs.io/en/stable/quick.html
-    https://h5py.readthedocs.io/en/stable/high/file.html#opening-creating-files
-
-    Args:
-        | filename (string): name of the file to be opened
-
-    Returns:
-        | HDF5 file.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    f = h5py.File(filename,mode)
-    return f
-
-
-######################################################################################
-def erase_create_HDF(filename):
-    """Create and return a new HDS5 file with the given filename, erase the file if existing.
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    open for writing, truncate if exists
-    https://h5py.readthedocs.io/en/stable/high/file.html#opening-creating-files
-
-    Args:
-        | filename (string): name of the file to be created
-
-    Returns:
-        | HDF5 file.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    if os.path.isfile(filename):
-        os.remove(filename)
-    f = h5py.File(filename,'w')
-    return f
-
-######################################################################################
-def get_HDF_DS(hdf5File, path):
-    """Check to see if a path is present in an HDF5 file and then return the dataset.
-
-    Args:
-        | hdf5File (string): HDF5 file to be read
-        | path (string): path to the dataset
-
-    Returns:
-        | HDF5 contents along the path, or None.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    if path in hdf5File:
-        rtn = hdf5File[path]
-    else:
-        rtn = None
-
-    return rtn
-
-
-######################################################################################
-def print_HDF5_text(vartext):
-    """Prints text in visiting algorithm in HDF5 file.
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Args:
-        | vartext (string): string to be printed
-
-    Returns:
-        | HDF5 file.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    print(vartext)
-
-######################################################################################
-def print_HDF5_dataset_value(var, obj):
-    """Prints a data set in visiting algorithm in HDF5 file.
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Args:
-        | var (string): path to a dataset
-        | obj (h5py dataset): dataset to be printed
-
-    Returns:
-        | HDF5 file.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    if type(obj.file[var]) is h5py._hl.dataset.Dataset:
-        print(var, obj.file[var].name)
-
-
-######################################################################################
-def get_HDF_branches(hdf5File):
-    """Print list of all the branches in the file
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Args:
-        | hdf5File (H5py file): the file to be opened
-
-    Returns:
-        | HDF5 file.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    return hdf5File.visit(get_HDF_branches)
-
-######################################################################################
-def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
-    """Plot arrays in the HFD5 as scaled bitmap images.
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Retain zero in the array as black in the image, only scale the max value to 255
-
-    Args:
-        | hfd5f (H5py file): the file to be opened
-        | prefix (string): prefix to be prepended to filename
-        | pformat (string): type of file to be created png/jpeg
-        | lstimgs ([string]): list of paths to image in the HFD5 file
-
-    Returns:
-        | Nothing.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    from . import ryplot
-
-    for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
-        if debug:
-            print('data set {} has shape {} '.format(lstimg,arr.shape))
-
-        # if arr.shape is not ():
-        if arr.shape != ():
-            if np.max(arr) != 0.:
-                arr = 255 * arr/np.max(arr)
-                imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),pformat), arr.astype(np.uint8))
-
-
-######################################################################################
-def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False, debug=False):
-    """Plot images contained in hfd5f with colour map to show magnitude.
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps
-
-    Args:
-        | hfd5f (H5py file): the file to be opened
-        | prefix (string): prefix to be prepended to filename
-        | colormap (Matplotlib colour map): colour map to be used in plot
-        | cbarshow (boolean): indicate if colour bar must be shown
-        | lstimgs ([string]): list of paths to image in the HFD5 file
-        | logscale (boolean): True if display must be on log scale
-
-    Returns:
-        | Nothing.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    from . import ryplot
-
-    for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
-
-        if debug:
-            print('data set {} has shape {} '.format(lstimg,arr.shape))
-
-        # if arr.shape is not ():
-        if arr.shape != ():
-            if logscale:
-                filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
-                with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-                    p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
-            else:
-                filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
-                with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
-                    p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
-
-
-######################################################################################
-def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
-    """Plot histograms of images contained in hfd5f
-
-    See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
-    for more information on using HDF5 as a data structure.
-
-    Retain zero in the array as black in the image, only scale the max value to 255
-
-    Args:
-        | hfd5f (H5py file): the file to be opened
-        | prefix (string): prefix to be prepended to filename
-        | format (string): type of file to be created png/jpeg
-        | lstimgs ([string]): list of paths to image in the HFD5 file
-        | bins ([int]): Number of bins to be used in histogram
-
-    Returns:
-        | Nothing.
-
-    Raises:
-        | No exception is raised.
-
-    Author: CJ Willers
-    """
-    from . import ryplot
-
-    for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
-        his, bin = np.histogram(arr,bins=bins)
-        filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
-        with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
-            p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin',maxNX=5)
-
-
-   
 ################################################################
-def mergeDFS(df1, df2,leftPre=None,rightPre=None,bounds_error=False,
-                    mergeOn=None):
-    """Merge two pandas data frames on common column return merged df.
+def mergeDFS(df1, df2, leftPre=None, rightPre=None, bounds_error=False,
+             mergeOn=None):
+    """Merge two pandas DataFrames on a common column, returning the merged DataFrame.
 
-    by default the merging takes place on columns named Time or time,
-    but the merge column name can be specified in mergeOn
-    
+    By default the merging takes place on columns named 'time' or 'Time',
+    but the merge column name can be specified in mergeOn.
+
     Args:
-        | df1 (dataframe): first dataframe to be merged
-        | df2 (dataframe): first dataframe to be merged
-        | leftPre (string): to be prepended to df1 columns names, except time
-        | rightPre (string): to be prepended to df2 columns names, except time
-        | bounds_error (boolean): pass through to interpolation function
-        | mergeOn (string): if not merging on time use this to merge on
-    
+        | df1 (DataFrame): first dataframe to be merged
+        | df2 (DataFrame): second dataframe to be merged
+        | leftPre (string): prefix to prepend to df1 column names, except time
+        | rightPre (string): prefix to prepend to df2 column names, except time
+        | bounds_error (boolean): passed through to the interpolation function
+        | mergeOn (string): if not merging on time, use this column name instead
+
     Returns:
-        | (pd.DataFrame): A Pandas data frame with the merged data
+        | (pd.DataFrame): A Pandas DataFrame with the merged data
 
     Raises:
         | No exception is raised.
     """
+    import pandas as pd
+
     if mergeOn is not None:
         if 'time' in df1.columns or 'time' in df2.columns or \
-            'Time' in df1.columns or 'Time' in df2.columns:
+                'Time' in df1.columns or 'Time' in df2.columns:
             print('The "time" columns may not already be present in a dataframe')
             return pd.DataFrame()
-        # rename merge column to time, later rename back
         df1 = df1.rename(columns={mergeOn: 'time'})
         df2 = df2.rename(columns={mergeOn: 'time'})
 
-    # we want time to be lower case
     df1 = df1.rename(columns={'Time': 'time'})
     df2 = df2.rename(columns={'Time': 'time'})
 
-    if leftPre is not None:
-        ncols = []
-        cols = df1.columns
-        for col in cols:
-            # if not 'Time' in col and not 'time' in col:
-            if not 'time' in col:
-                ncol = leftPre + '_' + col
-            else:
-                ncol = col
-            ncols.append(ncol)
-        df1.columns = ncols
-        
-    if rightPre is not None:
-        ncols = []
-        cols = df2.columns
-        for col in cols:
-            # if not 'Time' in col and not 'time' in col:
-            if not 'time' in col:
-                ncol = rightPre + '_' + col
-            else:
-                ncol = col
-            ncols.append(ncol)
-        df2.columns = ncols
+    def _add_prefix(df, prefix):
+        return df.rename(columns={
+            col: (prefix + '_' + col if 'time' not in col else col)
+            for col in df.columns
+        })
 
-    # default setting, change down below
+    if leftPre is not None:
+        df1 = _add_prefix(df1, leftPre)
+    if rightPre is not None:
+        df2 = _add_prefix(df2, rightPre)
+
     merged = False
 
-    # test single row entries
-    if df1.shape[0]==1 and df2.shape[0]==1:
+    # Case: both frames have a single row
+    if df1.shape[0] == 1 and df2.shape[0] == 1:
         if df1['time'].iloc[0] == df2['time'].iloc[0]:
             df1 = df1.merge(df2, on='time')
         else:
-            print('mergeDFS failed to merge two single row frames on different times: \n{}\n{}'.format(df1,df2))
+            print('mergeDFS failed to merge two single-row frames on different times:\n{}\n{}'.format(df1, df2))
             df1 = None
         merged = True
 
-    # test equal number entries and equal time intervals
-    if merged == False and df1.shape[0] == df2.shape[0]:
-        # test same values in both columns
-        if np.all(np.where(df1['time']==df2['time'], True, False)):
+    # Case: equal number of rows with identical time values
+    if not merged and df1.shape[0] == df2.shape[0]:
+        if np.all(np.where(df1['time'] == df2['time'], True, False)):
             df1 = df1.merge(df2, on='time')
             merged = True
- 
-    #  # merge must be on shorter time intervals
-    # if df1.shape[0] < df2.shape[0]:
-    #     # swop
-    #     df1,df2 = df2,df1
 
+    # General case: interpolate the longer frame onto the shorter one's time axis
+    if not merged:
+        if (np.max(df1['time']) - np.min(df1['time'])) > \
+                (np.max(df2['time']) - np.min(df2['time'])):
+            df1, df2 = df2, df1
 
-    if merged == False:
         from scipy.interpolate import interp1d
-        from numbers import Number
-
-        # use column with shorter time as baseline
-        # print(f"{np.min(df1['time']):.16f}   {np.min(df2['time']):.16f}")
-        # print(f"{np.max(df1['time']):.16f}   {np.max(df2['time']):.16f}")
-        # print(np.max(df1['time']) == np.max(df2['time']))
-        if (np.max(df1['time'])-np.min(df1['time']) ) > (np.max(df2['time'])-np.min(df2['time'])):
-        # if (np.max(df1['time'])-np.min(df1['time']) ) > (np.max(df2['time'])-np.min(df2['time']) \
-        #     and np.max(df1['time']) >= np.max(df2['time']) \
-        #     and np.min(df1['time']) <= np.min(df2['time']) \
-        #     ):
-            df1,df2 = df2,df1
-            # print('flipping')
-        else:
-            # print('not flipping')
-            pass
-
-        #cycle through all columns
-        cols = df2.columns
-        for col in cols:
-            # only interpolate if this column as numbers
-            # print(f'isnumber {col} {isinstance(df2[col].iloc[0], Number)}')
+        for col in df2.columns:
             if isinstance(df2[col].iloc[0], Number):
-                fint = interp1d(df2['time'],df2[col],bounds_error=bounds_error)
+                fint = interp1d(df2['time'], df2[col], bounds_error=bounds_error)
                 df1[col] = fint(df1['time'])
-            else:
-                # unable to interpolate non-number, don't copy column
-                pass
 
     dfRtn = df1.copy() if df1 is not None else None
-    if mergeOn is not None:
+    if mergeOn is not None and dfRtn is not None:
         dfRtn = dfRtn.rename(columns={'time': mergeOn})
 
     return dfRtn
-    
 
 
 ################################################################
 ################################################################
-##
-##
 
 if __name__ == '__init__':
     pass
@@ -1404,132 +881,102 @@ if __name__ == '__main__':
 
     doAll = False
 
-    # x = y = z = np.arange(0.0,5.0,1.0)
-    # np.savetxt('test.out', x, delimiter=',')   # X is an array
-    # np.savetxt('test.out', (x,y,z))   # x,y,z equal sized 1D arrays
-    # np.savetxt('test.out', x, fmt='%1.4e')   # use exponential notation
-
-
     if False:
-        #this example requires the DKTools bmpp executable http://dktools.sourceforge.net/bmpp.html
-        execOnFiles(cmdline = 'bmpp -l eps.object {0}', root='./ref/', patterns='*.png', 
+        # This example requires the DKTools bmpp executable http://dktools.sourceforge.net/bmpp.html
+        execOnFiles(cmdline='bmpp -l eps.object {0}', root='./ref/', patterns='*.png',
             recurse=1, return_folders=0, useRegex=False, printTask=True)
 
     if doAll:
-        # read two-dimensional lookup table
-        xVec,yVec,data,xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
-      
+        # Read two-dimensional lookup table
+        xVec, yVec, data, xlabel, ylabel, title = read2DLookupTable('data/OTBMLSNavMar15Nov4_10-C1E.txt')
+
         p = ryplot.Plotter(1)
-        for azim in [0,18,36]:
-            p.plot(1,yVec,data[azim,:],xlabel='Zenith [rad]',ylabel='Irradiance [W/m$^2$]',
+        for azim in [0, 18, 36]:
+            p.plot(1, yVec, data[azim, :], xlabel='Zenith [rad]', ylabel='Irradiance [W/m$^2$]',
                 ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu(False)),
                 label=['Azim={0:.0f} deg'.format(yVec[azim])])
         p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
-        print ('Test writing latex format arrays:')
-        arr = np.array([[1.0,2,3],[4,5,6],[7,8,9]])
-        arrayToLaTex('array.txt', arr,filemode='wt')
-        arrayToLaTex('array.txt', arr, formatstring='%.1f',filemode='at')
+        print('Test writing latex format arrays:')
+        arr = np.array([[1.0, 2, 3], [4, 5, 6], [7, 8, 9]])
+        arrayToLaTex('array.txt', arr)
+        arrayToLaTex('array.txt', arr, formatstring='%.1f', filemode='a')
         headeronly = 'Col1 & Col2 & Col3'
-        arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f',filemode='at')
+        arrayToLaTex('array.txt', arr, headeronly, formatstring='%.3f', filemode='a')
         header = 'Col 1 & Col 2 & Col 3'
-        leftcol = ['XX','Row 1','Row 2','Row 3']
-        #with \usepackage{siunitx} you can even do this:
-        arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}',filemode='at')
+        leftcol = ['XX', 'Row 1', 'Row 2', 'Row 3']
+        arrayToLaTex('array.txt', arr, header, leftcol, formatstring=r'\num{%.6e}', filemode='a')
 
-        print ('Test writing eps file figure latex fragments:')
+        print('Test writing eps file figure latex fragments:')
         epsLaTexFigure('eps.txt', 'picture.eps', 'This is the caption', 0.75)
 
-        print ('Test writing and reading numpy array to text file, with header:')
-        #create a two-dimensional array of 25 rows and 7 columns as an outer product
-        twodA=np.outer(np.arange(0, 5, .2),np.arange(1, 8))
-        #write this out as a test file
-        filename='ryfilestesttempfile.txt'
-        saveHeaderArrayTextFile(filename,twodA, header="line 1 header\nline 2 header", \
+        print('Test writing and reading numpy array to text file, with header:')
+        twodA = np.outer(np.arange(0, 5, .2), np.arange(1, 8))
+        filename = 'ryfilestesttempfile.txt'
+        saveHeaderArrayTextFile(filename, twodA, header="line 1 header\nline 2 header",
                            delimiter=' ', comment='%')
 
-        #create a new range to be used for interpolation
-        tim=np.arange(1, 3, .3).reshape(-1, 1)
-        #read the test file and interpolate the selected columns on the new range tim
-        # the comment parameter is superfluous, since there are no comments in this file
-
-        tabl = loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%')
+        tim = np.arange(1, 3, .3).reshape(-1, 1)
+        tabl = loadColumnTextFile(filename, [0, 1, 2, 4], abscissaOut=tim, comment='%')
         print(rit(tabl.shape))
-        print(loadColumnTextFile(filename, [0,  1,  2,  4],abscissaOut=tim,  comment='%'))
+        print(loadColumnTextFile(filename, [0, 1, 2, 4], abscissaOut=tim, comment='%'))
         os.remove(filename)
 
-        ##------------------------- samples ----------------------------------------
-        # read space separated file containing wavelength in um, then samples.
-        # select the samples to be read in and then load all in one call!
-        # first line in file contains labels for columns.
-        wavelength=np.linspace(0.38, 0.72, 350).reshape(-1, 1)
-        samplesSelect = [1,2,3,8,10,11]
-        samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength, \
-                    loadCol=samplesSelect,  comment='%')
-        samplesTxt=loadHeaderTextFile('data/colourcoordinates/samples.txt',\
+        wavelength = np.linspace(0.38, 0.72, 350).reshape(-1, 1)
+        samplesSelect = [1, 2, 3, 8, 10, 11]
+        samples = loadColumnTextFile('data/colourcoordinates/samples.txt', abscissaOut=wavelength,
                     loadCol=samplesSelect, comment='%')
-        #print(samples)
+        samplesTxt = loadHeaderTextFile('data/colourcoordinates/samples.txt',
+                    loadCol=samplesSelect, comment='%')
         print(samplesTxt)
         print(rit(samples.shape))
         print(rit(wavelength.shape))
 
-        ##------------------------- plot sample spectra ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1)
         smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
-                    r'Reflectance', 
-                    ['r', 'g', 'y','k', 'b', 'm'],label=samplesTxt,legendAlpha=0.5)
-        smpleplt.saveFig('SampleReflectance'+'.png')
+                    r'Reflectance',
+                    ['r', 'g', 'y', 'k', 'b', 'm'], label=samplesTxt, legendAlpha=0.5)
+        smpleplt.saveFig('SampleReflectance.png')
 
-        ##===================================================
-        print ('\nTest CleanFilename function:')
-        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-        print('{0}\n{1}'.format(inString,cleanFilename(inString) ))
-        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-        print('{0}\n{1}'.format(inString,cleanFilename(inString, " ") ))
-        inString="aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-        print('{0}\n{1}'.format(inString,cleanFilename(inString, "") ))
+        print('\nTest cleanFilename function:')
+        inString = "aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
+        print('{0}\n{1}'.format(inString, cleanFilename(inString)))
+        print('{0}\n{1}'.format(inString, cleanFilename(inString, " ")))
+        print('{0}\n{1}'.format(inString, cleanFilename(inString, "")))
 
-        print ('\nTest listFiles function - only python files in currect dir:')
+        print('\nTest listFiles function - only python files in current dir:')
         print(listFiles('./', patterns='*.py', recurse=0, return_folders=1))
-        print ('\nTest listFiles function - only python files in nested dirs:')
+        print('\nTest listFiles function - only python files in nested dirs:')
         print(listFiles('./', patterns='*.py', recurse=1, return_folders=1))
 
-        ##------------------------- load frames from binary & show ---------------------------
         import matplotlib.pyplot as plt
 
         imagefile = 'data/sample.ulong'
         rows = 100
         cols = 100
         vartype = np.uint32
-        framesToLoad =  [1, 3, 5, 7]
+        framesToLoad = [1, 3, 5, 7]
         frames, img = readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
 
         if frames == len(framesToLoad):
-
-            #first plot using ryplot, using matplotlib
-            P = ryplot.Plotter(1, 2, 2,'Sample frames from binary file', figsize=(4, 4))
+            P = ryplot.Plotter(1, 2, 2, 'Sample frames from binary file', figsize=(4, 4))
             P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
             P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
-            P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm. bone)
+            P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm.bone)
             P.showImage(4, img[3], 'frame {0}'.format(framesToLoad[3]), cmap=plt.cm.gist_rainbow)
             P.getPlot().show()
             P.saveFig('sample.png', dpi=300)
-            print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(  \
-            img.shape[0],img.shape[1],img.shape[2],img.dtype, imagefile))
+            print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(
+                img.shape[0], img.shape[1], img.shape[2], img.dtype, imagefile))
 
-            #now write the raw frames to image files
-            type = ['png','png','png','png']
+            img_types = ['png', 'png', 'png', 'png']
             for i in range(frames):
-                # print(i)
-                # print(img[i].mean())
-                filename = 'rawIm{0}.{1}'.format(i,type[i])
-                print('  saving image {} file to {}'.format(i,filename))
-                rawFrameToImageFile(img[i],filename)
-
+                filename = 'rawIm{0}.{1}'.format(i, img_types[i])
+                print('  saving image {} file to {}'.format(i, filename))
+                rawFrameToImageFile(img[i], filename)
         else:
             print('\nNot all frames read from file')
 
-        # test writing raw frames
         imagefile = 'data/sample.ulong'
         rows = 100
         cols = 100
@@ -1537,67 +984,56 @@ if __name__ == '__main__':
         frames, img = readRawFrames(imagefile, rows, cols, vartype, loadFrames=[])
 
         writeRawFrames('sample_all.double', img, 'double', writeFrames=[])
-        writeRawFrames('sample_first.double', img, 'double', writeFrames=[1,6])
-        img1 =np.squeeze( img[0,:,:])
+        writeRawFrames('sample_first.double', img, 'double', writeFrames=[1, 6])
+        img1 = np.squeeze(img[0, :, :])
         writeRawFrames('sample_only.double', img1, 'double')
 
-        #######################################################################
         patrn = r'*.py'
         print("Test the glob version of listFiles: {}".format(patrn))
-        filelist = listFiles('.', patterns=patrn, recurse=0, return_folders=0)
-        for filename in filelist:
+        for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0):
             print('  {0}'.format(filename))
 
-        patrn  =r'*.py;*.pyc'
+        patrn = r'*.py;*.pyc'
         print("Test the glob version of listFiles with two patterns: {}".format(patrn))
-        filelist = listFiles('.', patterns=patrn, recurse=0, return_folders=0)
-        for filename in filelist:
+        for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0):
             print('  {0}'.format(filename))
 
         patrn = r"^[a-z]{2}p[a-z]*\.py[c]*"
         print("Test the regex version of listFiles: {}".format(patrn))
-        filelist = listFiles('.', patterns=patrn, \
-            recurse=0, return_folders=0, useRegex=True)
-        for filename in filelist:
+        for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0, useRegex=True):
             print('  {0}'.format(filename))
 
         patrn = r"^[a-z]{2}p[a-z]*\.py;^[a-z]{2}p[a-z]*\.pyc"
         print("Test the regex version of listFiles with two patterns: {}".format(patrn))
-        filelist = listFiles('.', patterns=patrn, \
-            recurse=0, return_folders=0, useRegex=True)
-        for filename in filelist:
+        for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0, useRegex=True):
             print('  {0}'.format(filename))
 
-
-        #######################################################################
         print("Test downloading a file from internet given a URL")
-        url = 'https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/' + \
-              'data/colourcoordinates/samplesVis.txt'
+        url = ('https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/'
+               'data/colourcoordinates/samplesVis.txt')
         if downloadFileUrl(url) is not None:
-           print('success')
+            print('success')
         else:
-           print('download failed')
+            print('download failed')
 
-        #######################################################################
         print("Test unzipping a gzip file, then untar the file")
-        if unzipGZipfile('./data/colourcoordinates/colourcoordinates.tgz','tar') is not None:
+        if unzipGZipfile('./data/colourcoordinates/colourcoordinates.tgz', 'tar') is not None:
             print('success')
         else:
             print('unzip failed')
 
         print("Test untarring a tar file")
-        result = untarTarfile('tar','.')
+        result = untarTarfile('tar', '.')
         if result is not None:
             print(result)
         else:
             print('untarTarfile failed')
 
-
         tgzFilename = 'colourcoordinates.tgz'
         destinationDir = '.'
         tarFilename = 'colourcoordinates.tar'
-        url = 'https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/' + \
-                                            'data/colourcoordinates/'
+        url = ('https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/'
+               'data/colourcoordinates/')
         names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
         if names:
             print('Files downloaded and untarred {}!'.format(tgzFilename))
@@ -1605,11 +1041,7 @@ if __name__ == '__main__':
         else:
             print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
 
-
     mystr = 'a&b%c$d#e_f{g}h~i^j\\k>l<m'
     print(latex_escape(mystr))
-
-
-    #######################################################################
 
     print('\nmodule ryfiles done!')

@@ -61,27 +61,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 from matplotlib.collections import PatchCollection
 import os
-
-# import pkg_resources
-# handling older Python versions < 3.9
-try:
-    from importlib import resources
-except ImportError:
-    import importlib_resources as resources
-
-# handling older Python versions < 3.8
-# pip install importlib-metadata
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
-
-
+from pathlib import Path
+from importlib import resources, metadata
+from io import StringIO
 from numbers import Number
-if sys.version_info[0] > 2:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+
 
     
 #################################################################################
@@ -120,17 +104,6 @@ except ImportError:
     pass
 
 
-try:
-    # import pkg_resources
-    # handling older Python versions < 3.9
-    try:
-        from importlib import resources
-    except ImportError:
-        import importlib_resources as resources
-        
-except ImportError:
-    importlibresources = None
-
 timefmt = '%a %b %d %H:%M:%S %Y %Z'
 
 
@@ -138,47 +111,64 @@ def _date_format_encoding():
     return locale.getlocale(locale.LC_TIME)[1] or locale.getpreferredencoding()
 
 class VersionInformation():
+    """Gathers and presents version information for Python and installed modules.
 
-    def __init__(self,line=''):
-        self.version_information( line=line)
-        
-        
+    Produces output suitable for IPython/Jupyter notebooks in plaintext,
+    HTML, JSON, and LaTeX formats.
+
+    Example:
+        print(ryutils.VersionInformation('matplotlib,numpy'))
+    """
+
+    def __init__(self, line=''):
+        """Initialise and collect version information.
+
+        Args:
+            line (str): Comma-separated list of module names whose versions
+                should be included in the report (optional).
+        """
+        self.version_information(line=line)
+
     def version_information(self, line=''):
         """Show information about versions of modules.
 
-        Usage:
+        Collects Python runtime info and, optionally, the versions of any
+        additional modules supplied as a comma-separated string.
 
-            %version_information [optional comma-separated list of modules]
+        Args:
+            line (str): Comma-separated list of module names (optional).
 
+        Returns:
+            VersionInformation: self, to allow chaining.
         """
+        try:
+            ipython_version = IPython.__version__
+        except NameError:
+            ipython_version = 'not installed'
+
         self.packages = [
             ("Python", "{version} {arch} [{compiler}]".format(
                 version=platform.python_version(),
                 arch=platform.architecture()[0],
                 compiler=platform.python_compiler())),
-            ("IPython", IPython.__version__),
-            ("OS", platform.platform().replace('-', ' '))
-            ]
+            ("IPython", ipython_version),
+            ("OS", platform.platform().replace('-', ' ')),
+        ]
 
-        modules = line.replace(' ', '').split(",")
-
-        for module in modules:
-            if len(module) > 0:
+        for module in line.replace(' ', '').split(","):
+            if not module:
+                continue
+            try:
+                code = "import %s; version=str(%s.__version__)" % (module, module)
+                ns: dict = {}
+                exec(compile(code, "<string>", "exec"), ns, ns)
+                self.packages.append((module, ns["version"]))
+            except Exception:
                 try:
-                    code = ("import %s; version=str(%s.__version__)" %
-                            (module, module))
-                    ns_g = ns_l = {}
-                    exec(compile(code, "<string>", "exec"), ns_g, ns_l)
-                    self.packages.append((module, ns_l["version"]))
-                except Exception as e:
-                    try:
-                        if importlibresources is None:
-                            raise
-                        # version = pkg_resources.require(module)[0].version
-                        version = metadata.version('module_name')
-                        self.packages.append((module, version))
-                    except Exception as e:
-                        self.packages.append((module, str(e)))
+                    ver = metadata.version(module)
+                    self.packages.append((module, ver))
+                except Exception as exc:
+                    self.packages.append((module, str(exc)))
 
         return self
 
@@ -187,10 +177,12 @@ class VersionInformation():
             'Software versions': [
                 {'module': name, 'version': version} for
                 (name, version) in self.packages]}
-        if IPython.version_info[0] >= 3:
-            return obj
-        else:
-            return json.dumps(obj)
+        try:
+            if IPython.version_info[0] >= 3:
+                return obj
+        except NameError:
+            pass
+        return json.dumps(obj)
 
     @staticmethod
     def _htmltable_escape(str_):
@@ -218,11 +210,7 @@ class VersionInformation():
             _version = self._htmltable_escape(version)
             html_table += "<tr><td>%s</td><td>%s</td></tr>" % (name, _version)
 
-        try:
-            html_table += "<tr><td colspan='2'>%s</td></tr>" % time.strftime(timefmt)
-        except:
-            html_table += "<tr><td colspan='2'>%s</td></tr>" % \
-                time.strftime(timefmt).decode(_date_format_encoding())
+        html_table += "<tr><td colspan='2'>%s</td></tr>" % time.strftime(timefmt)
         html_table += "</table>"
 
         return html_table
@@ -253,43 +241,31 @@ class VersionInformation():
             _version = self._latex_escape(version)
             latex += r"%s & %s \\ \hline" % (name, _version) + "\n"
 
-        try:
-            latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % \
-                time.strftime(timefmt) + "\n"
-        except:
-            latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % \
-                time.strftime(timefmt).decode(_date_format_encoding()) + "\n"
+        latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % time.strftime(timefmt) + "\n"
 
         latex += r"\end{tabular}" + "\n"
 
         return latex
 
     def _repr_pretty_(self):
-
         text = "Software versions\n"
         for name, version in self.packages:
             text += "%s %s\n" % (name, version)
-
-        try:
-            text += "%s" % time.strftime(timefmt)
-        except:
-            text += "%s" % \
-                time.strftime(timefmt).decode(_date_format_encoding())
-
+        text += "%s" % time.strftime(timefmt)
         import pprint
         pprint.pprint(text)
-        
-    def __str__(self):
 
+    def __str__(self):
+        """Return a plain-text summary of all collected version information.
+
+        Returns:
+            str: Multi-line string listing each package and its version,
+                followed by the current timestamp.
+        """
         text = 'Software versions\n'
         for name, version in self.packages:
             text += f"{name}:   {version}\n"
-
-        try:
-            text += f"{time.strftime(timefmt)}"
-        except:
-            text += f"{time.strftime(timefmt).decode(_date_format_encoding())}"
-                
+        text += f"{time.strftime(timefmt)}"
         return text
 
     
@@ -315,13 +291,13 @@ def buildLogSpace(Vmin,Vmax,nDec,patn=False):
     """
     decs = int(np.log10(Vmax/Vmin))
     if patn:
-        ful = np.log10(Vmax/Vmin)
-        upp = np.ceil(nDec *(ful - decs))
-        num = np.ceil(decs * nDec + upp + 1)
-        Vmax = 10 ** (np.log10(Vmin)  + ((num-1) / nDec))
+        ful = np.log10(Vmax / Vmin)
+        upp = int(np.ceil(nDec * (ful - decs)))
+        num = int(np.ceil(decs * nDec + upp + 1))
+        Vmax = 10 ** (np.log10(Vmin) + ((num - 1) / nDec))
     else:
-        num = np.ceil(decs * nDec)
-    return np.logspace(np.log10(Vmin),np.log10(Vmax),num)
+        num = int(np.ceil(decs * nDec))
+    return np.logspace(np.log10(Vmin), np.log10(Vmax), num)
 
 
 ##############################################################################
@@ -419,7 +395,7 @@ def solidAngleSquare(width,breadth,height,stype,numsamples):
     else:
         return None
 
-    solidAngle = np.trapezoid(np.ravel(gv), dx=breadth*width/(numsamples**2))/(height*height)
+    solidAngle = np.trapezoid(np.ravel(gv), dx=breadth * width / (numsamples ** 2)) / (height * height)
     return solidAngle
 
 
@@ -598,35 +574,7 @@ def upMu(uprightMu=True, textcomp=False):
     Raises:
         | No exception is raised.
     """
-    if sys.version_info[0] < 3:
-
-        if uprightMu:
-            from matplotlib import rc, font_manager
-            import matplotlib as mpl
-            rc('text', usetex=True)
-            # set up the use of external latex, fonts and packages
-            if not textcomp :
-                mpl.rcParams['text.latex.preamble'] = [
-                # r'\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-                '\\usepackage{siunitx}',   # i need upright \micro symbols, but you need...
-                '\\sisetup{detect-all}',   # ...this to force siunitx to actually use your fonts
-                '\\usepackage{helvet}',  # set the normal font here
-                '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-                '\\sansmath']  # <- tricky! -- gotta actually tell tex to use!
-                upmu = r'\si{\micro}'
-            else:
-                mpl.rcParams['text.latex.preamble'] = [
-                '\\usepackage{textcomp}',   # i need upright \micro symbols, but you need...
-                '\\usepackage{helvet}',  # set the normal font here
-                '\\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-                '\\sansmath'  # <- tricky! -- gotta actually tell tex to use!
-                ]
-                upmu = '\\textmu{}'
-        else:
-            upmu = '$\\mu$'
-    else:
-        upmu = '\u00B5'
-        
+    upmu = '\u00B5'
     return upmu
 
 
@@ -838,10 +786,8 @@ def rangeEquation(Intensity, Irradiance, rangeTab, tauTab, rangeGuess = 1, n = 2
     from scipy.optimize import fsolve
 
     tauTable = interp1d(rangeTab, tauTab, kind = 'linear')
-
     Range = fsolve(_rangeEquationCalc, rangeGuess,
         args = (Intensity,Irradiance,tauTable,n,np.max(rangeTab),))
-
     #near the bottom (minimum) range of the table
     if(Range < rangeTab[2] ):
         Range = - Range
@@ -1035,8 +981,8 @@ def effectiveValue(spectraldomain,  spectralToProcess,  spectralBaseline):
         | No exception is raised.
     """
 
-    num=np.trapezoid(spectralToProcess.reshape(-1, 1)*spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
-    den=np.trapezoid(spectralBaseline.reshape(-1, 1),spectraldomain, axis=0)[0]
+    num = np.trapezoid(spectralToProcess.reshape(-1, 1) * spectralBaseline.reshape(-1, 1), spectraldomain, axis=0)[0]
+    den = np.trapezoid(spectralBaseline.reshape(-1, 1), spectraldomain, axis=0)[0]
     return num/den
 
 
@@ -1250,8 +1196,8 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     order_range = list(range(order+1))
     half_window = (window_size -1) // 2
     # precompute coefficients
-    b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
-    m = np.linalg.pinv(b).A[deriv] * rate**deriv * factorial(deriv)
+    b = np.array([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
+    m = np.linalg.pinv(b)[deriv] * rate**deriv * factorial(deriv)
     # pad the signal at the extremes with
     # values taken from the signal itself
     firstvals = y[0] - np.abs( y[1:half_window+1][::-1] - y[0] )
@@ -1261,10 +1207,25 @@ def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
 
 ##############################################################################
 ##
-def getFHWM(wl,tau,normaliseMax=False):
-    """Given spectral domain and range, determine full-width half-max domain width
+def getFHWM(wl, tau, normaliseMax=False):
+    """Determine the full-width half-maximum (FWHM) of a spectral curve.
 
-    Returns the FWHM, and the two 50% wavelengths
+    Finds the two wavelengths where the curve crosses the 50% level and returns
+    the distance between them, as well as the crossing wavelengths themselves.
+
+    Args:
+        wl (np.ndarray): Spectral domain vector (e.g. wavelength in µm).
+        tau (np.ndarray): Spectral quantity vector (same length as wl).
+        normaliseMax (bool): If True, normalise tau to its maximum before
+            computing the half-max crossing. Default False.
+
+    Returns:
+        tuple[float, float, float]: (fwhm, lower_wl, upper_wl) where fwhm is
+            the full-width half-maximum and lower_wl / upper_wl are the two
+            50%-crossing wavelengths.
+
+    Raises:
+        No exception is raised.
     """
     # get FWHM https://stackoverflow.com/questions/53445337/implementation-of-a-threshold-detection-function-in-python
     if normaliseMax:
@@ -1303,7 +1264,8 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
     Args:
         | inspectral (np.array[N,] or [N,1]):  spectral variable input  vector (e.g., radiance or transmittance).
         | samplingresolution (float): wavenumber interval between inspectral samples
-        | inwinwidth (float): FWHM window width used to obtain the input spectral vector (e.g., spectroradiometer window width)
+        | inwinwidth (float): FWHM window width used to obtain the input spectral vector
+            (e.g., spectroradiometer window width)
         | outwinwidth (float): FWHM window width of the output spectral vector after convolution
         | windowtype (function): name of a  numpy/scipy function for the window function
 
@@ -1320,13 +1282,11 @@ def convolve(inspectral, samplingresolution,  inwinwidth,  outwinwidth,  windowt
     windowfn=windowtype(winbins)
     #np.convolve is unfriendly towards unicode strings
 
-    if sys.version_info[0] > 2:
-        cmode='same'
-    else:
-        cmode='same'.encode('utf-8')
-
-    outspectral = np.convolve(windowfn/(samplingresolution*windowfn.sum()),
-                        inspectral.reshape(-1, ),mode=cmode)
+    outspectral = np.convolve(
+        windowfn / (samplingresolution * windowfn.sum()),
+        inspectral.reshape(-1,),
+        mode='same',
+    )
     return outspectral,  windowfn
 
 ######################################################################################
@@ -1464,26 +1424,45 @@ def draw_siemens_star(outfile, n, dpi):
 
     Author: Libor Wagner, adapted by CJ Willers
     """
-    from scipy import misc
+    from PIL import Image as _PILImage
 
     # Create figure and add patterns
     fig, ax = plt.subplots()
-    ax.add_collection(gen_siemens_star((0,0), 1., n))
+    ax.add_collection(gen_siemens_star((0, 0), 1., n))
     plt.axis('equal')
     plt.axis([-1.03, 1.03, -1.03, 1.03])
     plt.axis('off')
-    fig.savefig(outfile, figsize=(900,900), papertype='a0', bbox_inches='tight', dpi=dpi)
-    #read image back in order to crop to spokes only
-    imgIn = np.abs(255 - misc.imread(outfile)[:,:,0])
-    nz0 = np.nonzero(np.sum(imgIn,axis=0))
-    nz1 = np.nonzero(np.sum(imgIn,axis=1))
-    imgOut = imgIn[(nz1[0][0]-1) : (nz1[0][-1]+2),  (nz0[0][0]-1) : (nz0[0][-1]+2)]
-    imgOut = np.abs(255 - imgOut)
-    misc.imsave(outfile, imgOut)
+    fig.savefig(outfile, bbox_inches='tight', dpi=dpi)
+    # Read image back in order to crop to spokes only
+    # scipy.misc.imread/imsave were removed in SciPy 1.3; use PIL instead
+    imgIn = np.abs(255 - np.array(_PILImage.open(outfile).convert('RGB'))[:, :, 0])
+    nz0 = np.nonzero(np.sum(imgIn, axis=0))
+    nz1 = np.nonzero(np.sum(imgIn, axis=1))
+    imgOut = imgIn[(nz1[0][0] - 1):(nz1[0][-1] + 2), (nz0[0][0] - 1):(nz0[0][-1] + 2)]
+    imgOut = np.abs(255 - imgOut).astype(np.uint8)
+    _PILImage.fromarray(imgOut, mode='L').save(outfile)
 
 ######################################################################################################
 def gen_siemens_star(origin, radius, n):
-    centres = np.linspace(0, 360, n+1)[:-1]
+    """Generate a Siemens star patch collection for use with matplotlib.
+
+    Creates a PatchCollection of alternating black wedges arranged in a
+    circle, which form the spokes of a Siemens star test pattern.
+
+    Args:
+        origin (tuple[float, float]): (x, y) centre of the star in data coordinates.
+        radius (float): Outer radius of the star in data units.
+        n (int): Number of spoke pairs (the star will have 2*n sectors).
+
+    Returns:
+        matplotlib.collections.PatchCollection: Collection of black wedge patches
+            ready to be added to an Axes with ``ax.add_collection()``.
+
+    Raises:
+        No exception is raised.
+    """
+    num = int(n) + 1
+    centres = np.linspace(0, 360, num)[:-1]
     step = (((360.0)/n)/4.0)
     patches = []
     for c in centres:
@@ -1492,7 +1471,8 @@ def gen_siemens_star(origin, radius, n):
 
 
 ######################################################################################################
-def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, imageReturnType='image',datatype=np.uint8):
+def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2,
+                     imageReturnType='image', datatype=np.uint8):
     """Draw checkerboard with 8-bit pixels 
     
    From http://stackoverflow.com/questions/2169478/how-to-make-a-checkerboard-in-numpy
@@ -1501,7 +1481,8 @@ def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, ima
         | rows (int) : number or rows in checkerboard
         | cols (int) : number of columns in checkerboard 
         | numPixInBlock (int) : number of pixels to be used in one block of the checkerboard
-        | imageMode (string) : PIL image mode [e.g. L (8-bit pixels, black and white), RGB (3x8-bit pixels, true color)]
+        | imageMode (string) : PIL image mode [e.g. L (8-bit pixels, black and white),
+        |   RGB (3x8-bit pixels, true color)]
         | colour1 (int or RGB tuple) : colour 1 specified according to the imageMode
         | colour2 (int or RGB tuple) : colour 2 specified according to the imageMode
         | imageReturnType: 'image' for PIL image, 'nparray' for numpy array
@@ -1545,6 +1526,45 @@ def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2, ima
         from PIL import Image as Img
         pilImage = Img.fromarray(img, imageMode)
         return pilImage
+
+
+def _pixel_coords_to_data(yval, imgskel, img, xmin, xmax, ymin, ymax, xaxisLog, yaxisLog):
+    """Convert pixel-space skeleton coordinates to graph data coordinates.
+
+    Takes the skeleton pixel array produced by ``extractGraph``, maps each
+    non-zero column to its (x, y) data value using the known axis extents, and
+    optionally converts to log scale.
+
+    Args:
+        yval (np.ndarray): 2-D array of row indices weighted by the skeleton mask.
+        imgskel (np.ndarray): Binary skeleton image (True where graph line pixels are).
+        img (np.ndarray): Original binary image used to determine output dimensions.
+        xmin (float): Data value at the left edge of the image.
+        xmax (float): Data value at the right edge of the image.
+        ymin (float): Data value at the bottom edge of the image.
+        ymax (float): Data value at the top edge of the image.
+        xaxisLog (bool): If True, convert x values from log10 to linear scale.
+        yaxisLog (bool): If True, convert y values from log10 to linear scale.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: (xval, yval) column vectors of shape (N, 1),
+            one entry per non-empty column in the skeleton.
+    """
+    # Invert y-axis: image origin is top-left, graph origin is bottom-left
+    yval = yval.shape[0] - np.max(yval, axis=0)
+    # Retain only columns that contain at least one skeleton pixel
+    wantedIdx = np.where(np.sum(imgskel, axis=0) > 0)
+
+    cvec = np.arange(0.0, img.shape[1])
+    xval = (xmin + (cvec[wantedIdx] / img.shape[1]) * (xmax - xmin)).reshape(-1, 1)
+    yval = (ymin + (yval[wantedIdx] / img.shape[0]) * (ymax - ymin)).reshape(-1, 1)
+
+    if xaxisLog:
+        xval = 10 ** xval
+    if yaxisLog:
+        yval = 10 ** yval
+
+    return xval, yval
 
 
 ######################################################################################################
@@ -1604,12 +1624,13 @@ def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
 
     from scipy import ndimage
     from skimage.morphology import medial_axis
+    from PIL import Image as _PILImage
     if doPlot:
         import pylab
         import matplotlib.pyplot as pyplot
-     
-    #read image file, as grey scale
-    img = ndimage.imread(filename, True)
+
+    # Read image file as greyscale using PIL (scipy.ndimage.imread was removed in SciPy 1.3)
+    img = np.array(_PILImage.open(filename).convert('L'), dtype=float)
 
     # find threshold 50% up the way
     halflevel = img.min() + (img.max()-img.min()) /2
@@ -1635,24 +1656,9 @@ def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
         # pylab.gray()
         # pylab.show()
         
-    # invert y-axis origin from left top to left bottom
-    yval = yval.shape[0] - np.max(yval, axis=0)
-    #get indices for only the pixels where we have data
-    wantedIdx = np.where(np.sum(imgskel, axis = 0) > 0)
-
-    # convert to original graph coordinates
-    cvec = np.arange(0.0,img.shape[1])
-
-    xval = xmin + (cvec[wantedIdx] / img.shape[1]) * (xmax - xmin)
-    xval = xval.reshape(-1,1)
-    yval = ymin + (yval[wantedIdx] / img.shape[0]) * (ymax - ymin)
-    yval = yval.reshape(-1,1)
-
-    if xaxisLog:
-        xval =  10** xval
-
-    if yaxisLog:
-        yval =  10 ** yval
+    xval, yval = _pixel_coords_to_data(
+        yval, imgskel, img, xmin, xmax, ymin, ymax, xaxisLog, yaxisLog
+    )
 
     #build the result array
     outA = np.hstack((xval,yval))
@@ -1665,8 +1671,8 @@ def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
         outA = np.vstack((outA[0,:],outA[1:-2:step,:],outA[-1,:]))
 
     #write output file
-    if outfile is not None > 0 :
-        np.savetxt(outfile,outA)
+    if outfile is not None:
+        np.savetxt(outfile, outA)
 
     if doPlot:
         fig = pyplot.figure()
@@ -1679,6 +1685,39 @@ def extractGraph(filename, xmin, xmax, ymin, ymax, outfile=None,doPlot=False,\
         pylab.show()
 
     return outA
+
+
+def _save_motion_frame(outimage, subframes, outfilename, outrows, outcols, imgRatio):
+    """Average and downsample the accumulated hires frame, save it to disk, then reset accumulators.
+
+    This helper is called by ``makemotionsequence`` each time a full output
+    frame has been accumulated.  It normalises the hires accumulation buffer by
+    the number of integrated sub-frames, collapses ``imgRatio x imgRatio`` pixel
+    blocks into single output pixels, saves the result as a PNG, and returns
+    a fresh accumulation buffer with counters reset.
+
+    Args:
+        outimage (np.ndarray): Accumulated hires image (shape outrows*imgRatio, outcols*imgRatio).
+        subframes (int): Number of hires sub-frames that were summed into outimage.
+        outfilename (str): Full path for the output PNG file.
+        outrows (int): Number of rows in the output (downsampled) image.
+        outcols (int): Number of columns in the output (downsampled) image.
+        imgRatio (int): Downsampling ratio; each output pixel covers imgRatio×imgRatio hires pixels.
+
+    Returns:
+        tuple[np.ndarray, int]: (fresh outimage of zeros, reset subframes counter of 0).
+            The caller is responsible for incrementing its own fullframe counter.
+    """
+    from PIL import Image as _PILImage
+    averaged = outimage / subframes
+    saveimage = np.array(
+        [[np.sum(vchunk) for vchunk in np.split(hchunk, outrows, 1)]
+         for hchunk in np.split(averaged, outcols)]
+    ) / imgRatio ** 2
+    # scipy.misc.imsave was removed in SciPy 1.3; use PIL instead
+    saveimage_u8 = np.clip(saveimage, 0, 255).astype(np.uint8)
+    _PILImage.fromarray(saveimage_u8, mode='L').save(outfilename)
+    return np.zeros(outimage.shape), 0  # outimage reset, subframes reset
 
 
 ######################################################################################################
@@ -1750,18 +1789,18 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
     """
 
     from scipy import ndimage
-    from scipy import misc
+    from PIL import Image as _PILImage
     import os
 
-    #read in the image and motion files.
-    if not os.path.exists(imgfilename):
+    # Read image using PIL; scipy.misc.imread was removed in SciPy 1.3
+    if not Path(imgfilename).exists():
         return '{} not found'.format(imgfilename)
-    imgIn = misc.imread(imgfilename)
+    imgIn = np.array(_PILImage.open(imgfilename).convert('L'))
     centrow = imgIn.shape[0]/2
     centcol = imgIn.shape[1]/2
     motionScale = pixsize / imgRatio
 
-    if not os.path.exists(mtnfilename):
+    if not Path(mtnfilename).exists():
         return '{} not found'.format(mtnfilename)
     if '.npz' in mtnfilename:
         rcmotion = np.load(mtnfilename)['arr_0']
@@ -1770,7 +1809,7 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
     else:
         return '{} not in appropriate format'.format(mtnfilename)
 
-    mtnfilenamecore = os.path.split(mtnfilename)[1]
+    mtnfilenamecore = Path(mtnfilename).name
     mtnfilenamecore = mtnfilenamecore[:mtnfilenamecore.find('.')]
 
     #reset time to start at zero
@@ -1798,17 +1837,13 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
 
             fracframe =  np.floor(time / frmTim)
             if fracframe >= fullframe + 1:
-                #output and reset the present image
-                outfilename = os.path.split(imgfilename)[1].replace('.png',
-                           '-{}-{}-{:05d}.png'.format(mtnfilenamecore,postfix,fullframe))
-
-                outimage = outimage/subframes
-                saveimage = np.array([[np.sum(vchunk) for vchunk in np.split(hchunk, outrows, 1)]
-                             for hchunk in np.split(outimage, outcols)])/imgRatio**2
-                misc.imsave(outfilename, saveimage)
-                outimage = np.zeros((outrows*imgRatio,outcols*imgRatio))
+                outfilename = Path(imgfilename).name.replace(
+                    '.png', '-{}-{}-{:05d}.png'.format(mtnfilenamecore, postfix, fullframe)
+                )
+                outimage, subframes = _save_motion_frame(
+                    outimage, subframes, outfilename, outrows, outcols, imgRatio
+                )
                 fullframe += 1
-                subframes = 0
 
             if time - fullframe * frmTim < intTime:
                 #integrate the frames during integration time
@@ -1889,15 +1924,11 @@ def luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False):
 
         #load data file from the pyradi directories, not local dir
         resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
-        resource_path = os.path.join('data', 'photometry',vlamname)
+        resource_path = str(Path('data') / 'photometry' / vlamname)
         # dat = pkg_resources.resource_string(resource_package, resource_path)
         dat = resources.files(resource_package).joinpath(resource_path)
-        if sys.version_info[0] > 2:
-            # dat = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",")
-            with dat.open('r') as f:
-                dat = np.loadtxt(f,delimiter=",",skiprows=1)
-        else:
-            dat = np.genfromtxt(StringIO(dat),delimiter=",")
+        with dat.open('r') as f:
+            dat = np.loadtxt(f, delimiter=",", skiprows=1)
 
         if wavelen is not None:
             vlam = np.interp(wavelen*1000., dat[:,0],dat[:,1],left=dat[0,1],right=dat[-1,1])
@@ -2320,7 +2351,8 @@ class Spectral(object):
             wnmin = min(np.min(self.wn),np.min(other.wn))
             wnmax = max(np.max(self.wn),np.max(other.wn))
             wninc = min(np.min(np.abs(np.diff(self.wn,axis=0))),np.min(np.abs(np.diff(other.wn,axis=0))))
-            wn = np.linspace(wnmin, wnmax, int((wnmax-wnmin)/wninc))
+            num = int((wnmax-wnmin)/wninc)
+            wn = np.linspace(wnmin, wnmax, num)
             wl = 1e4 / self.wn
             if np.mean(np.diff(self.wn,axis=0)) > 0:
                 s = np.interp(wn,self.wn[:,0], self.value[:,0])
@@ -2656,7 +2688,11 @@ class Sensor():
         self.desc = desc
 
         if isinstance(quantEff, Number):
-            self.quantEffVal = Spectral(ID='{}-quantEff'.format(self.ID), value=quantEff, desc='{}-quantEff'.format(self.desc))
+            self.quantEffVal = Spectral(
+                ID='{}-quantEff'.format(self.ID),
+                value=quantEff,
+                desc='{}-quantEff'.format(self.desc),
+            )
         else:
             self.quantEffVal = quantEff
 
@@ -2759,7 +2795,8 @@ class Target(Spectral):
             emis must always be a spectral, refl and taumed may be scalars or spectrals.
             The emis wavelength/number vector serves as the base spectral vector.
 
-            see http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/09b-StaringArrayDetectors.ipynb#Electron-count--for-various-sources
+            see http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/
+            09b-StaringArrayDetectors.ipynb#Electron-count--for-various-sources
 
             Args:
                 | ID (str): identification string
@@ -2927,10 +2964,16 @@ class Target(Spectral):
 
         if units[1] == 'l':
             radiance =  vscale * ryplanck.planck(specprod.wl,self.tmprt, type=units).reshape(-1,self.tmprt.shape[1])
-            rtnVal = Spectral(ID='{}-{}-radiance'.format(self.ID,self.tmprt), value=radiance, wl=specprod.wl, desc='{}'.format(self.desc))
+            rtnVal = Spectral(
+                ID='{}-{}-radiance'.format(self.ID, self.tmprt),
+                value=radiance, wl=specprod.wl, desc='{}'.format(self.desc),
+            )
         elif units[1] == 'n':
-            radiance =  vscale * ryplanck.planck(specprod.wn,self.tmprt, type=units).reshape(-1,self.tmprt.shape[1])
-            rtnVal = Spectral(ID='{}-{}-radiance'.format(self.ID,self.tmprt), value=radiance, wn=specprod.wn, desc='{}'.format(self.desc))
+            radiance = vscale * ryplanck.planck(specprod.wn, self.tmprt, type=units).reshape(-1, self.tmprt.shape[1])
+            rtnVal = Spectral(
+                ID='{}-{}-radiance'.format(self.ID, self.tmprt),
+                value=radiance, wn=specprod.wn, desc='{}'.format(self.desc),
+            )
         else:
             radiance = None
 
@@ -2967,9 +3010,9 @@ def differcommonfiles(dir1,dir2, patterns='*'):
     print(file2s)
     for file1 in file1s:
         for file2 in file2s:
-            if os.path.basename(file1) == os.path.basename(file2):
-                print(os.path.basename(file1), os.path.basename(file1))
-                flist.append(os.path.basename(file1))
+            if Path(file1).name == Path(file2).name:
+                print(Path(file1).name, Path(file1).name)
+                flist.append(Path(file1).name)
                 fp1 = open(file1, 'rb')
                 fp2 = open(file2, 'rb')
                 different = False
@@ -3032,12 +3075,12 @@ def blurryextract(img, inputOrigin, outputSize, blocksize, sigma=0., filtermode=
     Raises:
         | No exception is raised.
     """
-    import scipy.ndimage.filters as filters
+    from scipy.ndimage import gaussian_filter
 
     # filter the input image
     img = img.astype('float')
     if sigma > 0:
-        img = filters.gaussian_filter(img,sigma=sigma, mode=filtermode)
+        img = gaussian_filter(img, sigma=sigma, mode=filtermode)
 
     # slice the region from the input image
     inputUpper = [inputOrigin[0]+outputSize[0]*blocksize[0],
@@ -3088,16 +3131,10 @@ if __name__ == '__main__':
     # level as pradi itself.
     pathtoPyradiData = '../../pyradi-data'
 
-    if sys.version_info[0] > 2:
-        spectrals = {}
-        atmos = {}
-        sensors = {}
-        targets = {}
-    else:
-        spectrals = collections.OrderedDict()   
-        atmos = collections.OrderedDict()   
-        sensors = collections.OrderedDict()   
-        targets = collections.OrderedDict()   
+    spectrals = {}
+    atmos = {}
+    sensors = {}
+    targets = {}
 
     doAll = False
 
@@ -3136,7 +3173,8 @@ if __name__ == '__main__':
             # this takes a while to compute
             filename = 'data/images/testimage01.png'
             files = filename.split('.')[0]
-            im = scipy.ndimage.imread('testimage01.png')[:,:,0]
+            from PIL import Image as _PILImage
+            im = np.array(_PILImage.open('testimage01.png').convert('L'))
 
             im2 = ryutils.warpCartesianImageToPolarImage(im)
             im3 = ryutils.warpPolarImageToCartesianImage(im2)
@@ -3183,8 +3221,11 @@ if __name__ == '__main__':
         atmos['A1'] = Atmo(ID='tape7-02-1', tran=tape72[:,1], prad=1e4*tape72[:,2], distance=distance, wl=None, 
             wn=tape72[:,0], desc='tape7-02-1 raw data input')
         tape72 = rymodtran.loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML'] )
-        atmos['A2'] = Atmo(ID='tape7-02-2', atco=-np.log(tape72[:,1])/distance, prad=1e4*tape72[:,2] / (1 - tape72[:,1]),
-            wl=1e4/tape72[:,0], wn=None, desc='tape7-02-2 normalised input')
+        atmos['A2'] = Atmo(
+            ID='tape7-02-2', atco=-np.log(tape72[:, 1]) / distance,
+            prad=1e4 * tape72[:, 2] / (1 - tape72[:, 1]),
+            wl=1e4 / tape72[:, 0], wn=None, desc='tape7-02-2 normalised input',
+        )
         atmos['A3'] = Atmo(ID='tape7-02-2', atco=None, prad=1e4*tape72[:,2] / (1 - tape72[:,1]),
             wl=1e4/tape72[:,0], wn=None, desc='tape7-02-2 normalised input')
         atmos['A4'] = Atmo(ID='tape7-02-2', atco=-np.log(tape72[:,1])/distance, prad=None,
@@ -3201,17 +3242,24 @@ if __name__ == '__main__':
         for distance in [1000,2000]:
             print('distance={} m, tran={}'.format(distance,atmos['A1'].tauR(distance)[0::stride].T))
             ID = 'Atau{:.0f}'.format(distance)
-            spectrals[ID] = Spectral(ID,value=atmos['A1'].tauR(distance),wl=atmos['A1'].atco.wl,desc="MWIR transmittance "+ID)
-            spectrals[ID].plot(filename='{}-{}-tau'.format(key,spectrals[ID].desc),
-                heading=spectrals[ID].desc,ytitle='Transmittance')
+            spectrals[ID] = Spectral(
+                ID, value=atmos['A1'].tauR(distance),
+                wl=atmos['A1'].atco.wl, desc="MWIR transmittance " + ID,
+            )
+            spectrals[ID].plot(filename='{}-{}-tau'.format(key, spectrals[ID].desc),
+                heading=spectrals[ID].desc, ytitle='Transmittance')
             ID = 'Aprad{:.0f}'.format(distance)
-            spectrals[ID] = Spectral(ID,value=atmos['A1'].pathR(distance),wl=atmos['A1'].atco.wl,desc="MWIR path radiance "+ID)
+            spectrals[ID] = Spectral(
+                ID, value=atmos['A1'].pathR(distance),
+                wl=atmos['A1'].atco.wl, desc="MWIR path radiance " + ID,
+            )
             spectrals[ID].plot(filename='{}-{}-prad'.format(key,spectrals[ID].desc),
                 heading=spectrals[ID].desc,ytitle='Lpath W/(sr.m2.cm-1)')
 
         distances = np.array([1000,2000])
         print('distances={} m, tran={}'.format(distances,atmos['A1'].tauR(distances)[0::stride].T))
-        print('distances={} m, atco={}'.format(distances,(-np.log(atmos['A1'].tauR(distances))/distances)[0::stride].T))
+        atco_vals = (-np.log(atmos['A1'].tauR(distances)) / distances)[0::stride].T
+        print('distances={} m, atco={}'.format(distances, atco_vals))
 
     if doAll:
         # test loading of sensors
@@ -3278,7 +3326,7 @@ if __name__ == '__main__':
 
 
     if  doAll:
-        imgfilename = os.path.join(pathtoPyradiData,'images/Tan-Chau-bw.png')
+        imgfilename = str(Path(pathtoPyradiData) / 'images' / 'Tan-Chau-bw.png')
         mtnfilename = 'data/imgmotion/rowcol-displacement.npz'
         intTime = 0.005
         frmTim = 0.02
@@ -3294,7 +3342,8 @@ if __name__ == '__main__':
         probDetection = 0.999
         ThresholdToNoise = detectThresholdToNoiseTpFAR(pulsewidth,FAR)
         SignalToNoise = detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, probDetection)
-        print('For a laser pulse with width={0:.3e}, a FAR={1:.3e} and Pd={2:.3e},'.format(pulsewidth,FAR,probDetection))
+        print('For a laser pulse with width={0:.3e}, a FAR={1:.3e} and Pd={2:.3e},'.format(
+            pulsewidth, FAR, probDetection))
         print('the Threshold to Noise ratio must be {0:.3e}'.format(ThresholdToNoise))
         print('and the Signal to Noise ratio must be {0:.3e}'.format(SignalToNoise))
         print(' ')
@@ -3332,8 +3381,11 @@ if __name__ == '__main__':
             # print(type(irrad))
             # print(type((irrad - Irradiance) / Irradiance))
             # print(type(strError))
-            print('\nE={0:.3e}: Range equation solver: at range {1:.3e} the irradiance is {2:.3e}, error is {3:.3e} - {4}'.format(
-                Irradiance,r[0],irrad, (irrad - Irradiance) / Irradiance, strError))
+            print(
+                '\nE={0:.3e}: Range equation solver: at range {1:.3e} '
+                'the irradiance is {2:.3e}, error is {3:.3e} - {4}'.format(
+                    Irradiance, r[0], irrad, (irrad - Irradiance) / Irradiance, strError)
+            )
         print(' ')
 
     #########################################################################################
@@ -3417,7 +3469,8 @@ if __name__ == '__main__':
         #do a few tests first to check basic functionality. Place single lines and then convolve.
         ## ----------------------- basic functionality------------------------------------------
         samplingresolution=0.5
-        wavenum=np.linspace(0, 100, int(100/samplingresolution))
+        num =  int(100/samplingresolution) 
+        wavenum=np.linspace(0, 100, num)
         inspectral=np.zeros(wavenum.shape)
         inspectral[int(10/samplingresolution)] = 1
         inspectral[int(11/samplingresolution)] = 1
@@ -3468,10 +3521,12 @@ if __name__ == '__main__':
                     r'Transmittance', ['r'])
         bunsenPlt.plot(4, wavenum, tauAtmo4, "Atmospheric Transmittance 4 cm-1", r'',\
                     r'Transmittance', ['r'])
-        bunsenPlt.plot(5, wavenum, bunsen/tauA, "Atmospheric-corrected Bunsen Flame Measurement 1 cm-1", r'Wavenumber cm$^{-1}$',\
-                    r'Signal', ['r'], pltaxis =[2000, 4000, 0,1.5])
-        bunsenPlt.plot(6, wavenum, bunsen/tauAtmo4, "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1", r'Wavenumber cm$^{-1}$',\
-                    r'Signal', ['r'], pltaxis =[2000, 4000, 0,1.5])
+        bunsenPlt.plot(5, wavenum, bunsen / tauA,
+            "Atmospheric-corrected Bunsen Flame Measurement 1 cm-1",
+            r'Wavenumber cm$^{-1}$', r'Signal', ['r'], pltaxis=[2000, 4000, 0, 1.5])
+        bunsenPlt.plot(6, wavenum, bunsen / tauAtmo4,
+            "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1",
+            r'Wavenumber cm$^{-1}$', r'Signal', ['r'], pltaxis=[2000, 4000, 0, 1.5])
 
         bunsenPlt.saveFig('bunsenPlt01'+figtype)
 
@@ -3540,9 +3595,10 @@ if __name__ == '__main__':
 
         ##------------------------- plot sample detector ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
-        smpleplt.plot(1, wavelength, responsivities, r"Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1", r'Wavelength [$\mu$m]',\
-                   r'Responsivity', \
-                   ['r', 'g', 'y','k', 'b', 'm'],label=parameterTxt)
+        smpleplt.plot(1, wavelength, responsivities,
+            r"Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1",
+            r'Wavelength [$\mu$m]', r'Responsivity',
+            ['r', 'g', 'y', 'k', 'b', 'm'], label=parameterTxt)
         smpleplt.saveFig('responsivityVar'+figtype)
 
         ##--------------------filtered responsivity ------------------------------
@@ -3619,13 +3675,16 @@ if __name__ == '__main__':
         b = 3.
         d = 2.
         samples = 10
-        varx = np.linspace(-a/2, a/2, int(samples*a))
-        vary = np.linspace(-b/2, b/2, int(samples*b))
+        numa = int(samples*a)
+        numb =  int(samples*b)
+        varx = np.linspace(-a/2, a/2,numa )
+        vary = np.linspace(-b/2, b/2,numb)
         x, y = np.meshgrid(varx, vary)
         z = circ(x, y, d)
 
         #calculate area two ways to confirm
-        print('Circ area is {:.4e}, should be {:.4e}'.format(np.sum(z)/(samples * a * samples * b), np.pi*(d/2)**2/(a * b)))
+        print('Circ area is {:.4e}, should be {:.4e}'.format(
+            np.sum(z) / (samples * a * samples * b), np.pi * (d / 2) ** 2 / (a * b)))
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_circ.png']) as p:
@@ -3641,8 +3700,10 @@ if __name__ == '__main__':
         sx = 2.
         sy = 2.
         samples = 10
-        varx = np.linspace(-a/2, a/2, int(samples*a))
-        vary = np.linspace(-b/2, b/2, int(samples*b))
+        numa = int(samples*a)
+        numb =  int(samples*b)
+        varx = np.linspace(-a/2, a/2, numa)
+        vary = np.linspace(-b/2, b/2, numb)
         x, y = np.meshgrid(varx, vary)
         z = rect(x, y, sx, sy)
 
