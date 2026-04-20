@@ -11,6 +11,24 @@ ryutils.py ✓ refactored 2026-04-19, 06-Diverse-pyradi-utilities.ipynb ✓ refa
 ryfiles.py ✓ refactored 2026-04-19  
 
 
+Files outstanding: 
+ry3dnoise.py
+rychroma.py
+rydetector.py
+rylookup.py
+rymodtran.py
+rypflux.py
+ryplanck.py
+ryplot.py
+ryplotspherical.py
+ryprob.py
+ryptw.py
+ryscene.py
+
+Files not to refactored (HDF dependencies, to be refactored later):
+ryhdf5.py
+rystare.py
+rytarggen.py
 
 ## Quick start
 
