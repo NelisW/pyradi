@@ -71,12 +71,12 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0, useRegex=False):
         for dirpath,dirnames,files in os.walk(root):
             if dirpath==root or recurse:
                 for filen in files:
-                    # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
-                    filenames.append(os.path.relpath(os.path.join(dirpath,filen)))
+                    filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,filen)))
+                    # filenames.append(os.path.relpath(os.path.join(dirpath,filen)))
                 if return_folders:
                     for dirn in dirnames:
-                        # filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
-                        filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
+                        filenames.append(os.path.abspath(os.path.join(os.getcwd(),dirpath,dirn)))
+                        # filenames.append(os.path.relpath(os.path.join(dirpath,dirn)))
         for name in filenames:
             if return_folders or os.path.isfile(name):
                 for pattern in pattern_list:
@@ -286,4 +286,7 @@ if __name__ == '__main__':
         QueryDelete(0,'.', 'tape7-*.txt;arr*.txt;Traje*.txt;trian*.txt;vertex*.txt;*.testing')
         QueryDelete(0,'.', 'arr*.txt;colourcoordinates.*;tar;*.svg' )
         QueryDelete(0,'.', '*.hdf5')
+        QueryDelete(0,'.', 'sample*.double')
+
+        QueryDelete(0,'./examples', '*.eps')
 
