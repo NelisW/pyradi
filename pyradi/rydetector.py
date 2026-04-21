@@ -44,7 +44,7 @@ References:
 [2] Infrared Detectors, A Rogalski (1st or 2nd Edition), CRC Press
 [3] Band Parameters for III-V Compound Semiconductors and their Alloys,
 I. Vurgaftmann, J. R. Meyer, and L. R. Ram-Mohan,
-Journal of Applied Physics 89 11, pp. 5815–5875, 2001.
+Journal of Applied Physics 89 11, pp. 5815-5875, 2001.
 
 This package was partly developed to provide additional material in support of students 
 and readers of the book Electro-Optical System Analysis and Design: A Radiometry 
@@ -56,7 +56,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 
 
-__version__= "$Revision$"
+__version__ = '0.1.0'
 __author__= 'pyradi team'
 __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
         'Absorption', 'AbsorptionFile', 'QuantumEfficiency',
@@ -65,9 +65,7 @@ __all__= ['FermiDirac', 'JouleTeEv', 'eVtoJoule',
 
 import sys
 import scipy.constants as const
-import matplotlib.pyplot as plt
 import numpy as np
-import pyradi.ryplanck as ryplanck
 
 ################################################################################
 #
@@ -76,7 +74,7 @@ def eVtoJoule(EeV):
     Convert energy in eV to Joule.
 
     Args:
-        | E: Energy in eV
+        | EeV: Energy in eV
 
     Returns:
         | EJ: Energy in J
@@ -454,16 +452,12 @@ def DstarSpectralFlatPhotonLim(Tdetec, Tenvironment,epsilon):
 
 
 ################################################################################
-if __name__ == '__init__':
-    pass
-
 if __name__ == '__main__':
-    pass
-
     """
     In the model application, the user must define all the detector and
     semiconductor parameters. Each material type has its own paramenters,
     """
+    import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
 
     #calculate the theoretical D* for a spectrally flat detector

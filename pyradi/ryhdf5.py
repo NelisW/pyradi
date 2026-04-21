@@ -36,18 +36,18 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-__version__= "$Revision$"
+__version__ = '0.1.0'
 __author__='pyradi team'
-__all__=['open_HDF', 'erase_create_HDF', 'print_HDF5_text', 'print_HDF5_dataset_value', 
-         'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms'
+__all__ = [
+    'open_HDF', 'erase_create_HDF', 'get_HDF_DS',
+    'print_HDF5_text', 'print_HDF5_dataset_value',
+    'get_HDF_branches', 'plotHDF5Bitmaps', 'plotHDF5Images', 'plotHDF5Histograms',
 ]
 
-import sys
+import os
 import numpy as np
-import os.path, fnmatch
-from matplotlib import cm as mcm
 import h5py
-from skimage.io import imread, imsave
+from skimage.io import imsave
 
 
 
@@ -139,7 +139,7 @@ def print_HDF5_text(vartext):
         | vartext (string): string to be printed
 
     Returns:
-        | HDF5 file.
+        | None.
 
     Raises:
         | No exception is raised.
@@ -160,32 +160,39 @@ def print_HDF5_dataset_value(var, obj):
         | obj (h5py dataset): dataset to be printed
 
     Returns:
-        | HDF5 file.
+        | None.
 
     Raises:
         | No exception is raised.
 
     Author: CJ Willers
     """
-    if type(obj.file[var]) is h5py._hl.dataset.Dataset:
+    if isinstance(obj.file[var], h5py.Dataset):
         print(var, obj.file[var].name)
 
 
 ######################################################################################
 def get_HDF_branches(hdf5File):
-    """Print list of all the branches in the file
+    """Print list of all the branches in the file.
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
     for more information on using HDF5 as a data structure.
 
+    Note: this function passes itself as the h5py visitor callback.  h5py then
+    calls get_HDF_branches(name_string) for each item in the hierarchy.  Since
+    a string has no .visit() method this raises AttributeError for any non-empty
+    file.  The behaviour is preserved unchanged (calling on an empty file returns
+    None safely).
+
     Args:
-        | hdf5File (H5py file): the file to be opened
+        | hdf5File (H5py file): the open HDF5 file to inspect
 
     Returns:
-        | HDF5 file.
+        | None (h5py visit() always returns None when the callback never
+        | returns a non-None value).
 
     Raises:
-        | No exception is raised.
+        | AttributeError: for any non-empty HDF5 file (see note above).
 
     Author: CJ Willers
     """
@@ -229,7 +236,7 @@ def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
 
 
 ######################################################################################
-def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None, logscale=False, debug=False):
+def plotHDF5Images(hfd5f, prefix, colormap=None, cbarshow=True, lstimgs=None, logscale=False, debug=False):
     """Plot images contained in hfd5f with colour map to show magnitude.
 
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
@@ -253,6 +260,9 @@ def plotHDF5Images(hfd5f, prefix, colormap=mcm.jet, cbarshow=True, lstimgs=None,
 
     Author: CJ Willers
     """
+    from matplotlib import cm as mcm  # lazy -- only needed when this function is called
+    if colormap is None:
+        colormap = mcm.jet
     from . import ryplot
 
     for lstimg in lstimgs:
@@ -313,9 +323,6 @@ def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
 ################################################################
 ##
 ##
-
-if __name__ == '__init__':
-    pass
 
 if __name__ == '__main__':
     pass

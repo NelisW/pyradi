@@ -1,6 +1,3 @@
-#  $Id$
-#  $HeadURL$
-
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
@@ -36,28 +33,16 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 
 
-__version__= "$Revision$"
-__author__= 'pyradi team'
-__all__= ['chromaticityforSpectralL','XYZforSpectralL','loadCIEbar','rgb2CIExy','CIExy2rgb',
-          ]
+__version__ = '0.1.0'
+__author__ = 'pyradi team'
+__all__ = ['chromaticityforSpectralL', 'XYZforSpectralL', 'loadCIEbar', 'rgb2CIExy', 'CIExy2rgb']
 
 import sys
 import os
-# import pkg_resources
-# handling older Python versions < 3.9
-try:
-    from importlib import resources
-except ImportError:
-    import importlib_resources as resources
-
-from numbers import Number
-if sys.version_info[0] > 2:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from importlib import resources
 
 import numpy as np
-from scipy.interpolate import  interp1d
+from scipy.interpolate import interp1d
 
 # convert from CIE RGB to XYZ coordinates
 mcieRGBtoXYZ = 5.6507 * np.asarray([
@@ -176,18 +161,18 @@ def XYZforSpectralL(spectral,radiance,xbar,ybar,zbar):
 ##############################################################################
 ##
 def loadCIEbar(specvec, stype):
-    """ 
+    """Load and interpolate CIE 1931 tristimulus functions onto a user-supplied spectral vector.
 
     Args:
-        | specvec (np.array[N,] or [N,1]): spectral vector in  [um] or [cm-1].
-        | stype (str]): type spectral vector wl=wavelength, wn=wavenumber.
+        | specvec (np.array[N,] or [N,1]): spectral vector in [um] or [cm-1].
+        | stype (str): spectral vector type — 'wl' for wavelength [um], 'wn' for wavenumber [cm-1].
 
     Returns:
-        | CIE tristimilus (np.array[:,4]: cols=[specvec,x,y,z])
+        | ciebar (np.array[:,4]): columns are [specvec, xbar, ybar, zbar], or (None, None)
+        |     if the spectral vector is not monotonically sorted.
 
     Raises:
         | No exception is raised.
-
     """
     specvec = np.asarray(specvec)
     # lookup assumes wavelength
@@ -215,18 +200,12 @@ def loadCIEbar(specvec, stype):
             ciebar = np.flipud(ciebar)
             wldescending = True
 
-    #load data file from the pyradi directories, not local dir
-    resource_package = 'pyradi'  #__name__  ## Could be any module/package name.
-    resource_path = os.path.join('data', 'colourcoordinates','ciexyz31_1.txt')
-    # dat = pkg_resources.resource_string(resource_package, resource_path)
-    dat = resources.files(resource_package).joinpath(resource_path)
-    if sys.version_info[0] > 2:
-        with dat.open('r') as f:
-            cie = np.loadtxt(f,delimiter=",",skiprows=1)
-        # cie = np.loadtxt(StringIO(dat.decode('utf-8')),delimiter=",",skiprows=1)
-    else:
-        cie = np.genfromtxt(StringIO(dat),delimiter=",",skip_header=1)
-    cie = cie.reshape(-1,4)
+    # Load CIE data file from the pyradi package data directory.
+    resource_path = os.path.join('data', 'colourcoordinates', 'ciexyz31_1.txt')
+    dat = resources.files('pyradi').joinpath(resource_path)
+    with dat.open('r') as f:
+        cie = np.loadtxt(f, delimiter=',', skiprows=1)
+    cie = cie.reshape(-1, 4)
 
     #interpolate cie spectral data to samples wavelength range
     #first construct the interpolating function then call the function on data
@@ -278,14 +257,9 @@ def rgb2CIExy(rgb,system='CIE RGB'):
     elif system in 'Adobe RGB':
         XYZ = madobeRGBtoXYZ.dot(rgb.T)
     elif system in 'sRGB':
-        # print('kkkkkk')
-        # print(rgb)
-        rgb /= rgb.max(axis=1).reshape(-1,1)
-        rgb = np.where(rgb<=0.04045, rgb/12.92,((rgb+0.055)/1.055)**2.4)
-        # print('rgb')
-        # print(rgb)
-        # print('ppppppp')
-        XYZ =  (msRGBtoXYZ.dot(rgb.T))
+        rgb /= rgb.max(axis=1).reshape(-1, 1)
+        rgb = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+        XYZ = msRGBtoXYZ.dot(rgb.T)
     else:
         return None
     
@@ -360,13 +334,7 @@ def CIExy2rgb(xy,system='CIE RGB'):
 ################################################################
 ##
 
-if __name__ == '__init__':
-    pass
-
 if __name__ == '__main__':
-
-    import math
-    import sys
 
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
@@ -390,45 +358,44 @@ if __name__ == '__main__':
         print('mcieRGBtoXYZ:')
         print(mcieRGBtoXYZ)
         print('inv(mcieRGBtoXYZ):')
-        print(np.matrix(mcieRGBtoXYZ).I)
-        print(10*'-')
+        print(np.linalg.inv(mcieRGBtoXYZ))
+        print(10 * '-')
         print('mXYZtoCIERGB:')
         print(mXYZtoCIERGB)
         print('inv(mXYZtoCIERGB):')
-        print(np.matrix(mXYZtoCIERGB).I)
-        print(10*'-')
+        print(np.linalg.inv(mXYZtoCIERGB))
+        print(10 * '-')
         print('mXYZtoCIERGB.dot(mcieRGBtoXYZ):')
         print(mXYZtoCIERGB.dot(mcieRGBtoXYZ))
-        print(60*'*')
+        print(60 * '*')
 
         print('madobeRGBtoXYZ:')
         print(madobeRGBtoXYZ)
         print('inv(madobeRGBtoXYZ):')
-        print(np.matrix(madobeRGBtoXYZ).I)
-        print(10*'-')
+        print(np.linalg.inv(madobeRGBtoXYZ))
+        print(10 * '-')
         print('mXYZtoAdobeRGB:')
         print(mXYZtoAdobeRGB)
-        print('int(mXYZtoAdobeRGB):')
-        print(np.matrix(mXYZtoAdobeRGB).I)
-        print(10*'-')
+        print('inv(mXYZtoAdobeRGB):')
+        print(np.linalg.inv(mXYZtoAdobeRGB))
+        print(10 * '-')
         print('mXYZtoAdobeRGB.dot(madobeRGBtoXYZ):')
         print(mXYZtoAdobeRGB.dot(madobeRGBtoXYZ))
-        print(60*'*')
-
+        print(60 * '*')
 
         print('msRGBtoXYZ:')
         print(msRGBtoXYZ)
         print('inv(msRGBtoXYZ):')
-        print(np.matrix(msRGBtoXYZ).I)
-        print(10*'-')
+        print(np.linalg.inv(msRGBtoXYZ))
+        print(10 * '-')
         print('mXYZtosRGB:')
         print(mXYZtosRGB)
-        print('int(mXYZtosRGB):')
-        print(np.matrix(mXYZtosRGB).I)
-        print(10*'-')
+        print('inv(mXYZtosRGB):')
+        print(np.linalg.inv(mXYZtosRGB))
+        print(10 * '-')
         print('mXYZtosRGB.dot(msRGBtoXYZ):')
         print(mXYZtosRGB.dot(msRGBtoXYZ))
-        print(60*'*')
+        print(60 * '*')
 
 
 

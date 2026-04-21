@@ -1,7 +1,4 @@
-#  $Id$
-#  $HeadURL$
-
-################################################################se
+################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
@@ -38,14 +35,13 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 
 
-__version__= "$Revision$"
+__version__ = '0.1.0'
 __author__= 'pyradi team'
 __all__= ['RadLookup']
 
-import sys
 import numpy as np
-import collections
-import os.path
+from collections import defaultdict
+from pathlib import Path
 import matplotlib.pyplot as plt
 
 import pyradi.ryplot as ryplot
@@ -153,13 +149,6 @@ class RadLookup:
         """Initialise and loads the camera calibration data from files and calculate the lookup tables.
 
         """
-
-        __all__ = ['info',
-                    'LookupDLRad', 'LookupDLTemp', 'LookupTempRad',  'LookupRadTemp',
-                    'PlotTempRadiance',
-                    'PlotSpectrals', 'PlotCalSpecRadiance', 'PlotCalDLRadiance',
-                    'PlotCalTempRadiance', 'PlotCalTintRad', 'PlotCalDLTemp', 'PlotCalTempDL'
-                    ]
 
         self.specName = specName
         self.nu = nu
@@ -361,9 +350,6 @@ class RadLookup:
             tempHiRes = np.linspace(self.tmprLow, self.tmprHi,  int(1 + (self.tmprHi - self.tmprLow )/self.tmprInc))
             xx = np.ones(tempHiRes.shape)
             #first calculate for case with filter present
-
-            # print(xx.shape, self.specEffWiFil.shape)
-
             _, spectrlHR = np.meshgrid(xx,self.specEffWiFil)
             specLHiRes = spectrlHR * ryplanck.planck(self.nu, tempHiRes, type='en')
             LHiRes = np.trapezoid(specLHiRes, x=self.nu, axis=0) / np.pi
@@ -385,10 +371,6 @@ class RadLookup:
                                          (self.sigMax - self.sigMin )/self.sigInc ))
                 # print(np.min(self.interpDL))
 
-                # self.TableTempRad = None
-                # self.interpDL = None
-                # self.TableTintRad = None
-
                 self.dicSpecRadiance = None
                 self.dicCalRadiance = None
                 self.DlRadCoeff = None
@@ -397,18 +379,11 @@ class RadLookup:
 
 
                 #create containers to store
-                self.dicSpecRadiance = collections.defaultdict(float)
-                self.dicCalRadiance = collections.defaultdict(float)
-                self.DlRadCoeff = collections.defaultdict(float)
-                self.dicinterpDL = collections.defaultdict(float)
-                self.dicTableDLRad = collections.defaultdict(float)
-
-
-                # self.dicSpecRadiance.clear()
-                # self.dicCalRadiance.clear()
-                # self.DlRadCoeff.clear()
-                # self.dicinterpDL.clear()
-                # self.dicTableDLRad.clear()
+                self.dicSpecRadiance = defaultdict(float)
+                self.dicCalRadiance = defaultdict(float)
+                self.DlRadCoeff = defaultdict(float)
+                self.dicinterpDL = defaultdict(float)
+                self.dicTableDLRad = defaultdict(float)
 
 
                 #step through all instrument temperatures
@@ -423,8 +398,7 @@ class RadLookup:
                     self.dicCaldata[tmprInstr] = self.dicCaldata[tmprInstr].astype(np.float64)
 
                     xx = np.ones(self.dicCaldata[tmprInstr][:,0].shape)
-                    _, spectrl = np.meshgrid(xx,self.specEffWiFil)
-                    #now spectrl has the same shape as the planck function return
+                    _, spectrl = np.meshgrid(xx, self.specEffWiFil)
 
                     self.dicSpecRadiance[tmprInstr] = \
                       spectrl * ryplanck.planck(self.nu, self.dicCaldata[tmprInstr][:,0], type='en')
@@ -471,7 +445,7 @@ class RadLookup:
                 self.calTablesCalculated = True
 
         else:
-            ResetAllContainers()
+            self.ResetAllContainers()
 
 
     ################################################################
@@ -681,7 +655,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-spectrals.{}'.format(savePath, saveExt))
@@ -741,7 +715,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CalRadiance.{}'.format(savePath, saveExt))
@@ -803,7 +777,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CaldlRadiance.{}'.format(savePath, saveExt))
@@ -863,7 +837,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 if withFilter:
@@ -921,7 +895,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CalTempRadiance.{}'.format(savePath, saveExt))
@@ -970,7 +944,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CalInternal.{}'.format(savePath, saveExt))
@@ -1034,7 +1008,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CalDLTemp.{}'.format(savePath, saveExt))
@@ -1098,7 +1072,7 @@ class RadLookup:
             if savePath==None:
                 savePath=self.specName
             else:
-                savePath = os.path.join(savePath,self.specName)
+                savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
                 p.saveFig('{}-CalTempDL.{}'.format(savePath, saveExt))
@@ -1108,9 +1082,6 @@ class RadLookup:
 
 ################################################################
 ##
-
-if __name__ == '__init__':
-    pass
 
 if __name__ == '__main__':
 
@@ -1200,20 +1171,9 @@ if __name__ == '__main__':
 
     Tlo = 17.1
     Thi = 34.4
-    if sys.version_info[0] > 2:
-        dicCaldata = {Tlo: arrLo, Thi: arrHi}
-        dicPower = {Tlo: 10., Thi: 10.}
-        dicFloor = {Tlo: 3625, Thi: 4210}
-    else:
-        dicCaldata = collections.OrderedDict()
-        dicCaldata[Tlo] = arrLo
-        dicCaldata[Thi] = arrHi
-        dicPower = collections.OrderedDict()
-        dicPower[Tlo] = 10.
-        dicPower[Thi] = 10.
-        dicFloor = collections.OrderedDict()
-        dicFloor[Tlo] = 3625
-        dicFloor[Thi] = 4210
+    dicCaldata = {Tlo: arrLo, Thi: arrHi}
+    dicPower = {Tlo: 10., Thi: 10.}
+    dicFloor = {Tlo: 3625, Thi: 4210}
 
 
     print('dicPower = {}'.format(dicPower))

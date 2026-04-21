@@ -35,30 +35,18 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 """
 
 
-from __future__ import division
-from __future__ import print_function
-#from __future__ import unicode_literals
-
 import pyradi.ryfiles as ryfiles
 
-__version__= "$Revision$"
+__version__ = '0.1.0'
 __author__= 'pyradi team'
 __all__= ['fixHeaders', 'loadtape7','fixHeadersList','runModtranAndCopy','runModtranModrootIn','variationTape5File']
 
 import re
-import sys
 import numpy as np
-import os.path
+import os
 import pandas as pd
 import json
-
-if sys.version_info[0] > 2:
-    # from io import StringIO
-    from io import BytesIO
-    # from str import maketrans
-else:
-    from string import maketrans
-    import StringIO
+from io import BytesIO
 
 
 ##########################################################################################
@@ -185,7 +173,7 @@ class extracttape6:
                         if 'USER DEFINED' in line:
                             line = line.replace('USER DEFINED','USER DEFINED')
                         lst = line.strip().split()
-                        df = df.append(pd.DataFrame([lst],index=None))
+                        df = pd.concat([df, pd.DataFrame([lst])], ignore_index=True)
                 if 'Z         P        T     REL H    H2O' in line:
                     cntr += 1
                 if '(KM)      (MB)     (K)     (%)  (GM / M3)  TYPE' in line:
@@ -218,7 +206,7 @@ class extracttape6:
                         break
                     else:
                         lst = line.strip().split()
-                        dfh = dfh.append(pd.DataFrame([lst],index=None))
+                        dfh = pd.concat([dfh, pd.DataFrame([lst])], ignore_index=True)
                 elif 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line:
                     cntr += 1
                 elif '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line:
@@ -311,7 +299,7 @@ class extracttape6:
                         if 'USER DEFINED' in line:
                             line = line.replace('USER DEFINED','USER DEFINED')
                         lst = line.strip().split()
-                        df8 = df8.append(pd.DataFrame([lst],index=None))
+                        df8 = pd.concat([df8, pd.DataFrame([lst])], ignore_index=True)
                 if 'Z         P        T     REL H    H2O                          AEROSOL' in line:
                     cntr += 1
                 if '(KM)      (MB)     (K)     (%)  (GM / M3)  TYPE                 PROFILE' in line :
@@ -337,7 +325,7 @@ class extracttape6:
                         break
                     else:
                         lst = line.strip().split()
-                        dfh = dfh.append(pd.DataFrame([lst],index=None))
+                        dfh = pd.concat([dfh, pd.DataFrame([lst])], ignore_index=True)
                 if 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line:
                     cntr += 1
                 if '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line:
@@ -364,12 +352,11 @@ class extracttape6:
                         if height >= key[0] and height < key[1]:
                             if len( aerolayers[key]) < 4:
                                 aerolayers[key].append(height)
-                            dfa = dfa.append(pd.DataFrame([aerolayers[key]]))
+                            dfa = pd.concat([dfa, pd.DataFrame([aerolayers[key]])], ignore_index=True)
                 dfa.columns = ["Aero Type","Aero Prof","Aero Season","Height km"]
                 # link the two dataframes on common
                 df = dfa.merge(dfh,on='Height km')
                 # reorder columns to be same as for model 7
-                # print(df)
                 df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
                 var =  df.to_dict(orient='records')
                 tp6data['Profiles'] = var
@@ -734,40 +721,10 @@ def fixHeaders(instr):
         | No exception is raised.
     """
 
-    # intab = "+-[]@"
-    # outtab = "pmbba"
-
-    # if isinstance(instr, str):
-    #     translate_table = dict((ord(char), str(outtab)) for char in intab)
-    # else:
-    #     assert isinstance(instr, str)
-    #     translate_table = maketrans(intab, outtab)
-    # print(instr, type(translate_table),translate_table )
-    # return instr.translate(translate_table)
-
-    if sys.version_info[0] > 2:
-        intab = "+--[]@"
-        outtab = "pmmbba"
-
-        # print(instr)
-        # if isinstance(instr, unicode):
-        #     translate_table = dict((ord(char), unicode(outtab)) for char in intab)
-        # else:
-        #     assert isinstance(instr, str)
-        translate_table = str.maketrans(intab, outtab)
-    else:
-        intab = u"+-[]@"
-        outtab = u"pmbba"
-
-        # print(instr)
-        if isinstance(instr, unicode):
-            translate_table = dict((ord(char), unicode(outtab)) for char in intab)
-        else:
-            assert isinstance(instr, str)
-            translate_table = maketrans(intab, outtab)
-
-    rtnstring = instr.translate(translate_table)
-    return rtnstring
+    intab = "+--[]@"
+    outtab = "pmmbba"
+    translate_table = str.maketrans(intab, outtab)
+    return instr.translate(translate_table)
 
 
 
@@ -903,7 +860,6 @@ def loadtape7(filename, colspec = []):
     #ITYPE = int(lines[0][9])
     IEMSCT = int(lines[0][14])
     #IMULT = int(lines[0][19])
-    #print('filename={0}, IEMSCT={1}'.format(filename,IEMSCT))
 
     #skip the first few rows that contains tape5 information and leave the
     #header for the different components of transimissions.
@@ -952,12 +908,7 @@ def loadtape7(filename, colspec = []):
         colEnd.append(idx+1)
 
     colSrt = [0] + [v-1 for v in colEnd[:-1]]
-    if sys.version_info[0] > 2:
-        # http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
-        # zip returns an iterator, not a list
-        collim = list(zip(colSrt,colEnd))
-    else:
-        collim = zip(colSrt,colEnd)
+    collim = list(zip(colSrt, colEnd))
 
     # iemsct=3 has a completely messed up header, replace with this
     if IEMSCT == 3:
@@ -976,8 +927,6 @@ def loadtape7(filename, colspec = []):
     else:
         colHead = colHead1st
         deltaHead = 0
-
-    # print(colHead)
 
     #different IEMSCT values have different column formats
     # some cols have headers and some are empty.
@@ -999,18 +948,10 @@ def loadtape7(filename, colspec = []):
     # now append the numeric data, ignore the original header and last row in the file
     s = s + ''.join(lines[headline+1+deltaHead:-1])
 
-    #read the string in from a StringIO in-memory file
-    # lines = np.genfromtxt(io.StringIO(s), dtype=None,  names=True)
-    if sys.version_info[0] > 2:
-        # lines = np.genfromtxt(StringIO(s), dtype=None,  names=True)
-        lines = np.genfromtxt(BytesIO(s.encode('utf-8')), dtype=None,  names=True)
-    else:
-        lines = np.genfromtxt(StringIO.StringIO(s), dtype=None,  names=True)
-
-    # print('lines=',lines)
+    #read the string in from an in-memory BytesIO buffer
+    lines = np.genfromtxt(BytesIO(s.encode('utf-8')), dtype=None, names=True)
 
     #extract the wavenumber col as the first column in the new table
-    # print(lines)
     coldata= lines[fixHeaders(colspec[0])].reshape(-1, 1)
     # then append the other required columns
     for colname in colspec[1:]:
@@ -1082,8 +1023,6 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
         | No exception is raised.
     """
 
-    import os
-
     # if not lists, make lists
     if not isinstance(variation, list): 
         variation = [variation]
@@ -1111,7 +1050,6 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
         lines = fin.readlines()
 
     varcomb = '-'.join([str(i) for i in variation])
-    # print(tape5base, varcomb, scenario)
 
     #change the srcstr to new value with specfied format for all variations
     outlines = []
@@ -1129,7 +1067,6 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
 
     filename = os.path.join(dirname, outfile)
     with open(filename,'w') as fout:
-        # print('writing',filename)
         fout.writelines(outlines)
 
     return varcomb
@@ -1160,16 +1097,12 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname,clean=False):
     Raises:
         | No exception is raised.
     """
-    import os
     import shutil
     import subprocess
     import time
-    import pyradi.ryfiles as ryfiles
 
     filepaths = ryfiles.listFiles(root, patterns=research, recurse=1, return_folders=0, useRegex=True)
 
-    # print('**********************',root,research,filepaths)
- 
     for filepath in filepaths:
         filename = os.path.basename(filepath)
         dirname = os.path.dirname(filepath)
@@ -1234,16 +1167,12 @@ def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
     Raises:
         | No exception is raised.
     """
-    import os
     import shutil
     import subprocess
     import time
-    import pyradi.ryfiles as ryfiles
 
     filepaths = ryfiles.listFiles(root, patterns=f'{filerootname}.tp5', recurse=1, return_folders=0, useRegex=False)
 
-    # print('**********************',root,research,filepaths)
- 
     for filepath in filepaths:
 
         # write tape5 path to modroot.in
@@ -1266,9 +1195,6 @@ def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
 
 ################################################################
 ##
-
-if __name__ == '__init__':
-    pass
 
 if __name__ == '__main__':
 

@@ -1,6 +1,3 @@
-#  $Id$
-#  $HeadURL$
-
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New) License
 # you may not use this file except in
@@ -38,7 +35,7 @@ PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id
 
 
 
-__version__= "$Revision$"
+__version__ = '0.1.0'
 __author__='MS Willers'
 __all__=['oprDT', 'oprDV', 'oprDH', 'oprSDT', 'oprSDV','oprSDH', 'getS','getNT','getNH',
     'getNV', 'getNVH','getNTV','getNTH', 'getNTVH', 'getTotal']
@@ -206,15 +203,9 @@ def getNT(imgSeq):
 
     im = oprDV(oprDH(oprSDT(imgSeq)))
 
-    # std = sqrt(mean(abs(x - x.mean())**2))
-    # The average squared deviation is normally calculated as x.sum() / N, where N = len(x).
-    # If ddof is specified, the divisor N - ddof is used instead.
-    # In standard statistical practice, ddof=1 provides an unbiased estimator of the variance of the infinite population.
-    # ddof=0 provides a maximum likelihood estimate of the variance for normally distributed variables.
-    # The standard deviation computed in this function is the square root of the estimated variance, so even with ddof=1,
-    # it will not be an unbiased estimate of the standard deviation per se.
-
-    return (np.std(im, dtype=np.float64,  ddof=1),im)
+    # ddof=1: unbiased variance estimator (divides by N-1).
+    # ddof=0: maximum-likelihood estimate (divides by N).
+    return (np.std(im, dtype=np.float64, ddof=1), im)
 
 
 ################################################################
@@ -379,39 +370,43 @@ if __name__ == '__main__':
     import pyradi.ryptw as ryptw
     import pyradi.ryutils as ryutils
 
-    #--------------------- simulated sensor noise data from raw format ------------------------------------------------------------------------
+    #--------------------- simulated sensor noise data from raw format -------------------
 
     rows = 100
     cols = 100
 
-    vartype   = np.uint16
-    imagefile  = 'data/sensornoise.raw'
+    vartype     = np.uint16
+    imagefile   = 'data/sensornoise.raw'
     outfilename = 'sensornoise.txt'
 
     # load images
     framesToLoad = list(range(1, 21, 1))
-    frames, img    = ryfiles.readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
+    frames, img = ryfiles.readRawFrames(imagefile, rows, cols, vartype, framesToLoad)
 
     if frames > 0:
 
         # show something
-        P = ryplot.Plotter(1, 1, 1,'Simulated noise', figsize=(12, 8))
+        P = ryplot.Plotter(1, 1, 1, 'Simulated noise', figsize=(12, 8))
         P.showImage(1, img[0])
-        #P.getPlot().show()
         P.saveFig('rawframe0.png')
 
-        outfile = open(outfilename, 'w')
-        outfile.write('\n{0} Frames read from {1}\n'.format(frames, imagefile))
-        outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
-        outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
-        outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
-        outfile.write('---------------------|---------------------|-----------------\n')
-        outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img)[0],getNTH(img)[0]))
-        outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img)[0],getNTV(img)[0]))
-        outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img)[0],getNTVH(img)[0]))
-        outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)[0]))
+        with open(outfilename, 'w') as outfile:
+            outfile.write('\n{0} Frames read from {1}\n'.format(frames, imagefile))
+            outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
+            outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
+            outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
+            outfile.write('---------------------|---------------------|-----------------\n')
+            outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(
+                getNH(img)[0], getNTH(img)[0]))
+            outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(
+                getNV(img)[0], getNTV(img)[0]))
+            outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(
+                getNVH(img)[0], getNTVH(img)[0]))
+            outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(
+                getNT(img)[0]))
 
-        print('\n({0}, {3}, {4}) (frames, rows,cols) processed from {1} - see results in {2}\n'.format(frames, imagefile, outfilename,rows,cols))
+        print('\n({0}, {3}, {4}) (frames, rows, cols) processed from {1} - see results in {2}\n'.format(
+            frames, imagefile, outfilename, rows, cols))
 
     else:
         print('Error in reading noise images data')
@@ -437,47 +432,48 @@ if __name__ == '__main__':
     P.getPlot().show()
     P.saveFig('simnoise.png')
 
-    #--------------------- Jade ptw file with noise data ------------------------------------------------------------------------
+    #--------------------- Jade ptw file with noise data --------------------------------
 
-    ptwfile  = 'data/PyradiSampleMWIR.ptw'
+    ptwfile     = 'data/PyradiSampleMWIR.ptw'
     outfilename = 'PyradiSampleMWIR.txt'
 
     header = ryptw.readPTWHeader(ptwfile)
-    #ryptw.showHeader(header)
 
     rows = header.h_Rows
     cols = header.h_Cols
 
     framesToLoad = list(range(1, 101, 1))
     frames = len(framesToLoad)
-    data,_ = ryptw.getPTWFrame (header, framesToLoad[0])
+    data, _ = ryptw.getPTWFrame(header, framesToLoad[0])
     for frame in framesToLoad[1:]:
-        f, _ = (ryptw.getPTWFrame (header, frame))
+        f, _ = ryptw.getPTWFrame(header, frame)
         data = np.concatenate((data, f))
 
-    img = data.reshape(frames, rows ,cols)
+    img = data.reshape(frames, rows, cols)
 
     # show something
-    P = ryplot.Plotter(1, 1, 1,'Measured MWIR noise', figsize=(12, 8))
+    P = ryplot.Plotter(1, 1, 1, 'Measured MWIR noise', figsize=(12, 8))
     P.showImage(1, img[0])
     P.getPlot().show()
     P.saveFig('ptwframe0.png')
 
-    outfile = open(outfilename, 'w')
+    with open(outfilename, 'w') as outfile:
+        outfile.write('\n{0} Frames read from {1}\n'.format(frames, ptwfile))
+        outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
+        outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
+        outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
+        outfile.write('---------------------|---------------------|-----------------\n')
+        outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(
+            getNH(img)[0], getNTH(img)[0]))
+        outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(
+            getNV(img)[0], getNTV(img)[0]))
+        outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(
+            getNVH(img)[0], getNTVH(img)[0]))
+        outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(
+            getNT(img)[0]))
 
-    outfile.write('\n{0} Frames read from {1}\n'.format(frames, ptwfile))
-    outfile.write('\nImage average S       : {0:10.3f} \n'.format(getS(img)))
-    outfile.write('Total system noise    : {0:10.3f} \n\n'.format(getTotal(img)))
-    outfile.write('Fixed/spatial noise  | Temporal noise      | Variation effect\n')
-    outfile.write('---------------------|---------------------|-----------------\n')
-    outfile.write('Nh    : {0:10.3f}   | Nth   : {1:10.3f}  | Column \n'.format(getNH(img)[0],getNTH(img)[0]))
-    outfile.write('Nv    : {0:10.3f}   | Ntv   : {1:10.3f}  | Row \n'.format(getNV(img)[0],getNTV(img)[0]))
-    outfile.write('Nvh   : {0:10.3f}   | Ntvh  : {1:10.3f}  | Pixel \n'.format(getNVH(img)[0],getNTVH(img)[0]))
-    outfile.write('                     | Nt    : {0:10.3f}  | Frame \n'.format(getNT(img)[0]))
-
-    outfile.close()
-
-    print('\n({0}, {3}, {4}) (frames, rows,cols) processed from {1} - see results in {2}\n'.format(frames, imagefile, outfilename,rows,cols))
+    print('\n({0}, {3}, {4}) (frames, rows, cols) processed from {1} - see results in {2}\n'.format(
+        frames, ptwfile, outfilename, rows, cols))
 
     NH = getNH(img)[1].reshape(cols).reshape(1,cols)
     NTH = getNTH(img)[1].reshape(frames*cols).reshape(frames,cols)

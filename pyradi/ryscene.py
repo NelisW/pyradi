@@ -62,17 +62,17 @@ which explains as follows:
 
 You specify conventions for interpreting the sequence of Euler angles with a four character string.
 
-The first character is ‘r’ (rotating == intrinsic), or ‘s’ (static == extrinsic).
+The first character is 'r' (rotating == intrinsic), or 's' (static == extrinsic).
 
-The next three characters give the axis (‘x’, ‘y’ or ‘z’) about which to perform the rotation, 
+The next three characters give the axis ('x', 'y' or 'z') about which to perform the rotation, 
 in the order in which the rotations will be performed.
 
-For example the string ‘szyx’ specifies that the angles should be interpreted relative to 
+For example the string 'szyx' specifies that the angles should be interpreted relative to 
 extrinsic (static) coordinate axes, and be performed in the order: rotation about z axis; 
 rotation about y axis; rotation about x axis. This is a relatively common convention, 
 with customized implementations in taitbryan in this package.
 
-The string ‘rzxz’ specifies that the angles should be interpreted relative to 
+The string 'rzxz' specifies that the angles should be interpreted relative to 
 intrinsic (rotating) coordinate axes, and be performed in the order: 
 rotation about z axis; rotation about the rotated x axis; rotation about the rotated z axis. 
 Wolfram Mathworld claim this is the most common convention : 
