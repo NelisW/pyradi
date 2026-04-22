@@ -30,30 +30,52 @@ For more detail see the documentation at
 
 """
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-__version__= ""
+__version__ = '0.1.0'
 __author__='CJ Willers'
-__all__=['create_HDF5_image', 'hdf_Raw', 'hdf_Uniform', 'hdf_disk_photon', 'hdf_stairs',
-    ]
+__all__ = [
+    'assigncheck',
+    'create_HDF5_image',
+    'hdf_Raw',
+    'hdf_Uniform',
+    'hdf_disk_photon',
+    'hdf_stairs',
+    'analyse_HDF5_image',
+    'analyse_HDF5_imageFile',
+    'calcTemperatureEquivalent',
+    'calcLuxEquivalent',
+]
 
-import sys
 import numpy as np
-import scipy as sp
 import scipy.signal as signal
-import scipy.stats as stats
 import scipy.constants as const
 from scipy import interpolate
-import re
 
-import pyradi.ryhdf5 as ryhdf5 # TODO:   fix for all functions removed from ryfiles 
 import pyradi.ryfiles as ryfiles
+import pyradi.ryhdf5 as ryhdf5
 import pyradi.ryutils as ryutils
-import pyradi.ryplot as ryplot
-import pyradi.ryprob as ryprob
 import pyradi.ryplanck as ryplanck
+def _ryplanckql(spectral, temperature):
+    """Planck photon spectral exitance, wavelength domain, spectral in µm.
+
+    Self-contained: constants are computed from scipy.constants on every call
+    so the result is independent of which pyradi version is installed.
+    Handles scalar, 1-D, and 2-D column-vector (N,1)/(M,1) inputs, matching
+    the behaviour of the @fixDimensions-decorated local ryplanck.planckql.
+    """
+    import numpy as _np
+    import scipy.constants as _sc
+    _c1ql = 2.0 * _np.pi * _sc.c * (1.0e6) ** 3   # q/(s.m^2.um^4)
+    _c2l  = _sc.h * _sc.c / _sc.k * 1.0e6          # um.K
+    _lim  = 709.7
+    sp = _np.asarray(spectral,    dtype=float)
+    tp = _np.asarray(temperature, dtype=float)
+    # (N,1) spectral × (M,1) temperature → (N,M): transpose temp so it broadcasts
+    if sp.ndim == 2 and sp.shape[1] == 1 and tp.ndim == 2 and tp.shape[1] == 1:
+        tp = tp.T  # (1, M) broadcasts with (N, 1) → (N, M)
+    exP  = _c2l / (sp * tp)
+    exP2 = _np.where(exP < _lim, exP, 1.0)
+    p    = (_c1ql / (_np.exp(exP2) - 1.0)) / (sp ** 4)
+    return _np.where(exP < _lim, p, 0.0)
 
 
 
@@ -91,10 +113,8 @@ def hdf_Uniform(imghd5,rad_dynrange):
     """
 
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/rad_min',0.)
-    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
-    # imghd5['image/rad_min'] = 0. 
+    assigncheck(imghd5, 'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/rad_min', 0.)
 
     # create photon rate radiance image from min to min+dynamic range, with no noise
     imghd5['image/PhotonRateRadianceNoNoise'][...] = \
@@ -129,35 +149,37 @@ def hdf_disk_photon(imghd5,rad_min,rad_dynrange,fracdiameter,fracblur):
     """
 
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange  * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/rad_min', rad_min * imghd5['image/conversion'][()])
     # scale the disk to image size, as fraction
     maxSize = np.min((imghd5['image/imageSizeRows'][()], imghd5['image/imageSizeCols'][()]))
-    assigncheck(imghd5,'image/disk_diameter',fracdiameter * maxSize)
-    assigncheck(imghd5,'image/blur',fracblur * maxSize)
-
-    # imghd5['image/rad_dynrange'] = rad_dynrange  * imghd5['image/conversion'][()]
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
-    # # scale the disk to image size, as fraction
-    # maxSize = np.min((imghd5['image/imageSizeRows'][()], imghd5['image/imageSizeCols'][()]))
-    # imghd5['image/disk_diameter'] = fracdiameter * maxSize
-    # imghd5['image/blur'] = fracblur * maxSize
+    assigncheck(imghd5, 'image/disk_diameter', fracdiameter * maxSize)
+    assigncheck(imghd5, 'image/blur', fracblur * maxSize)
 
 
 
     #create the disk, normalised to unity
-    varx = np.linspace(-imghd5['image/imageSizeCols'][()]/2, imghd5['image/imageSizeCols'][()]/2, imghd5['image/imageSizePixels'][()][1])
-    vary = np.linspace(-imghd5['image/imageSizeRows'][()]/2, imghd5['image/imageSizeRows'][()]/2, imghd5['image/imageSizePixels'][()][0])
+    varx = np.linspace(-imghd5['image/imageSizeCols'][()] / 2,
+                        imghd5['image/imageSizeCols'][()] / 2,
+                        imghd5['image/imageSizePixels'][()][1])
+    vary = np.linspace(-imghd5['image/imageSizeRows'][()] / 2,
+                        imghd5['image/imageSizeRows'][()] / 2,
+                        imghd5['image/imageSizePixels'][()][0])
     x1, y1 = np.meshgrid(varx, vary)
     delta_x = varx[1] - varx[0]
     delta_y = vary[1] - vary[0]
-    Uin = ryutils.circ(x1,y1,imghd5['image/disk_diameter'][()]) 
+    # Inline circ — avoids ryutils.circ which is absent from some installed pyradi versions.
+    # circ(x, y, d): 1 inside radius d/2, 0.5 on boundary, 0 outside.
+    _d0 = imghd5['image/disk_diameter'][()]
+    _r0 = np.sqrt(x1**2 + y1**2)
+    Uin = np.where(_r0 < _d0/2., 1.0, np.where(_r0 == _d0/2., 0.5, 0.0))
     #create blur disk normalised to unity
     dia =  np.max((1, 2 * round(imghd5['image/blur'][()] / np.max((delta_x,delta_y)))))
     varx = np.linspace(-dia, dia, int(2 * dia))
     vary = np.linspace(-dia, dia, int(2 * dia))
     x, y = np.meshgrid(varx, vary)
-    H = ryutils.circ(x, y, dia)
+    _r1 = np.sqrt(x**2 + y**2)
+    H = np.where(_r1 < dia/2., 1.0, np.where(_r1 == dia/2., 0.5, 0.0))
     # convolve disk with blur
     NormLin = (np.abs(signal.convolve2d(Uin, H, mode='same'))/np.sum(H))  ** 2
 
@@ -199,14 +221,10 @@ def hdf_stairs(imghd5,rad_min,rad_dynrange,steps,imtype):
     Author: CJ Willers
     """
     # convert to radiance values in photon units
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/steps',steps)
-    assigncheck(imghd5,'image/imtype',imtype)
-    # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
-    # imghd5['image/steps'] = steps 
-    # imghd5['image/imtype'] = imtype
+    assigncheck(imghd5, 'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/rad_min', rad_min * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/steps', steps)
+    assigncheck(imghd5, 'image/imtype', imtype)
 
     #Create the stairs spatial definition
     size = imghd5['image/imageSizePixels'][()][1]
@@ -274,13 +292,9 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
     Author: CJ Willers
     """
 
-    # print(filename,inputSize,outputSize,rad_min,rad_dynrange, imgNum,inputOrigin,blocksize,sigma)
-    assigncheck(imghd5,'image/rad_dynrange',rad_dynrange * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/rad_min',rad_min * imghd5['image/conversion'][()])
-    assigncheck(imghd5,'image/filename',filename)
-     # imghd5['image/rad_dynrange'] = rad_dynrange * imghd5['image/conversion'][()]
-    # imghd5['image/rad_min'] = rad_min * imghd5['image/conversion'][()]
-    # imghd5['image/filename'] = filename 
+    assigncheck(imghd5, 'image/rad_dynrange', rad_dynrange * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/rad_min', rad_min * imghd5['image/conversion'][()])
+    assigncheck(imghd5, 'image/filename', filename)
 
     # read the imgNum'th raw image frame from file
     nfr,img = ryfiles.readRawFrames(filename, rows=inputSize[0], cols=inputSize[1],
@@ -397,14 +411,6 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
     Author: CJ Willers
     """
-    # # see if the input is a string
-    # inpstr = False
-    # if sys.version_info[0] > 2:
-    #     inpstr = isinstance(imageName, str)
-    # else:
-    #     inpstr = isinstance(imageName, basestring)
-
-
     hdffilename = 'image-{}-{}-{}'.format(imageName, numPixels[0], numPixels[1])
     if noSpaces:
         hdffilename = hdffilename.replace(' ','-')
@@ -412,30 +418,20 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     hdffilename = '{}.hdf5'.format(hdffilename)
 
     if fileHandle is None:
-        imghd5 = ryfiles.erase_create_HDF(hdffilename)
+        imghd5 = ryhdf5.erase_create_HDF(hdffilename)
     else:
         imghd5 = fileHandle
     
-    assigncheck(imghd5,'image/imageName',imageName)
-    assigncheck(imghd5,'image/imageSizePixels',numPixels)
-    assigncheck(imghd5,'image/imageSizeRows',numPixels[0])
-    assigncheck(imghd5,'image/imageSizeCols',numPixels[1])
-    assigncheck(imghd5,'image/imageFilename',hdffilename)
-    assigncheck(imghd5,'image/equivalentSignalType',equivalentSignalType)
-    assigncheck(imghd5,'image/equivalentSignalUnit',equivalentSignalUnit)
-    assigncheck(imghd5,'image/LinUnits',LinUnits)
-    assigncheck(imghd5,'image/saveNoiseImage',saveNoiseImage)
-    assigncheck(imghd5,'image/saveEquivImage',saveEquivImage)
-    # imghd5['image/imageName'] = imageName
-    # imghd5['image/imageSizePixels'] = numPixels
-    # imghd5['image/imageSizeRows'] = numPixels[0]
-    # imghd5['image/imageSizeCols'] = numPixels[1]
-    # imghd5['image/imageFilename'] = hdffilename
-    # imghd5['image/equivalentSignalType'] = equivalentSignalType
-    # imghd5['image/equivalentSignalUnit'] = equivalentSignalUnit
-    # imghd5['image/LinUnits'] = LinUnits
-    # imghd5['image/saveNoiseImage'] = saveNoiseImage
-    # imghd5['image/saveEquivImage'] = saveEquivImage
+    assigncheck(imghd5, 'image/imageName', imageName)
+    assigncheck(imghd5, 'image/imageSizePixels', numPixels)
+    assigncheck(imghd5, 'image/imageSizeRows', numPixels[0])
+    assigncheck(imghd5, 'image/imageSizeCols', numPixels[1])
+    assigncheck(imghd5, 'image/imageFilename', hdffilename)
+    assigncheck(imghd5, 'image/equivalentSignalType', equivalentSignalType)
+    assigncheck(imghd5, 'image/equivalentSignalUnit', equivalentSignalUnit)
+    assigncheck(imghd5, 'image/LinUnits', LinUnits)
+    assigncheck(imghd5, 'image/saveNoiseImage', saveNoiseImage)
+    assigncheck(imghd5, 'image/saveEquivImage', saveEquivImage)
 
     if 'image/equivalentSignal' not in imghd5:
         dset = imghd5.create_dataset('image/equivalentSignal', numPixels, dtype='float', compression="gzip")
@@ -444,34 +440,39 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
     if 'image/PhotonRateRadiance' not in imghd5:
         dset = imghd5.create_dataset('image/PhotonRateRadiance', numPixels, dtype='float', compression="gzip")
     #photon rate radiance in the image ph/(m2.s), with no photon noise, will be filled by rendering function
-    imghd5['image/PhotonRateRadianceNoNoise'][...] = \
-              np.zeros((imghd5['image/imageSizePixels'][()][0],imghd5['image/imageSizePixels'][()][1]))
+    imghd5['image/PhotonRateRadianceNoNoise'][...] = np.zeros((
+        imghd5['image/imageSizePixels'][()][0],
+        imghd5['image/imageSizePixels'][()][1]))
 
-    assigncheck(imghd5,  'image/wavelength',wavelength)
-     # imghd5['image/wavelength'] = wavelength
+    assigncheck(imghd5, 'image/wavelength', wavelength)
 
-    # use units to determine if photon rate or watts
     # joule/photon factor to convert between W/m2 and q/(s.m2)
-    if isinstance( imghd5['image/wavelength'][()], float):   
-        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / imghd5['image/wavelength'][()])
-        # imghd5['image/joule_per_photon'] = const.h * const.c / imghd5['image/wavelength'][()]
+    if isinstance(imghd5['image/wavelength'][()], float):
+        assigncheck(imghd5, 'image/joule_per_photon',
+                    const.h * const.c / imghd5['image/wavelength'][()])
     else:
-        assigncheck(imghd5,'image/joule_per_photon',const.h * const.c / np.mean(imghd5['image/wavelength'][()]))        
-        # imghd5['image/joule_per_photon'] = const.h * const.c / np.mean(imghd5['image/wavelength'][()])
-   
-    conversion =  1.0 if b'q/' in imghd5['image/LinUnits'][()][:3] \
-                                        else 1. / imghd5['image/joule_per_photon'][()]
-    assigncheck(imghd5,'image/conversion',conversion)                                 
-    # imghd5['image/conversion'] = conversion
+        assigncheck(imghd5, 'image/joule_per_photon',
+                    const.h * const.c / np.mean(imghd5['image/wavelength'][()]))
+
+    conversion = (1.0 if b'q/' in imghd5['image/LinUnits'][()][:3]
+                  else 1. / imghd5['image/joule_per_photon'][()])
+    assigncheck(imghd5, 'image/conversion', conversion)
         
     kwargs['imghd5'] = imghd5
     # call the function that actually generates the image
     imghd5 = fn(**kwargs)
 
     # add photon noise in the signal
+    # Inline Poisson sampling — avoids ryutils.poissonarray (absent from some installed pyradi versions).
+    # For large means (>1000) the normal approximation prevents Poisson overflow.
     if imghd5['image/saveNoiseImage'][()]:
-        imghd5['image/PhotonRateRadiance'][...] = \
-                 ryutils.poissonarray(imghd5['image/PhotonRateRadianceNoNoise'][()], seedval=seedval)
+        np.random.seed(seedval)
+        _inp = imghd5['image/PhotonRateRadianceNoNoise'][()]
+        _tpoint = 1000
+        _sdelta = 1e-10
+        _outp = (_inp <= _tpoint) * np.random.poisson(_inp * (_inp <= _tpoint)) \
+              + ((_inp > _tpoint) & (_inp != 0)) * np.random.normal(loc=_inp, scale=np.sqrt(_inp + _sdelta))
+        imghd5['image/PhotonRateRadiance'][...] = np.where(_inp == 0, 0.0, _outp)
 
     # save equivalent signal
     if imghd5['image/saveEquivImage'][()]:
@@ -485,10 +486,8 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
                 # save equivalent signal  (e.g., temperature or lux), by interpolation
                 imghd5['image/equivalentSignal'][...] = fintp(imghd5['image/PhotonRateRadianceNoNoise'][()])
                 # save the interpolation function to hdf5
-                assigncheck(imghd5,'image/interpolate_x',fintp.x)
-                assigncheck(imghd5,'image/interpolate_y',fintp.y)
-                # imghd5['image/interpolate_x'] = fintp.x
-                # imghd5['image/interpolate_y'] = fintp.y
+                assigncheck(imghd5, 'image/interpolate_x', fintp.x)
+                assigncheck(imghd5, 'image/interpolate_y', fintp.y)
 
 
     imghd5.flush()
@@ -516,7 +515,7 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     Author: CJ Willers
     """
     from scipy import stats
-    import pyradi.ryplot
+    import pyradi.ryplot as ryplot
 
     #calculate and display values of these variables
     elements = ['image/imageFilename','image/imageName','image/filename','image/rad_dynrange',
@@ -591,26 +590,39 @@ def analyse_HDF5_imageFile(hdffilename,gwidh=12,gheit=8):
     Author: CJ Willers
     """
 
-    imghd5 = ryfiles.open_HDF(hdffilename)
+    imghd5 = ryhdf5.open_HDF(hdffilename)
     analyse_HDF5_image(imghd5,plotfile=hdffilename[:-5],gwidh=gwidh,gheit=gheit)
     imghd5.close()
 
 
 ######################################################################################
-def calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax):
-    """Calc the interpolation function between temperature and photon rate radiance
+def calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax):
+    """Calc the interpolation functions between temperature and photon-rate radiance.
+
+    Returns two paired interp1d functions:
+    - ``fintpLE``: photon-rate radiance → temperature
+    - ``fintpEL``: temperature → photon-rate radiance
 
     Args:
-        | wavelength (np.array): wavelength vector
-        | sysresp (np.array): system response spectral vector
-        | tmin (float): minimum temperature in lookup table 
-        | tmax (float): maximum temperature in lookup table 
+        | wavelength (np.array): wavelength vector **in micrometres (µm)**.
+        |     Passed directly to ``ryplanck.planck(type='ql')`` which expects µm.
+        | sysresp (np.array): system spectral response vector (same length as wavelength).
+        | tmin (float): minimum temperature [K] for the lookup table.
+        | tmax (float): maximum temperature [K] for the lookup table.
 
     Returns:
-        | interpolation function
+        | (fintpLE, fintpEL): pair of scipy interp1d functions.
+        |     fintpLE maps photon-rate radiance → temperature [K].
+        |     fintpEL maps temperature [K] → photon-rate radiance.
 
     Raises:
         | No exception is raised.
+
+    Note:
+        Wavelength units: ``wavelength`` must be in **micrometres** because it
+        is passed directly to ``ryplanck.planck(type='ql')`` (``planckql``),
+        which expects µm.  This differs from ``calcLuxEquivalent``, which
+        expects wavelength in SI metres and converts to µm internally.
 
     Author: CJ Willers
     """
@@ -619,32 +631,47 @@ def calcTemperatureEquivalent(wavelength,sysresp,tmin,tmax):
     
     temp = np.linspace(0.99*float(tmin), 1.01*float(tmax), 100).reshape(-1,1)
     # radiance in q/(s.m2)
-    rad = np.trapezoid(sysresp * ryplanck.planck(wavelength, temp,
-           type='ql'),wavelength, axis=0).reshape(-1,1) / np.pi
+    rad = np.trapezoid(
+        sysresp * _ryplanckql(wavelength, temp),
+        wavelength, axis=0).reshape(-1, 1) / np.pi
     fintpLE = interpolate.interp1d(rad.reshape(-1,), temp.reshape(-1,))
     fintpEL = interpolate.interp1d(temp.reshape(-1,), rad.reshape(-1,))
     return fintpLE,fintpEL
 
 
 ######################################################################################
-def calcLuxEquivalent(wavelength,rad_min,rad_dynrange,units):
-    """Calc the interpolation function between lux and photon rate radiance
+def calcLuxEquivalent(wavelength, rad_min, rad_dynrange, units):
+    """Calc the interpolation function between lux and photon rate radiance.
 
-    Assuming single wavelength colour, the specified wavelength value is used to 
-    calculate the lux equivalent lux image for the radiance input range.
+    Assuming single-wavelength colour, the specified wavelength is used to
+    calculate the lux-equivalent for the given radiance input range.  The
+    returned interpolation function maps photon-rate radiance [q/(s.m²)] → lux,
+    regardless of the ``units`` parameter.  The ``units`` parameter only
+    controls how ``rad_min`` and ``rad_dynrange`` are interpreted (W or q/s)
+    when building the lookup table.
 
     Args:
-        | wavelength (np.array): wavelength vector
-        | sysresp (np.array): system response spectral vector
-        | rad_min (float): minimum photon rate radiance lookup table 
-        | rad_dynrange (float): maximum photon rate radiance in lookup table 
-        | units (string): input radiance units q/s or W
+        | wavelength (float): representative wavelength in **SI metres** (m).
+        | rad_min (float): minimum radiance value for the lookup table,
+        |     in watts [W/m²] when ``units`` does not contain 'q', or in
+        |     photon-rate units [q/(s.m²)] when 'q' is present in ``units``.
+        | rad_dynrange (float): radiance dynamic range (max − min) in the
+        |     same units as ``rad_min``.
+        | units (string): radiance unit string; if it contains 'q' the inputs
+        |     are treated as photon-rate, otherwise as watts.
 
     Returns:
-        | interpolation function
+        | fintp: scipy interp1d mapping photon-rate radiance → lux.
 
     Raises:
         | No exception is raised.
+
+    Note:
+        Wavelength units inconsistency: this function expects ``wavelength`` in
+        **SI metres** (it applies ``*1e6`` internally to convert to µm for the
+        photopic-response formula).  This differs from
+        ``calcTemperatureEquivalent``, which passes ``wavelength`` directly to
+        ``ryplanck.planck`` and therefore expects µm.
 
     Author: CJ Willers
     """
@@ -832,21 +859,3 @@ if __name__ == '__main__':
 
         #create a uniform photon rate image with nonzero value, for given temperature
         # input in q/(s.m2),  output in q/(s.m2), equivalent in q/(s.m2) units 
-        tuniform = 295
-        # do a wideband spectral integral
-        wavelength = np.linspace(3.7,4.8,100)
-        sysresp = np.ones(wavelength.shape)
-        fintpLE,fintpEL = calcTemperatureEquivalent(wavelength,sysresp,tuniform-5,tuniform+5)
-        # create photon rate image from raw, scaled 
-        filename = create_HDF5_image(imageName='Uniform{:.0f}K'.format(tuniform),  
-            numPixels=numPixels,wavelength=wavelength,
-            saveNoiseImage=True,saveEquivImage=True,
-            fn=hdf_Uniform, kwargs={'rad_dynrange':fintpEL(tuniform)},
-            equivalentSignalType='Temperature',equivalentSignalUnit='K', 
-            LinUnits='q/(s.m2.sr)', seedval=0,fintp=fintpLE )
-        analyse_HDF5_imageFile(filename)
-
-
-
-
-    print('module rytarggen done!')

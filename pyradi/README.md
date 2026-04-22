@@ -4,7 +4,7 @@ General-purpose radiometry utility functions for the [PyRadi](https://github.com
 
 ## Refactoring status
 
-Last updated: 2026-04-21  (ryplanck.py added)
+Last updated: 2026-04-22  (ryplot.py added)
 
 ### Completed
 
@@ -21,10 +21,17 @@ Last updated: 2026-04-21  (ryplanck.py added)
 | `ryhdf5.py` | 2026-04-21 |
 | `rypflux.py` | 2026-04-21 |
 | `ryplanck.py` | 2026-04-21 |
+| `ryprob.py` | 2026-04-21 |
+| `ryplotspherical.py` | 2026-04-21 |
+| `ryptw.py` | 2026-04-21 |
+| `ryscene.py` | 2026-04-21 |
+| `rystare.py` | 2026-04-21 |
+| `rytarggen.py` | 2026-04-21 |
+| `ryplot.py` | 2026-04-22 |
 
 ### Outstanding
 
-ryplotspherical.py, ryprob.py, ryptw.py, ryscene.py, rystare.py, rytarggen.py, ryplot.py
+_(none — all files complete)_
 
 ---
 
@@ -40,9 +47,11 @@ python ry3dnoise.py      # runs the 3D noise demo (requires data files)
 Run the unit tests:
 
 ```bash
-pytest test/test_ryutils.py test/test_ryfiles.py test/test_ry3dnoise.py test/test_rychroma.py test/test_rydetector.py test/test_rylookup.py test/test_rymodtran.py test/test_ryhdf5.py test/test_rypflux.py test/test_ryplanck.py -v
+pytest test/test_ryutils.py test/test_ryfiles.py test/test_ry3dnoise.py test/test_rychroma.py test/test_rydetector.py test/test_rylookup.py test/test_rymodtran.py test/test_ryhdf5.py test/test_rypflux.py test/test_ryplanck.py test/test_ryprob.py test/test_ryplotspherical.py test/test_ryptw.py test/test_ryscene.py test/test_rystare.py test/test_rytarggen.py test/test_ryplot.py -v
 ```
 
+
+```conda run -n pyradi --no-capture-output pytest test\ -v --tb=short```
 ---
 
 ## Tech stack
@@ -82,8 +91,8 @@ pyradi/
 ├── ryptw.py               # PTW file format reader
 ├── ryscene.py             # Scene modelling
 ├── ryhdf5.py              # HDF5 file I/O utilities
-├── rystare.py             # Staring array modelling (deferred)
-├── rytarggen.py           # Target generation (deferred)
+├── rystare.py             # CCD/CMOS staring array sensor model
+├── rytarggen.py           # HDF5 test image generation utilities
 ├── environment.yml        # Conda environment spec
 ├── README.md              # This file
 └── test/
@@ -95,8 +104,15 @@ pyradi/
     ├── test_rylookup.py    # pytest tests for rylookup
     ├── test_rypflux.py     # pytest tests for rypflux
     ├── test_ryplanck.py    # pytest tests for ryplanck
+    ├── test_ryplotspherical.py  # pytest tests for ryplotspherical
+    ├── test_ryprob.py      # pytest tests for ryprob
+    ├── test_ryptw.py       # pytest tests for ryptw
+    ├── test_ryscene.py     # pytest tests for ryscene
+    ├── test_rystare.py     # pytest tests for rystare
+    ├── test_rytarggen.py   # pytest tests for rytarggen
     ├── test_rymodtran.py   # pytest tests for rymodtran
-    └── test_ryutils.py     # pytest tests for ryutils
+    ├── test_ryutils.py     # pytest tests for ryutils
+    └── test_ryplot.py      # pytest tests for ryplot
 ```
 
 ---
@@ -105,8 +121,23 @@ pyradi/
 
 | Command | Description |
 |---------|-------------|
-| `python ryutils.py` | Run the built-in demo and self-test examples |
 | `python ry3dnoise.py` | Run the 3D noise demo (requires sensor data files) |
+| `python rydetector.py` | Run the built-in detector modelling demo |
+| `python ryfiles.py` | Run the built-in file I/O demo |
+| `python ryhdf5.py` | Run the built-in HDF5 I/O demo |
+| `python rylookup.py` | Run the built-in lookup-table demo |
+| `python rymodtran.py` | Run the built-in MODTRAN reader demo |
+| `python rypflux.py` | Run the built-in photon flux demo |
+| `python ryplanck.py` | Run the built-in Planck radiation demo |
+| `python ryplotspherical.py` | Run the built-in spherical trajectory demo (requires scipy) |
+| `python ryprob.py` | Run the built-in probability demo |
+| `python ryptw.py` | Run the built-in PTW file reader demo (requires data/*.ptw and calibration XML) |
+| `python ryscene.py` | Run the built-in scene locus / SLERP demo (requires data/scene/sensorlocus.csv and transformations) |
+| `python rystare.py` | Run the built-in CCD/CMOS sensor simulation demo (requires data/ image HDF5 files) |
+| `python rytarggen.py` | Run the built-in HDF5 image generation demo (requires data/ raw image files) |
+| `python rychroma.py` | Run the built-in chromaticity demo |
+| `python ryutils.py` | Run the built-in utility demo and self-test examples |
+| `python ryplot.py` | Run the built-in plotting demo (saves PNG files to cwd) |
 | `pytest test/ -v` | Run the full regression test suite |
 | `pytest test/test_ryutils.py -v` | Tests for ryutils only |
 | `pytest test/test_ryfiles.py -v` | Tests for ryfiles only |
@@ -118,6 +149,13 @@ pyradi/
 | `pytest test/test_ryhdf5.py -v` | Tests for ryhdf5 only |
 | `pytest test/test_rypflux.py -v` | Tests for rypflux only |
 | `pytest test/test_ryplanck.py -v` | Tests for ryplanck only |
+| `pytest test/test_ryprob.py -v` | Tests for ryprob only |
+| `pytest test/test_ryplotspherical.py -v` | Tests for ryplotspherical only |
+| `pytest test/test_ryptw.py -v` | Tests for ryptw only |
+| `pytest test/test_ryscene.py -v` | Tests for ryscene only |
+| `pytest test/test_rystare.py -v` | Tests for rystare only |
+| `pytest test/test_rytarggen.py -v` | Tests for rytarggen only |
+| `pytest test/test_ryplot.py -v` | Tests for ryplot only |
 
 ---
 
@@ -362,6 +400,148 @@ Return shape follows `fixDimensions` rules.
 
 ---
 
+### ryprob — probability utility functions
+
+Provides random-variate generators for several continuous distributions, a bounded
+Kernel Density Estimation wrapper around scikit-learn, and a uniform-on-sphere point
+generator.  Most functions are consumed by the high-level staring-array model `rystare`.
+
+> **Note — pre-existing dispatcher behaviour**: `distributions_generator` always
+> forwards `distribParams=None` to each sub-function, so every distribution uses its
+> own built-in defaults regardless of what the caller passes.  This is preserved
+> behaviour.
+
+#### Distribution generators (direct call)
+
+Each function takes a pre-allocated `out` array (whose shape defines the sample size)
+and returns the filled array of random variates.
+
+| Function | Default params | Output range |
+|----------|---------------|--------------|
+| `distribution_exp(distribParams, out, funcName)` | `[1.]` (lambda=1) | y ≥ 0 |
+| `distribution_lognormal(distribParams, out, funcName)` | `[0., 1.]` (mu=0, sigma=1) | y > 0 |
+| `distribution_inversegauss(distribParams, out, funcName)` | `[0., 1.]` (mu=0 fails > 0 → zeros) | y > 0 |
+| `distribution_logistic(distribParams, out, funcName)` | `[0., 1.]` (a=0, k=1) | −∞ < y < ∞ |
+| `distribution_wald(distribParams, out, funcName)` | `[0.]` (chi=0 fails > 0 → zeros) | y > 0 |
+
+#### Dispatcher
+
+| Function | Description |
+|----------|-------------|
+| `distributions_generator(distribName, distribParams, sampleSize)` | Generate random variates by distribution name; `sampleSize=None` → scalar, `int N` → N×N array, `tuple/list` → shaped array. Accepted names: `'exp'`/`'exponential'`, `'lognorm'`/`'lognormal'`/`'cobbdouglas'`/`'antilognormal'`, `'ig'`/`'inversegauss'`/`'invgauss'`, `'logistic'`, `'wald'` |
+
+#### KDE
+
+| Function | Description |
+|----------|-------------|
+| `KDEbounded(x_d, x, bandwidth, lowbnd, uppbnd, kernel)` | Kernel Density Estimation with optional boundary reflection to correct edge bias; uses scikit-learn `KernelDensity`. Returns `(x_d, pdf, bandwidth, kernel)`. Pass `bandwidth=np.nan` to auto-select via cross-validation (slow). |
+
+#### Validation helpers
+
+| Function | Description |
+|----------|-------------|
+| `validateParam(funcName, distribName, runDistribName, distribParamsName, paramName, param, conditionStr)` | Validate a scalar parameter against a list of condition strings (e.g. `['> 0', '<= 1']`); returns `bool` |
+| `checkParamsNum(funcName, distribName, runDistribName, distribParams, correctNum)` | Check that `len(distribParams)` is in `correctNum`; returns `bool` |
+
+#### Geometry
+
+| Function | Description |
+|----------|-------------|
+| `unifomOnSphere(number, dimension=3)` | Generate `number` unit-norm vectors uniformly distributed on an n-dimensional sphere; returns `np.array` of shape `(number, dimension)` |
+
+---
+
+### ryplotspherical — spherical trajectory utilities for OSSIM
+
+Reads and writes [Object-oriented Simple Simulator (OSSIM)](https://ossim.trac.sourceforge.net/)
+trajectory files based on the OFF (Object File Format) mesh format.  Generates 6-DOF
+(x, y, z, roll, pitch, yaw) trajectory tables either from an OFF mesh file or from an
+explicit elevation/azimuth grid.
+
+> **Note**: Mayavi-based visualisation functions (`plotSpherical`, `plotOSSIMSpherical`,
+> `sphericalPlotElevAzim`, etc.) are present as commented-out stubs; they require an
+> optional Mayavi installation and are not part of the public API.
+
+| Function | Description |
+|----------|-------------|
+| `readOffFile(filename)` | Read an OFF file; return `(vertices, triangles)` as numpy arrays, or `(None, None)` if the header is invalid |
+| `getRotateFromOffFile(filename, xPos, yPos, zPos)` | Build a Rotate-type 6-DOF trajectory (sensor fixed at `(xPos, yPos, zPos)`, target at each mesh vertex); return `(x, y, z, roll, pitch, yaw, vertices, triangles)` |
+| `getOrbitFromOffFile(filename, xTarget, yTarget, zTarget, distance)` | Build an Orbit-type 6-DOF trajectory (sensor placed at `distance` from target along each mesh vertex direction); same 8-tuple return |
+| `writeOSSIMTrajOFFFile(filename, trajtype, numSamples, xTarget, yTarget, zTarget, ...)` | Write OSSIM `.lut`, Vertices `.dat`, and Triangles `.dat` files from an OFF mesh; `trajtype` is `'Rotate'` or `'Orbit'` |
+| `getRotateFromElevAzim(azimuth, elevation, xPos, yPos, zPos)` | Build a Rotate-type trajectory from azimuth/elevation grid arrays; return `(x, y, z, roll, pitch, yaw, azel)` where `azel` is `(N, 2)` |
+| `getOrbitFromElevAzim(azimuth, elevation, xTarget, yTarget, zTarget, distance)` | Build an Orbit-type trajectory from azimuth/elevation grid; same 7-tuple return |
+| `writeOSSIMTrajElevAzim(numSamples, filename, trajtype, ...)` | Write OSSIM `.lut` and AzelAngles `.dat` files from an elevation/azimuth grid; `trajtype` is `'Rotate'` or `'Orbit'` |
+
+---
+
+### ryptw — Agema/Cedip/FLIR PTW thermal-image file reader
+
+Reads binary PTW files produced by FLIR Jade and related cameras (Agema, Cedip formats).
+Provides low-level byte decoders, a header parser, and frame-extraction functions.
+Also includes `JadeCalibrationData`, which loads an XML calibration file and builds a
+`RadLookup` table for DL ↔ temperature / radiance conversion.
+
+> **Note**: The copyright to the proprietary PTW file format remains the property of
+> FLIR Inc. This reader was released with FLIR's permission.
+
+#### Low-level byte decoders
+
+| Function | Description |
+|----------|-------------|
+| `myint(x)` | Decode 2-byte little-endian signed int from bytes slice |
+| `mylong(x)` | Decode 4-byte little-endian unsigned int (note: byte-3 shift is `<<32` not `<<24` — safe for values < 2²⁴) |
+| `myfloat(x)` | Decode 4-byte IEEE 754 single-precision float |
+| `mydouble(x)` | Decode 8-byte IEEE 754 double-precision float |
+| `mybyte(x)` | Decode single unsigned byte (0–255) from a length-1 bytes slice |
+| `mypass(x)` | Identity — return *x* unchanged |
+| `myRGB(x)` | Decode 3 bytes (R, G, B) to an `'#rrggbb'` hex string |
+| `terminateStrOnZero(str)` | Intended to truncate bytes at the first null; returns the full input in Python 3 due to a pre-existing int/str comparison bug |
+
+#### Header and frame I/O
+
+| Function / Class | Description |
+|------------------|-------------|
+| `PTWFrameInfo` | Data container for PTW file-level header and per-frame fields; populated by `readPTWHeader` and `GetPTWFrameFromFile` |
+| `readPTWHeader(ptwfilename)` | Read the main PTW header and return a populated `PTWFrameInfo` object |
+| `GetPTWFrameFromFile(header)` | Load the frame at `header.h_framepointer` into `header.data`; update frame-time and FPA-temperature fields; return the updated header |
+| `getPTWFrame(header, frameindex)` | Retrieve one frame by 1-based index; return `(data, header)` or `np.asarray([0])` on error |
+| `getPTWFrames(header, loadFrames)` | Retrieve multiple frames by index list; return `(data, fheaders)` of shape `(N, rows, cols)` or `(np.asarray([0]), None)` on error |
+| `showHeader(Header)` | Print all header fields to stdout |
+
+#### Calibration
+
+| Class / Method | Description |
+|----------------|-------------|
+| `JadeCalibrationData(filename, datafileroot)` | Load XML calibration file; build `RadLookup` table (`self.LU`) covering all instrument temperatures in the file |
+| `JadeCalibrationData.Info()` | Return a human-readable summary string of the loaded calibration parameters |
+
+---
+
+### ryscene — scene orientation locus modelling
+
+Models a sensor's 6-DOF orientation locus in world space using quaternion SLERP
+interpolation.  Depends on the ``transformations`` wheel by Christoph Gohlke.
+
+**Coordinate system:** Right-Hand, North (x), East (y), Down (z).
+Euler sequence: yaw (z) → pitch (y) → roll (x), encoded as ``'rzyx'``.
+
+| Name | Type | Description |
+|------|------|-------------|
+| `df_euler2quat(row)` | function | Convert a DataFrame row's Euler angles to a ``[w,x,y,z]`` quaternion wrapped in a list; use with `DataFrame.apply` |
+| `Scene` | class | Reads a time-stamped CSV locus, converts Euler angles to quaternions, and SLERP-interpolates orientation at arbitrary times |
+| `Scene.readLocus(filename)` | method | Load locus CSV; add ``yawRad``, ``pitchRad``, ``rollRad``, ``sequence``, ``quat`` columns |
+| `Scene.interpLocus(ltime)` | method | Return ``(yaw, pitch, roll, q)`` interpolated at ``ltime`` seconds |
+
+**Evaluation helpers** (not public API — for use from ``__main__``):
+
+| Function | Description |
+|----------|-------------|
+| `unitxrotate(sc)` | Print rotation quaternion and rotated unit-x vector for each locus pose |
+| `applyInterpLocus(sc, t)` | Return a labelled Series ``{yaw, pit, rol, quat}`` for use with ``DataFrame.apply`` |
+| `locusPlot(sc, ryplot)` | Plot interpolated Euler angles over the full time span; saves ``ryscene-quatslerp.png`` |
+
+---
+
 ### ryfiles — file I/O and text utilities
 
 | Function | Description |
@@ -443,10 +623,173 @@ Return shape follows `fixDimensions` rules.
 | `TFromAbshumidity(AH)` | Temperature [K] from absolute humidity |
 | `luminousEfficiency(vlamtype, wavelen)` | CIE photopic / scotopic luminous efficiency V(λ) |
 
+---
+
+### rystare — CCD/CMOS staring array sensor model
+
+High-level simulation of the complete photosensor signal chain: photon irradiance →
+electrons → voltage → digital numbers. Based on Konnik & Willers (SPIE Proc 10036).
+All major noise sources (shot noise, dark current, PRNU, kTC reset noise, source-follower
+noise, ADC non-linearity) are modelled. Parameters are passed via an HDF5 file handle.
+
+#### Sensor pipeline (HDF5-based)
+
+| Function | Description |
+|----------|-------------|
+| `photosensor(strh5, initialise)` | Top-level pipeline: drives the full photon-to-DN conversion |
+| `set_photosensor_constants(strh5, initialise)` | Compute band-gap energy and store fundamental constants |
+| `check_create_datasets(strh5, initialise)` | Allocate all image-sized arrays in the HDF5 store |
+| `source_follower(strh5, initialise)` | Apply source-follower gain and optional V/V non-linearity |
+| `fixed_pattern_offset(strh5)` | Add CMOS dark fixed-pattern offset (column FPN) |
+| `cds(strh5)` | Apply correlated double sampling gain |
+| `adc(strh5)` | Analogue-to-digital conversion with optional ILE non-linearity |
+| `charge_to_voltage(strh5)` | Sense-node charge-to-voltage conversion with optional V/e non-linearity |
+| `sense_node_reset_noise(strh5, seed)` | Compute kTC sense-node reset noise matrix |
+| `dark_current_and_dark_noises(strh5)` | Add dark current, dark shot noise, and dark FPN |
+| `source_follower_noise(strh5, initialise)` | Compute source-follower noise spectrum (white + 1/f + RTS) |
+| `multiply_detector_area(strh5)` | Convert electron-rate irradiance to electron rate per pixel |
+| `multiply_integration_time(strh5)` | Convert electron rate to accumulated electron count |
+| `convert_to_electrons(strh5)` | Multiply photon rate by quantum efficiency to get electron rate |
+| `shotnoise(sensor_signal_in)` | Apply Poisson shot noise to a signal array |
+| `responsivity_FPN_light(strh5)` | Apply photo-response non-uniformity (PRNU) |
+| `responsivity_FPN_dark(strh5)` | Apply dark-current fixed-pattern noise |
+| `FPN_models(rows, cols, noisetype, dist, spread, filter_params)` | Generate FPN noise matrix (Janesick-Gaussian, LogNormal, Wald, AR-ElGamal) |
+
+#### Standalone radiometry helpers
+
+| Function | Description |
+|----------|-------------|
+| `nEcntLLightDF(tauAtmo, ..., dfPhotRates)` | Electron count from a low-light photon-radiance DataFrame |
+| `nEcntLLightPhotL(tauAtmo, ..., photRadiance)` | Electron count from a scalar in-band photon radiance |
+| `nElecCntThermalScene(wl, tmptr, emis, ...)` | Electron count from a thermal scene source (wl in um) |
+| `nEcntThermalOptics(wl, tmptrOpt, ...)` | Electron count from self-emission of warm optics (wl in um) |
+| `nElecCntReflSun(wl, tauSun, ...)` | Electron count from reflected sunlight (wl in um) |
+| `darkcurrentnoise(inttime, detarea, temptr, Egap, DFM)` | Dark-current noise as electron count (rms) |
+| `kTCnoiseCsn(temptr, sensecapacity)` | kTC reset noise from sense-node capacitance |
+| `kTCnoiseGv(temptr, gv)` | kTC reset noise from sense-node gain |
+| `define_metrics()` | Return SI scaling factors (m, cm, mm, um, nm, rad, mrad) |
+| `limitzero(a, thr)` | Asymmetric clipping to prevent negative values in FPN arrays |
+| `run_example(doTest, outfilename, ...)` | Run a Simple or Advanced sensor simulation example |
+| `get_summary_stats(hdffilename)` | Print summary statistics from a completed simulation HDF5 file |
+
 #### Utilities
 
 | Function | Description |
 |----------|-------------|
 | `buildLogSpace(Vmin, Vmax, nDec)` | Log-spaced vector |
 | `solidAngleSquare(width, breadth, height, stype)` | Solid angle of a rectangular flat surface |
-| `upMu()` | LaTeX micro symbol |              
+| `upMu()` | LaTeX micro symbol |
+
+---
+
+### rytarggen -- HDF5 test image generation utilities
+
+Creates synthetic HDF5 image files for use as inputs to the pyradi sensor model
+(rystare). Each image type is generated by calling create_HDF5_image with
+a corresponding generating function. The module also provides wavelength-to-lux
+and wavelength-to-temperature interpolation helpers.
+
+#### HDF5 helper
+
+| Function | Description |
+|----------|-------------|
+| `assigncheck(hdf5, path, value)` | Write value to path in an open HDF5 file; creates a new dataset if the path does not exist, overwrites in-place if it does |
+
+#### Image generating functions (pass as fn to create_HDF5_image)
+
+| Function | Description |
+|----------|-------------|
+| `hdf_Uniform(imghd5, rad_dynrange)` | Fill the image with a constant photon-rate value equal to rad_dynrange |
+| `hdf_disk_photon(imghd5, rad_min, rad_dynrange, fracdiameter, fracblur)` | Illuminated circle with blurred boundary; fracdiameter and fracblur are fractions of the minimum image dimension |
+| `hdf_stairs(imghd5, rad_min, rad_dynrange, steps, imtype)` | Staircase image; imtype is stairslin (linear steps) or stairslog (logarithmic steps) |
+| `hdf_Raw(imghd5, filename, inputSize, outputSize, ...)` | Load a np.float64 raw binary image, optionally subsample, blur, and scale to rad_min range |
+
+#### Top-level orchestrator
+
+| Function | Description |
+|----------|-------------|
+| `create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength, ...)` | Create an HDF5 image file, populate mandatory metadata, call the generating function, optionally add Poisson noise and equivalent-signal datasets; return the filename |
+
+#### Analysis and visualisation
+
+| Function | Description |
+|----------|-------------|
+| `analyse_HDF5_image(imghd5, plotfile, ...)` | Print statistics and plot images from an open HDF5 file handle |
+| `analyse_HDF5_imageFile(hdffilename, ...)` | Open an HDF5 file by name and call analyse_HDF5_image |
+
+#### Radiometry helpers
+
+| Function | Description |
+|----------|-------------|
+| `calcLuxEquivalent(wavelength, rad_min, rad_dynrange, units)` | Build an interp1d mapping photon-rate radiance to lux for a monochromatic source. wavelength in SI metres. |
+| `calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax)` | Build paired interp1d objects mapping equivalent photon-rate radiance to temperature (lower and upper dynamic-range ends); wavelength in micrometres (um) |
+
+---
+
+### ryplot — matplotlib plotting wrapper
+
+Provides compact, high-level wrappers around matplotlib for cartesian, polar,
+3-D, contour, image, and specialised "pie" (angular/radial) plots.  A single
+`Plotter` instance manages a multi-subplot figure; all plot methods return the
+underlying matplotlib `Axes` object for further customisation.
+
+#### Helper classes
+
+| Class | Description |
+|-------|-------------|
+| `FilledMarker(...)` | Encapsulates filled-marker style properties (colour, shape, size, fillstyle) |
+| `Markers(...)` | Collects a list of `FilledMarker` locations and draws them with `Markers.plot(ax)` |
+| `ProcessImage()` | Image pre-processing helpers: histogram equalisation and polar reprojection |
+
+#### ProcessImage methods
+
+| Method | Description |
+|--------|-------------|
+| `compressEqualizeImage(image, selectCompressSet, numCbarlevels, cbarformat)` | Compress (linear/log/sqrt) then histogram-equalise an image; return equalised array and colourbar tick labels |
+| `reprojectImageIntoPolar(data, origin, framesFirst, cval)` | Reproject a 3-D array from Cartesian to polar coordinates |
+
+#### Plotter — construction and utilities
+
+| Method | Description |
+|--------|-------------|
+| `Plotter(fignumber, subpltnrow, subpltncol, figuretitle, figsize, ...)` | Constructor: create a new multi-subplot figure |
+| `buildPlotCol(plotCol, n)` | Set / extend the sequence of default plot colours |
+| `nextPlotCol()` | Return the next colour in the cycle |
+| `resetPlotCol()` | Reset the colour cycle to the beginning |
+| `saveFig(filename, dpi, ...)` | Save the figure to disk (PNG, PDF, EPS, SVG …) |
+| `getPlot()` | Return the underlying `matplotlib.figure.Figure` handle |
+| `getSubPlot(subplotNum)` | Return the `Axes` handle for a subplot, or `None` if not yet created |
+| `labelSubplot(spax, ptitle, xlabel, ylabel, zlabel, ...)` | Set subplot title and axis labels |
+| `getXLim(subplotNum)` | Return x-axis limits as `np.ndarray([lo, hi])` |
+| `getYLim(subplotNum)` | Return y-axis limits as `np.ndarray([lo, hi])` |
+| `verticalLineCoords(subplotNum, x)` | Return `(x_arr, y_arr)` for a vertical line at `x` |
+| `horizontalLineCoords(subplotNum, y)` | Return `(x_arr, y_arr)` for a horizontal line at `y` |
+| `emptyPlot(plotnum, projection)` | Return an empty `Axes` for manual matplotlib use |
+| `clippedcolorbar(CS, **kwargs)` | Add a colorbar clipped to the contour level range (static method) |
+
+#### Plotter — plot methods
+
+| Method | Description |
+|--------|-------------|
+| `plot(plotnum, x, y, ...)` | Linear cartesian plot; y may be multi-column |
+| `logLog(plotnum, x, y, ...)` | Log–log cartesian plot |
+| `semilogX(plotnum, x, y, ...)` | Semi-log plot (log x axis) |
+| `semilogY(plotnum, x, y, ...)` | Semi-log plot (log y axis) |
+| `stackplot(plotnum, x, y, ...)` | Stacked area chart |
+| `polar(plotnum, theta, r, ...)` | Polar plot (theta in radians) |
+| `showImage(plotnum, img, ...)` | Display a 2-D image with optional colourbar |
+| `meshContour(plotnum, xvals, yvals, zvals, ...)` | Filled contour plot of a 2-D scalar field |
+| `mesh3D(plotnum, xvals, yvals, zvals, ...)` | 3-D surface / mesh plot |
+| `plot3d(plotnum, x, y, z, ...)` | 3-D line plot |
+| `polar3d(plotnum, theta, radial, zvals, ...)` | 3-D polar surface plot |
+| `polarMesh(plotnum, theta, radial, zvals, ...)` | Polar mesh / colourmap plot |
+| `plotArray(plotnum, inarray, slicedim, ...)` | Auto-subplot grid from a 2-D array |
+| `pie(plotnum, theta, radius, ...)` | Specialised angular/radial "pie-polar" plot |
+
+#### Module-level functions
+
+| Function | Description |
+|----------|-------------|
+| `savePlot(fignumber, ..., saveName)` | Context manager: create a `Plotter`, yield it, then auto-save on exit |
+| `cubehelixcmap(start, rot, gamma, hue, reverse, nlev)` | Return a `LinearSegmentedColormap` using Dave Green's cubehelix algorithm |
+| `RGBToPyCmap(rgbdata)` | Convert an `(N, 3)` RGB array to a matplotlib colourmap data dict |

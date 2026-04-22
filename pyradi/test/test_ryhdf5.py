@@ -16,12 +16,21 @@ import h5py
 # ryhdf5's plotting functions do `from . import ryplot` (relative import).
 # Those are only executed when the plotting functions are called, not at import
 # time, so we only need a stub on sys.modules so the relative import resolves.
+#
+# _ryplot_mock is always a MagicMock, created unconditionally at module level.
+# The module-level sys.modules entries are set here for the import of ryhdf5;
+# but another test file (test_rylookup.py) evicts all pyradi.* entries during
+# its own collection so it can load the real pyradi package.  By the time the
+# tests in this file actually run, the mock may be gone.  The autouse fixture
+# _reinstall_ryplot_mock (below) reinstalls it before every test so that
+# `from . import ryplot` inside ryhdf5 function bodies always gets our mock.
+_ryplot_mock = MagicMock()
 if 'pyradi' not in sys.modules:
     _pyradi_stub = types.ModuleType('pyradi')
-    _ryplot_mock = MagicMock()
     _pyradi_stub.ryplot = _ryplot_mock
     sys.modules['pyradi'] = _pyradi_stub
-    sys.modules['pyradi.ryplot'] = _ryplot_mock
+sys.modules['pyradi.ryplot'] = _ryplot_mock
+sys.modules['pyradi'].ryplot = _ryplot_mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import ryhdf5 as rhdf
@@ -45,6 +54,23 @@ def _make_h5(path, datasets=None):
             for name, data in datasets.items():
                 f.create_dataset(name, data=data)
     return path
+
+
+# ── autouse fixture — keeps the ryplot mock alive across the full suite ───────
+
+@pytest.fixture(autouse=True)
+def _reinstall_ryplot_mock():
+    """Reinstall _ryplot_mock into sys.modules before every test in this file.
+
+    test_rylookup.py evicts all sys.modules['pyradi.*'] entries at collection
+    time so it can load the real pyradi package.  By the time the tests here
+    run, sys.modules['pyradi.ryplot'] may point to the real module (no
+    reset_mock).  Reinstalling here, at test-run time, ensures every test in
+    this file always gets the MagicMock regardless of collection order.
+    """
+    sys.modules['pyradi.ryplot'] = _ryplot_mock
+    sys.modules['pyradi'].ryplot = _ryplot_mock
+    yield
 
 
 # ── open_HDF ─────────────────────────────────────────────────────────────────

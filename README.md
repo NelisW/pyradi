@@ -2,6 +2,8 @@
 The purpose of computing is insight, not numbers.<BR>
 _-- Richard Hamming_
 
+
+
 ## Notes
 
 - pyradi is no longer supported on PyPI, please install directly from this repository (details below).
@@ -38,19 +40,24 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
 
 
+## Version status
+
+
+
+
 ## Prerequisites and Installation
 
-The most recent version of pyradi was last tested in July 2019 using Python 3.7.
-Python 2.7 is no longer supported (the code may still work, but it is not actively supported).
+pyradi has been brought up to date with current versions of Python & Co as of April 2026.
+Support for Python 2.7 has been dropped. Python 3 requirement has been set to >3.12.
+
+pyradi has been updated and tested to work in the conda environment defined in `pyradi/environment.yml`
+If you want to use pyradi in Jupyter notebooks, investigate the conda environment `pyradi/environmentCompRadio.yml`.
 
 Please see this [link for installation procedures](https://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/00-Installing-Python-pyradi.ipynb#Installing-pyradi). It should take you to the online  nbviewer to open a notebook (`00-Installing-Python-pyradi.ipynb`) in the companion repository https://github.com/NelisW/ComputationalRadiometry.
 
 ## Learning Python
 
-<a href="http://lorenabarba.com/blog/why-i-push-for-python"><img src="http://pyradi.googlecode.com/svn/trunk/pyradi/doc/_images/keep-calm-and-code-python_BW.png" alt="Keep calm and code Python" width="150" height="175"/></a>
-
-
-To use pyradi you would have to know Python and Numpy. Getting acquainted with a new tool or computer language takes time and practice. Invest your precious time in learning Python and its modules, you will not be disappointed!
+To use pyradi you would have to know Python, Numpy and Pandas. Getting acquainted with a new tool or computer language takes time and practice. Invest your precious time in learning Python and its modules, you will not be disappointed!
 
 There are many free
 [books](http://docs.python-guide.org/en/latest/intro/learning/),
@@ -83,16 +90,12 @@ The development is ongoing as and when new needs arise.  We are open for feature
 [<img src="https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/doc/_images/PM236.jpg"/>](http://spie.org/x648.html?product_id=2021423&origin_id=x646)
 
 
-## Get the code via Python pip or easy_install
-
-**Note that pyradi is no longer available on PyPi.**
-
 ## Get the code from GitHub
 You can download the very latest version of pyradi from the [pyradi repository](https://github.com/NelisW/pyradi) on GitHub.  
 
 Note that the git checkout only installs pyradi and not any of its dependency packages matplotlib, numpy, scipy or scikit-image. 
 
-If you install the Anaconda distribution all the dependency packages should already be present.
+If you install the Anaconda environments defined in  `pyradi/environment.yml` or `pyradi/environmentCompRadio.yml` all the dependency packages should be present.
 
 ## Repositories associated with pyradi
 

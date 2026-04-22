@@ -6,7 +6,22 @@ import sys
 import numpy as np
 import pytest
 
+# Add the pyradi package directory so bare `import rylookup` resolves.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Add the *parent* of pyradi/ so that `import pyradi.ryplot` (and the other
+# absolute pyradi sub-module imports inside rylookup.py) resolve to the real
+# installed package files rather than failing with ModuleNotFoundError.
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# When the full test suite runs, test_ryhdf5.py (collected first) installs a
+# bare types.ModuleType stub as sys.modules['pyradi'].  That stub has no
+# __path__, so `import pyradi.ryfiles` inside rylookup.py fails with
+# "pyradi is not a package".  Detect and evict any non-package stub so Python
+# falls back to the real installed package on sys.path.
+if 'pyradi' in sys.modules and not hasattr(sys.modules['pyradi'], '__path__'):
+    for _k in [k for k in list(sys.modules) if k == 'pyradi' or k.startswith('pyradi.')]:
+        del sys.modules[_k]
+
 import rylookup as rl
 
 

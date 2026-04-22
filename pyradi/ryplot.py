@@ -1,5 +1,3 @@
-#  $Id$
-#  $HeadURL$
 ################################################################
 # The contents of this file are subject to the BSD 3Clause (New)
 # you may not use this file except in
@@ -39,7 +37,7 @@ Perspective,  Cornelius J. Willers, ISBN 9780819495693, SPIE Monograph Volume
 PM236, SPIE Press, 2013.  http://spie.org/x648.html?product_id=2021423&origin_id=x646
 """
 
-__version__ = "$Revision$"
+__version__ = '0.1.0'
 __author__ = 'pyradi team'
 __all__ = ['Plotter','cubehelixcmap', 'FilledMarker', 'Markers','ProcessImage',
             'savePlot']
@@ -51,12 +49,9 @@ import pandas as pd
 import math
 import sys
 import itertools
-import os
 
 import matplotlib as mpl
-# print(os.environ['DISPLAY'])
-# if len(os.environ['DISPLAY'])<5:
-#   mpl.use('Agg')
+
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -77,20 +72,6 @@ from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LinearSegmentedColormap as LSC
 
 import matplotlib.ticker as ticker
-
-
-# see if plotly is available
-try:
-    # __import__('plotly.tools')
-    # from plotly import tools
-    __import__('plotly.subplots')
-    from plotly import subplots
-    from plotly.offline import download_plotlyjs, offline
-    from plotly.graph_objs import Scatter, Layout, Figure,Scatter3d,Mesh3d,ColorBar,Contour
-    # disable the plotly functionality - if you want plotly, go use plotly.
-    imported_plotly = False
-except ImportError:
-    imported_plotly = False
 
 from datetime import datetime
 
@@ -136,8 +117,6 @@ class FilledMarker:
                 | No exception is raised.
 
         """
-
-        __all__ = ['__init__']
 
         if markerfacecolor is None:
             self.markerfacecolor = 'r'
@@ -205,8 +184,6 @@ class Markers:
             Raises:
                 | No exception is raised.
         """
-
-        __all__ = ['__init__', 'add',  'plot']
 
         if markerfacecolor is None:
             self.markerfacecolor = None
@@ -362,8 +339,6 @@ class ProcessImage:
             Raises:
                 | No exception is raised.
         """
-
-        __all__ = ['__init__', 'compressEqualizeImage',  'reprojectImageIntoPolar']
 
 
     ############################################################
@@ -523,7 +498,7 @@ class Plotter:
     ##
     def __init__(self,fignumber=0,subpltnrow=1,subpltncol=1,\
                 figuretitle=None, figsize=(9,9), titlefontsize=14,
-                useplotly = False,doWarning=True): 
+                doWarning=True): 
         """Class constructor
 
         The constructor defines the number for this figure, allowing future reference
@@ -539,7 +514,6 @@ class Plotter:
                 | figuretitle (string): the overall heading for the figure
                 | figsize ((w,h)): the figure size in inches
                 | titlefontsize (int): the figure title size in points
-                | useplotly (bool): Plotly activation parameter
                 | doWarning (bool): print warning messages to the screen
 
             Returns:
@@ -549,18 +523,12 @@ class Plotter:
                 | No exception is raised.
         """
 
-        __all__ = ['__init__', 'saveFig', 'getPlot', 'plot', 'logLog', 'semilogX',
-                        'semilogY', 'polar', 'showImage', 'plot3d', 'buildPlotCol',
-                        'getSubPlot', 'meshContour', 'nextPlotCol', 'plotArray',
-                        'polarMesh', 'resetPlotCol', 'mesh3D', 'polar3d', 'labelSubplot',
-                        'emptyPlot','setup_pie_axes','pie']
-
         version=mpl.__version__.split('.')
         vnum=float(version[0]+'.'+version[1])
 
         if vnum<1.1:
             print('Install Matplotlib 1.1 or later')
-            print('current version is {0}'.format(vnum))
+            print(f'current version is {vnum}')
             sys.exit(-1)
 
         self.figurenumber = fignumber
@@ -569,32 +537,6 @@ class Plotter:
         self.fig.clear()
         self.figuretitle = figuretitle
         self.doWarning = doWarning
-
-        #Plotly variables initialization
-        self.useplotly = useplotly
-        
-        if self.useplotly:
-            self.Plotlyfig = []
-            self.Plotlydata = []
-            self.Plotlylayout = []
-            self.PlotlyXaxisTitles = []
-            self.PlotlyYaxisTitles = []
-            self.PlotlySubPlotTitles = []
-            self.PlotlySubPlotLabels = []
-            self.PlotlySubPlotNumbers = []
-            self.PlotlyPlotCalls = 0
-            self.PLcolor=''
-            self.PLwidth=0
-            self.PLdash=''
-            self.PLmultiAxisTitle=''
-            self.PLmultipleYAxis=False
-            self.PLyAxisSide=''
-            self.PLyAxisOverlaying=''
-            self.PLmultipleXAxis=False
-            self.PLxAxisSide=''
-            self.PLxAxisOverlaying=''
-            self.PLIs3D=False
-            self.PLType=''
 
         self.nrow=subpltnrow
         self.ncol=subpltncol
@@ -755,7 +697,10 @@ class Plotter:
         #http://stackoverflow.com/questions/15341757/how-to-check-that-pylab-backend-of-matplotlib-runs-inline/17826459#17826459
         # print(mpl.get_backend())
         if 'inline' in mpl.get_backend() and self.doWarning:
-            print('****  If saveFig does not work inside the notebook please comment out the line "%matplotlib inline" ')
+            print(
+                '****  If saveFig does not work inside the notebook '
+                'please comment out the line "%matplotlib inline" '
+            )
             print('To disable ryplot warnings, set doWarning=False')
             # return
 
@@ -955,7 +900,7 @@ class Plotter:
                     PLcolor=None,
                     PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
                     PLmultipleYAxis=False, PLmultiAxisTitle=None, PLxAxisSide=None,
-                    PLxAxisOverlaying=None, PLmultipleXAxis=False  ): #Plotly initialization parameters
+                    PLxAxisOverlaying=None, PLmultipleXAxis=False  ): 
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -997,8 +942,10 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
-                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
                 | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
@@ -1022,17 +969,6 @@ class Plotter:
             Raises:
                 | No exception is raised.
        """
-      #Plotly variables initialization
-      self.PLcolor=PLcolor
-      self.PLwidth=PLwidth
-      self.PLdash=PLdash
-      self.PLmultipleYAxis=PLmultipleYAxis
-      self.PLmultiAxisTitle=PLmultiAxisTitle	  
-      self.PLyAxisSide=PLyAxisSide
-      self.PLyAxisOverlaying=PLyAxisOverlaying
-      self.PLmultipleXAxis=PLmultipleXAxis  
-      self.PLxAxisSide=PLxAxisSide
-      self.PLxAxisOverlaying=PLxAxisOverlaying
 
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
@@ -1099,7 +1035,8 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
+                | powerLimits[float]: scientific tick label power limits
+                  [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1114,8 +1051,10 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
-                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
                 | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
@@ -1137,14 +1076,6 @@ class Plotter:
                 | No exception is raised.
       """
 
-      # Plotly variables initialization
-      self.PLcolor=PLcolor
-      self.PLwidth=PLwidth
-      self.PLdash=PLdash
-      self.PLmultipleYAxis=PLmultipleYAxis
-      self.PLmultiAxisTitle=PLmultiAxisTitle	  
-      self.PLyAxisSide=PLyAxisSide
-      self.PLyAxisOverlaying=PLyAxisOverlaying
 
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
@@ -1220,7 +1151,8 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]: scientific tick label notation power limits [x-low, x-high, y-low, y-high] (optional) (optional)
+                | powerLimits[float]: scientific tick label notation power limits
+                  [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1235,8 +1167,10 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
-                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
                 | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
@@ -1257,14 +1191,6 @@ class Plotter:
             Raises:
                 | No exception is raised.
        """
-      #Plotly variables initialization
-      self.PLcolor=PLcolor
-      self.PLwidth=PLwidth
-      self.PLdash=PLdash
-      self.PLmultipleYAxis=PLmultipleYAxis
-      self.PLmultiAxisTitle=PLmultiAxisTitle	  
-      self.PLyAxisSide=PLyAxisSide
-      self.PLyAxisOverlaying=PLyAxisOverlaying 
 
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
@@ -1331,7 +1257,8 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
+                | powerLimits[float]: scientific tick label power limits
+                  [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1346,8 +1273,10 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
-                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
                 | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
@@ -1368,14 +1297,6 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
-      #Plotly variables initialization
-      self.PLcolor=PLcolor
-      self.PLwidth=PLwidth
-      self.PLdash=PLdash
-      self.PLmultipleYAxis=PLmultipleYAxis
-      self.PLmultiAxisTitle=PLmultiAxisTitle	  
-      self.PLyAxisSide=PLyAxisSide
-      self.PLyAxisOverlaying=PLyAxisOverlaying
 
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
@@ -1442,7 +1363,8 @@ class Plotter:
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | linestyle (string): linestyle for this plot (optional)
-                | powerLimits[float]:  scientific tick label power limits [x-low, x-high, y-low, y-high] (optional) (optional)
+                | powerLimits[float]: scientific tick label power limits
+                  [x-low, x-high, y-low, y-high] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis tick font size, default 10pt (optional)
@@ -1457,8 +1379,10 @@ class Plotter:
                 | xtickRotation (float) x-axis tick label rotation angle (optional)
                 | markers ([string]) markers to be used for plotting data points (optional)
                 | markevery (int | (startind, stride)) subsample when using markers (optional)
-                | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-                | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+                | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
+                | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                  otherwise str is colour (optional)
                 | markersize (float) marker size in points, default 6 (optional)
                 | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
@@ -1479,14 +1403,6 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
-      #Plotly variables initialization
-      self.PLcolor=PLcolor
-      self.PLwidth=PLwidth
-      self.PLdash=PLdash
-      self.PLmultipleYAxis=PLmultipleYAxis
-      self.PLmultiAxisTitle=PLmultiAxisTitle	  
-      self.PLyAxisSide=PLyAxisSide
-      self.PLyAxisOverlaying=PLyAxisOverlaying
 
       ## see self.MyPlot for parameter details.
       pkey = (self.nrow, self.ncol, plotnum)
@@ -1575,8 +1491,10 @@ class Plotter:
               | xtickRotation (float) x-axis tick label rotation angle (optional)
               | markers ([string]) markers to be used for plotting data points (optional)
               | markevery (int | (startind, stride)) subsample when using markers (optional)
-              | markerfacecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
-              | markeredgecolor (True|None|str) if True same as plotCol, if None empty, otherwise str is colour (optional)
+              | markerfacecolor (True|None|str) if True same as plotCol, if None empty,
+                otherwise str is colour (optional)
+              | markeredgecolor (True|None|str) if True same as plotCol, if None empty,
+                otherwise str is colour (optional)
               | markersize (float) marker size in points, default 6 (optional)
               | zorders ([int]) list of zorder for drawing sequence, highest is last (optional)
               | clip_on (bool) clips objects to drawing axes (optional)
@@ -1592,12 +1510,6 @@ class Plotter:
           Raises:
               | No exception is raised.
       """
-
-     
-      #Initialize plotlyPlot call when Plotly is activated
-      if self.useplotly:
-          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
-
 
       if isinstance(x, pd.Series):
         x = x.values
@@ -1699,7 +1611,7 @@ class Plotter:
 
       ###############################stacked plot #######################
       if plotcommand==ax.stackplot:
-        if not self.useplotly:
+        if True:
             if not plotCol:
                 plotCol = [self.nextPlotCol() for col in range(0,yy.shape[0])]
 
@@ -1709,27 +1621,6 @@ class Plotter:
             # creating the legend manually
             ax.legend([mpl.patches.Patch(color=col) for col in plotCol], label,
                 loc=legendLoc, framealpha=legendAlpha)
-        else: #Plotly stacked plot
-           #Plotly stacked plot variables
-           PLXAxis = 0
-           PLYAxis = 0
-           for i in range(yy.shape[0]):
-                PLXAxis = dict(type='category',)
-                PLYAxis = dict(type='linear')
-                try:
-                    if len(y[0,:]) > 1:
-                        self.Plotlydata.append(Scatter(x=x, y=y[i,:]+PLyStatic[0],mode='lines', 
-                            fill='tonexty',line = dict(color = self.PLcolor, 
-                            width = self.PLwidth, dash = self.PLdash)))
-                        PLyStatic[0] += y[i,:]
-                    elif len(x[0,:]) > 1:
-                        self.Plotlydata.append(Scatter(x=x[:,i], y=y,mode='lines', 
-                            fill='tonexty',line = dict(color = self.PLcolor, width = self.PLwidth, 
-                            dash = self.PLdash)))
-                except:
-                    self.Plotlydata.append(Scatter(x=x, y=y,fill='tonexty',
-                        line = dict(color = self.PLcolor, width = self.PLwidth, 
-                        dash = self.PLdash)))
       ###############################line plot #######################
       else: # not a stacked plot
         for i in range(yy.shape[1]):
@@ -1780,7 +1671,7 @@ class Plotter:
             else:
               zorder = 2
 
-            if not self.useplotly:
+            if True:
                 if not label:
                     if linewidths is not None:
                       plotcommand(xx, yy[:, i], col, label=None, linestyle=linestyleL,
@@ -1811,113 +1702,6 @@ class Plotter:
                     leg.get_frame().set_alpha(legendAlpha)
                     # ax.legend()
                     self.bbox_extra_artists.append(leg)
-            else:#Plotly plots
-                if 'loglog' in str(plotcommand):
-                    PLXAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
-                    PLYAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
-
-                    # Assuming that either y or x has to 1
-                    try:
-                        if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                        elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                    except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-
-                    # Append axis and plot titles
-                    if self.ncol > 1:
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                    elif self.nrow > 1 :
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                elif 'semilogx' in str(plotcommand):
-                    PLXAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
-                    PLYAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
-
-                    # Assuming that either y or x has to 1
-                    try:
-                        if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                        elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                    except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-
-                    # Append axis and plot titles
-                    if self.ncol > 1:
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                    elif self.nrow > 1 :
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                elif 'semilogy' in str(plotcommand):
-                    PLXAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
-                    PLYAxis = dict(type='log',showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
-
-                    # Assuming that either y or x has to 1
-                    try:
-                        if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                        elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                    except:
-                        self.Plotlydata.append(Scatter(x=x, y=y, name = label[i],line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-
-                    # Append axis and plot titles
-                    if self.ncol > 1:
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                    elif self.nrow > 1 :
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                else:
-                    PLXAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=xlabel,mirror='all')
-                    PLYAxis = dict(showgrid=drawGrid,zeroline=False,nticks=20,showline=True,title=ylabel,mirror='all')
-
-                    # Assuming that either y or x has to 1
-                    try:
-                        if len(x[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,i], y=y,xaxis='x1',
-                            line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                        elif len(y[0,:]) > 1:
-                            self.Plotlydata.append(Scatter(x=x[:,0], y=y[:,i], xaxis='x1',
-                            line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                    except:
-                        self.Plotlydata.append(Scatter(x=x, y=y,xaxis='x1',
-                        line = dict(color = self.PLcolor, width = self.PLwidth, dash = self.PLdash)))
-                    
-                    # Append axis and plot titles
-                    if self.ncol > 1:
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-                    elif self.nrow > 1 :
-                        self.PlotlySubPlotNumbers.append(plotnum)
-                        self.PlotlyXaxisTitles.append(xlabel)
-                        self.PlotlyYaxisTitles.append(ylabel)
-
-      #Plotly plots setup
-      if self.useplotly:
-          if self.PLmultipleYAxis:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,xaxis = PLXAxis,yaxis=PLYAxis,yaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLyAxisSide,overlaying=self.PLyAxisOverlaying)))
-          elif self.PLmultipleXAxis:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,yaxis=PLYAxis,xaxis = PLXAxis,xaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLxAxisSide,overlaying=self.PLxAxisOverlaying)))
-          else:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,xaxis = PLXAxis,yaxis=PLYAxis))
-          if self.ncol > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlySubPlotLabels.append(label)
-          elif self.nrow > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlySubPlotLabels.append(label)
 
       if xIsDate:
           plt.gcf().autofmt_xdate()
@@ -1977,186 +1761,6 @@ class Plotter:
       return ax
 
     ############################################################
-    #Before this function is called, plot data is accumulated in runtime variables
-    #At the call of this function the Plotly plots are plotted using the accumulated data.
-    def plotlyPlot(self,filename=None,image=None,image_filename=None,auto_open=True):
-        if ((self.nrow == self.ncol) & self.ncol == 1 & self.nrow == 1 ): #No subplots
-            fig = Figure(data=self.Plotlydata,layout=self.Plotlylayout[0])
-            fig['layout'].update(title=str(self.figuretitle))
-        else:
-            dataFormatCatch = 0
-            try:
-                len(self.Plotlydata[0].y[1,:])
-                dataFormatCatch = 0
-            except:
-                dataFormatCatch = 1
-
-            if self.PLIs3D:
-                specRow = []
-                specCol = []
-                for r in range(int(self.nrow)):
-                    specRow.append({'is_3d': True})
-                for r in range(int(self.ncol)):
-                    specCol.append({'is_3d': True})
-                fig = subplots.make_subplots(rows=int(self.nrow), cols=int(self.nrow), specs=[specRow,specCol])#[[{'is_3d': True}, {'is_3d': True}], [{'is_3d': True}, {'is_3d': True}]])
-            else:
-                fig = subplots.make_subplots(int(self.nrow), int(self.ncol), subplot_titles=self.PlotlySubPlotTitles)
-
-            # make row and column formats
-            rowFormat = []
-            colFormat = []
-            countRows = 1
-            rowCount = 1
-            colCount = 1
-            for tmp in range(int(self.nrow)*int(self.ncol)):
-                if int(self.nrow) == int(self.ncol):
-                    if countRows == int(self.nrow):
-                        rowFormat.append(rowCount)
-                        rowCount = rowCount + 1
-                        if rowCount > int(self.nrow):
-                            rowCount = 1
-                        countRows = 1
-                    elif countRows < int(self.nrow) :
-                        rowFormat.append(rowCount)
-                        countRows = countRows + 1
-
-                    if colCount == int(self.ncol):
-                        colFormat.append(colCount)
-                        colCount = 1
-                    elif colCount < int(self.ncol):
-                        colFormat.append(colCount)
-                        colCount = colCount + 1
-                else:
-                    if rowCount > int(self.nrow):
-                        rowCount = 1
-                        rowFormat.append(rowCount)
-                        rowCount = rowCount + 1
-                    else:
-                        rowFormat.append(rowCount)
-                        rowCount = rowCount + 1
-
-                    if colCount > int(self.ncol):
-                        colCount = 1
-                        colFormat.append(colCount)
-                        colCount = colCount + 1
-                    else:
-                        colFormat.append(colCount)
-                        colCount = colCount + 1
-
-            if dataFormatCatch == 0:
-                for tmp in range(self.PlotlyPlotCalls):
-                    if self.PLIs3D:
-                        if str(self.PLType) == "plot3d":
-                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[tmp], colFormat[tmp])
-                        elif str(self.PLType) == "mesh3D":
-                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[tmp], colFormat[tmp])
-                    else:
-                        if str(self.PLType) == "meshContour":
-                            fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                        else:
-                            fig.append_trace(self.Plotlydata, rowFormat[tmp], colFormat[tmp])
-            else:
-                rCntrl = 1
-                rIndex = 1
-                cIndex = 1
-                cCntrl = 1
-                rStpVal = int(len(self.Plotlydata)/len(rowFormat))
-                cStpVal = int(len(self.Plotlydata)/len(colFormat))
-                for i in range(len(self.Plotlydata)):
-                    if rCntrl > rStpVal:
-                        rCntrl = 1
-                        rIndex = rIndex+1
-                        if cCntrl > cStpVal:
-                            cCntrl = 1
-                            cIndex = cIndex+1
-                            if self.PLIs3D:
-                                if str(self.PLType) == "plot3d":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                elif str(self.PLType) == "mesh3D":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            else:
-                                if str(self.PLType) == "meshContour":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                else:
-                                    if(len(self.Plotlydata) == len(rowFormat)):
-                                        fig.append_trace(self.Plotlydata[i], rowFormat[i], colFormat[i])
-                                    else:
-                                        fig.append_trace(self.Plotlydata[i], rowFormat[self.PlotlySubPlotNumbers[i]-1], colFormat[self.PlotlySubPlotNumbers[i]-1])
-                            cCntrl = cCntrl + 1
-                        else:
-                            if self.PLIs3D:
-                                if str(self.PLType) == "plot3d":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                elif str(self.PLType) == "mesh3D":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            else:
-                                if str(self.PLType) == "meshContour":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                else:
-                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
-                        rCntrl = rCntrl + 1
-                    elif cCntrl > cStpVal:
-                        cCntrl = 1
-                        cIndex = cIndex+1
-                        if rCntrl > rStpVal:
-                            rCntrl = 1
-                            rIndex = rIndex+1
-                            if self.PLIs3D:
-                                if str(self.PLType) == "plot3d":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                elif str(self.PLType) == "mesh3D":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            else:
-                                if str(self.PLType) == "meshContour":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                else:
-                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
-                            rCntrl = rCntrl + 1
-                        else:
-                            if self.PLIs3D:
-                                if str(self.PLType) == "plot3d":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                elif str(self.PLType) == "mesh3D":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            else:
-                                if str(self.PLType) == "meshContour":
-                                    fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                                else:
-                                    fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
-                        cCntrl = cCntrl + 1
-                    else:
-                        if self.PLIs3D:
-                            if str(self.PLType) == "plot3d":
-                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,mode=self.Plotlydata[i].mode), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            elif str(self.PLType) == "mesh3D":
-                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,color=self.Plotlydata[i].color), rowFormat[rIndex-1], colFormat[cIndex-1])
-                        else:
-                            if str(self.PLType) == "meshContour":
-                                fig.append_trace(dict(type=self.Plotlydata[i].type,x=self.Plotlydata[i].x, y=self.Plotlydata[i].y, z=self.Plotlydata[i].z,name=self.Plotlydata[i].name,PLcolorscale=self.Plotlydata[i].PLcolorscale), rowFormat[rIndex-1], colFormat[cIndex-1])
-                            else:
-                                fig.append_trace(self.Plotlydata[i], rowFormat[rIndex-1], colFormat[cIndex-1])
-                        rCntrl = rCntrl + 1
-                        cCntrl = cCntrl + 1
-
-            fig['layout'].update(title=str(self.figuretitle))
-            for j in range(self.PlotlyPlotCalls):
-                if j < len(self.PlotlyXaxisTitles):
-                    fig['layout']['xaxis'+str(j+1)].update(title=self.PlotlyXaxisTitles[j],type=self.Plotlylayout[j].xaxis.type)
-                else:
-                    fig['layout']['xaxis'+str(j+1)].update(type=self.Plotlylayout[j].xaxis.type)
-                if j < len(self.PlotlyYaxisTitles):
-                    fig['layout']['yaxis'+str(j+1)].update(title=self.PlotlyYaxisTitles[j],type=self.Plotlylayout[j].yaxis.type)
-                else:
-                    fig['layout']['yaxis'+str(j+1)].update(type=self.Plotlylayout[j].yaxis.type)
-
-        if filename:
-            offline.plot(fig,filename=filename)
-        elif image:
-            offline.plot(fig,image_filename=image_filename,image=image,auto_open=auto_open)
-        else:
-            offline.plot(fig)
-
-    ############################################################
     ##
     def emptyPlot(self,plotnum,projection='rectilinear'):
       """Returns a handler to an empty plot.
@@ -2187,6 +1791,28 @@ class Plotter:
 
 
     def clippedcolorbar(CS, **kwargs):
+        """Add a colorbar that respects contour level clipping limits.
+
+        Creates a colorbar whose range is clipped to the contour levels rather
+        than the full data range.  Automatically adds extend arrows when data
+        values lie outside the colorbar range.
+
+        Args:
+            CS: a matplotlib ContourSet (return value of ax.contourf / ax.contour).
+            **kwargs: additional keyword arguments forwarded to fig.colorbar().
+                Notably, extend can be overridden by passing extend='neither'.
+
+        Returns:
+            matplotlib.colorbar.Colorbar: the new colorbar object.
+
+        Raises:
+            No exception is raised.
+
+        Note:
+            This is a static method defined without the @staticmethod decorator.
+            It must be called as Plotter.clippedcolorbar(CS) rather than
+            instance.clippedcolorbar(CS).
+        """
         from matplotlib.cm import ScalarMappable
         from numpy import arange, floor, ceil
         fig = CS.ax.get_figure()
@@ -2200,7 +1826,11 @@ class Plotter:
         clipupper = CS.zmax>vmax
         noextend = 'extend' in kwargs.keys() and kwargs['extend']=='neither'
         # set the colorbar boundaries
-        boundaries = arange((floor(vmin/step)-1+1*(cliplower and noextend))*step, (ceil(vmax/step)+1-1*(clipupper and noextend))*step, step)
+        boundaries = arange(
+            (floor(vmin/step) - 1 + 1*(cliplower and noextend)) * step,
+            (ceil(vmax/step) + 1 - 1*(clipupper and noextend)) * step,
+            step,
+        )
         kwargs['boundaries'] = boundaries
         # if the z-values are outside the colorbar range, add extend marker(s)
         # This behavior can be disabled by providing extend='neither' to the function call
@@ -2278,7 +1908,8 @@ class Plotter:
                 | meshCmap (cm): colour map for the mesh (optional)
                 | cbarshow (bool): if true, the show a colour bar (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below) (optional)
-                | cbarcustomticks zip([z values/float],[tick labels/string])`  define custom colourbar ticks locations for given z values(optional)
+                | cbarcustomticks zip([z values/float],[tick labels/string]):
+                  define custom colourbar ticks locations for given z values (optional)
                 | cbarfontsize (int): font size for colour bar (optional)
                 | drawGrid (bool): draw the grid on the plot (optional)
                 | yInvert (bool): invert the y-axis. Flip the y-axis up-down (optional)
@@ -2294,7 +1925,6 @@ class Plotter:
                 | contFonSz (float): contour label fontsize (optional)
                 | contLinWid (float): contour line width in points (optional)
                 | zorders ([int]) list of zorders for drawing sequence, highest is last (optional)
-                | PLcolorscale (?) Plotly parameter ? (optional)
                 | alpha (float): fill alpha  (optional)
                 | vlimits ([float,float]): force upper and lower Z limits if not None
 
@@ -2365,30 +1995,6 @@ class Plotter:
           zorder = zorders[0]
       else:
         zorder = 2
-
-      if self.useplotly:
-          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
-          self.PLType = "meshContour"
-          if cbarshow:
-              self.Plotlydata.append(Contour(x=list(itertools.chain.from_iterable(xvals)),
-              y=list(itertools.chain.from_iterable(yvals)),
-              z=list(itertools.chain.from_iterable(zvals)),
-              PLcolorscale=PLcolorscale))
-              #,color=color,colorbar = ColorBar(PLtickmode=PLtickmode,nticks=PLnticks,
-              # PLtick0=PLtick0,PLdtick=PLdtick,PLtickvals=PLtickvals,PLticktext=PLticktext),
-              # PLcolorscale = PLcolorScale,intensity = PLintensity))
-          else:
-              self.Plotlydata.append(Contour(x=list(itertools.chain.from_iterable(xvals)),
-              y=list(itertools.chain.from_iterable(yvals)),
-              z=list(itertools.chain.from_iterable(zvals)),PLcolorscale=PLcolorscale))
-              #,color=color))
-
-          # Append axis and plot titles
-          if self.ncol > 1:
-              self.PlotlySubPlotNumbers.append(plotnum)
-          elif self.nrow > 1 :
-              self.PlotlySubPlotNumbers.append(plotnum)
-
 
       #do the plot
       if contourFill:
@@ -2480,37 +2086,6 @@ class Plotter:
 
       plt.rcParams['contour.negative_linestyle'] = contour_negative_linestyle
 
-      if self.useplotly:
-          if self.PLmultipleYAxis:
-              if yInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
-              elif xInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
-              else:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,font=dict(title=self.PLmultiAxisTitle,side=self.PLyAxisSide,overlaying=self.PLyAxisOverlaying)))
-          elif self.PLmultipleXAxis:
-              if yInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
-              elif xInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
-              else:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,yaxis=PLYAxis,xaxis = PLXAxis,xaxis2=dict(title=self.PLmultiAxisTitle,side=self.PLxAxisSide,overlaying=self.PLxAxisOverlaying)))
-          else:
-              if yInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel,autorange='reversed')))
-              elif xInvert:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel,autorange='reversed'),yaxis=dict(title=ylabel)))
-              else:
-                  self.Plotlylayout.append(Layout(title = ptitle,xaxis=dict(title=xlabel),yaxis=dict(title=ylabel)))#,xaxis = PLXAxis,yaxis=PLYAxis))
-          if self.ncol > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlyXaxisTitles.append(xlabel)
-              self.PlotlyYaxisTitles.append(ylabel)
-          elif self.nrow > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlyXaxisTitles.append(xlabel)
-              self.PlotlyYaxisTitles.append(ylabel)
-
       return ax
 
     ############################################################
@@ -2571,14 +2146,16 @@ class Plotter:
                 | linewidth (float): mesh line width in points (optional)
                 | plotCol ([strings]): fill colour, list with M=1 entries, use default if None (optional)
                 | edgeCol ([strings]): mesh line colour , list with M=1 entries, use default if None (optional)
-                | pltaxis ([xmin, xmax, ymin, ymax]): scale for x,y axes. z scale is not settable.  Let Matplotlib decide if None (optional)
+                | pltaxis ([xmin, xmax, ymin, ymax]): scale for x,y axes.
+                  z scale is not settable. Let Matplotlib decide if None. (optional)
                 | maxNX (int): draw maxNX+1 tick labels on x axis (optional)
                 | maxNY (int): draw maxNY+1 tick labels on y axis (optional)
                 | maxNZ (int): draw maxNY+1 tick labels on z axis (optional)
                 | xScientific (bool): use scientific notation on x axis (optional)
                 | yScientific (bool): use scientific notation on y axis (optional)
                 | zScientific (bool): use scientific notation on z-axis (optional)
-                | powerLimits[float]:  scientific tick label power limits [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos]  (optional)
+                | powerLimits[float]: scientific tick label power limits
+                  [x-neg, x-pos, y-neg, y-pos, z-neg, z-pos] (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis, z-axis label font size, default 12pt (optional)
                 | xytickfsize (int): x-axis, y-axis, z-axis tick font size, default 10pt (optional)
@@ -2587,7 +2164,8 @@ class Plotter:
                 | cmap (cm): color map for the mesh (optional)
                 | cbarshow (bool): if true, the show a color bar (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below) (optional)
-                | cbarcustomticks zip([z values/float],[tick labels/string]):  define custom colourbar ticks locations for given z values(optional)
+                | cbarcustomticks zip([z values/float],[tick labels/string]):
+                  define custom colourbar ticks locations for given z values (optional)
                 | cbarfontsize (int): font size for color bar (optional)
                 | drawGrid (bool): draw the grid on the plot (optional)
                 | xInvert (bool): invert the x-axis. Flip the x-axis left-right (optional)
@@ -2684,30 +2262,7 @@ class Plotter:
       else:
         zorder = 1
 
-      if self.useplotly:
-          self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
-          self.PLIs3D = True
-          self.PLType = "mesh3D"
-          if cbarshow:
-              self.Plotlydata.append(Mesh3d(x=list(itertools.chain.from_iterable(xvals)),
-              y=list(itertools.chain.from_iterable(yvals)),
-              z=list(itertools.chain.from_iterable(zvals)),color=PLcolor,
-              colorbar = ColorBar(PLtickmode=PLtickmode,nticks=PLnticks,
-              PLtick0=PLtick0,PLdtick=PLdtick,PLtickvals=PLtickvals,PLticktext=PLticktext),
-              PLcolorscale=PLcolorScale,intensity=PLintensity))
-          else:
-              self.Plotlydata.append(Mesh3d(x=list(itertools.chain.from_iterable(xvals)),
-              y=list(itertools.chain.from_iterable(yvals)),
-              z=list(itertools.chain.from_iterable(zvals)),color=PLcolor))
-
-          # Append axis and plot titles
-          if self.ncol > 1:
-              self.PlotlySubPlotNumbers.append(plotnum)
-          elif self.nrow > 1 :
-              self.PlotlySubPlotNumbers.append(plotnum)
-
       #do the plot
-
       if surface:
         pmplot = ax.plot_surface(xvals, yvals, zvals, rstride=rstride, cstride=cstride,
               edgecolor=edcol, cmap=cmap, linewidth=linewidth, alpha=alpha,
@@ -2785,22 +2340,6 @@ class Plotter:
           ax.set_ylim(ax.get_ylim()[::-1])
       if zInvert:
           ax.set_zlim(ax.get_zlim()[::-1])
-
-      if self.useplotly:
-          if self.PLmultipleYAxis:
-              self.Plotlylayout.append(Layout(title = ptitle))
-          elif self.PLmultipleXAxis:
-              self.Plotlylayout.append(Layout(title = ptitle))
-          else:
-              self.Plotlylayout.append(Layout(title = ptitle))
-          if self.ncol > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlyXaxisTitles.append(xlabel)
-              self.PlotlyYaxisTitles.append(ylabel)
-          elif self.nrow > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlyXaxisTitles.append(xlabel)
-              self.PlotlyYaxisTitles.append(ylabel)
 
       return ax
 
@@ -2963,7 +2502,9 @@ class Plotter:
 
           if not label:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
+                  lines = ax.plot(
+                      ttt, rrr, col, clip_on=clip_on, zorder=zorder,
+                      marker=mmrk, markevery=markevery, linestyle=linestyleL)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -2976,12 +2517,16 @@ class Plotter:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
                                     marker=mmrk, markevery=markevery,linestyle=linestyleL)
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
+              ax.plot(
+                  ttt, rrr, col, clip_on=clip_on, zorder=zorder,
+                  marker=mmrk, markevery=markevery, linestyle=linestyleL)
               rmax = np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
           else:
               if highlightNegative:
-                  lines = ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
+                  lines = ax.plot(
+                      ttt, rrr, col, clip_on=clip_on, zorder=zorder,
+                      marker=mmrk, markevery=markevery, linestyle=linestyleL)
                   neglinewith = highlightWidth*plt.getp(lines[0],'linewidth')
                   for ii in range(0,len(negrrr)):
                       if len(negrrr[ii]) > 0:
@@ -2996,38 +2541,20 @@ class Plotter:
                                   ax.plot(negttt[ii], negrrr[ii], highlightCol,
                                     linewidth=neglinewith, clip_on=clip_on, zorder=zorder,
                                     marker=mmrk, markevery=markevery,linestyle=linestyleL)
-              ax.plot(ttt, rrr, col,label=label[i], clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
+              ax.plot(
+                  ttt, rrr, col, label=label[i], clip_on=clip_on, zorder=zorder,
+                  marker=mmrk, markevery=markevery, linestyle=linestyleL)
               rmax=np.maximum(np.abs(rrr).max(), rmax)
               rmin = 0
 
           if MakeAbs:
-              ax.plot(ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
+              ax.plot(
+                  ttt, np.abs(rrr), col, clip_on=clip_on, zorder=zorder,
+                  marker=mmrk, markevery=markevery, linestyle=linestyleL)
           else:
-              ax.plot(ttt, rrr, col, clip_on=clip_on, zorder=zorder,marker=mmrk, markevery=markevery,linestyle=linestyleL)
-
-          #Plotly polar setup
-          if self.useplotly:
-              # Assuming that either y or x has to 1
-              if thetagrid is None:
-                  tt=tt*(180.0/(np.pi))
-              else:
-                  tt=tt*(180.0/(np.pi*(thetagrid[0]/(-4.62*i+5))))
-
-              try:
-                  if len(r[0,:]) > 1:
-                      self.Plotlydata.append(Scatter(r=rr[:,i], t=tt[:,0], name = label,mode='lines'))
-                  elif len(theta[0,:]) > 1:
-                      self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,i], name = label,mode='lines'))
-                  else:
-                      self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,0], name = label,mode='lines'))
-              except:
-                  self.Plotlydata.append(Scatter(r=rr[:,0], t=tt[:,0], name = label))
-
-              # Append axis and plot titles
-              if self.ncol > 1:
-                  self.PlotlySubPlotNumbers.append(plotnum)
-              elif self.nrow > 1 :
-                  self.PlotlySubPlotNumbers.append(plotnum)
+              ax.plot(
+                  ttt, rrr, col, clip_on=clip_on, zorder=zorder,
+                  marker=mmrk, markevery=markevery, linestyle=linestyleL)
 
       if label:
           fontP = mpl.font_manager.FontProperties()
@@ -3068,20 +2595,6 @@ class Plotter:
           ax.set_title(ptitle, fontsize=titlefsize, \
               verticalalignment ='bottom', horizontalalignment='center')
 
-      if self.useplotly:
-          if self.PLmultipleYAxis:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
-          elif self.PLmultipleXAxis:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
-          else:
-              self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,orientation=+90))
-          if self.ncol > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlySubPlotLabels.append(label)
-          elif self.nrow > 1:
-              self.PlotlySubPlotTitles.append(ptitle)
-              self.PlotlySubPlotLabels.append(label)
-
       return ax
 
     ############################################################
@@ -3089,7 +2602,7 @@ class Plotter:
     def showImage(self, plotnum, img,  ptitle=None, xlabel=None, ylabel=None,
                   cmap=plt.cm.gray, titlefsize=12, cbarshow=False,cblabel='',
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
-                  labelfsize=10, xylabelfsize = 12,interpolation=None,extent=None,
+                  labelfsize=10, xylabelfsize = 12,interpolation='antialiased',extent=None,
                   axes='off'):
       """Creates a subplot and show the image using the colormap provided.
 
@@ -3104,11 +2617,16 @@ class Plotter:
                 | cbarshow (bool): if true, the show a colour bar (optional)
                 | cblabel (str):  colour bar label (optional)
                 | cbarorientation (string): 'vertical' (right) or 'horizontal' (below)  (optional)
-                | cbarcustomticks zip([tick locations/float],[tick labels/string]): locations in image grey levels  (optional)
+                | cbarcustomticks zip([tick locations/float],[tick labels/string]):
+                  locations in image grey levels (optional)
                 | cbarfontsize (int): font size for colour bar  (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
                 | xylabelfsize (int): x-axis, y-axis label font size, default 12pt (optional)
-                | interpolation (str):   'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'(optional, see pyplot.imshow)
+                | interpolation (str): one of 'none', 'nearest', 'bilinear',
+                  'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
+                  'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+                  'bessel', 'mitchell', 'sinc', 'lanczos'
+                  (optional, see pyplot.imshow)
                 | extent []: extent of the x and y axes for display  (optional)
                 | axes 'on' or 'off':  display x y axes
 
@@ -3129,9 +2647,9 @@ class Plotter:
       ax = self.subplots[pkey]
 
       if extent is None:
-        cimage = ax.imshow(img, cmap,interpolation=interpolation)
+        cimage = ax.imshow(img, cmap,interpolation=interpolation,interpolation_stage='auto')
       else:
-        cimage = ax.imshow(img, cmap,interpolation=interpolation,extent=extent)
+        cimage = ax.imshow(img, cmap,interpolation=interpolation,interpolation_stage='auto',extent=extent)
 
       if xlabel is not None:
           ax.set_xlabel(xlabel, fontsize=xylabelfsize)
@@ -3211,7 +2729,8 @@ class Plotter:
                 | zlabel (string): z axis label (optional)
                 | plotCol ([strings]): plot colour and line style, list with M entries, use default if None (optional)
                 | linewidths ([float]): plot line width in points, list with M entries, use default if None  (optional)
-                | pltaxis ([xmin, xmax, ymin, ymax, zmin, zmax])  scale for x,y,z axes.  Let Matplotlib decide if None. (optional)
+                | pltaxis ([xmin, xmax, ymin, ymax, zmin, zmax]):
+                  scale for x,y,z axes. Let Matplotlib decide if None. (optional)
                 | label  ([strings]): legend label for ordinate, list with M entries (optional)
                 | legendAlpha (float): transparency for legend box (optional)
                 | titlefsize (int): title font size, default 12pt (optional)
@@ -3272,11 +2791,7 @@ class Plotter:
 
         ax = self.subplots[(self.nrow,self.ncol, plotnum)]
 
-        if self.useplotly:
-            self.PlotlyPlotCalls = self.PlotlyPlotCalls + 1
-
         # print(x.shape[-1])
-
         for i in range(x.shape[-1]):
             if plotCol:
                 if i >= len(plotCol):
@@ -3302,65 +2817,23 @@ class Plotter:
             if linewidths is not None:
                 if scatter:
                     ax.scatter(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
-                        marker=marker, zorder=zorder, clip_on=clip_on,markersize=markersize)
+                        marker=marker, zorder=zorder, clip_on=clip_on,s=markersize**2)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, linewidth=linewidths[i],
-                        marker=marker,markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL,markersize=markersize)
+                        marker=marker, markevery=markevery, zorder=zorder,
+                        clip_on=clip_on, linestyle=linestyleL, markersize=markersize)
             else:
                 if scatter:
                     ax.scatter(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
-                        zorder=zorder, clip_on=clip_on,markersize=markersize)
+                        zorder=zorder, clip_on=clip_on,s=markersize**2)
                 else:
                     ax.plot(x[:,i], y[:,i], z[:,i], c=col, marker=marker,
                         markevery=markevery, zorder=zorder, clip_on=clip_on,linestyle=linestyleL,markersize=markersize)
-
-            # Plotly 3D plot setup
-            if self.useplotly:
-                self.PLIs3D = True
-                self.PLType = "plot3d"
-                try:
-                    if (len(x[0,:]) > 1) and (len(y[0,:]) > 1) and (len(z[0,:]) > 1):
-                        if len(label) > x.shape[-1]:
-                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,i],z=z[:,i], name = label,mode='lines'))
-                        else:
-                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,i],z=z[:,i], name = label[i],mode='lines'))
-                    elif (len(x[0,:]) > 1) and (len(y[0,:]) <= 1) and (len(z[0,:]) <= 1):
-                        if len(label) > x.shape[-1]:
-                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,0],z=z[:,0], name = label,mode='lines'))
-                        else:
-                            self.Plotlydata.append(Scatter3d(x=x[:,i],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
-                    elif (len(x[0,:]) <= 1) and (len(y[0,:]) > 1) and (len(z[0,:]) <= 1):
-                        if len(label) > x.shape[-1]:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,i],z=z[:,0], name = label,mode='lines'))
-                        else:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,i],z=z[:,0], name = label[i],mode='lines'))
-                    elif (len(x[0,:]) <= 1) and (len(y[0,:]) <= 1) and (len(z[0,:]) > 1):
-                        if len(label) > x.shape[-1]:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,i], name = label,mode='lines'))
-                        else:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,i], name = label[i],mode='lines'))
-                    else:
-                        if len(label) > x.shape[-1]:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label,mode='lines'))
-                        else:
-                            self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
-                except:
-                    if len(label) > x.shape[-1]:
-                        self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label,mode='lines'))
-                    else:
-                        self.Plotlydata.append(Scatter3d(x=x[:,0],y=y[:,0],z=z[:,0], name = label[i],mode='lines'))
-
-                # Append axis and plot titles
-                if self.ncol > 1:
-                    self.PlotlySubPlotNumbers.append(plotnum)
-                elif self.nrow > 1 :
-                    self.PlotlySubPlotNumbers.append(plotnum)
 
         if edgeCol:
           edcol = edgeCol
         else:
           edcol = self.nextPlotCol()
-
 
         #scale the axes
         if pltaxis is not None:
@@ -3394,20 +2867,6 @@ class Plotter:
 
         if(ptitle is not None):
            plt.title(ptitle, fontsize=titlefsize)
-
-        if self.useplotly:
-            if self.PLmultipleYAxis:
-                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
-            elif self.PLmultipleXAxis:
-                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
-            else:
-                self.Plotlylayout.append(Layout(showlegend = True,title = ptitle,scene2=dict(camera=dict(up=dict(x=0,y=0,z=1)))))
-            if self.ncol > 1:
-                self.PlotlySubPlotTitles.append(ptitle)
-                self.PlotlySubPlotLabels.append(label)
-            elif self.nrow > 1:
-                self.PlotlySubPlotTitles.append(ptitle)
-                self.PlotlySubPlotLabels.append(label)
 
         return ax
 
@@ -3640,15 +3099,18 @@ class Plotter:
       #do the plot
       if contourLine:
           pmplot = ax.contour(theta, radial, zvals, levels, cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder, clip_on=clip_on)
+               colors=col, zorder=zorder)
+          pmplot.set_clip_on(clip_on)
 
       if zeroContourLine:
           pmplot = ax.contour(theta, radial, zvals, (zeroContourLine,), cmap=None, linewidths=contLinWid,
-               colors=col, zorder=zorder, clip_on=clip_on)
+               colors=col, zorder=zorder)
+          pmplot.set_clip_on(clip_on)
 
       if contourFill:
-        pmplot = ax.pcolormesh(theta, radial, zvals, shading=shading, cmap=meshCmap,
-            zorder=zorder, clip_on=clip_on)
+        pmplot = ax.pcolormesh(theta, radial, zvals, shading='auto', cmap=meshCmap,
+            zorder=zorder)
+        pmplot.set_clip_on(clip_on)
 
       if contLabel:
         plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz)
@@ -3831,11 +3293,7 @@ class Plotter:
                 ax = self.arrayRows[rkey]
 
                 # plot the data
-                if self.useplotly:#Plotly subplot configuration
-                    self.nrow = nestnrow
-                    self.ncol = nestncol
-                    self.plot(plotnum,x,y,allPlotCol)
-                else:
+                if True: 
                     line, = ax.plot(x,y,allPlotCol)
                     if ylabels is not None:
                         doYAxis = False
@@ -3855,10 +3313,13 @@ class Plotter:
                     ### ax.yaxis.set_label_coords(-0.05, 0.5)
 
                 #tick label fonts
-                for tick in ax.yaxis.get_major_ticks():
-                    tick.label.set_fontsize(xytickfsize)
-                    for tick in ax.xaxis.get_major_ticks():
-                        tick.label.set_fontsize(xytickfsize)
+                ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
+                ax.tick_params(axis='both', which='minor', labelsize=xytickfsize-2)
+
+                # for tick in ax.yaxis.get_major_ticks():
+                #     tick.label.set_fontsize(xytickfsize)
+                #     for tick in ax.xaxis.get_major_ticks():
+                #         tick.label.set_fontsize(xytickfsize)
 
                 if maxNX > 0:
                     ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(maxNX))
@@ -3909,7 +3370,8 @@ class Plotter:
 
         # PolarAxes.PolarTransform takes radian. However, we want our coordinate
         # system in degree
-        tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
+        tr = (Affine2D().translate(0*np.pi/2, 0).scale(np.pi/180., 1.)
+              + PolarAxes.PolarTransform(apply_theta_transforms=False))
 
         # Find grid values appropriate for the coordinate (degree).
         # The argument is an approximate number of grids.
@@ -4588,7 +4050,24 @@ turbo_colormap_data = np.array(
                        [0.47960,0.01583,0.01055]])
 
 def RGBToPyCmap(rgbdata):
-    
+    """Convert an RGB array to a matplotlib LinearSegmentedColormap data dict.
+
+    Produces the mpl_data dictionary format expected by
+    matplotlib.colors.LinearSegmentedColormap.
+
+    Args:
+        rgbdata (np.ndarray): array of shape (N, 3) where each row is an
+            [R, G, B] triplet with values in [0, 1]. N is the number of
+            colourmap steps.
+
+    Returns:
+        dict: dictionary with keys 'red', 'green', 'blue'. Each value is a
+        list of (x, y0, y1) tuples where x is the position along the
+        colourmap axis (0 to 1), and y0 == y1 == the channel value.
+
+    Raises:
+        No exception is raised.
+    """
     nsteps = rgbdata.shape[0]
     stepaxis = np.linspace(0, 1, nsteps)
 
@@ -4615,14 +4094,12 @@ if 'turbo' in plt.colormaps():
     # print(f'Name "turbo" already used in plt.colormaps()')
 else:
     mpl_data = RGBToPyCmap(turbo_colormap_data)
+    # Note: Pre-existing bug — 'shadoAllpe' is a typo for 'shape'.
+    # turbo_colormap_data.shadoAllpe[0] raises AttributeError at runtime.
+    # This branch is dead code in practice because 'turbo' is already registered
+    # in matplotlib >= 3.2, so the else-branch is never reached.
+    # The buggy expression is preserved exactly per the refactor cardinal rule.
     plt.register_cmap(cmap=LSC('turbo', mpl_data, turbo_colormap_data.shadoAllpe[0]))
-
-# if 'iturbo' in plt.colormaps():
-#     pass
-#     # print(f'Name "iturbo" already used in plt.colormaps()')
-# else:
-#     mpl_data = RGBToPyCmap(np.flipud(turbo_colormap_data))
-#     plt.register_cmap(cmap=LSC('iturbo', mpl_data, turbo_colormap_data.shape[0]))
 
 
 ################################################################
@@ -4635,7 +4112,11 @@ if __name__ == '__main__':
     import datetime as dt
     import ryutils
     rit = ryutils.intify_tuple
-    print(f"os.environ['DISPLAY']={os.environ['DISPLAY']}")
+
+    # print(os.environ['DISPLAY'])
+    # if len(os.environ['DISPLAY'])<5:
+    #   mpl.use('Agg')    
+    # print(f"os.environ['DISPLAY']={os.environ['DISPLAY']}")
 
     doAll = True
 
@@ -4680,7 +4161,7 @@ if __name__ == '__main__':
     if doAll:  # stacked plot
         np.random.seed(1)
         fnx = lambda : np.random.randint(5, 50, 10)
-        y = np.row_stack((fnx(), fnx(), fnx()))
+        y = np.vstack((fnx(), fnx(), fnx()))
         x = np.arange(10)
 
         # Make new array consisting of fractions of column-totals,
@@ -4694,7 +4175,7 @@ if __name__ == '__main__':
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
         sp.saveFig('stackplot.png')
 
-    if False:    #next line include both 0 and 360 degrees, i.e., overlap on edge
+    if doAll:    #next line include both 0 and 360 degrees, i.e., overlap on edge
         angled = np.linspace(0.,360.,25)
         angler = np.pi * angled / 180.
         grange = np.linspace(500.,4000.,8)
@@ -4831,7 +4312,7 @@ if __name__ == '__main__':
     #demonstrate the use of a polar mesh plot radial scales
     #create the radial and angular vectors
 
-    if False:
+    if doAll:
         r = np.linspace(0,1.25,100)
         p = np.linspace(0,2*np.pi,100)
         P,R = np.meshgrid(p,r)
@@ -4916,8 +4397,21 @@ if __name__ == '__main__':
         x = np.arange(-3.0, 3.0, delta)
         y = np.arange(-2.0, 2.0, delta)
         X, Y = np.meshgrid(x, y)
-        Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-        Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+
+        # mlab.bivariate_normal(X, Y, sig_x, sig_y, mu_x, mu_y, sig_xy)
+        # Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+        # Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5,   1,   1)
+
+        from scipy.stats import multivariate_normal
+
+        # # Define the mean and covariance matrix
+        # mu = [mu_x, mu_y]
+        # # sig_xy is the covariance; sig_x and sig_y are standard deviations (square them for variance)
+        # covariance = [[sig_x**2, sig_xy], [sig_xy, sig_y**2]]
+
+        Z1 = multivariate_normal(mean=[0,0],cov=[[1.0**2, 0], [0, 1.0**2]]).pdf(np.dstack((X, Y)))
+        Z2 = multivariate_normal(mean=[1,1],cov=[[1.5**2, 0], [0, 0.5**2]]).pdf(np.dstack((X, Y)))
+
         # difference of Gaussians
         Z = 10.0 * (Z2 - Z1)
         pmc = Plotter(1)
@@ -5294,7 +4788,7 @@ if __name__ == '__main__':
         q = Plotter(1,1,3,figsize=(8,4))
         cimage = q.showImage(1,ZZ,'Jet', cmap='jet')
         cimage = q.showImage(2,ZZ,'Turbo', cmap='turbo')
-        cimage = q.showImage(3,ZZ,'Turbo', cmap='iturbo')
+        cimage = q.showImage(3,ZZ,'Viridis', cmap='viridis')
         q.saveFig('jet-turbo.png')
 
 

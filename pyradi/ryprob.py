@@ -18,53 +18,58 @@
 # Contributor(s): ______________________________________.
 ################################################################
 """
-This module provides a few probability utility functions, most of which are used in  the 
-high level  CCD and CMOS staring array model pyradi.rystare.
+This module provides a few probability utility functions, most of which are used in the
+high level CCD and CMOS staring array model pyradi.rystare.
 
-One of the utility functions provide a packaged version of scikit learn's 
-kernel density estimation tool to provide a better estimate than does a 
+One of the utility functions provides a packaged version of scikit-learn's
+kernel density estimation tool to provide a better estimate than does a
 simple histogram.
-
 """
 
+__version__ = '0.1.0'
+__author__ = 'M Konnik and CJ Willers'
+__all__ = [
+    'distribution_exp',
+    'distribution_lognormal',
+    'distribution_inversegauss',
+    'distribution_logistic',
+    'distribution_wald',
+    'distributions_generator',
+    'validateParam',
+    'checkParamsNum',
+    'unifomOnSphere',
+]
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-__version__= ""
-__author__='M Konnik and CJ Willers'
-__all__=['distribution_exp','distribution_lognormal','distribution_inversegauss','distribution_logistic',
-'distribution_wald','distributions_generator','validateParam','checkParamsNum','unifomOnSphere']
-
-import sys
-import numpy as np
+import math
 import re
+
+import numpy as np
 
 
 ######################################################################################
-def KDEbounded(x_d,x,bandwidth=np.nan,lowbnd=np.nan,uppbnd=np.nan,kernel = 'gaussian'):
-    """Estimate the probability by Kernel Density Estimation
+def KDEbounded(x_d, x, bandwidth=np.nan, lowbnd=np.nan, uppbnd=np.nan, kernel='gaussian'):
+    """Estimate the probability by Kernel Density Estimation.
 
-    If bandwidth is np.nan, calculate the optimal kernel width, aka bandwidth.  
-    Be careful, this can take a while.
+    If bandwidth is np.nan, calculate the optimal kernel width (bandwidth) automatically
+    using cross-validation.  Be careful — this can take a while.
 
-    Mirrors the data at either or both of the edges if the domain is bounded.
+    Mirrors the data at either or both edges when the domain is bounded, which
+    corrects the boundary bias that a plain KDE would otherwise exhibit.
 
     Args:
         | x_d (np.array[N,]): domain over which values must be returned
-        | x (np.array[N,]): input ample data set
-        | bandwidth (float): the bandwidth width to be used, np.nan if to be calculated
-        | lowbnd (float): lower mirror fold boundary, np.nan means no lower bound and mirror
-        | uppbnd (float): upper mirror fold boundary, np.nan means no upper bound and mirror
-        | kernel (str): kernel to be used ['gaussian'|'tophat'|'epanechnikov'|'exponential'|'linear'|'cosine']
-
+        | x (np.array[N,]): input sample data set
+        | bandwidth (float): bandwidth to use; np.nan means calculate automatically
+        | lowbnd (float): lower mirror-fold boundary; np.nan means no lower bound
+        | uppbnd (float): upper mirror-fold boundary; np.nan means no upper bound
+        | kernel (str): kernel type — one of 'gaussian', 'tophat', 'epanechnikov',
+          'exponential', 'linear', 'cosine'
 
     Returns:
-        | x_d (np.array[N,]): input vector used as domain for the calculations
-        | x (np.array[N,]): probability density over x_d, the range of the PDF
+        | x_d (np.array[N,]): input vector used as the domain for calculations
+        | x (np.array[N,]): probability density evaluated over x_d
         | bandwidth (float): bandwidth used in the KDE
-        | kernel (str): kernel used 
+        | kernel (str): kernel used
 
     Raises:
         | No exception is raised.
@@ -79,29 +84,23 @@ def KDEbounded(x_d,x,bandwidth=np.nan,lowbnd=np.nan,uppbnd=np.nan,kernel = 'gaus
     https://stats.stackexchange.com/questions/405357/how-to-choose-the-bandwidth-of-a-kde-in-python
     https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
     https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
-    https://stats.stackexchange.com/questions/405357/how-to-choose-the-bandwidth-of-a-kde-in-python
-    https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation
     https://towardsdatascience.com/how-to-find-probability-from-probability-density-plots-7c392b218bab
-    https://github.com/admond1994/calculate-probability-from-probability-density-plots/blob/master/cal_probability.ipynb
-   
     """
 
     from sklearn.neighbors import KernelDensity
-    from sklearn.model_selection import GridSearchCV
-    from sklearn.model_selection import LeaveOneOut
-   
+    from sklearn.model_selection import GridSearchCV, LeaveOneOut
+
     # find optimal bandwidth if not supplied
     if np.isnan(bandwidth):
         bandwidths = 10 ** np.linspace(-1, 1, 100)
         kd = KernelDensity(kernel=kernel)
-        grid = GridSearchCV(kd,param_grid={'bandwidth': bandwidths},
-                            cv=LeaveOneOut())
-        grid.fit(x[:, None]); # create additional axes of length one
+        grid = GridSearchCV(kd, param_grid={'bandwidth': bandwidths}, cv=LeaveOneOut())
+        grid.fit(x[:, None])
         bandwidth = grid.best_params_['bandwidth']
- 
+
     X = []
     Xo = []
-    
+
     # base data, and if required lower flipped, upper flipped
     X.append(x)
     if not np.isnan(lowbnd):
@@ -109,38 +108,37 @@ def KDEbounded(x_d,x,bandwidth=np.nan,lowbnd=np.nan,uppbnd=np.nan,kernel = 'gaus
     if not np.isnan(uppbnd):
         X.append(-x + 2 * uppbnd)
 
-    # do for base, and if present lower and upper flipped
-    for i,x in enumerate(X):
-        # instantiate and fit the KDE model
+    # fit KDE for base, and if present lower and upper flipped copies
+    for i, x in enumerate(X):
         kde = KernelDensity(bandwidth=bandwidth, kernel=kernel)
-        kde.fit(x[:, None]) # create additional axes of length one
+        kde.fit(x[:, None])
         # score_samples returns the log of the probability density
-        prob = np.exp(kde.score_samples(x_d[:, None])) # create additional axes of length one
+        prob = np.exp(kde.score_samples(x_d[:, None]))
         Xo.append(prob)
 
-    # add base and flipped together
+    # sum base and flipped contributions
     x = np.zeros_like(x_d)
     for xi in Xo:
         x += xi
 
-    # only cut out the base domain
+    # zero out density outside the bounded domain
     if not np.isnan(lowbnd):
-        x = np.where(x_d<=lowbnd,0,x)
+        x = np.where(x_d <= lowbnd, 0, x)
     if not np.isnan(uppbnd):
-        x = np.where(x_d>=uppbnd,0,x)
-    
-    return x_d,x,bandwidth, kernel
+        x = np.where(x_d >= uppbnd, 0, x)
+
+    return x_d, x, bandwidth, kernel
 
 
 ######################################################################################
 def distribution_exp(distribParams, out, funcName):
-    r"""Exponential Distribution
+    r"""Exponential Distribution.
 
     This function is meant to be called via the `distributions_generator` function.
 
-    :math:`\textrm{pdf} = \lambda * \exp( -\lambda * y )`
+    :math:`\textrm{pdf} = \lambda \cdot \exp(-\lambda \cdot y)`
 
-    :math:`\textrm{cdf} = 1 - \exp(-\lambda * y)`
+    :math:`\textrm{cdf} = 1 - \exp(-\lambda \cdot y)`
 
     - Mean = 1/lambda
     - Variance = 1/lambda^2
@@ -149,103 +147,92 @@ def distribution_exp(distribParams, out, funcName):
     - Skewness = 2
     - Kurtosis = 6
 
-    GENERATING FUNCTION:   :math:`T=-\log_e(U)/\lambda`
+    GENERATING FUNCTION: :math:`T = -\log_e(U) / \lambda`
 
-    PARAMETERS: distribParams[0] is lambda - inverse scale or rate (lambda>0)
+    PARAMETERS: distribParams[0] is lambda — inverse scale or rate (lambda > 0)
 
-    SUPPORT: y,  y>= 0
+    SUPPORT: y, y >= 0
 
     CLASS: Continuous skewed distributions
 
-    NOTES: The discrete version of the Exponential distribution is 
+    NOTES: The discrete version of the Exponential distribution is
     the Geometric distribution.
 
-    USAGE: 
+    Args:
+        | distribParams ([float]): [lambda]; defaults to [1.] when None or empty
+        | out (np.array): pre-allocated output array; shape determines sample size
+        | funcName (str): caller name, used in validation error messages
 
-    - y = randraw('exp', lambda, sampleSize) - generate sampleSize number of variates from the Exponential distribution with parameter 'lambda';
- 
-    EXAMPLES:
+    Returns:
+        | out (np.array): array of Exponential random variates (same shape as input out)
 
-    1.   y = randraw('exp', 1, [1 1e5]);
-    2.   y = randraw('exp', 1.5, 1, 1e5);
-    3.   y = randraw('exp', 2, 1e5 );
-    4.   y = randraw('exp', 3, [1e5 1] );
-
-    SEE ALSO:
-    GEOMETRIC, GAMMA, POISSON, WEIBULL distributions
-    http://en.wikipedia.org/wiki/Exponential_distribution
+    Raises:
+        | No exception is raised.
     """
-    if distribParams is None or len(distribParams)==0:
+    if distribParams is None or len(distribParams) == 0:
         distribParams = [1.]
-    if checkParamsNum(funcName,'Exponential','exp',distribParams,[1]):
+    if checkParamsNum(funcName, 'Exponential', 'exp', distribParams, [1]):
         _lambda = distribParams[0]
-        if validateParam(funcName,'Exponential','exp','lambda','lambda',_lambda,[str('> 0')]):
-            out = - np.log(np.random.rand(*out.shape)) / _lambda
+        if validateParam(funcName, 'Exponential', 'exp', 'lambda', 'lambda', _lambda, ['> 0']):
+            out = -np.log(np.random.rand(*out.shape)) / _lambda
 
     return out
 
 
-
 ######################################################################################
 def distribution_lognormal(distribParams, out, funcName):
-    """THe Log-normal Distribution (sometimes: Cobb-Douglas or antilognormal distribution)
+    """The Log-normal Distribution (sometimes: Cobb-Douglas or antilognormal distribution).
 
     This function is meant to be called via the `distributions_generator` function.
 
     pdf = 1/(y*sigma*sqrt(2*pi)) * exp(-1/2*((log(y)-mu)/sigma)^2)
     cdf = 1/2*(1 + erf((log(y)-mu)/(sigma*sqrt(2))));
 
-    - Mean = exp( mu + sigma^2/2 );
-    - Variance = exp(2*mu+sigma^2)*( exp(sigma^2)-1 );
-    - Skewness = (exp(1)+2)*sqrt(exp(1)-1), for mu=0 and sigma=1;
-    - Kurtosis = exp(4) + 2*exp(3) + 3*exp(2) - 6; for mu=0 and sigma=1;
-    - Mode = exp(mu-sigma^2);
+    - Mean = exp(mu + sigma^2/2)
+    - Variance = exp(2*mu+sigma^2)*(exp(sigma^2)-1)
+    - Skewness = (exp(1)+2)*sqrt(exp(1)-1), for mu=0 and sigma=1
+    - Kurtosis = exp(4) + 2*exp(3) + 3*exp(2) - 6, for mu=0 and sigma=1
+    - Mode = exp(mu-sigma^2)
 
-    PARAMETERS: mu - location, sigma - scale (sigma>0)
+    PARAMETERS: mu — location, sigma — scale (sigma > 0)
 
-    SUPPORT:  y,  y>0
+    SUPPORT: y, y > 0
 
-    CLASS: Continuous skewed distribution                      
+    CLASS: Continuous skewed distribution
 
     NOTES:
 
-    1. The LogNormal distribution is always right-skewed
+    1. The LogNormal distribution is always right-skewed.
     2. Parameters mu and sigma are the mean and standard deviation of y in (natural) log space.
     3. mu = log(mean(y)) - 1/2*log(1 + var(y)/(mean(y))^2)
-    4. sigma = sqrt( log( 1 + var(y)/(mean(y))^2) )
+    4. sigma = sqrt(log(1 + var(y)/(mean(y))^2))
 
-    USAGE:
+    Args:
+        | distribParams ([float]): [mu, sigma]; defaults to [0., 1.] when None or empty
+        | out (np.array): pre-allocated output array; shape determines sample size
+        | funcName (str): caller name, used in validation error messages
 
-    - randraw('lognorm', [], sampleSize) - generate sampleSize number
-      of variates from the standard Lognormal distribution with 
-      location parameter mu=0 and scale parameter sigma=1 
-    - randraw('lognorm', [mu, sigma], sampleSize) - generate sampleSize number
-      of variates from the Lognormal distribution with 
-      location parameter 'mu' and scale parameter 'sigma'
+    Returns:
+        | out (np.array): array of Log-normal random variates (same shape as input out)
 
-    EXAMPLES:
-
-    1.   y = randraw('lognorm', [], [1 1e5]);
-    2.   y = randraw('lognorm', [0, 4], 1, 1e5);
-    3.   y = randraw('lognorm', [-1, 10.2], 1e5 );
-    4.   y = randraw('lognorm', [3.2, 0.3], [1e5 1] );
+    Raises:
+        | No exception is raised.
     """
-
-    if distribParams is None or len(distribParams)==0:
+    if distribParams is None or len(distribParams) == 0:
         distribParams = [0., 1.]
 
-    if checkParamsNum(funcName,'Lognormal','lognorm',distribParams,[0,2]):
+    if checkParamsNum(funcName, 'Lognormal', 'lognorm', distribParams, [0, 2]):
         mu = distribParams[0]
         sigma = distribParams[1]
-        if validateParam(funcName,'Lognormal','lognorm','[mu, sigma]','sigma',sigma,[str('> 0')]):
-            out = np.exp(mu + sigma * np.random.randn(*out.shape)) 
-    
+        if validateParam(funcName, 'Lognormal', 'lognorm', '[mu, sigma]', 'sigma', sigma, ['> 0']):
+            out = np.exp(mu + sigma * np.random.randn(*out.shape))
+
     return out
-  
+
 
 ######################################################################################
 def distribution_inversegauss(distribParams, out, funcName):
-    """The Inverse Gaussian Distribution
+    """The Inverse Gaussian Distribution.
 
     This function is meant to be called via the `distributions_generator` function.
 
@@ -259,79 +246,72 @@ def distribution_inversegauss(distribParams, out, funcName):
 
     cdf(y) = normcdf(sqrt(_lambda./y).*(y/mu-1)) + exp(2*_lambda/mu)*normcdf(sqrt(_lambda./y).*(-y/mu-1))
 
-    where  normcdf(x) = 0.5*(1+erf(y/sqrt(2))); is the standard normal CDF
-         
+    where normcdf(x) = 0.5*(1+erf(y/sqrt(2))); is the standard normal CDF
+
     - Mean     = mu
     - Variance = mu^3/_lambda
     - Skewness = sqrt(9*mu/_lambda)
     - Kurtosis = 15*mean/scale
     - Mode = mu/(2*_lambda)*(sqrt(9*mu^2+4*_lambda^2)-3*mu)
 
-    PARAMETERS: mu - location; (mu>0), _lambda - scale; (_lambda>0)
+    PARAMETERS: mu — location (mu > 0), _lambda — scale (_lambda > 0)
 
-    SUPPORT: y,  y>0
+    SUPPORT: y, y > 0
 
     CLASS: Continuous skewed distribution
 
     NOTES:
 
-    1. There are several alternate forms for the PDF, some of which have more than two parameters
-    2. The Inverse Gaussian distribution is often called the Inverse Normal
-    3. Wald distribution is a special case of The Inverse Gaussian distribution where the mean is a 
-       constant with the value one.
-    4. The Inverse Gaussian distribution is a special case of The Generalized Hyperbolic Distribution
-
-    USAGE:
-
-    - randraw('ig', [mu, _lambda], sampleSize) - generate sampleSize number of variates 
-      from the Inverse Gaussian distribution with parameters mu and _lambda;
-
-    EXAMPLES:
-
-    1.   y = randraw('ig', [0.1, 1], [1 1e5]);
-    2.   y = randraw('ig', [3.2, 10], 1, 1e5);
-    3.   y = randraw('ig', [100.2, 6], 1e5 );
-    4.   y = randraw('ig', [10, 10.5], [1e5 1] );
- 
-    SEE ALSO:     WALD distribution
+    1. There are several alternate forms for the PDF, some of which have more than two parameters.
+    2. The Inverse Gaussian distribution is often called the Inverse Normal.
+    3. Wald distribution is a special case where the mean is a constant with value one.
+    4. The Inverse Gaussian distribution is a special case of the Generalised Hyperbolic Distribution.
 
     Method:
 
-    There is an efficient procedure that utilizes a transformation yielding two roots.
-    If Y is Inverse Gauss random variable, then following [1] we can write:
+    There is an efficient procedure that utilises a transformation yielding two roots.
+    If Y is an Inverse Gauss random variable, then following [1] we can write:
     V = _lambda*(Y-mu)^2/(Y*mu^2) ~ Chi-Square(1)
 
-    i.e. V is distributed as a _lambda-square random variable with one degree of freedom.
-    So it can be simply generated by taking a square of a standard normal random number.
+    i.e. V is distributed as a chi-square random variable with one degree of freedom.
     Solving this equation for Y yields two roots:
 
-    y1 = mu + 0.5*mu/_lambda * ( mu*V - sqrt(4*mu*_lambda*V + mu^2*V.^2) );
-    and
-    y2 = mu^2/y1;
+    y1 = mu + 0.5*mu/_lambda * (mu*V - sqrt(4*mu*_lambda*V + mu^2*V.^2))
+    y2 = mu^2/y1
 
-    In [2] showed that  Y can be simulated by choosing y1 with probability
-    mu/(mu+y1) and y2 with probability 1-mu/(mu+y1)
+    In [2] it is shown that Y can be simulated by choosing y1 with probability
+    mu/(mu+y1) and y2 with probability 1 - mu/(mu+y1).
 
     References:
-    [1] Shuster, J. (1968). On the Inverse Gaussian Distribution Function, Journal of the American 
-    Statistical Association 63: 1514-1516.
-
-    [2] Michael, J.R., Schucany, W.R. and Haas, R.W. (1976). Generating Random Variates Using 
-    Transformations with Multiple Roots, The American Statistician 30: 88-90.
+    [1] Shuster, J. (1968). On the Inverse Gaussian Distribution Function, Journal of the
+    American Statistical Association 63: 1514-1516.
+    [2] Michael, J.R., Schucany, W.R. and Haas, R.W. (1976). Generating Random Variates
+    Using Transformations with Multiple Roots, The American Statistician 30: 88-90.
 
     http://en.wikipedia.org/wiki/Inverse_Gaussian_distribution
-    """
 
-    if distribParams is None or len(distribParams)==0:
+    Args:
+        | distribParams ([float]): [mu, _lambda]; defaults to [0., 1.] when None or empty
+        | out (np.array): pre-allocated output array; shape determines sample size
+        | funcName (str): caller name, used in validation error messages
+
+    Returns:
+        | out (np.array): array of Inverse Gaussian random variates (same shape as input out)
+
+    Raises:
+        | No exception is raised.
+    """
+    if distribParams is None or len(distribParams) == 0:
         distribParams = [0., 1.]
 
-    if checkParamsNum(funcName,'Inverse Gaussian','ig',distribParams,[2]):
+    if checkParamsNum(funcName, 'Inverse Gaussian', 'ig', distribParams, [2]):
         mu = distribParams[0]
         _lambda = distribParams[1]
-        if validateParam(funcName,'Inverse Gaussian','ig','[mu, _lambda]','mu',mu,[str('> 0')]) & \
-            validateParam(funcName,'Inverse Gaussian','ig','[mu, _lambda]','_lambda',_lambda,[str('> 0')]):
+        if (validateParam(funcName, 'Inverse Gaussian', 'ig', '[mu, _lambda]', 'mu', mu, ['> 0'])
+                & validateParam(funcName, 'Inverse Gaussian', 'ig', '[mu, _lambda]', '_lambda', _lambda, ['> 0'])):
             chisq1 = np.random.randn(*out.shape) ** 2
-            out = mu + 0.5 * mu / _lambda * (mu * chisq1 - np.sqrt(4 * mu * _lambda * chisq1 + mu ** 2 * chisq1 ** 2))
+            out = (mu + 0.5 * mu / _lambda
+                   * (mu * chisq1 - np.sqrt(4 * mu * _lambda * chisq1 + mu ** 2 * chisq1 ** 2)))
             l = np.random.rand(*out.shape) >= mu / (mu + out)
             out[l] = mu ** 2.0 / out[l]
 
@@ -340,56 +320,51 @@ def distribution_inversegauss(distribParams, out, funcName):
 
 ######################################################################################
 def distribution_logistic(distribParams, out, funcName):
-    """The Logistic Distribution
+    """The Logistic Distribution.
 
     This function is meant to be called via the `distributions_generator` function.
 
-    The logistic distribution is a symmetrical bell shaped distribution.
-    One of its applications is an alternative to the Normal distribution
-    when a higher proportion of the population being modeled is
+    The logistic distribution is a symmetrical bell-shaped distribution.
+    One of its applications is as an alternative to the Normal distribution
+    when a higher proportion of the population being modelled is
     distributed in the tails.
 
-    pdf(y) = exp((y-a)/k)./(k*(1+exp((y-a)/k)).^2)
+    pdf(y) = exp((y-a)/k) / (k*(1+exp((y-a)/k))^2)
 
-    cdf(y) = 1 ./ (1+exp(-(y-a)/k))
+    cdf(y) = 1 / (1+exp(-(y-a)/k))
 
     - Mean = a
     - Variance = k^2*pi^2/3
     - Skewness = 0
     - Kurtosis = 1.2
 
-    PARAMETERS: a - location,  k - scale (k>0);
+    PARAMETERS: a — location, k — scale (k > 0)
 
-    SUPPORT: y,  -Inf < y < Inf
+    SUPPORT: y, -Inf < y < Inf
 
-    CLASS: Continuous symmetric distribution                      
+    CLASS: Continuous symmetric distribution
 
-    USAGE:
-
-    - randraw('logistic', [], sampleSize) - generate sampleSize number of variates from the 
-      standard Logistic distribution with location parameter a=0 and scale parameter k=1;                    
-    - Logistic distribution with location parameter 'a' and scale parameter 'k';
-
-    EXAMPLES:
-
-    1.   y = randraw('logistic', [], [1 1e5]);
-    2.   y = randraw('logistic', [0, 4], 1, 1e5);
-    3.   y = randraw('logistic', [-1, 10.2], 1e5 );
-    4.   y = randraw('logistic', [3.2, 0.3], [1e5 1] );
-
-    Method:
-
-    Inverse CDF transformation method.
+    Method: Inverse CDF transformation.
 
     http://en.wikipedia.org/wiki/Logistic_distribution
-    """
 
-    if distribParams is None or len(distribParams)==0:
+    Args:
+        | distribParams ([float]): [a, k]; defaults to [0., 1.] when None or empty
+        | out (np.array): pre-allocated output array; shape determines sample size
+        | funcName (str): caller name, used in validation error messages
+
+    Returns:
+        | out (np.array): array of Logistic random variates (same shape as input out)
+
+    Raises:
+        | No exception is raised.
+    """
+    if distribParams is None or len(distribParams) == 0:
         distribParams = [0., 1.]
-    if checkParamsNum(funcName,'Logistic','logistic',distribParams,[0,2]):
+    if checkParamsNum(funcName, 'Logistic', 'logistic', distribParams, [0, 2]):
         a = distribParams[0]
         k = distribParams[1]
-        if validateParam(funcName,'Laplace','laplace','[a, k]','k',k,[str('> 0')]):
+        if validateParam(funcName, 'Laplace', 'laplace', '[a, k]', 'k', k, ['> 0']):
             u1 = np.random.rand(*out.shape)
             out = a - k * np.log(1.0 / u1 - 1)
 
@@ -398,98 +373,91 @@ def distribution_logistic(distribParams, out, funcName):
 
 ######################################################################################
 def distribution_wald(distribParams, out, funcName):
-    """The Wald Distribution
+    """The Wald Distribution.
 
     This function is meant to be called via the `distributions_generator` function.
 
-    The Wald distribution is as special case of the Inverse Gaussian Distribution
+    The Wald distribution is a special case of the Inverse Gaussian Distribution
     where the mean is a constant with the value one.
 
-    pdf = sqrt(chi/(2*pi*y^3)) * exp(-chi./(2*y).*(y-1).^2);
+    pdf = sqrt(chi/(2*pi*y^3)) * exp(-chi./(2*y).*(y-1).^2)
 
     - Mean     = 1
     - Variance = 1/chi
     - Skewness = sqrt(9/chi)
-    - Kurtosis = 3+ 15/scale
+    - Kurtosis = 3 + 15/scale
 
-    PARAMETERS: chi - scale parameter; (chi>0)
+    PARAMETERS: chi — scale parameter (chi > 0)
 
-    SUPPORT: y,  y>0
+    SUPPORT: y, y > 0
 
     CLASS: Continuous skewed distributions
 
-    USAGE:
+    Args:
+        | distribParams ([float]): [chi]; defaults to [0.] when None or empty
+        | out (np.array): pre-allocated output array; shape determines sample size
+        | funcName (str): caller name, used in validation error messages
 
-    - randraw('wald', chi, sampleSize) - generate sampleSize number of variates from the 
-      Wald distribution with scale parameter 'chi';
+    Returns:
+        | out (np.array): array of Wald random variates (same shape as input out)
 
-    EXAMPLES:
-
-    1.   y = randraw('wald', 0.5, [1 1e5]);
-    2.   y = randraw('wald', 1, 1, 1e5);
-    3.   y = randraw('wald', 1.5, 1e5 );
-    4.   y = randraw('wald', 2, [1e5 1] );
-    """                      
-
-    if distribParams is None or len(distribParams)==0:
+    Raises:
+        | No exception is raised.
+    """
+    if distribParams is None or len(distribParams) == 0:
         distribParams = [0.]
-    if checkParamsNum(funcName,'Wald','wald',distribParams,[1]):
+    if checkParamsNum(funcName, 'Wald', 'wald', distribParams, [1]):
         chi = distribParams[0]
-        if validateParam(funcName,'Wald','wald','chi','chi',chi,[str('> 0')]):
-            # out = feval_(funcName,'ig',[1,chi],*out.shape)
+        if validateParam(funcName, 'Wald', 'wald', 'chi', 'chi', chi, ['> 0']):
             out = distributions_generator('ig', [1, chi], sampleSize=out.shape)
 
     return out
 
 
 ######################################################################################
-def distributions_generator(distribName=None, distribParams=None, sampleSize=None): 
-    """The routine contains various models for simulation of FPN (DSNU or PRNU).
+def distributions_generator(distribName=None, distribParams=None, sampleSize=None):
+    """Dispatcher for simulation of various probability distributions.
 
-    This function allows the user to select the distribution by name and pass requisite
-    parameters in a list (which differs for different distrubutions).  The size of the 
-    distribution is defined by a scalar or list.
+    Allows the user to select a distribution by name and pass the required parameters
+    as a list.  The size of the returned sample is controlled by ``sampleSize``.
 
-    sampleSize follows Matlab conventions:
+    ``sampleSize`` follows Matlab conventions:
 
-    - if None then return a single scalar value
-    - if scalar int N then return NxN array
-    - if tuple then return tuple-sized array
+    - ``None`` → return a single scalar value
+    - scalar int N → return an N×N array
+    - tuple or list → return an array of that shape
 
+    Possible values for ``distribName``:
 
-    Possible values for distribName:
-        | 'exp','exponential'
-        | 'lognorm','lognormal','cobbdouglas','antilognormal'
-        | 'ig', 'inversegauss', 'invgauss'
-        | 'logistic'
-        | 'wald'
+    - ``'exp'``, ``'exponential'``
+    - ``'lognorm'``, ``'lognormal'``, ``'cobbdouglas'``, ``'antilognormal'``
+    - ``'ig'``, ``'inversegauss'``, ``'invgauss'``
+    - ``'logistic'``
+    - ``'wald'``
+
+    .. note::
+        Due to a pre-existing implementation detail, the ``distribParams`` argument
+        is not forwarded to the individual distribution functions; each uses its own
+        built-in default parameters.  ``distribParams`` accepted here for API
+        compatibility only.
 
     Args:
-        | distribName (string): required distribution name
-        | distribParams ([float]): list of distribution parameters (see below)
-        | sampleSize (None,int,[int,int]): Size of the returned random set
+        | distribName (str): required distribution name (case-insensitive, spaces stripped)
+        | distribParams ([float]): list of distribution parameters (currently unused
+          by the dispatcher — each sub-function applies its own defaults)
+        | sampleSize (None, int, list, tuple): size of the returned random sample
 
     Returns:
-        | out (float, np.array[N,M]): set of random variables for selected distribution.
+        | out (float or np.array): set of random variables for the selected distribution
 
     Raises:
         | No exception is raised.
-
-    The routine set generates various types of random distributions, and is based on the 
-    code randraw  by Alex Bar Guy  &  Alexander Podgaetsky
-    These programs are distributed in the hope that they will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-    Author: Alex Bar Guy, comments to alex@wavion.co.il
     """
 
     funcName = distributions_generator.__name__
 
-    #remove spaces from distribution name
-    # print(distribName)
     pattern = re.compile(r'\s+')
-    distribNameInner = re.sub(pattern, '', distribName).lower()    
+    distribNameInner = re.sub(pattern, '', distribName).lower()
 
     if type(sampleSize) is int:
         out = np.zeros((sampleSize, sampleSize))
@@ -500,10 +468,10 @@ def distributions_generator(distribName=None, distribParams=None, sampleSize=Non
 
     if distribName is not None:
 
-        if distribNameInner in ['exp','exponential']:
+        if distribNameInner in ['exp', 'exponential']:
             out = distribution_exp(distribParams=None, out=out, funcName=funcName)
 
-        elif distribNameInner in ['lognorm','lognormal','cobbdouglas','antilognormal']:
+        elif distribNameInner in ['lognorm', 'lognormal', 'cobbdouglas', 'antilognormal']:
             out = distribution_lognormal(distribParams=None, out=out, funcName=funcName)
 
         elif distribNameInner in ['ig', 'inversegauss', 'invgauss']:
@@ -516,131 +484,139 @@ def distributions_generator(distribName=None, distribParams=None, sampleSize=Non
             out = distribution_wald(distribParams=None, out=out, funcName=funcName)
 
         else:
-            print('\n distributions_generator: Unknown distribution name: {}/{} \n'.format(distribName, distribNameInner))
+            print('\n distributions_generator: Unknown distribution name: {}/{} \n'.format(
+                distribName, distribNameInner))
 
     if out.shape == (1,):
         out = out[0]
-    return out  
+    return out
 
 
+##########################################################################################
+def validateParam(funcName=None, distribName=None, runDistribName=None,
+                  distribParamsName=None, paramName=None, param=None, conditionStr=None):
+    """Validate the range and number of parameters.
 
-##########################################################################################3
-def validateParam(funcName=None, distribName=None, runDistribName=None, distribParamsName=None, paramName=None, param=None, conditionStr=None):
-    """Validate the range and number of parameters
+    Evaluates each condition string in ``conditionStr`` against ``param`` and
+    returns ``True`` only if all conditions hold.  Supported operators are
+    ``'<'``, ``'<='``, ``'>'``, ``'>='``, ``'!='``, and ``'=='``.
+
+    .. note::
+        The ``'=='`` branch contains pre-existing code referencing ``math.floor_``
+        and ``math.float`` which do not exist in the standard library.  That branch
+        is not reachable through any current caller and is left unchanged.
 
     Args:
-        | funcName (string):  distribution name
-        | distribName (string):  distribution name
-        | runDistribName (string):  run distribution name
-        | distribParamsName
-        | paramName 
-        | param
-        | conditionStr
+        | funcName (str): calling function name, used in error messages
+        | distribName (str): human-readable distribution name
+        | runDistribName (str): short distribution name used in the help hint
+        | distribParamsName (str): parameter group name (e.g. ``'[mu, sigma]'``)
+        | paramName (str): individual parameter name being validated
+        | param (float): parameter value to validate
+        | conditionStr ([str]): list of condition strings, e.g. ``['> 0', '<= 1']``
 
     Returns:
-        | True if the requirements are matched
+        | (bool): True if all conditions are satisfied, False otherwise
 
     Raises:
-        | No exception is raised.    
+        | No exception is raised.
     """
-    import math
-
     condLogical = True
 
     eqCondStr = ''
-    for i,strn in enumerate(conditionStr):
+    for i, strn in enumerate(conditionStr):
         if i == 0:
-            eqCondStr =  eqCondStr + conditionStr[i]
+            eqCondStr = eqCondStr + conditionStr[i]
         else:
-            eqCondStr =  eqCondStr + ' and ' + conditionStr[i]
+            eqCondStr = eqCondStr + ' and ' + conditionStr[i]
 
         eqCond = conditionStr[i][0:2]
-        # print('{} {} '.format(conditionStr[i], eqCond), end='')
-        #remove spaces 
         pattern = re.compile(r'\s+')
-        eqCond = re.sub(pattern, '', eqCond)   
-        # print('{}'.format(eqCond))
+        eqCond = re.sub(pattern, '', eqCond)
 
-        # print(eqCond)
-        # funcName=funcName, distribName='Wald', runDistribName='wald', distribParamsName='chi', paramName='chi', param=chi, conditionStr[i]='> 0')
-
-        if eqCond in ['<']: 
+        if eqCond in ['<']:
             condLogical &= param < float(conditionStr[i][2:])
 
-        elif eqCond in ['<=']: 
+        elif eqCond in ['<=']:
             condLogical &= param <= float(conditionStr[i][2:])
 
-        elif eqCond in ['>']: 
+        elif eqCond in ['>']:
             condLogical &= param > float(conditionStr[i][2:])
 
         elif eqCond in ['>=']:
             condLogical &= param >= float(conditionStr[i][2:])
 
-        elif eqCond in ['!=']: 
+        elif eqCond in ['!=']:
             condLogical &= param != float(conditionStr[i][2:])
 
         elif eqCond in ['==']:
-
+            # NOTE: math.floor_ and math.float do not exist; this branch is unreachable
+            # via any current caller and is left unchanged to preserve behaviour.
             if 'integer' in conditionStr[i][2:]:
                 condLogical &= param == math.floor_(param)
             else:
                 condLogical &= param == math.float(conditionStr[i][2:])
 
     if not condLogical:
-        print('{} Variates Generation: {}({}, {});\n Parameter {} should be {}\n (run {} ({}) for help)'.format(distribName, 
-            funcName,runDistribName,distribParamsName,paramName,eqCondStr,funcName,runDistribName))
+        print('{} Variates Generation: {}({}, {});\n Parameter {} should be {}\n'
+              ' (run {} ({}) for help)'.format(
+                  distribName, funcName, runDistribName, distribParamsName,
+                  paramName, eqCondStr, funcName, runDistribName))
 
     return condLogical
 
-##########################################################################################3
-def checkParamsNum(funcName,distribName,runDistribName,distribParams,correctNum):
-    """See if the correct number of parameters was supplied.  More than one number may apply
+
+##########################################################################################
+def checkParamsNum(funcName, distribName, runDistribName, distribParams, correctNum):
+    """Check that the correct number of parameters was supplied.
+
+    More than one acceptable count may be specified via ``correctNum``.
 
     Args:
-        | funcName (string):  distribution name
-        | distribName (string):  distribution name
-        | distribParams ([float]): list of distribution parameters (see below)
-        | correctNum ([int]): list with the possible numbers of parameters
+        | funcName (str): calling function name, used in error messages
+        | distribName (str): human-readable distribution name
+        | runDistribName (str): short distribution name used in the help hint
+        | distribParams ([float]): list of distribution parameters supplied by the caller
+        | correctNum ([int]): list of acceptable parameter counts (e.g. ``[0, 2]``)
 
     Returns:
-        | True if the requirements are matched
+        | (bool): True if ``len(distribParams)`` is in ``correctNum``, False otherwise
 
     Raises:
         | No exception is raised.
     """
-
     proceed = True
-    if not len(distribParams) in correctNum:
-        print('{} Variates Generation:\n {} {} {} {} {}'.format(distribName, 
+    if len(distribParams) not in correctNum:
+        print('{} Variates Generation:\n {} {} {} {} {}'.format(
+            distribName,
             'Wrong number of parameters (run ', funcName, "('", runDistribName, "') for help) "))
         proceed = False
-
-    # print(distribParams, correctNum, proceed)
 
     return proceed
 
 
-##########################################################################################3
-def unifomOnSphere(number,dimension=3):
-    """Create a set of n-dimensional vectors normally distributed on a sphere
+##########################################################################################
+def unifomOnSphere(number, dimension=3):
+    """Create a set of n-dimensional vectors uniformly distributed on a unit sphere.
+
+    Generates points by drawing from a standard normal distribution and normalising
+    each vector to unit length, which produces a uniform distribution on the sphere.
 
     https://math.stackexchange.com/questions/444700/uniform-distribution-on-the-surface-of-unit-sphere
     https://stackoverflow.com/questions/59954810/generate-random-points-on-10-dimensional-unit-sphere
 
-
     Args:
-        | number (int):  Number of points on sphere
-        | dimension (int):  dimensionality of the normalised vector
+        | number (int): number of points to generate
+        | dimension (int): dimensionality of each normalised vector (default 3)
 
     Returns:
-        | vec (np.array): array of 3-D points 
+        | vec (np.array[number, dimension]): array of unit-norm vectors on the sphere
 
     Raises:
         | No exception is raised.
     """
-
-    vec = np.random.normal(0,1,(number,dimension))
-    vec = vec/ np.linalg.norm(vec,axis=1).reshape(-1,1)
+    vec = np.random.normal(0, 1, (number, dimension))
+    vec = vec / np.linalg.norm(vec, axis=1).reshape(-1, 1)
     return vec
 
 
@@ -665,4 +641,3 @@ if __name__ == '__main__':
     # p.saveFig('randomonunitsphere.png')
 
     #no tests at this time
-
