@@ -110,3 +110,4 @@ Backup_of_*.cdr
 /pyradi/examples/specplot.pdf
 /pyradi/examples/tristimulus.png
 .ipynb_checkpoints
+/pyradi/doc/_build
