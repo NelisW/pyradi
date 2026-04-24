@@ -20,7 +20,6 @@ used for many other applications involving CCD/CMOS
 photosensors.  The original files are available at:
 
 - Paper: http://arxiv.org/pdf/1412.4031.pdf
-- Matlab code: https://bitbucket.org/aorta/highlevelsensorsim
 - The paper describing this Python model as published in SPIE Proc 10036 is available here::
   https://github.com/NelisW/pyradi/blob/master/pyradi/documentation/SM200-30-staring-array-modeling.pdf
 

@@ -4,7 +4,7 @@ General-purpose radiometry utility functions for the [PyRadi](https://github.com
 
 ## Refactoring status
 
-Last updated: 2026-04-22  (ryplot.py added)
+Last updated: 2026-04-22  (all 18 files complete; 745 tests green)
 
 ### Completed
 
@@ -50,8 +50,12 @@ Run the unit tests:
 pytest test/test_ryutils.py test/test_ryfiles.py test/test_ry3dnoise.py test/test_rychroma.py test/test_rydetector.py test/test_rylookup.py test/test_rymodtran.py test/test_ryhdf5.py test/test_rypflux.py test/test_ryplanck.py test/test_ryprob.py test/test_ryplotspherical.py test/test_ryptw.py test/test_ryscene.py test/test_rystare.py test/test_rytarggen.py test/test_ryplot.py -v
 ```
 
+Or run the full suite in the conda environment in one command:
 
-```conda run -n pyradi --no-capture-output pytest test\ -v --tb=short```
+```bash
+conda run -n pyradi --no-capture-output pytest test/ -v --tb=short
+```
+
 ---
 
 ## Tech stack
@@ -793,3 +797,43 @@ underlying matplotlib `Axes` object for further customisation.
 | `savePlot(fignumber, ..., saveName)` | Context manager: create a `Plotter`, yield it, then auto-save on exit |
 | `cubehelixcmap(start, rot, gamma, hue, reverse, nlev)` | Return a `LinearSegmentedColormap` using Dave Green's cubehelix algorithm |
 | `RGBToPyCmap(rgbdata)` | Convert an `(N, 3)` RGB array to a matplotlib colourmap data dict |
+
+---
+
+## F-string conversion
+
+All `ry*.py` files were converted from `.format()` and `%`-style string formatting to f-strings in April 2026 (~650 conversions across 17 files). All converted files pass `py_compile` syntax validation and the full test suite (784 tests).
+
+### Unconverted strings
+
+The following strings were intentionally left unconverted.
+
+#### Variable-template `.format()` calls
+
+These cannot be mechanically converted because the format template is a runtime variable, not a string literal.
+
+| File | Line | Reason |
+|------|------|--------|
+| `ryfiles.py` | 438 | `cmdline.format(filename)` — `cmdline` is built from user-supplied arguments at runtime |
+| `ryplot.py` | 399 | `fstr.format(...)` — `fstr` is constructed dynamically as `'{0:' + cbarformat + '}'` from a caller-supplied format string |
+
+#### Commented-out code
+
+These lines are inside `#`-prefixed comments and have no runtime effect. They were left as-is to preserve the original diagnostic intent.
+
+| File | Line | Content |
+|------|------|---------|
+| `rychroma.py` | 540 | `#print('{0:15s} {1:15s} ({2:.4f},{3:.4f})'.format(...))` |
+| `rychroma.py` | 553 | `#print('{0} um ({1},{2})'.format(...))` |
+| `rylookup.py` | 419 | `# print('straight line fit DL = {} L + {}'.format(...))` |
+| `ryplot.py` | 382 | `#        print('Image irradiance range minimum={0} maximum={1}'.format(...))` |
+| `ryplot.py` | 390 | `#        H.saveFig('cumhist{0}.png'.format(...))` |
+| `ryplotspherical.py` | 701 | `#         ptitle = '{0} {1}'.format(plottitle, specBand[i])` |
+| `ryplotspherical.py` | 704 | `#     ptitle = '{0} {1}'.format(plottitle, 'log(abs(MWIR/LWIR))')` |
+| `ryplotspherical.py` | 707 | `#     ptitle = '{0} {1}'.format(plottitle, 'log(abs(MWIR/SWIR1))')` |
+| `rystare.py` | 2514 | `# fo.write('{:26}, ...'.format(...))` |
+| `rystare.py` | 2515 | `# fo.write('{:26}, ...'.format(...))` |
+| `rystare.py` | 2587 | `# print('Input rystare/EinUnit : {}'.format(...))` |
+| `ryutils.py` | 1847 | `# print('{} {} integrate image {}'.format(...))` |
+| `ryutils.py` | 1858 | `# print('{} {}'.format(...))` |
+| `ryutils.py` | 2319 | `# print(eval('self.{}'.format(var)).shape)` |

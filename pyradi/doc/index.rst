@@ -24,6 +24,8 @@ Welcome to pyradi's documentation!
    
    ryfiles
    
+   ryhdf5
+   
    ryplot
    
    ryplotspherical

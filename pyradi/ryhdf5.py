@@ -224,15 +224,15 @@ def plotHDF5Bitmaps(hfd5f, prefix, pformat='png', lstimgs=None, debug=False):
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
+        arr = hfd5f[f'{lstimg}'][...]
         if debug:
-            print('data set {} has shape {} '.format(lstimg,arr.shape))
+            print(f'data set {lstimg} has shape {arr.shape} ')
 
         # if arr.shape is not ():
         if arr.shape != ():
             if np.max(arr) != 0.:
                 arr = 255 * arr/np.max(arr)
-                imsave('{}-{}.{}'.format(prefix,lstimg.replace('/','-'),pformat), arr.astype(np.uint8))
+                imsave(f"{prefix}-{lstimg.replace('/', '-')}.{pformat}", arr.astype(np.uint8))
 
 
 ######################################################################################
@@ -266,19 +266,19 @@ def plotHDF5Images(hfd5f, prefix, colormap=None, cbarshow=True, lstimgs=None, lo
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
+        arr = hfd5f[f'{lstimg}'][...]
 
         if debug:
-            print('data set {} has shape {} '.format(lstimg,arr.shape))
+            print(f'data set {lstimg} has shape {arr.shape} ')
 
         # if arr.shape is not ():
         if arr.shape != ():
             if logscale:
-                filename = '{}-plot-{}-log.png'.format(prefix,lstimg.replace('/','-'))
+                filename = f"{prefix}-plot-{lstimg.replace('/', '-')}-log.png"
                 with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
                     p.showImage(1, np.log10(arr), ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
             else:
-                filename = '{}-plot-{}.png'.format(prefix,lstimg.replace('/','-'))
+                filename = f"{prefix}-plot-{lstimg.replace('/', '-')}.png"
                 with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=[filename]) as p:
                     p.showImage(1, arr, ptitle=lstimg, cmap=colormap, cbarshow=cbarshow);
 
@@ -310,11 +310,11 @@ def plotHDF5Histograms(hfd5f, prefix, format='png', lstimgs=None, bins=50):
     from . import ryplot
 
     for lstimg in lstimgs:
-        arr = hfd5f['{}'.format(lstimg)][...]
+        arr = hfd5f[f'{lstimg}'][...]
         his, bin = np.histogram(arr,bins=bins)
-        filename = '{}-hist-plot-{}.{}'.format(prefix,lstimg.replace('/','-'),format)
+        filename = f"{prefix}-hist-plot-{lstimg.replace('/', '-')}.{format}"
         with ryplot.savePlot(1,1,1,figsize=(8,4), saveName=[filename]) as p:
-            p.plot(1, (bin[1:]+bin[:-1])/2, his, '{}, {} bins'.format(lstimg, bins), 'Magnitude','Counts / bin',maxNX=5)
+            p.plot(1, (bin[1:]+bin[:-1])/2, his, f'{lstimg}, {bins} bins', 'Magnitude','Counts / bin',maxNX=5)
 
 
    

@@ -484,8 +484,7 @@ def distributions_generator(distribName=None, distribParams=None, sampleSize=Non
             out = distribution_wald(distribParams=None, out=out, funcName=funcName)
 
         else:
-            print('\n distributions_generator: Unknown distribution name: {}/{} \n'.format(
-                distribName, distribNameInner))
+            print(f'\n distributions_generator: Unknown distribution name: {distribName}/{distribNameInner} \n')
 
     if out.shape == (1,):
         out = out[0]
@@ -558,10 +557,7 @@ def validateParam(funcName=None, distribName=None, runDistribName=None,
                 condLogical &= param == math.float(conditionStr[i][2:])
 
     if not condLogical:
-        print('{} Variates Generation: {}({}, {});\n Parameter {} should be {}\n'
-              ' (run {} ({}) for help)'.format(
-                  distribName, funcName, runDistribName, distribParamsName,
-                  paramName, eqCondStr, funcName, runDistribName))
+        print(f'{distribName} Variates Generation:')
 
     return condLogical
 
@@ -587,9 +583,8 @@ def checkParamsNum(funcName, distribName, runDistribName, distribParams, correct
     """
     proceed = True
     if len(distribParams) not in correctNum:
-        print('{} Variates Generation:\n {} {} {} {} {}'.format(
-            distribName,
-            'Wrong number of parameters (run ', funcName, "('", runDistribName, "') for help) "))
+        print(f"{distribName} Variates Generation:\n "
+              f"Wrong number of parameters (run {funcName}('{runDistribName}') for help) ")
         proceed = False
 
     return proceed

@@ -147,10 +147,7 @@ class VersionInformation():
             ipython_version = 'not installed'
 
         self.packages = [
-            ("Python", "{version} {arch} [{compiler}]".format(
-                version=platform.python_version(),
-                arch=platform.architecture()[0],
-                compiler=platform.python_compiler())),
+            ("Python", f"{platform.python_version()} {platform.architecture()[0]} [{platform.python_compiler()}]"),
             ("IPython", ipython_version),
             ("OS", platform.platform().replace('-', ' ')),
         ]
@@ -159,7 +156,7 @@ class VersionInformation():
             if not module:
                 continue
             try:
-                code = "import %s; version=str(%s.__version__)" % (module, module)
+                code = f"import {module}; version=str({module}.__version__)"
                 ns: dict = {}
                 exec(compile(code, "<string>", "exec"), ns, ns)
                 self.packages.append((module, ns["version"]))
@@ -208,9 +205,9 @@ class VersionInformation():
         html_table += "<tr><th>Software</th><th>Version</th></tr>"
         for name, version in self.packages:
             _version = self._htmltable_escape(version)
-            html_table += "<tr><td>%s</td><td>%s</td></tr>" % (name, _version)
+            html_table += f"<tr><td>{name}</td><td>{_version}</td></tr>"
 
-        html_table += "<tr><td colspan='2'>%s</td></tr>" % time.strftime(timefmt)
+        html_table += f"<tr><td colspan='2'>{time.strftime(timefmt)}</td></tr>"
         html_table += "</table>"
 
         return html_table
@@ -239,9 +236,9 @@ class VersionInformation():
         latex += r"{\bf Software} & {\bf Version} \\ \hline\hline" + "\n"
         for name, version in self.packages:
             _version = self._latex_escape(version)
-            latex += r"%s & %s \\ \hline" % (name, _version) + "\n"
+            latex += rf"{name} & {_version} \\ \hline" + "\n"
 
-        latex += r"\hline \multicolumn{2}{|l|}{%s} \\ \hline" % time.strftime(timefmt) + "\n"
+        latex += rf"\hline \multicolumn{{2}}{{|l|}}{{{time.strftime(timefmt)}}} \\ \hline" + "\n"
 
         latex += r"\end{tabular}" + "\n"
 
@@ -250,8 +247,8 @@ class VersionInformation():
     def _repr_pretty_(self):
         text = "Software versions\n"
         for name, version in self.packages:
-            text += "%s %s\n" % (name, version)
-        text += "%s" % time.strftime(timefmt)
+            text += f"{name} {version}\n"
+        text += f"{time.strftime(timefmt)}"
         import pprint
         pprint.pprint(text)
 
@@ -308,18 +305,18 @@ def update_progress(progress, bar_length=20):
     Note that clear_output, and hence this function wipes the entire cell output, 
     including previous output and widgets.
 
-    Usage:
+    Usage::
 
-    import pyradi.ryutils as ryutils
-    import time
-    print('before')
-    #Replace this with a real computation
-    number_of_elements = 100
-    for i in range(number_of_elements):
-        time.sleep(0.1) 
-        # progress must be a float between 0 and 1
-        ryutils.update_progress((i+1) / number_of_elements,bar_length=40)
-    print('after')
+        import pyradi.ryutils as ryutils
+        import time
+        print('before')
+        #Replace this with a real computation
+        number_of_elements = 100
+        for i in range(number_of_elements):
+            time.sleep(0.1)
+            # progress must be a float between 0 and 1
+            ryutils.update_progress((i+1) / number_of_elements,bar_length=40)
+        print('after')
 
     source:
 
@@ -339,7 +336,7 @@ def update_progress(progress, bar_length=20):
         progress = 1
     block = int(round(bar_length * progress))
     clear_output(wait = True)
-    text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+    text = f"Progress: [{'#' * block + '-' * (bar_length - block)}] {progress * 100:.1f}%"
     print(text)
 
 
@@ -1504,13 +1501,13 @@ def drawCheckerboard(rows, cols, numPixInBlock, imageMode, colour1, colour2,
         color2 = 255      
         img = drawCheckerboard(rows,cols,pixInBlock,'L',color1,color2,'nparray')
         pilImg = Img.fromarray(img, 'L')
-        pilImg.save('{0}.png'.format('checkerboardL'))
+        pilImg.save('checkerboardL.png')
 
 
         color1 = (0,0,0)          
         color2 = (255,255,255)      
         pilImage = drawCheckerboard(rows,cols,pixInBlock,'RGB',color1,color2,'image')
-        pilImage.save('{0}.png'.format('checkerboardRGB'))
+        pilImage.save('checkerboardRGB.png')
         
     """
     width = numPixInBlock * cols
@@ -1794,20 +1791,20 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
 
     # Read image using PIL; scipy.misc.imread was removed in SciPy 1.3
     if not Path(imgfilename).exists():
-        return '{} not found'.format(imgfilename)
+        return f'{imgfilename} not found'
     imgIn = np.array(_PILImage.open(imgfilename).convert('L'))
     centrow = imgIn.shape[0]/2
     centcol = imgIn.shape[1]/2
     motionScale = pixsize / imgRatio
 
     if not Path(mtnfilename).exists():
-        return '{} not found'.format(mtnfilename)
+        return f'{mtnfilename} not found'
     if '.npz' in mtnfilename:
         rcmotion = np.load(mtnfilename)['arr_0']
     elif '.txt' in mtnfilename:
         rcmotion = np.loadtxt(mtnfilename)
     else:
-        return '{} not in appropriate format'.format(mtnfilename)
+        return f'{mtnfilename} not in appropriate format'
 
     mtnfilenamecore = Path(mtnfilename).name
     mtnfilenamecore = mtnfilenamecore[:mtnfilenamecore.find('.')]
@@ -1838,7 +1835,7 @@ def makemotionsequence(imgfilename, mtnfilename,postfix,intTime,frmTim,outrows,o
             fracframe =  np.floor(time / frmTim)
             if fracframe >= fullframe + 1:
                 outfilename = Path(imgfilename).name.replace(
-                    '.png', '-{}-{}-{:05d}.png'.format(mtnfilenamecore, postfix, fullframe)
+                    '.png', f'-{mtnfilenamecore}-{postfix}-{fullframe:05d}.png'
                 )
                 outimage, subframes = _save_motion_frame(
                     outimage, subframes, outfilename, outrows, outcols, imgRatio
@@ -2312,20 +2309,20 @@ class Spectral(object):
             numpts = self.wn.shape[0]
             stride = int(numpts / 3)
 
-        strn = '{}\n'.format(self.ID)
-        strn += ' {}-desc: {}\n'.format(self.ID,self.desc)
+        strn = f'{self.ID}\n'
+        strn += f' {self.ID}-desc: {self.desc}\n'
         # for all numpy arrays, provide subset of values
         keys = sorted(list(self.__dict__.keys()))
         for var in keys:
             # then see if it is an array
-            if isinstance(eval('self.{}'.format(var)), np.ndarray):
+            if isinstance(eval(f'self.{var}'), np.ndarray):
                 # print(eval('self.{}'.format(var)).shape)
-                svar = (np.vstack((eval('self.{}'.format(var))[0::stride], eval('self.{}'.format(var))[-1] ))).T
-                strn += ' {}-{} (subsampled.T): {}\n'.format(self.ID,var, svar)
-            elif isinstance(eval('self.{}'.format(var)), Number):
-                svar = eval('self.{}'.format(var))
+                svar = (np.vstack((eval(f'self.{var}')[0::stride], eval(f'self.{var}')[-1] ))).T
+                strn += f' {self.ID}-{var} (subsampled.T): {svar}\n'
+            elif isinstance(eval(f'self.{var}'), Number):
+                svar = eval(f'self.{var}')
                 # print(type(svar),svar)
-                strn += ' {}-{} (subsampled.T): {:.4e}\n'.format(self.ID,var, svar)
+                strn += f' {self.ID}-{var} (subsampled.T): {svar:.4e}\n'
 
         return strn
 
@@ -2399,11 +2396,11 @@ class Spectral(object):
 
         if isinstance(other, Spectral):
             wl, wn, s, o = self.vecalign(other)
-            rtnVal = Spectral(ID='{}*{}'.format(self.ID,other.ID), value=s * o, wl=wl, wn=wn,
-                    desc='{}*{}'.format(self.desc,other.desc))
+            rtnVal = Spectral(ID=f'{self.ID}*{other.ID}', value=s * o, wl=wl, wn=wn,
+                    desc=f'{self.desc}*{other.desc}')
         else:
-            rtnVal = Spectral(ID='{}*{}'.format(self.ID,other), value=self.value * other, wl=self.wl, 
-                wn=self.wn,desc='{}*{}'.format(self.desc,other))
+            rtnVal = Spectral(ID=f'{self.ID}*{other}', value=self.value * other, wl=self.wl, 
+                wn=self.wn,desc=f'{self.desc}*{other}')
 
         return rtnVal
 
@@ -2427,11 +2424,11 @@ class Spectral(object):
 
         if isinstance(other, Spectral):
             wl, wn, s, o = self.vecalign(other)
-            rtnVal = Spectral(ID='{}+{}'.format(self.ID,other.ID), value=s + o, wl=wl, wn=wn,
-                    desc='{}+{}'.format(self.desc,other.desc))
+            rtnVal = Spectral(ID=f'{self.ID}+{other.ID}', value=s + o, wl=wl, wn=wn,
+                    desc=f'{self.desc}+{other.desc}')
         else:
-            rtnVal = Spectral(ID='{}+{}'.format(self.ID,other), value=self.value + other, wl=self.wl, 
-                wn=self.wn,desc='{}+{}'.format(self.desc,other))
+            rtnVal = Spectral(ID=f'{self.ID}+{other}', value=self.value + other, wl=self.wl, 
+                wn=self.wn,desc=f'{self.desc}+{other}')
 
         return rtnVal
 
@@ -2456,11 +2453,11 @@ class Spectral(object):
         if isinstance(other, Spectral):
             wl, wn, s, o = self.vecalign(other)
 
-            rtnVal = Spectral(ID='{}-{}'.format(self.ID,other.ID), value=s - o, wl=wl, wn=wn,
-                    desc='{}-{}'.format(self.desc,other.desc))
+            rtnVal = Spectral(ID=f'{self.ID}-{other.ID}', value=s - o, wl=wl, wn=wn,
+                    desc=f'{self.desc}-{other.desc}')
         else:
-            rtnVal = Spectral(ID='{}-{}'.format(self.ID,other), value=self.value - other, wl=self.wl, 
-                wn=self.wn,desc='{}-{}'.format(self.desc,other))
+            rtnVal = Spectral(ID=f'{self.ID}-{other}', value=self.value - other, wl=self.wl, 
+                wn=self.wn,desc=f'{self.desc}-{other}')
 
         return rtnVal
 
@@ -2483,8 +2480,8 @@ class Spectral(object):
             Raises:
                 | No exception is raised.
         """
-        return Spectral(ID='{}**{}'.format(self.ID,power), value=self.value ** power, 
-            wl=self.wl, wn=self.wn,desc='{}**{}'.format(self.desc,power))
+        return Spectral(ID=f'{self.ID}**{power}', value=self.value ** power, 
+            wl=self.wl, wn=self.wn,desc=f'{self.desc}**{power}')
 
     ############################################################
     ##
@@ -2504,7 +2501,7 @@ class Spectral(object):
         """
 
         if filename == None:
-            filename = '{}-{}'.format(self.ID,self.desc)
+            filename = f'{self.ID}-{self.desc}'
 
         if heading == None:
             heading = self.desc
@@ -2602,10 +2599,10 @@ class Atmo():
                 | No exception is raised.
         """
 
-        strn = 'ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
-        strn += '{}\n'.format(self.atco)
-        strn += '{}\n'.format(self.prad)
+        strn = f'ID: {self.ID}\n'
+        strn += f'desc: {self.desc}\n'
+        strn += f'{self.atco}\n'
+        strn += f'{self.prad}\n'
 
         return strn
 
@@ -2689,15 +2686,15 @@ class Sensor():
 
         if isinstance(quantEff, Number):
             self.quantEffVal = Spectral(
-                ID='{}-quantEff'.format(self.ID),
+                ID=f'{self.ID}-quantEff',
                 value=quantEff,
-                desc='{}-quantEff'.format(self.desc),
+                desc=f'{self.desc}-quantEff',
             )
         else:
             self.quantEffVal = quantEff
 
         if isinstance(tauOpt, Number):
-            self.tauOptVal = Spectral(ID='{}-tauOpt'.format(self.ID), value=tauOpt, desc='{}-tauOpt'.format(self.desc))
+            self.tauOptVal = Spectral(ID=f'{self.ID}-tauOpt', value=tauOpt, desc=f'{self.desc}-tauOpt')
         else:
             self.tauOptVal = tauOpt
 
@@ -2716,14 +2713,14 @@ class Sensor():
             Raises:
                 | No exception is raised.
         """
-        strn =  'Sensor ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
-        strn += 'fno: {:.3f}\n'.format(self.fno)
-        strn += 'detarea: {:.3e}\n'.format(self.detarea)
-        strn += 'inttime: {:.6f}\n'.format(self.inttime)
-        strn += 'pfrac: {:.3f}\n'.format(self.pfrac)
-        strn += '{}\n'.format(self.tauOptVal)
-        strn += '{}\n'.format(self.quantEffVal)
+        strn =  f'Sensor ID: {self.ID}\n'
+        strn += f'desc: {self.desc}\n'
+        strn += f'fno: {self.fno:.3f}\n'
+        strn += f'detarea: {self.detarea:.3e}\n'
+        strn += f'inttime: {self.inttime:.6f}\n'
+        strn += f'pfrac: {self.pfrac:.3f}\n'
+        strn += f'{self.tauOptVal}\n'
+        strn += f'{self.quantEffVal}\n'
 
         return strn
 
@@ -2829,16 +2826,16 @@ class Target(Spectral):
         if isinstance(emis, Spectral):
             self.emisVal = emis
         else:
-            print('Target {} emis must be of type Spectral'.format(self.ID))
+            print(f'Target {self.ID} emis must be of type Spectral')
             self.emisVal = None
 
         if isinstance(refl, Number):
-            self.reflVal = Spectral(ID='{}-refl'.format(self.ID), value=refl, desc='{}-refl'.format(self.desc))
+            self.reflVal = Spectral(ID=f'{self.ID}-refl', value=refl, desc=f'{self.desc}-refl')
         else:
             self.reflVal = refl
 
         if isinstance(taumed, Number):
-            self.taumedVal = Spectral(ID='{}-taumed'.format(self.ID), value=taumed, desc='{}-taumed'.format(self.desc))
+            self.taumedVal = Spectral(ID=f'{self.ID}-taumed', value=taumed, desc=f'{self.desc}-taumed')
         else:
             self.taumedVal = taumed
 
@@ -2857,14 +2854,14 @@ class Target(Spectral):
             Raises:
                 | No exception is raised.
         """
-        strn =  'Sensor ID: {}\n'.format(self.ID)
-        strn += 'desc: {}\n'.format(self.desc)
-        strn += 'tmprt: {}\n'.format(self.tmprt)
-        strn += 'cosTarg: {}\n'.format(self.cosTarg)
-        strn += 'scale: {}\n'.format(self.scale)
-        strn += '{}\n'.format(self.emisVal)
-        strn += '{}\n'.format(self.reflVal)
-        strn += '{}\n'.format(self.taumedVal)
+        strn =  f'Sensor ID: {self.ID}\n'
+        strn += f'desc: {self.desc}\n'
+        strn += f'tmprt: {self.tmprt}\n'
+        strn += f'cosTarg: {self.cosTarg}\n'
+        strn += f'scale: {self.scale}\n'
+        strn += f'{self.emisVal}\n'
+        strn += f'{self.reflVal}\n'
+        strn += f'{self.taumedVal}\n'
 
         return strn
 
@@ -2965,14 +2962,14 @@ class Target(Spectral):
         if units[1] == 'l':
             radiance =  vscale * ryplanck.planck(specprod.wl,self.tmprt, type=units).reshape(-1,self.tmprt.shape[1])
             rtnVal = Spectral(
-                ID='{}-{}-radiance'.format(self.ID, self.tmprt),
-                value=radiance, wl=specprod.wl, desc='{}'.format(self.desc),
+                ID=f'{self.ID}-{self.tmprt}-radiance',
+                value=radiance, wl=specprod.wl, desc=f'{self.desc}',
             )
         elif units[1] == 'n':
             radiance = vscale * ryplanck.planck(specprod.wn, self.tmprt, type=units).reshape(-1, self.tmprt.shape[1])
             rtnVal = Spectral(
-                ID='{}-{}-radiance'.format(self.ID, self.tmprt),
-                value=radiance, wn=specprod.wn, desc='{}'.format(self.desc),
+                ID=f'{self.ID}-{self.tmprt}-radiance',
+                value=radiance, wn=specprod.wn, desc=f'{self.desc}',
             )
         else:
             radiance = None
@@ -3154,7 +3151,7 @@ if __name__ == '__main__':
         # confirm image
         p = ryplot.Plotter(1,3,1,filename)
         p.showImage(1,imgo)
-        p.saveFig('{}.png'.format(filename[:-4]))
+        p.saveFig(f'{filename[:-4]}.png')
         # fil = open(filename,'wb')
         # fil.write(imgo)
 
@@ -3208,7 +3205,7 @@ if __name__ == '__main__':
         for key in sorted(list(spectrals.keys())):
             print(spectrals[key])
         for key in sorted(list(spectrals.keys())):
-            filename ='{}-{}'.format(key,spectrals[key].desc)
+            filename =f'{key}-{spectrals[key].desc}'
             spectrals[key].plot(filename=filename,heading=spectrals[key].desc,ytitle='Value')
 
 
@@ -3233,33 +3230,33 @@ if __name__ == '__main__':
         for key in sorted(list(atmos.keys())):
             print(atmos[key])
         for key in sorted(list(atmos.keys())):
-            atmos[key].prad.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'prad'),
+            atmos[key].prad.plot(filename=f"{key}-{atmos[key].desc}-{'prad'}",
                 heading=atmos[key].desc,ytitle='Norm Lpath W/(sr.m2.cm-1)')
-            atmos[key].atco.plot(filename='{}-{}-{}'.format(key,atmos[key].desc,'atco'),
+            atmos[key].atco.plot(filename=f"{key}-{atmos[key].desc}-{'atco'}",
                 heading=atmos[key].desc,ytitle='Attenuation m$^{-1}$')
 
         stride = int(atmos['A1'].atco.wn.shape[0] / 3)
         for distance in [1000,2000]:
-            print('distance={} m, tran={}'.format(distance,atmos['A1'].tauR(distance)[0::stride].T))
-            ID = 'Atau{:.0f}'.format(distance)
+            print(f"distance={distance} m, tran={atmos['A1'].tauR(distance)[0::stride].T}")
+            ID = f'Atau{distance:.0f}'
             spectrals[ID] = Spectral(
                 ID, value=atmos['A1'].tauR(distance),
                 wl=atmos['A1'].atco.wl, desc="MWIR transmittance " + ID,
             )
-            spectrals[ID].plot(filename='{}-{}-tau'.format(key, spectrals[ID].desc),
+            spectrals[ID].plot(filename=f'{key}-{spectrals[ID].desc}-tau',
                 heading=spectrals[ID].desc, ytitle='Transmittance')
-            ID = 'Aprad{:.0f}'.format(distance)
+            ID = f'Aprad{distance:.0f}'
             spectrals[ID] = Spectral(
                 ID, value=atmos['A1'].pathR(distance),
                 wl=atmos['A1'].atco.wl, desc="MWIR path radiance " + ID,
             )
-            spectrals[ID].plot(filename='{}-{}-prad'.format(key,spectrals[ID].desc),
+            spectrals[ID].plot(filename=f'{key}-{spectrals[ID].desc}-prad',
                 heading=spectrals[ID].desc,ytitle='Lpath W/(sr.m2.cm-1)')
 
         distances = np.array([1000,2000])
-        print('distances={} m, tran={}'.format(distances,atmos['A1'].tauR(distances)[0::stride].T))
+        print(f"distances={distances} m, tran={atmos['A1'].tauR(distances)[0::stride].T}")
         atco_vals = (-np.log(atmos['A1'].tauR(distances)) / distances)[0::stride].T
-        print('distances={} m, atco={}'.format(distances, atco_vals))
+        print(f'distances={distances} m, atco={atco_vals}')
 
     if doAll:
         # test loading of sensors
@@ -3289,12 +3286,12 @@ if __name__ == '__main__':
         desc = 'selfemit'
         wl = np.linspace(3,6,100)
         wn = 1e4 / wl
-        emisx = Spectral('{}-emis'.format(ID),value=np.ones(wl.shape),wl=wl,desc='{}-emis'.format(desc))
+        emisx = Spectral(f'{ID}-emis',value=np.ones(wl.shape),wl=wl,desc=f'{desc}-emis')
         targets[ID] = Target(ID=ID, emis=emisx, tmprt=300, desc='Self emitted')
 
         ID = 'refl-MWIR'
         desc = 'reflsun'
-        emisr = Spectral('{}-emis'.format(ID),value=np.ones(wn.shape),wn=wn,desc='{}-emis'.format(desc))
+        emisr = Spectral(f'{ID}-emis',value=np.ones(wn.shape),wn=wn,desc=f'{desc}-emis')
         targets[ID] = Target(ID=ID, emis=emisr, tmprt=6000, refl=.4,cosTarg=1.,
             scale=2.17e-5,taumed=0.5,desc='Reflected sunlight')
         for key in sorted(list(targets.keys())):
@@ -3307,21 +3304,21 @@ if __name__ == '__main__':
     if doAll:
         p = ryplot.Plotter(1,1,1)
         vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format(r'CIE Photopic VM($\lambda$)')])
+        p.plot(1,wl,vlam,label=[r'CIE Photopic VM($\lambda$) equation'])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=[r"CIE (1951) Scotopic V'($\lambda$) equation"])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=np.linspace(0.3, 0.8, 200), eqnapprox=True)
-        p.plot(1,wl,vlam,label=['{} equation'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=[r"CIE (1951) Scotopic V'($\lambda$) equation"])
 
         vlam,wl = luminousEfficiency(vlamtype='photopic', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format(r'CIE Photopic VM($\lambda$)')])
+        p.plot(1,wl,vlam,label=[r'CIE Photopic VM($\lambda$) table'])
         vlam,wl = luminousEfficiency(vlamtype='scotopic', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format(r"CIE (1951) Scotopic V'($\lambda$)")])
+        p.plot(1,wl,vlam,label=[r"CIE (1951) Scotopic V'($\lambda$) table"])
         vlam,wl = luminousEfficiency(vlamtype='CIE2008v2', wavelen=None, eqnapprox=False)
-        p.plot(1,wl,vlam,label=['{} table'.format(r'CIE 2008 V($\lambda$) 2 deg')])
+        p.plot(1,wl,vlam,label=[r'CIE 2008 V($\lambda$) 2 deg table'])
         vlam,wl = luminousEfficiency(vlamtype='CIE2008v10', wavelen=None, eqnapprox=False)
         p.plot(1,wl,vlam,'Luminous Efficiency',r'Wavelength $\mu$m','Efficiency',
-            label=['{} table'.format(r'CIE 2008 V($\lambda$) 10 deg')])
+            label=[r'CIE 2008 V($\lambda$) 10 deg table'])
         p.saveFig('vlam.png')
 
 
@@ -3342,10 +3339,9 @@ if __name__ == '__main__':
         probDetection = 0.999
         ThresholdToNoise = detectThresholdToNoiseTpFAR(pulsewidth,FAR)
         SignalToNoise = detectSignalToNoiseThresholdToNoisePd(ThresholdToNoise, probDetection)
-        print('For a laser pulse with width={0:.3e}, a FAR={1:.3e} and Pd={2:.3e},'.format(
-            pulsewidth, FAR, probDetection))
-        print('the Threshold to Noise ratio must be {0:.3e}'.format(ThresholdToNoise))
-        print('and the Signal to Noise ratio must be {0:.3e}'.format(SignalToNoise))
+        print(f'For a laser pulse with width={pulsewidth:.3e}, a FAR={FAR:.3e} and Pd={probDetection:.3e},')
+        print(f'the Threshold to Noise ratio must be {ThresholdToNoise:.3e}')
+        print(f'and the Signal to Noise ratio must be {SignalToNoise:.3e}')
         print(' ')
 
 
@@ -3382,9 +3378,8 @@ if __name__ == '__main__':
             # print(type((irrad - Irradiance) / Irradiance))
             # print(type(strError))
             print(
-                '\nE={0:.3e}: Range equation solver: at range {1:.3e} '
-                'the irradiance is {2:.3e}, error is {3:.3e} - {4}'.format(
-                    Irradiance, r[0], irrad, (irrad - Irradiance) / Irradiance, strError)
+                f'\nE={Irradiance:.3e}: Range equation solver: at range {r[0]:.3e} '
+                f'the irradiance is {irrad:.3e}, error is {(irrad - Irradiance) / Irradiance:.3e} - {strError}'
             )
         print(' ')
 
@@ -3549,7 +3544,7 @@ if __name__ == '__main__':
         filterPass=[0.4, 0.5,  0.6, 0.7,  0.8, 0.9, 0.99]
         filterSupp = np.asarray(filterPass) * 0.1
         filterType=['bandpass', 'lowpass', 'highpass', 'bandpass', 'lowpass', 'highpass', 'bandpass']
-        filterTxt = [r's={0}, $\tau_p$={2}, {1}'.format(s,y,z) for s,y,z in zip(filterExp, filterType, filterPass) ]
+        filterTxt = [rf's={s}, $\tau_p$={z}, {y}' for s,y,z in zip(filterExp, filterType, filterPass) ]
         filters = sfilter(wavelength,center, width, filterExp[0], filterPass[0],  filterSupp[0], filterType[0])
         for i, exponent in enumerate(filterExp[1:]):
             tau=sfilter(wavelength,center, width, filterExp[i],filterPass[i],  filterSupp[i], filterType[i])
@@ -3558,7 +3553,7 @@ if __name__ == '__main__':
         ##------------------------- plot sample filters ------------------------------
         smpleplt = ryplot.Plotter(1, 1, 1, figsize=(10, 4))
         smpleplt.plot(1, wavelength, filters,
-            r"Optical filter for $\lambda_c$={0}, $\Delta\lambda$={1}".format(center,width),
+            rf"Optical filter for $\lambda_c$={center}, $\Delta\lambda$={width}",
             r'Wavelength [$\mu$m]', r'Transmittance', \
                     ['r', 'g', 'y','k', 'b', 'm'],label=filterTxt)
 
@@ -3569,7 +3564,7 @@ if __name__ == '__main__':
         center = 0.7
         filterExp=[2,  4, 6,  8, 12, 1000]
 
-        filterTxt = ['s={0}'.format(s) for s in filterExp ]
+        filterTxt = [f's={s}' for s in filterExp ]
         filters = sfilter(wavelength,center, width, filterExp[0], 0.8,  0.1)
         for exponent in filterExp[1:]:
             filters =  np.hstack((filters, sfilter(wavelength,center, width, exponent, 0.8,  0.1)))
@@ -3588,7 +3583,7 @@ if __name__ == '__main__':
         ## ----------------------- detector------------------------------------------
         lwavepeak = 1.2
         params = [(0.5, 5), (1, 10), (1, 20), (1, 30), (1, 1000), (2, 20)]
-        parameterTxt = ['a={0}, n={1}'.format(s[0], s[1]) for s in params ]
+        parameterTxt = [f'a={s[0]}, n={s[1]}' for s in params ]
         responsivities = responsivity(wavelength,lwavepeak, params[0][0], params[0][1], 1.0)
         for param in params[1:]:
             responsivities =  np.hstack((responsivities, responsivity(wavelength,lwavepeak, param[0], param[1], 1.0)))
@@ -3621,9 +3616,7 @@ if __name__ == '__main__':
         # do for each detector in the above example
         for i in range(responsivities.shape[1]):
             effRespo = effectiveValue(wavelength,  responsivities[:, i],  spectralBaseline)
-            print('Effective responsivity {0:.3e} of detector with parameters {1} '
-                 'and source temperature {2:.3e} K'.\
-                  format(effRespo, params[i], temperature))
+            print(f'Effective responsivity {effRespo:.3e} ')
 
         print(' ')
         ##++++++++++++++++++++ demo the absolute humidity function ++++++++++++++++++++++++++++
@@ -3659,15 +3652,14 @@ if __name__ == '__main__':
         p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
         p.saveFig('abshum.eps')
 
-        print('US-Std 15C 46 RH has {:.3e} g/m3'.format(0.46*abshumidity(15 + 273.15)))
+        print(f'US-Std 15C 46 RH has {0.46 * abshumidity(15 + 273.15):.3e} g/m3')
         #highest ever recorded absolute humidity was at dew point of 34C
-        print('Highest recorded absolute humidity was {0:.3e}, dew point {1:.3e} deg C'.\
-            format(abshumidity(np.asarray([34 + 273.15]))[0],34))
+        print(f'Highest recorded absolute humidity was {abshumidity(np.asarray([34 + 273.15]))[0]:.3e}, dew point {34:.3e} deg C')
 
         ###################################################
-        print('{} renders in LaTeX as an upright symbol'.format(upMu()))
-        print('{} renders in LaTeX as an upright symbol'.format(upMu(True)))
-        print('{} renders in LaTeX as an italic/slanted symbol'.format(upMu(False)))
+        print(f'{upMu()} renders in LaTeX as an upright symbol')
+        print(f'{upMu(True)} renders in LaTeX as an upright symbol')
+        print(f'{upMu(False)} renders in LaTeX as an italic/slanted symbol')
 
     #----------  test circ ---------------------
     if  doAll:
@@ -3683,8 +3675,7 @@ if __name__ == '__main__':
         z = circ(x, y, d)
 
         #calculate area two ways to confirm
-        print('Circ area is {:.4e}, should be {:.4e}'.format(
-            np.sum(z) / (samples * a * samples * b), np.pi * (d / 2) ** 2 / (a * b)))
+        print(f'Circ area is {np.sum(z) / (samples * a * samples * b):.4e}, should be {np.pi * (d / 2) ** 2 / (a * b):.4e}')
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_circ.png']) as p:
@@ -3708,7 +3699,7 @@ if __name__ == '__main__':
         z = rect(x, y, sx, sy)
 
         #calculate area two ways to confirm
-        print('Rect area is {:.3e}, should be {:.3e}'.format(np.sum(z)/(samples * a * samples * b), sx*sy/(a * b)))
+        print(f'Rect area is {np.sum(z) / (samples * a * samples * b):.3e}, should be {sx * sy / (a * b):.3e}')
 
         if samples < 20:
             with ryplot.savePlot(1,1,1,figsize=(8,8), saveName=['tool_rect.png']) as p:
@@ -3728,8 +3719,7 @@ if __name__ == '__main__':
             # print(lam)
             errmean = np.nan if lam==0 else (lam-np.mean(out))/lam
             errvar = np.nan if lam==0 else (lam-np.var(out))/lam
-            print('lam={:.3e} mean={:.3e} var={:.3e} err-mean={:.3e} err-var={:.3e}'.format(lam,
-               np.mean(out),np.var(out), errmean, errvar))
+            print(f'lam={lam:.3e} mean={np.mean(out):.3e} var={np.var(out):.3e} err-mean={errmean:.3e} err-var={errvar:.3e}')
 
     # ----------------test checkerboard texture------------------------
     if doAll:
@@ -3742,13 +3732,13 @@ if __name__ == '__main__':
         color2 = 255      
         img = drawCheckerboard(rows,cols,pixInBlock,'L',color1,color2,'nparray')
         pilImg = Img.fromarray(img, 'L')
-        pilImg.save('{0}.png'.format('checkerboardL'))
+        pilImg.save(f"{'checkerboardL'}.png")
 
 
         color1 = (0,0,0)          
         color2 = (255,255,255)      
         pilImage = drawCheckerboard(rows,cols,pixInBlock,'RGB',color1,color2,'image')
-        pilImage.save('{0}.png'.format('checkerboardRGB'))
+        pilImage.save(f"{'checkerboardRGB'}.png")
 
     ############################################################
     # test the mtf from wavefront code
@@ -3771,30 +3761,30 @@ if __name__ == '__main__':
         MTFmean[clear] = np.where(MTFmean[clear]==0,1e-100,MTFmean[clear])
 
         #  plot the wavefront error
-        I1 = ryplot.Plotter(1,2,len(specdef.keys()),'sample {} '.format(sample), figsize=(14,10));
+        I1 = ryplot.Plotter(1,2,len(specdef.keys()),f'sample {sample} ', figsize=(14,10));
         keys = sorted(list(wfdev.keys()))
         for i,specband in enumerate(keys):
-            I1.showImage(i+1, wfdev[specband], ptitle='{} wavefront displacement in m'.format(specband), 
+            I1.showImage(i+1, wfdev[specband], ptitle=f'{specband} wavefront displacement in m', 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
-            I1.showImage(i+4, phase[specband], ptitle='{} wavefront displacement in rad'.format(specband), 
+            I1.showImage(i+4, phase[specband], ptitle=f'{specband} wavefront displacement in rad', 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
         I1.saveFig('mirrorerror-WFerror.png')
 
         # plot the 2D MTF
-        I1 = ryplot.Plotter(1,1,len(specdef.keys()),'Degraded MTF: sample {} '.format(sample),
+        I1 = ryplot.Plotter(1,1,len(specdef.keys()),f'Degraded MTF: sample {sample} ',
                             figsize=(14,5));
         keys = sorted(list(MTF2D.keys()))
         for i,specband in enumerate(keys):
-            I1.showImage(i+1, MTF2D[specband], ptitle='{} MTF'.format(specband), cmap=ryplot.cubehelixcmap(), 
+            I1.showImage(i+1, MTF2D[specband], ptitle=f'{specband} MTF', cmap=ryplot.cubehelixcmap(), 
                          titlefsize=10, cbarshow=True);
         I1.saveFig('mirrorerror-2D-MTF.png')
 
         #  plot the 2D MTF degradation
-        I1 = ryplot.Plotter(2,1,len(specdef.keys()),'Degraded MTF/MTFdiffraction: sample {} '.format(sample),
+        I1 = ryplot.Plotter(2,1,len(specdef.keys()),f'Degraded MTF/MTFdiffraction: sample {sample} ',
                             figsize=(14,5));
         keys = sorted(list(MTF2D.keys()))
         for i,specband in enumerate(keys):
-            I1.showImage(i+1, MTF2D[specband]/MTF2D[clear], ptitle='{} MTF'.format(specband), 
+            I1.showImage(i+1, MTF2D[specband]/MTF2D[clear], ptitle=f'{specband} MTF', 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
         I1.saveFig('mirrorerror-2D-MTF-ratio.png')
 
@@ -3805,14 +3795,14 @@ if __name__ == '__main__':
         for specband in keys:
             if clear not in specband:
                 for i in range(0,MTFpol[specband].shape[1]):
-                    I1.plot(j+1,rho[specband],MTFpol[specband][:,i],'Sample {} {}'.format(sample,specband),
+                    I1.plot(j+1,rho[specband],MTFpol[specband][:,i],f'Sample {sample} {specband}',
                            'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1])
                 j += 1
         I1.saveFig('mirrorerror-rotational-MTF.png')
 
         # plot the mean MTF
         I1 = ryplot.Plotter(4,len(specdef.keys())-1,2,figsize=(12,4*(len(specdef.keys())-1)),
-                figuretitle='Mean MTF relative to diffraction limit: sample {}'.format(sample));
+                figuretitle=f'Mean MTF relative to diffraction limit: sample {sample}');
         j = 0
         keys = sorted(list(MTFmean.keys()))
         for specband in keys:

@@ -514,9 +514,9 @@ class extracttape6:
     def writeLaTeX(self, tp6data,filel):
         llines = []
         filename = ryfiles.latex_escape(tp6data['filename']).strip()
-        llines.append("\n\n\\textbf{{{}}}: ".format(filename))
+        llines.append(f"\n\n\\textbf{{{filename}}}: ")
         if len(tp6data['notes']) > 2:
-            llines.append("\\textit{{{}}} ".format(tp6data['notes'].strip()))
+            llines.append(f"\\textit{{{tp6data['notes'].strip()}}} ")
             llines.append('\n\n')
             
         if 'climatic model' in tp6data.keys():
@@ -992,19 +992,21 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
 
     
 
-    dir structure:
-    |dir root
-        | file domodtran.py
-        | dir scenario 1
-            |dir variation 1
-            |dir variation 2
-            |dir variation 3
-            |file tape5 template for scenario 1
-        | dir scenario 2
-            |dir variation 1
-            |dir variation 2
-            |dir variation 3
-            |file tape5 template for scenario 2
+    dir structure::
+
+        dir root
+            file domodtran.py
+            dir scenario 1
+                dir variation 1
+                dir variation 2
+                dir variation 3
+                file tape5 template for scenario 1
+            dir scenario 2
+                dir variation 1
+                dir variation 2
+                dir variation 3
+                file tape5 template for scenario 2
+
     The scenario directories must exist, but the variation scenarios are created.
 
     Args:
@@ -1061,7 +1063,7 @@ def variationTape5File(scenario, variation, tape5,varFunc,fmtstr, srcstr,outfile
         outlines.append(line)
 
     #create new scenario and write file to new dir
-    dirname = os.path.join('.',scenario,'{}'.format(varcomb))
+    dirname = os.path.join('.',scenario,f'{varcomb}')
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
@@ -1148,7 +1150,7 @@ def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
     """
     Look for input files in directories, run modtran and copy results to dir.
 
-    Finds all *.tp5 files below the root directory that matches the 
+    Finds all \*.tp5 files below the root directory that matches the
     regex pattern in research. Then runs modtran on these files
     using modroot.in
 
@@ -1322,7 +1324,7 @@ if __name__ == '__main__':
           #normally you would multiply with a sensor spectral response before integration
           #this calculation is over the whole band, equally weighted.
           totinband = np.trapezoid(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
-          print('{0} sum is {1} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+          print(f'{colSelect[i][:]} sum is {totinband} [W/(m^2.sr)]')
         sr.saveFig('NIRPathradiance.png')
         print('Note that multiple scatter contributes significantly to the total path radiance')
 
@@ -1339,7 +1341,7 @@ if __name__ == '__main__':
                  label=[colSelect[i][:]],legendAlpha=0.5, #pltaxis=[0.4,1, 0, 1],
                  maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
           totinband = - np.trapezoid(Lpath.reshape(-1, 1),wl,axis=0)[0]
-          print('{0} integral is {1:.6e} [W/(m^2.sr)]'.format(colSelect[i][:],totinband))
+          print(f'{colSelect[i][:]} integral is {totinband:.6e} [W/(m^2.sr)]')
 
         sr.saveFig('NIRPathradiancewl.png')
         print('Note that multiple scatter contributes significantly to total path radiance')

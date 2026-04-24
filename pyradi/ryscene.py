@@ -190,12 +190,12 @@ def unitxrotate(sc):
         rts = tr.quaternion_from_euler(
             item['yawRad'], item['pitchRad'], item['rollRad'], sc.sequence
         )
-        print('rot quat={}'.format(rts))
+        print(f'rot quat={rts}')
         pts = tr.quaternion_multiply(
             rts, tr.quaternion_multiply(pt, tr.quaternion_inverse(rts))
         )
-        print('point={}'.format(pts))
-        print('yaw/pit/rol={}'.format(tr.euler_from_quaternion(rts, sc.sequence)))
+        print(f'point={pts}')
+        print(f'yaw/pit/rol={tr.euler_from_quaternion(rts, sc.sequence)}')
     print('\n---------------------\n')
 
 

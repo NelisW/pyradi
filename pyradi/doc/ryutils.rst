@@ -10,18 +10,20 @@ Overview
 Module classes
 ------------------
 
+.. autoclass:: pyradi.ryutils.VersionInformation
+	:members:
+
 .. autoclass:: pyradi.ryutils.Spectral
 	:members:
-	
+
 .. autoclass:: pyradi.ryutils.Atmo
 	:members:
-	
+
 .. autoclass:: pyradi.ryutils.Sensor
 	:members:
-	
+
 .. autoclass:: pyradi.ryutils.Target
 	:members:
-	
 
 
 Module functions
@@ -43,9 +45,9 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.abshumidity
 
-.. autofunction:: pyradi.ryutils.rangeEquation
+.. autofunction:: pyradi.ryutils.TFromAbshumidity
 
-.. autofunction:: pyradi.ryutils._rangeEquationCalc
+.. autofunction:: pyradi.ryutils.rangeEquation
 
 .. autofunction:: pyradi.ryutils.detectThresholdToNoiseTpFAR
 
@@ -57,11 +59,23 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.detectFARThresholdToNoisepulseWidth
 
+.. autofunction:: pyradi.ryutils.buildLogSpace
+
+.. autofunction:: pyradi.ryutils.update_progress
+
+.. autofunction:: pyradi.ryutils.solidAngleSquare
+
+.. autofunction:: pyradi.ryutils.getFHWM
+
 .. autofunction:: pyradi.ryutils.upMu
 
 .. autofunction:: pyradi.ryutils.cart2polar
 
 .. autofunction:: pyradi.ryutils.polar2cart
+
+.. autofunction:: pyradi.ryutils.polar2cartesian
+
+.. autofunction:: pyradi.ryutils.cartesian2polar
 
 .. autofunction:: pyradi.ryutils.index_coords
 
@@ -83,12 +97,18 @@ Module functions
 
 .. autofunction:: pyradi.ryutils.makemotionsequence
 
+.. autofunction:: pyradi.ryutils.warpPolarImageToCartesianImage
+
+.. autofunction:: pyradi.ryutils.warpCartesianImageToPolarImage
+
 .. autofunction:: pyradi.ryutils.extractGraph
 
 .. autofunction:: pyradi.ryutils.luminousEfficiency
 
 .. autofunction:: pyradi.ryutils.calcMTFwavefrontError
 
+.. autofunction:: pyradi.ryutils.differcommonfiles
+
+.. autofunction:: pyradi.ryutils.blurryextract
+
 .. autofunction:: pyradi.ryutils.intify_tuple
-
-

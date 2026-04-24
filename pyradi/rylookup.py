@@ -209,34 +209,32 @@ class RadLookup:
         """
 
         str = ""
-        str += 'Lookup Name          = {}\n'.format(self.specName)
+        str += f'Lookup Name          = {self.specName}\n'
 
         if type(self.sensorResp)  is not type(np.asarray(['0'])):
-            str += 'Sensor Response      = {}\n'.format(self.sensorResp)
+            str += f'Sensor Response      = {self.sensorResp}\n'
         if type(self.opticsTau)  is not type(np.asarray(['0'])):
-            str += 'Optics Transmittance = {}\n'.format(self.opticsTau)
+            str += f'Optics Transmittance = {self.opticsTau}\n'
         if type(self.filterTau)  is not type(np.asarray(['0'])):
-            str += 'Filter               = {}\n'.format(self.filterTau)
+            str += f'Filter               = {self.filterTau}\n'
         if type(self.sourceEmis)  is not type(np.asarray(['0'])):
-            str += 'Source Emissivity    = {}\n'.format(self.sourceEmis)
+            str += f'Source Emissivity    = {self.sourceEmis}\n'
         if type(self.atmoTau)  is not type(np.asarray(['0'])):
-            str += 'Atmospheric Transm   = {}\n'.format(self.atmoTau)
+            str += f'Atmospheric Transm   = {self.atmoTau}\n'
 
-        str += 'Nu (Min, Max, Inc)   = ({}, {}, {})\n'.format(
-            np.min(self.nu),np.max(self.nu),self.nu[1]-self.nu[0])
+        str += f'Nu (Min, Max, Inc)   = ({np.min(self.nu)}, {np.max(self.nu)}, {self.nu[1] - self.nu[0]})\n'
 
         if self.dicCaldata:
             str += 'Calibration data set'
             keys = sorted(list(self.dicCaldata.keys()))
             for i,tmprInstr in enumerate(keys):
-                str += '\n\nInstrument temperature = {} C\n'.format(tmprInstr)
-                str += 'DL floor               = {}\n'.format(self.dicFloor[tmprInstr])
-                str += 'DL power               = {}\n'.format(self.dicPower[tmprInstr])
+                str += f'\n\nInstrument temperature = {tmprInstr} C\n'
+                str += f'DL floor               = {self.dicFloor[tmprInstr]}\n'
+                str += f'DL power               = {self.dicPower[tmprInstr]}\n'
                 str += '     Temp K           DL       L W/(sr.m2) [with filter]'
                 str += '\n'
                 str += np.array_str(self.dicCaldata[tmprInstr], max_line_width=120, precision=4, )
-                str += '\nstraight line fit L = {:.10e} DL + {:.10e}'.format(self.DlRadCoeff[tmprInstr][0],
-                      self.DlRadCoeff[tmprInstr][1])
+                str += f'\nstraight line fit L = {self.DlRadCoeff[tmprInstr][0]:.10e} DL + {self.DlRadCoeff[tmprInstr][1]:.10e}'
 
         return str
 
@@ -648,9 +646,9 @@ class RadLookup:
             p.semilogY(1,self.wl,self.specOptics,label=['Optics'])
             p.semilogY(1,self.wl,self.specEffWiFil,label=['Effective'])
             currentP = p.getSubPlot(1)
-            currentP.set_xlabel('Wavelength {}m'.format(ryutils.upMu(False)))
+            currentP.set_xlabel(f'Wavelength {ryutils.upMu(False)}m')
             currentP.set_ylabel('Response')
-            currentP.set_title('{} Spectral Response'.format(self.specName))
+            currentP.set_title(f'{self.specName} Spectral Response')
          
             if savePath==None:
                 savePath=self.specName
@@ -658,7 +656,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-spectrals.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-spectrals.{saveExt}')
                 plt.close(p.getPlot())
     
     
@@ -697,7 +695,7 @@ class RadLookup:
                 # build temperature labels
                 labels = []
                 for temp in self.dicCaldata[tmprInstr][:,0]:
-                    labels.append(r'{:.0f} $^\circ$C, {:.0f} K'.format(temp-273.15, temp))
+                    labels.append(rf'{temp - 273.15:.0f} $^\circ$C, {temp:.0f} K')
 
                 # Sub-sample if more than 10
                 numTemps = len(labels)
@@ -707,9 +705,9 @@ class RadLookup:
                 
                 p.plot(1+j,self.wl,self.dicSpecRadiance[tmprInstr][:,::delTemps],label=labels[::delTemps])
                 currentP = p.getSubPlot(1+j)
-                currentP.set_xlabel(r'Wavelength {}m'.format(ryutils.upMu(False)), fontsize=12)
+                currentP.set_xlabel(rf'Wavelength {ryutils.upMu(False)}m', fontsize=12)
                 currentP.set_ylabel(r'Radiance W/(m$^2$.sr.cm$^{-1}$)', fontsize=12)
-                title = r'{} at Tinstr={} $^\circ$C'.format(self.specName, tmprInstr)
+                title = rf'{self.specName} at Tinstr={tmprInstr} $^\circ$C'
                 currentP.set_title(title, fontsize=12)
 
             if savePath==None:
@@ -718,7 +716,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CalRadiance.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CalRadiance.{saveExt}')
                 plt.close(p.getPlot())
 
 
@@ -763,13 +761,13 @@ class RadLookup:
                 plotColB = ['c']
                 plotColM = ['g']
               p.plot(1,self.dicTableDLRad[tmprInstr][:,0],self.dicTableDLRad[tmprInstr][:,1],
-                label=[r'Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
+                label=[rf'Best fit line {tmprInstr}$^\circ$C'],plotCol=plotColB)
               p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicCalRadiance[tmprInstr],
-                label=[r'Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
+                label=[rf'Measured {tmprInstr}$^\circ$C'],markers=['x'],plotCol=plotColM)
             currentP = p.getSubPlot(1)
             currentP.set_xlabel(r'Digital level')
             currentP.set_ylabel(r' Radiance W/(m$^2$.sr)')
-            currentP.set_title(r'{} Radiance With Filter'.format(self.specName))
+            currentP.set_title(rf'{self.specName} Radiance With Filter')
 
             if plotPoints is not None:
                 p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
@@ -780,7 +778,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CaldlRadiance.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CaldlRadiance.{saveExt}')
                 plt.close(p.getPlot())
 
 
@@ -821,12 +819,12 @@ class RadLookup:
                 p.plot(1,self.TableTempRad[:,0],self.TableTempRad[:,1])
                 currentP = p.getSubPlot(1)
                 currentP.set_ylim([0,np.max(self.TableTempRad[:,1])])
-                currentP.set_title('{} Radiance With Filter'.format(self.specName))
+                currentP.set_title(f'{self.specName} Radiance With Filter')
             else:
                 p.plot(1,self.TableTempRad[:,0],self.TableTempRad[:,2])
                 currentP = p.getSubPlot(1)
                 currentP.set_ylim([0,np.max(self.TableTempRad[:,2])])
-                currentP.set_title('{} Radiance Without Filter'.format(self.specName))
+                currentP.set_title(f'{self.specName} Radiance Without Filter')
 
             currentP.set_xlabel('Temperature K')
             currentP.set_ylabel('Radiance W/(m$^2$.sr)')
@@ -841,9 +839,9 @@ class RadLookup:
 
             if saveFig:
                 if withFilter:
-                    p.saveFig('{}-TempRadiance-NoF.{}'.format(savePath, saveExt))
+                    p.saveFig(f'{savePath}-TempRadiance-NoF.{saveExt}')
                 else:
-                    p.saveFig('{}-TempRadiance-WiF.{}'.format(savePath, saveExt))
+                    p.saveFig(f'{savePath}-TempRadiance-WiF.{saveExt}')
 
                 plt.close(p.getPlot())
 
@@ -882,11 +880,11 @@ class RadLookup:
             keys = sorted(list(self.dicCaldata.keys()))
             for j,tmprInstr in enumerate(keys):
                 p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,2],
-                    label=[r'Tint {} $^\circ$C'.format(tmprInstr)])
+                    label=[rf'Tint {tmprInstr} $^\circ$C'])
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel('Temperature K')
                 currentP.set_ylabel('Radiance W/(m$^2$.sr)')
-                currentP.set_title('{} Radiance With Filter'.format(self.specName))
+                currentP.set_title(f'{self.specName} Radiance With Filter')
                 currentP.set_ylim([0,np.max(self.dicCaldata[tmprInstr][:,2])])
 
             if plotPoints is not None:
@@ -898,7 +896,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CalTempRadiance.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CalTempRadiance.{saveExt}')
 
                 plt.close(p.getPlot())
 
@@ -934,7 +932,7 @@ class RadLookup:
         if self.calTablesCalculated:
 
             p = ryplot.Plotter(1,1,1, figsize=(10,5))
-            ptitle = '{} Sensor Internal Radiance'.format(self.specName)
+            ptitle = f'{self.specName} Sensor Internal Radiance'
             p.plot(1,self.TableTintRad[:,0]-273.15,self.TableTintRad[:,1], ptitle=ptitle,
               xlabel=r'Internal temperature $^\circ$C', ylabel='Radiance W/(m$^2$.sr)')
 
@@ -947,7 +945,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CalInternal.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CalInternal.{saveExt}')
 
                 plt.close(p.getPlot())
 
@@ -994,13 +992,13 @@ class RadLookup:
                 else:
                     plotColB = ['c']
                     plotColM = ['g']
-                p.plot(1,DL,temp,label=[r'Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
+                p.plot(1,DL,temp,label=[rf'Best fit line {tmprInstr}$^\circ$C'],plotCol=plotColB)
                 p.plot(1,self.dicCaldata[tmprInstr][:,1],self.dicCaldata[tmprInstr][:,0],
-                   label=[r'Measured {}$^\circ$C'.format(tmprInstr)],markers=['x'],plotCol=plotColM)
+                   label=[rf'Measured {tmprInstr}$^\circ$C'],markers=['x'],plotCol=plotColM)
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel(r'Digital level')
                 currentP.set_ylabel(r'Temperature K')
-                currentP.set_title('{} Temperature vs Sensor Signal'.format(self.specName))
+                currentP.set_title(f'{self.specName} Temperature vs Sensor Signal')
 
             if plotPoints is not None:
                 p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
@@ -1011,7 +1009,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CalDLTemp.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CalDLTemp.{saveExt}')
 
                 plt.close(p.getPlot())
                 
@@ -1057,14 +1055,14 @@ class RadLookup:
                 else:
                     plotColB = ['c']
                     plotColM = ['g']
-                p.plot(1,temp,DL,label=[r'Best fit line {}$^\circ$C'.format(tmprInstr)],plotCol=plotColB)
+                p.plot(1,temp,DL,label=[rf'Best fit line {tmprInstr}$^\circ$C'],plotCol=plotColB)
                 p.plot(1,self.dicCaldata[tmprInstr][:,0],self.dicCaldata[tmprInstr][:,1],
-                   label=[r'Measured {}$^\circ$C'.format(tmprInstr)],linestyle='',
+                   label=[rf'Measured {tmprInstr}$^\circ$C'],linestyle='',
                    markers=['x'],plotCol=plotColM)
                 currentP = p.getSubPlot(1)
                 currentP.set_xlabel('Temperature K')
                 currentP.set_ylabel('Digital level')
-                currentP.set_title('{} Temperature vs Digital Level'.format(self.specName))
+                currentP.set_title(f'{self.specName} Temperature vs Digital Level')
 
             if plotPoints is not None:
                 p.plot(1,plotPoints[0,:],plotPoints[1,:],plotCol=colPoints,markers=markPoints,linestyle='')
@@ -1075,7 +1073,7 @@ class RadLookup:
                 savePath = str(Path(savePath) / self.specName)
 
             if saveFig:
-                p.saveFig('{}-CalTempDL.{}'.format(savePath, saveExt))
+                p.saveFig(f'{savePath}-CalTempDL.{saveExt}')
 
                 plt.close(p.getPlot())
 
@@ -1115,12 +1113,12 @@ if __name__ == '__main__':
     tempr1 = [300., 307.5, 505., 792.5, 800.]
     rad1 = lut1.LookupTempRad(tempr1)
     tempr1i =  lut1.LookupRadTemp(rad1)
-    print('Input temperature values = {}'.format(tempr1))
-    print('Lut radiance values = {}'.format(rad1))
-    print('Lut temperature values = {}'.format(tempr1i))
+    print(f'Input temperature values = {tempr1}')
+    print(f'Lut radiance values = {rad1}')
+    print(f'Lut temperature values = {tempr1i}')
     # now calculate from first principles
     L1stP1 = np.trapezoid(ryplanck.planck(nu, tempr1, type='en'), x=nu, axis=0) / np.pi
-    print('First principles radiance values = {}'.format(L1stP1))
+    print(f'First principles radiance values = {L1stP1}')
 
     print('\n-------------------------------------------------------')
     print('-------------------------------------------------------')
@@ -1146,9 +1144,9 @@ if __name__ == '__main__':
     tempr2 = [300., 307.5, 505., 792.5, 800.]
     rad2 = lut2.LookupTempRad(tempr2)
     tempr2i =  lut2.LookupRadTemp(rad2)
-    print('Input temperature values = {}'.format(tempr2))
-    print('Lut radiance values = {}'.format(rad2))
-    print('Lut temperature values = {}'.format(tempr2i))
+    print(f'Input temperature values = {tempr2}')
+    print(f'Lut radiance values = {rad2}')
+    print(f'Lut temperature values = {tempr2i}')
 
     print('\n-------------------------------------------------------')
     print('-------------------------------------------------------')
@@ -1176,9 +1174,9 @@ if __name__ == '__main__':
     dicFloor = {Tlo: 3625, Thi: 4210}
 
 
-    print('dicPower = {}'.format(dicPower))
-    print('dicFloor = {}'.format(dicFloor))
-    print('dicCaldata = {}'.format(dicCaldata))
+    print(f'dicPower = {dicPower}')
+    print(f'dicFloor = {dicFloor}')
+    print(f'dicCaldata = {dicCaldata}')
 
     lut3 = RadLookup('lut3', nu, tmprMin,tmprMax,tmprInc,
          'data/LWIRsensor.txt', 'data/LW100mmLens.txt', 'data/LWND10.txt',
@@ -1198,9 +1196,9 @@ if __name__ == '__main__':
     tempr3 = [300., 307.5, 505., 792.5, 800.]
     rad3 = lut3.LookupTempRad(tempr3)
     tempr3i =  lut3.LookupRadTemp(rad3)
-    print('Input temperature values = {}'.format(tempr3))
-    print('Lut radiance values = {}'.format(rad3))
-    print('Lut temperature values = {}'.format(tempr3i))
+    print(f'Input temperature values = {tempr3}')
+    print(f'Lut radiance values = {rad3}')
+    print(f'Lut temperature values = {tempr3i}')
     print(' ')
     print('Use the cal tables tp look up the original input values:')
     print(lut3.LookupDLTemp(arrLo[:,1], Tlo) - 273.16)

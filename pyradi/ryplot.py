@@ -896,11 +896,7 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
-                    xAxisFmt=None, yAxisFmt=None,
-                    PLcolor=None,
-                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
-                    PLmultipleYAxis=False, PLmultiAxisTitle=None, PLxAxisSide=None,
-                    PLxAxisOverlaying=None, PLmultipleXAxis=False  ): 
+                    xAxisFmt=None, yAxisFmt=None):
       """Cartesian plot on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -952,16 +948,6 @@ class Plotter:
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
                 | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
                 | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
-                | PLwidth
-                | PLdash (string): Line stlye
-                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
-                | PLyAxisOverlaying (string): Sets the overlaying
-                | PLmultipleYAxis (bool): Indicates presence of multiple axis
-                | PLmultiAxisTitle (string): Sets the title of the multiple axis
-                | PLxAxisSide (string): Sets the location of the x-axis (top/bottom)
-                | PLxAxisOverlaying (string): Sets the overlaying
-                | PLmultipleXAxis (bool): Indicates presence of multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1004,10 +990,7 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
-                    xAxisFmt=None, yAxisFmt=None,
-                    PLcolor=None,
-                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
-                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
+                    xAxisFmt=None, yAxisFmt=None):
       """Plot data on logarithmic scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1061,13 +1044,6 @@ class Plotter:
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
                 | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
                 | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
-                | PLwidth
-                | PLdash (string): Line stlye
-                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
-                | PLyAxisOverlaying (string): Sets the overlaying
-                | PLmultipleYAxis (bool): Indicates presence of multiple axis
-                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1120,10 +1096,7 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True, axesequal=False, 
-                    xAxisFmt=None, yAxisFmt=None,
-                    PLcolor=None,
-                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
-                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
+                    xAxisFmt=None, yAxisFmt=None):
 
       """Plot data on logarithmic scales for abscissa and linear scale for ordinates.
 
@@ -1177,13 +1150,6 @@ class Plotter:
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
                 | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
                 | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
-                | PLwidth
-                | PLdash (string): Line stlye
-                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
-                | PLyAxisOverlaying (string): Sets the overlaying
-                | PLmultipleYAxis (bool): Indicates presence of multiple axis
-                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1227,10 +1193,7 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True,axesequal=False, 
-                    xAxisFmt=None, yAxisFmt=None,
-                    PLcolor=None,
-                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
-                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
+                    xAxisFmt=None, yAxisFmt=None):
       """Plot data on linear scales for abscissa and logarithmic scale for ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1283,13 +1246,6 @@ class Plotter:
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
                 | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
                 | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
-                | PLwidth
-                | PLdash (string): Line stlye
-                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
-                | PLyAxisOverlaying (string): Sets the overlaying
-                | PLmultipleYAxis (bool): Indicates presence of multiple axis
-                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1333,10 +1289,7 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None,  markerfacecolor=True,markeredgecolor=True,markersize=6,
                     zorders=None, clip_on=True, axesequal=False, 
-                    xAxisFmt=None, yAxisFmt=None,
-                    PLcolor=None,
-                    PLwidth=None, PLdash=None, PLyAxisSide=None, PLyAxisOverlaying=None,
-                    PLmultipleYAxis=False, PLmultiAxisTitle=None):
+                    xAxisFmt=None, yAxisFmt=None):
       """Plot stacked data on linear scales for abscissa and ordinates.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -1389,13 +1342,6 @@ class Plotter:
                 | axesequal (bool) force scaling on x and y axes to be equal (optional)
                 | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
                 | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-                | PLcolor (string): graph color scheme. Format 'rgb(r,g,b)'
-                | PLwidth
-                | PLdash (string): Line stlye
-                | PLyAxisSide (string): Sets the location of the y-axis (left/right)
-                | PLyAxisOverlaying (string): Sets the overlaying
-                | PLmultipleYAxis (bool): Indicates presence of multiple axis
-                | PLmultiAxisTitle (string): Sets the title of the multiple axis
 
             Returns:
                 | the axis object for the plot
@@ -1441,10 +1387,8 @@ class Plotter:
                     xTicks=None, xtickRotation=0, 
                     markers=[], markevery=None, 
                     markerfacecolor=True,markeredgecolor=True,markersize=6,
-                    zorders=None,clip_on=True,axesequal=False, 
-                    xAxisFmt=None,yAxisFmt=None,
-                    PLyStatic=[0]
-                      ):
+                    zorders=None,clip_on=True,axesequal=False,
+                    xAxisFmt=None,yAxisFmt=None):
       """Low level helper function to create a subplot and plot the data as required.
 
       This function does the actual plotting, labelling etc. It uses the plotting
@@ -1501,8 +1445,6 @@ class Plotter:
               | axesequal (bool) force scaling on x and y axes to be equal (optional)
               | xAxisFmt (string) x-axis format string, e.g., '%.2f', default None (optional)
               | yAxisFmt (string) y-axis format string, e.g., '%.2e',, default None (optional)
-              | PLyStatic ([int]) the guy that added this did not document it properly
-
 
           Returns:
               | the axis object for the plot
@@ -1859,7 +1801,7 @@ class Plotter:
                   contourFill=True, contourLine=True, logScale=False,
                   negativeSolid=False, zeroContourLine=None,
                   contLabel=False, contFmt='%.2f', contCol='k', contFonSz=8, contLinWid=0.5,
-                  zorders=None, PLcolorscale='',alpha=0.5,vlimits=[None,None] ):
+                  zorders=None, alpha=0.5, vlimits=[None,None]):
       """XY colour mesh  countour plot for (xvals, yvals, zvals) input sets.
 
         The data values must be given on a fixed mesh grid of three-dimensional
@@ -2040,9 +1982,9 @@ class Plotter:
                       # valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
-                          str = '{0:f}'.format(val)
+                          str = f'{val:f}'
                       else:
-                          str = '{0:e}'.format(val)
+                          str = f'{val:e}'
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
         
@@ -2101,11 +2043,7 @@ class Plotter:
                   cbarorientation = 'vertical', cbarcustomticks=[], cbarfontsize = 12,
                   drawGrid=True, xInvert=False, yInvert=False, zInvert=False,
                   logScale=False, alpha=1, alphawire=1,
-                  azim=45, elev=30, distance=10, zorders=None, clip_on=True, 
-                  PLcolor=None,
-                  PLcolorScale=None, PLtickmode=None, PLnticks=None, PLtick0=None, PLdtick=None,
-                  PLtickvals=None, PLticktext=None, PLintensity = None
-                   ):
+                  azim=45, elev=30, distance=10, zorders=None, clip_on=True):
       """XY colour mesh plot for (xvals, yvals, zvals) input sets.
 
         Given an existing figure, this function plots in a specified subplot position.
@@ -2179,15 +2117,6 @@ class Plotter:
                 | distance (float): distance between viewer and plot (optional)
                 | zorder ([int]) list of zorder for drawing sequence, highest is last (optional)
                 | clip_on (bool) clips objects to drawing axes (optional)
-                | PLcolor (string): Graph colors e.g 'FFFFFF'
-                | PLcolorScale ([int,string]): Color scale for mesh graphs e.g [0, 'rgb(0, 0, 0)']
-                | PLtickmode (string): Plot mode
-                | PLnticks (int): number of ticks
-                | PLtick0 (int): First tick value
-                | PLdtick (int):
-                | PLtickvals [int]: Plot intervals
-                | PLticktext [string]: Plot text
-                | PLintensity
 
             Returns:
                 | the axis object for the plot
@@ -2296,9 +2225,9 @@ class Plotter:
                       valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
-                          str = '{0:f}'.format(val)
+                          str = f'{val:f}'
                       else:
-                          str = '{0:e}'.format(val)
+                          str = f'{val:e}'
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
         else:
@@ -3176,9 +3105,9 @@ class Plotter:
                       valstr = item.get_text().replace('\u2212', '-').replace('$','')
                       val = 10**float(valstr)
                       if abs(val) < 1000:
-                          str = '{0:f}'.format(val)
+                          str = f'{val:f}'
                       else:
-                          str = '{0:e}'.format(val)
+                          str = f'{val:e}'
                       tickVals.append(str)
                   cbartickvals = cbar.ax.yaxis.set_ticklabels(tickVals)
           else:
@@ -3462,7 +3391,7 @@ class Plotter:
 
         pkey = (self.nrow, self.ncol, plotnum)
         if pkey not in list(self.subplots.keys()):
-            ax, aux_ax1 = self.setup_pie_axes(self.fig, '{}{}{}'.format(*pkey), 
+            ax, aux_ax1 = self.setup_pie_axes(self.fig, f'{pkey[0]}{pkey[1]}{pkey[2]}', 
                 thetaAxis, radiusAxis, 
                 radLabel=radLabel,angLabel=angLabel,numAngGrid=numAngGrid, 
                 numRadGrid=numRadGrid,drawGrid=drawGrid,degreeformatter=degreeformatter)
@@ -3672,26 +3601,15 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
 
 
     Args:
-        | start : scalar, optional
-        |    Sets the starting position in the color space. 0=blue, 1=red,
-        |    2=green. Defaults to 0.5.
-        | rot : scalar, optional
-        |   The number of rotations through the rainbow. Can be positive
-        |    or negative, indicating direction of rainbow. Negative values
-        |    correspond to Blue->Red direction. Defaults to -1.5
-        | gamma : scalar, optional
-        |    The gamma correction for intensity. Defaults to 1.0
-        | hue : scalar, optional
-        |    The hue intensity factor. Defaults to 1.2
-        | reverse : boolean, optional
-        |    Set to True to reverse the color map. Will go from black to
-        |    white. Good for density plots where shade~density. Defaults to False
-        | nevl : scalar, optional
-        |    Defines the number of discrete levels to render colors at.
-        |    Defaults to 256.
+        | start (scalar): Starting position in the color space: 0=blue, 1=red, 2=green. Defaults to 0.5 (optional)
+        | rot (scalar): Number of rotations through the rainbow. Positive or negative indicates direction; negative = Blue->Red. Defaults to -1.5 (optional)
+        | gamma (scalar): Gamma correction for intensity. Defaults to 1.0 (optional)
+        | hue (scalar): Hue intensity factor. Defaults to 1.2 (optional)
+        | reverse (boolean): Set to True to reverse the color map (white to black). Good for density plots. Defaults to False (optional)
+        | nevl (scalar): Number of discrete levels to render colors at. Defaults to 256 (optional)
 
     Returns:
-        |   matplotlib.colors.LinearSegmentedColormap object
+        | matplotlib.colors.LinearSegmentedColormap object
 
     Example:
     >>> import cubehelix
@@ -4192,7 +4110,7 @@ if __name__ == '__main__':
 
         pm = Plotter(1,1,2,figsize=(16,8))
         pm.polarMesh(1,anglerg+np.pi, grangeg, launch,
-            ptitle='Probability of launch for height {:.0f} [m]'.format(height),
+            ptitle=f'Probability of launch for height {height:.0f} [m]',
             radscale=[0, 4000], cbarshow=True,
             cbarorientation='vertical', cbarcustomticks=[], cbarfontsize=12,
             rgrid=[500], thetagrid=[45], drawGrid=True,
@@ -4366,11 +4284,11 @@ if __name__ == '__main__':
         P3D.saveFig('S3D.png')
 
         P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
-        label = ['Param1={} Param2={}'.format(2,1)]
+        label = [f'Param1={2} Param2={1}']
         for i in range(2):
             param1 = 2-i
             param2 = i
-            label.append('Param1={} Param2={}'.format(param1, param2))
+            label.append(f'Param1={param1} Param2={param2}')
             x1, y1 = parametricCurve(z, param1, param2)
             x = np.vstack((x,x1))
             y = np.vstack((y,y1))
@@ -4486,8 +4404,8 @@ if __name__ == '__main__':
         for i in range(7):
             arr = np.hstack((arr, np.sin(t * 2 * np.pi / (i+1))))
             arr = np.hstack((arr, np.cos(t * 2 * np.pi / (i+1))))
-            labels.append(' s{} '.format(i))
-            labels.append(' c{} '.format(i))
+            labels.append(f' s{i} ')
+            labels.append(f' c{i} ')
 
         Ar2 = Plotter(10, 1, 1,maintitle)
         Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,

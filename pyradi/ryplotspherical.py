@@ -128,8 +128,7 @@ def readOffFile(filename):
     Returns:
         | vertices (np.array): array of vertices, shape (N, 3)
         | triangles (np.array): array of triangle index triples, shape (M, 3)
-        | Returns ``(None, None)`` if the file is not a valid OFF file or if
-          the declared vertex/face counts do not match the data.
+        | Returns ``(None, None)`` if the file is not a valid OFF file or if the declared vertex/face counts do not match the data.
 
     Raises:
         | No exception is raised.
@@ -144,16 +143,14 @@ def readOffFile(filename):
         vertexCount = int(counts[0])
         faceCount = int(counts[1])
         edgeCount = int(counts[2])
-        print('vertexCount={0} faceCount={1} edgeCount={2}'.format(
-            vertexCount, faceCount, edgeCount))
+        print(f'vertexCount={vertexCount} faceCount={faceCount} edgeCount={edgeCount}')
 
         # calculate the approximate sampling density:
         # surface of sphere divided by number of faces → size of each face → angle
         areaFace = 4 * (np.pi) ** 2 / faceCount
         sizeFace = np.sqrt(areaFace / 2)
         resAngle = sizeFace
-        print('sampling density is approx {0:.2f} mrad or {1:.3f} degrees.'.format(
-            1000 * resAngle, resAngle * 180 / np.pi))
+        print(f'sampling density is approx {1000 * resAngle:.2f} mrad or {resAngle * 180 / np.pi:.3f} degrees.')
 
         # extract vertices from lines[2] to lines[2+vertexCount]
         vertices = np.asarray([float(s) for s in lines[2].split()])
@@ -388,28 +385,23 @@ def writeOSSIMTrajOFFFile(filename, trajType, distance, xTargPos,
     idx = outfile.find('.')
     outfile = outfile[:idx]
 
-    fid = open('Alt{0}Range{1}{2}-{3}.lut'.format(
-        -zTargPos, distance, trajType, outfile), 'w')
+    fid = open(f'Alt{-zTargPos}Range{distance}{trajType}-{outfile}.lut', 'w')
     fid.write('Time x y z rol yaw pit vx vy vz engine \n')
     fid.write('0.0 infty infty infty infty infty infty infty infty infty infty \n')
     fid.write('0.0 infty infty infty infty infty infty infty infty infty infty\n')
     np.savetxt(fid, outp)
     fid.close()
 
-    fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(
-        -zTargPos, distance, 'Triangles', outfile), 'w')
+    fid = open(f"Alt{-zTargPos}Range{distance}{'Triangles'}-{outfile}.dat", 'w')
     for i in range(triangles.shape[0]):
-        fid.write('{0:d} {1:d} {2:d}\n'.format(
-            triangles[i][0], triangles[i][1], triangles[i][2]))
+        fid.write(f'{triangles[i][0]:d} {triangles[i][1]:d} {triangles[i][2]:d}\n')
     fid.close()
 
-    fid = open('Alt{0}Range{1}{2}-{3}.dat'.format(
-        -zTargPos, distance, 'Vertices', outfile), 'w')
+    fid = open(f"Alt{-zTargPos}Range{distance}{'Vertices'}-{outfile}.dat", 'w')
     np.savetxt(fid, vertices)
     fid.close()
 
-    print('Set OSSIM clock to {0} increments and max time {1}\n'.format(
-        deltaTime, deltaTime * yaw.shape[0]))
+    print(f'Set OSSIM clock to {deltaTime} increments and max time {deltaTime * yaw.shape[0]}\n')
 
 
 ##############################################################################
@@ -502,22 +494,19 @@ def writeOSSIMTrajElevAzim(numSamplesAz, filename, trajType, distance, xTargPos,
     if not idx < 0:
         outfile = outfile[:idx]
 
-    fid = open('Alt{0}Range{1}{2}-{3}-traj.lut'.format(
-        -zTargPos, distance, trajType, outfile), 'w')
+    fid = open(f'Alt{-zTargPos}Range{distance}{trajType}-{outfile}-traj.lut', 'w')
     fid.write('Time x y z rol yaw pit vx vy vz engine \n')
     fid.write('0.0 infty infty infty infty infty infty infty infty infty infty \n')
     fid.write('0.0 infty infty infty infty infty infty infty infty infty infty\n')
     np.savetxt(fid, outp)
     fid.close()
 
-    fid = open('Alt{0}Range{1}{2}-{3}-Azel.dat'.format(
-        -zTargPos, distance, trajType, outfile), 'w')
+    fid = open(f'Alt{-zTargPos}Range{distance}{trajType}-{outfile}-Azel.dat', 'w')
     fid.write('Azimuth Elevation \n')
     np.savetxt(fid, azel)
     fid.close()
 
-    print('Set OSSIM clock to {0} increments and max time {1}\n'.format(
-        deltaTime, deltaTime * yaw.shape[0]))
+    print(f'Set OSSIM clock to {deltaTime} increments and max time {deltaTime * yaw.shape[0]}\n')
 
 
 ##############################################################################
@@ -609,7 +598,7 @@ def getOrbitFromElevAzim(azimuth, elevation, xTargPos, yTargPos, zTargPos, dista
         | No exception is raised.
     """
     targPosition = np.asarray([xTargPos, yTargPos, zTargPos])
-    print('target position {}'.format(targPosition))
+    print(f'target position {targPosition}')
 
     # build sensor position from the azimuth/elevation angles
     firstTime = True

@@ -1,4 +1,4 @@
-Ptw  File Functions
+PTW File Functions
 ***********************
 
 .. include global.rst
@@ -10,35 +10,37 @@ Overview
 Module classes
 ------------------
 
-.. autoclass:: pyradi.ryptw.JadeCalibrationData
-	:members:
-	
 .. autoclass:: pyradi.ryptw.PTWFrameInfo
 	:members:
-	
+
+.. autoclass:: pyradi.ryptw.JadeCalibrationData
+	:members:
+
 Module functions
 ------------------
 
-.. autofunction:: pyradi.ryptw.readPTWHeader  
+.. autofunction:: pyradi.ryptw.readPTWHeader
 
-.. autofunction:: pyradi.ryptw.showHeader  
+.. autofunction:: pyradi.ryptw.showHeader
 
-.. autofunction:: pyradi.ryptw.getPTWFrame  
+.. autofunction:: pyradi.ryptw.getPTWFrame
 
-.. autofunction:: pyradi.ryptw.GetPTWFrameFromFile  
+.. autofunction:: pyradi.ryptw.GetPTWFrameFromFile
 
-.. autofunction:: pyradi.ryptw.getPTWFrames  
+.. autofunction:: pyradi.ryptw.getPTWFrames
 
-.. autofunction:: pyradi.ryptw.myint  
+.. autofunction:: pyradi.ryptw.myint
 
-.. autofunction:: pyradi.ryptw.mylong  
+.. autofunction:: pyradi.ryptw.mylong
 
-.. autofunction:: pyradi.ryptw.myfloat  
+.. autofunction:: pyradi.ryptw.myfloat
 
-.. autofunction:: pyradi.ryptw.mybyte  
+.. autofunction:: pyradi.ryptw.mydouble
 
-.. autofunction:: pyradi.ryptw.mydouble  
+.. autofunction:: pyradi.ryptw.mybyte
 
-.. autofunction:: pyradi.ryptw.terminateStrOnZero  
+.. autofunction:: pyradi.ryptw.mypass
 
+.. autofunction:: pyradi.ryptw.myRGB
 
+.. autofunction:: pyradi.ryptw.terminateStrOnZero

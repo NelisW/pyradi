@@ -281,11 +281,11 @@ def downloadUntar(tgzFilename, url, destinationDir=None, tarFilename=None, proxy
     result = []
     if tgzAvailable:
         if unzipGZipfile(tgzPath, tarname) is None:
-            print('Unzipping the tgz file {} to dir {} failed'.format(tgzPath, tarname))
+            print(f'Unzipping the tgz file {tgzPath} to dir {tarname} failed')
         else:
             result = untarTarfile(tarname, dirname)
             if result is None:
-                print('untarTarfile failed for {} to {}'.format(tarname, dirname))
+                print(f'untarTarfile failed for {tarname} to {dirname}')
 
     return result
 
@@ -313,7 +313,7 @@ def untarTarfile(tarfilename, saveDirname=None):
         os.makedirs(dirname)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
-            print('Unable to create directory {}'.format(dirname))
+            print(f'Unable to create directory {dirname}')
             return None
 
     with tarfile.open(tarfilename, 'r') as f:
@@ -348,7 +348,7 @@ def unzipGZipfile(zipfilename, saveFilename=None):
             with open(filename, 'wb') as f_out:
                 f_out.write(f_in.read())
     except Exception:
-        print('Unzipping of {} failed'.format(zipfilename))
+        print(f'Unzipping of {zipfilename} failed')
         return None
 
     return filename
@@ -392,10 +392,10 @@ def downloadFileUrl(url, saveFilename=None, proxy=None):
             with open(filename, 'wb') as f:
                 f.write(response.read())
     except urllib.error.HTTPError as e:
-        print('HTTP Error: {} for {}'.format(e.code, url))
+        print(f'HTTP Error: {e.code} for {url}')
         return None
     except urllib.error.URLError as e:
-        print('URL Error: {} for {}'.format(e.reason, url))
+        print(f'URL Error: {e.reason} for {url}')
         return None
 
     return filename
@@ -409,7 +409,8 @@ def execOnFiles(cmdline, root, patterns='*', recurse=1, return_folders=0,
     Seek files recursively and then execute a program on those files.
     The program is defined as a command line string as would be typed on
     a terminal, except that a token '{0}' is given in place of the filename.
-    During execution the token is replaced with the filename found in the recursive search:
+    During execution the token is replaced with the filename found in the recursive search::
+
         task = cmdline.format(filename)
 
     Example: cmdline = 'bmpp -l eps.object {0}'
@@ -575,7 +576,7 @@ def writeRawFrames(fname, img, vartype, writeFrames=[]):
     elif len(img.shape) == 3:
         pass
     else:
-        return 'Input array rank inappropriate: {}'.format(img.shape)
+        return f'Input array rank inappropriate: {img.shape}'
 
     if not writeFrames:
         writeFrames = range(0, img.shape[0])
@@ -676,14 +677,14 @@ def epsLaTexFigure(filename, epsname, caption, scale=None, vscale=None,
             scale = 1 if scale is None else scale
             vscale = 1 if vscale is None else vscale
             outfile.write(
-                '\\includegraphics[width={0}\\textwidth,height={1}\\textheight,'
-                'keepaspectratio]{{{2}}}\n'.format(scale, vscale, epsname)
+                f'\\includegraphics[width={scale}\\textwidth,height={vscale}\\textheight,'
+                f'keepaspectratio]{{{epsname}}}\n'
             )
         else:
-            outfile.write('\\includegraphics{{{0}}}\n'.format(epsname))
-        outfile.write('\\caption{{{0}. \\label{{fig:{1}}}}}\n'.format(caption, epsname))
+            outfile.write(f'\\includegraphics{{{epsname}}}\n')
+        outfile.write(f'\\caption{{{caption}. \\label{{fig:{epsname}}}}}\n')
         outfile.write('\\end{figure}\n')
-        outfile.write('{}\n'.format(strPost))
+        outfile.write(f'{strPost}\n')
         outfile.write('\n')
 
 
@@ -726,12 +727,12 @@ def arrayToLaTex(filename, arr, header=None, leftCol=None,
     numcols = arr.shape[1] if leftCol is None else arr.shape[1] + 1
 
     with open(filename, filemode) as f:
-        f.write('\\begin{{tabular}}{{ {0} }}\n\\hline\n'.format('|' + numcols * 'c|'))
+        f.write(f"\\begin{{tabular}}{{ {'|' + numcols * 'c|'} }}\n\\hline\n")
 
         if header is not None:
             if leftCol is not None:
-                f.write('{0} & '.format(leftCol[0]))
-            f.write('{0}\\\\\\hline\n'.format(header))
+                f.write(f'{leftCol[0]} & ')
+            f.write(f'{header}\\\\\\hline\n')
 
         if leftCol is None:
             f.write(_savetxt_str(arr))
@@ -837,7 +838,7 @@ def mergeDFS(df1, df2, leftPre=None, rightPre=None, bounds_error=False,
         if df1['time'].iloc[0] == df2['time'].iloc[0]:
             df1 = df1.merge(df2, on='time')
         else:
-            print('mergeDFS failed to merge two single-row frames on different times:\n{}\n{}'.format(df1, df2))
+            print(f'mergeDFS failed to merge two single-row frames on different times:\n{df1}\n{df2}')
             df1 = None
         merged = True
 
@@ -893,8 +894,8 @@ if __name__ == '__main__':
         p = ryplot.Plotter(1)
         for azim in [0, 18, 36]:
             p.plot(1, yVec, data[azim, :], xlabel='Zenith [rad]', ylabel='Irradiance [W/m$^2$]',
-                ptitle='3-5 {}m, Altitude 10 m'.format(ryutils.upMu(False)),
-                label=['Azim={0:.0f} deg'.format(yVec[azim])])
+                ptitle=f'3-5 {ryutils.upMu(False)}m, Altitude 10 m',
+                label=[f'Azim={yVec[azim]:.0f} deg'])
         p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
 
         print('Test writing latex format arrays:')
@@ -940,9 +941,9 @@ if __name__ == '__main__':
 
         print('\nTest cleanFilename function:')
         inString = "aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
-        print('{0}\n{1}'.format(inString, cleanFilename(inString)))
-        print('{0}\n{1}'.format(inString, cleanFilename(inString, " ")))
-        print('{0}\n{1}'.format(inString, cleanFilename(inString, "")))
+        print(f'{inString}\n{cleanFilename(inString)}')
+        print(f"{inString}\n{cleanFilename(inString, ' ')}")
+        print(f"{inString}\n{cleanFilename(inString, '')}")
 
         print('\nTest listFiles function - only python files in current dir:')
         print(listFiles('./', patterns='*.py', recurse=0, return_folders=1))
@@ -960,19 +961,18 @@ if __name__ == '__main__':
 
         if frames == len(framesToLoad):
             P = ryplot.Plotter(1, 2, 2, 'Sample frames from binary file', figsize=(4, 4))
-            P.showImage(1, img[0], 'frame {0}'.format(framesToLoad[0]))
-            P.showImage(2, img[1], 'frame {0}'.format(framesToLoad[1]), cmap=plt.cm.autumn)
-            P.showImage(3, img[2], 'frame {0}'.format(framesToLoad[2]), cmap=plt.cm.bone)
-            P.showImage(4, img[3], 'frame {0}'.format(framesToLoad[3]), cmap=plt.cm.gist_rainbow)
+            P.showImage(1, img[0], f'frame {framesToLoad[0]}')
+            P.showImage(2, img[1], f'frame {framesToLoad[1]}', cmap=plt.cm.autumn)
+            P.showImage(3, img[2], f'frame {framesToLoad[2]}', cmap=plt.cm.bone)
+            P.showImage(4, img[3], f'frame {framesToLoad[3]}', cmap=plt.cm.gist_rainbow)
             P.getPlot().show()
             P.saveFig('sample.png', dpi=300)
-            print('\n{0} frames of size {1} x {2} and data type {3} read from binary file {4}'.format(
-                img.shape[0], img.shape[1], img.shape[2], img.dtype, imagefile))
+            print(f'\n{img.shape[0]} frames of size {img.shape[1]} x {img.shape[2]} and data type {img.dtype} read from binary file {imagefile}')
 
             img_types = ['png', 'png', 'png', 'png']
             for i in range(frames):
-                filename = 'rawIm{0}.{1}'.format(i, img_types[i])
-                print('  saving image {} file to {}'.format(i, filename))
+                filename = f'rawIm{i}.{img_types[i]}'
+                print(f'  saving image {i} file to {filename}')
                 rawFrameToImageFile(img[i], filename)
         else:
             print('\nNot all frames read from file')
@@ -989,24 +989,24 @@ if __name__ == '__main__':
         writeRawFrames('sample_only.double', img1, 'double')
 
         patrn = r'*.py'
-        print("Test the glob version of listFiles: {}".format(patrn))
+        print(f"Test the glob version of listFiles: {patrn}")
         for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0):
-            print('  {0}'.format(filename))
+            print(f'  {filename}')
 
         patrn = r'*.py;*.pyc'
-        print("Test the glob version of listFiles with two patterns: {}".format(patrn))
+        print(f"Test the glob version of listFiles with two patterns: {patrn}")
         for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0):
-            print('  {0}'.format(filename))
+            print(f'  {filename}')
 
         patrn = r"^[a-z]{2}p[a-z]*\.py[c]*"
-        print("Test the regex version of listFiles: {}".format(patrn))
+        print(f"Test the regex version of listFiles: {patrn}")
         for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0, useRegex=True):
-            print('  {0}'.format(filename))
+            print(f'  {filename}')
 
         patrn = r"^[a-z]{2}p[a-z]*\.py;^[a-z]{2}p[a-z]*\.pyc"
-        print("Test the regex version of listFiles with two patterns: {}".format(patrn))
+        print(f"Test the regex version of listFiles with two patterns: {patrn}")
         for filename in listFiles('.', patterns=patrn, recurse=0, return_folders=0, useRegex=True):
-            print('  {0}'.format(filename))
+            print(f'  {filename}')
 
         print("Test downloading a file from internet given a URL")
         url = ('https://raw.githubusercontent.com/NelisW/pyradi/master/pyradi/'
@@ -1036,10 +1036,10 @@ if __name__ == '__main__':
                'data/colourcoordinates/')
         names = downloadUntar(tgzFilename, url, destinationDir, tarFilename)
         if names:
-            print('Files downloaded and untarred {}!'.format(tgzFilename))
+            print(f'Files downloaded and untarred {tgzFilename}!')
             print(names)
         else:
-            print('Failed! unable to downloaded and untar {}'.format(tgzFilename))
+            print(f'Failed! unable to downloaded and untar {tgzFilename}')
 
     mystr = 'a&b%c$d#e_f{g}h~i^j\\k>l<m'
     print(latex_escape(mystr))

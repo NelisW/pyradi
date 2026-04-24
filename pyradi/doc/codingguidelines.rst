@@ -3,16 +3,16 @@ Coding Guidelines
 
 .. include global.rst
 
-Broadly speaking we adhere to the Google Python Style Guide, but not always.
+Broadly speaking we adhere to the Google Python Style Guide, but not always or strictly.
 The style guide is available at
-http://google-styleguide.googlecode.com/svn/trunk/pyguide.html. This style is 
+https://google.github.io/styleguide/pyguide.html. This style is 
 based on Python's PEP 8 http://www.python.org/dev/peps/pep-0008/.
 
 Naming Rules
 -----------------
 
 We deviate from PEP 8 / Google's naming rules as shown here. Essentially we avoid
-underscores inside names, and prefer to Capitalise words to highlight.  The primary
+underscores inside names, and prefer CamelCase to Capitalise words to highlight.  The primary
 motivation is (in our opinion) improved readability: it better binds the words
 into a single entity. Underscores tend to break the name visually into separate
 sub-names.  

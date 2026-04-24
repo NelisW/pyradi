@@ -322,7 +322,7 @@ inputOrigin=[0,0],blocksize=[1,1],sigma=0):
             PhotonRateRadianceNoNoise = imghd5['image/rad_min'][()]  \
                         + NormLin * imghd5['image/rad_dynrange'][()]
     else:
-        print('Unknown image type or file not successfully read: {}\n no image file created'.format(filename))
+        print(f'Unknown image type or file not successfully read: {filename}\n no image file created')
         return imghd5
 
     # save the no noise image
@@ -411,11 +411,11 @@ def create_HDF5_image(imageName, numPixels, fn, kwargs, wavelength,
 
     Author: CJ Willers
     """
-    hdffilename = 'image-{}-{}-{}'.format(imageName, numPixels[0], numPixels[1])
+    hdffilename = f'image-{imageName}-{numPixels[0]}-{numPixels[1]}'
     if noSpaces:
         hdffilename = hdffilename.replace(' ','-')
         hdffilename = hdffilename.replace('.','-')
-    hdffilename = '{}.hdf5'.format(hdffilename)
+    hdffilename = f'{hdffilename}.hdf5'
 
     if fileHandle is None:
         imghd5 = ryhdf5.erase_create_HDF(hdffilename)
@@ -528,14 +528,14 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     ]
     for item in elements:
         if item in imghd5:
-            print('{:30s} : {}'.format(item,imghd5[item][()]))
+            print(f'{item:30s} : {imghd5[item][()]}')
 
     # wavelength as scalar or vector
     print(imghd5)
     if isinstance( imghd5['image/wavelength'][()], float):   
-        print('{:30s} : {}'.format('wavelength',imghd5['image/wavelength'][()]))
+        print(f"{'wavelength':30s} : {imghd5['image/wavelength'][()]}")
     else:
-        print('{:30s} : {}'.format('wavelength (mean)',np.mean(imghd5['image/wavelength'][()])))
+        print(f"{'wavelength (mean)':30s} : {np.mean(imghd5['image/wavelength'][()])}")
 
     #calculate and display statistics of these variables
     elements = ['image/PhotonRateRadianceNoNoise','image/PhotonRateRadiance',
@@ -543,7 +543,7 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     ]
     for item in elements:
         if item in imghd5:
-            print('\nStatistics for {}:'.format(item))
+            print(f'\nStatistics for {item}:')
             print(stats.describe(imghd5[item][()],axis=None))
 
     # plot the images
@@ -559,13 +559,13 @@ def analyse_HDF5_image(imghd5,plotfile,gwidh=12,gheit=8):
     if 'image/equivalentSignal' in imghd5:
         p.showImage(3,imghd5['image/equivalentSignal'][()],'image/equivalentSignal',cbarshow=True)
 
-    p.saveFig('{}.png'.format(plotfile))
+    p.saveFig(f'{plotfile}.png')
 
     # plot interpolation function
     if 'image/interpolate_x' in imghd5:
         q = ryplot.Plotter(1,1,1,plotfile, figsize=(12,6),doWarning=False)
         q.plot(1,imghd5['image/interpolate_x'][()],imghd5['image/interpolate_y'][()])
-        q.saveFig('{}-lookup.png'.format(plotfile))
+        q.saveFig(f'{plotfile}-lookup.png')
 
     print(50*'='+'\n\n')
 
@@ -604,16 +604,13 @@ def calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax):
     - ``fintpEL``: temperature → photon-rate radiance
 
     Args:
-        | wavelength (np.array): wavelength vector **in micrometres (µm)**.
-        |     Passed directly to ``ryplanck.planck(type='ql')`` which expects µm.
+        | wavelength (np.array): wavelength vector in micrometres (um), passed directly to ``ryplanck.planck(type='ql')`` which expects um.
         | sysresp (np.array): system spectral response vector (same length as wavelength).
         | tmin (float): minimum temperature [K] for the lookup table.
         | tmax (float): maximum temperature [K] for the lookup table.
 
     Returns:
-        | (fintpLE, fintpEL): pair of scipy interp1d functions.
-        |     fintpLE maps photon-rate radiance → temperature [K].
-        |     fintpEL maps temperature [K] → photon-rate radiance.
+        | (fintpLE, fintpEL): pair of scipy interp1d functions; fintpLE maps photon-rate radiance to temperature [K], fintpEL maps temperature [K] to photon-rate radiance.
 
     Raises:
         | No exception is raised.

@@ -8,12 +8,12 @@ Overview
 ----------
 
 This module provides a simple model for an optical target image radiance calculator,
-given the radiometric sensor characteristics and the target spatial temperature 
+given the radiometric sensor characteristics and the target spatial temperature
 and emissivity distribution.
-The calculator accounts for 
+The calculator accounts for
 
-#. the sensor spectral band 
-#. target self-emission 
+#. the sensor spectral band
+#. target self-emission
 #. target reflected sunlight.
 
 The model does not account for reflected ambient radiance.
@@ -22,13 +22,13 @@ HDF5 File
 ---------
 
 The Python implementation of the model uses an HDF5 file to capture the
-input and output data for record keeping or subsequent analysis. 
-HDF5 files provide for hierarchical data structures and easy read/save to disk. 
+input and output data for record keeping or subsequent analysis.
+HDF5 files provide for hierarchical data structures and easy read/write to disk.
 See the file `hdf5-as-data-format.md` ([hdf5asdataformat]_) in the pyradi root directory for more detail.
 
 Input images are written to and read from HDF5 files as well.  These files store the
-image as well as the images' dimensional scaling in the focal plane.  
-The intent is to later create test targets with specific spatial 
+image as well as the images' dimensional scaling in the focal plane.
+The intent is to later create test targets with specific spatial
 frequencies in these files.
 
 
@@ -50,6 +50,15 @@ Module functions
 
 .. autofunction:: pyradi.rytarggen.hdf_stairs
 
+.. autofunction:: pyradi.rytarggen.assigncheck
+
+.. autofunction:: pyradi.rytarggen.analyse_HDF5_image
+
+.. autofunction:: pyradi.rytarggen.analyse_HDF5_imageFile
+
+.. autofunction:: pyradi.rytarggen.calcTemperatureEquivalent
+
+.. autofunction:: pyradi.rytarggen.calcLuxEquivalent
 
 
 .. [hdf5asdataformat] https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md

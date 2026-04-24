@@ -4,9 +4,9 @@ Probability tools (ryprob)
 
 Overview
 ----------
-The functions in this module is used in the staring array model. It was
-originally used in Konnik's staring array model (he sourced it from somewhere else).
-Credits for the original source are included in each of the functions.
+The functions in this module are used in the staring array model. The module was
+originally used in Konnik's staring array model.
+Credits for the original source are included in each function's docstring.
 
 
 Code Overview
@@ -17,6 +17,7 @@ Code Overview
 Module functions
 ------------------
 
+.. autofunction:: pyradi.ryprob.KDEbounded
 
 .. autofunction:: pyradi.ryprob.distribution_exp
 
@@ -34,3 +35,4 @@ Module functions
 
 .. autofunction:: pyradi.ryprob.checkParamsNum
 
+.. autofunction:: pyradi.ryprob.unifomOnSphere

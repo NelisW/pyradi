@@ -16,35 +16,38 @@ Module classes
 Module functions
 ------------------
 
-.. autofunction:: pyradi.ryplanck.planck	
+.. autofunction:: pyradi.ryplanck.planck
 
-.. autofunction:: pyradi.ryplanck.dplanck	
+.. autofunction:: pyradi.ryplanck.dplanck
 
-.. autofunction:: pyradi.ryplanck.stefanboltzman	
+.. autofunction:: pyradi.ryplanck.planck_integral
 
-.. autofunction:: pyradi.ryplanck.planckel	
+.. autofunction:: pyradi.ryplanck.planckInt
 
-.. autofunction:: pyradi.ryplanck.plancken	
+.. autofunction:: pyradi.ryplanck.stefanboltzman
 
-.. autofunction:: pyradi.ryplanck.planckef	
+.. autofunction:: pyradi.ryplanck.planckel
 
-.. autofunction:: pyradi.ryplanck.planckql	
+.. autofunction:: pyradi.ryplanck.plancken
 
-.. autofunction:: pyradi.ryplanck.planckqn	
+.. autofunction:: pyradi.ryplanck.planckef
 
-.. autofunction:: pyradi.ryplanck.planckqf	
+.. autofunction:: pyradi.ryplanck.planckql
 
-.. autofunction:: pyradi.ryplanck.dplnckel	
+.. autofunction:: pyradi.ryplanck.planckqn
 
-.. autofunction:: pyradi.ryplanck.dplncken	
+.. autofunction:: pyradi.ryplanck.planckqf
 
-.. autofunction:: pyradi.ryplanck.dplnckef	
+.. autofunction:: pyradi.ryplanck.dplnckel
 
-.. autofunction:: pyradi.ryplanck.dplnckql	
+.. autofunction:: pyradi.ryplanck.dplncken
 
-.. autofunction:: pyradi.ryplanck.dplnckqn	
+.. autofunction:: pyradi.ryplanck.dplnckef
 
-.. autofunction:: pyradi.ryplanck.dplnckqf	
+.. autofunction:: pyradi.ryplanck.dplnckql
+
+.. autofunction:: pyradi.ryplanck.dplnckqn
+
+.. autofunction:: pyradi.ryplanck.dplnckqf
 
 .. autofunction:: pyradi.ryplanck.fixDimensions
-

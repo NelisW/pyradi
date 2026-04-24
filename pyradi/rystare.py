@@ -371,19 +371,19 @@ def check_create_datasets(strh5,initialise=True):
         strh5['rystare/detectorArea'] = -1.
 
         if (strh5['rystare/sensenode/resetnoise/factor'][()] > 1.):
-            print('{} {} {} {}'.format(
-                'Warning! The compensation factor',
-                strh5['rystare/sensenode/resetnoise/factor'][()],
-                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
-                'The factor is set to 1.'))
+            print(
+                f"Warning! The compensation factor "
+                f"{strh5['rystare/sensenode/resetnoise/factor'][()]} "
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1! '
+                'The factor is set to 1.')
             strh5['rystare/sensenode/resetnoise/factor'][()] = 1.
         else:
             if (strh5['rystare/sensenode/resetnoise/factor'][()] < 0):
-                print('{} {} {} {}'.format(
-                    'Warning! The compensation factor',
-                    strh5['rystare/sensenode/resetnoise/factor'][()],
-                    '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
-                    'The factor is set to 0, SNReset noise is not simulated.'))
+                print(
+                    f"Warning! The compensation factor "
+                    f"{strh5['rystare/sensenode/resetnoise/factor'][()]} "
+                    '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative! '
+                    'The factor is set to 0, SNReset noise is not simulated.')
                 strh5['rystare/sensenode/resetnoise/factor'][()]=0
     else:
 
@@ -432,19 +432,19 @@ def check_create_datasets(strh5,initialise=True):
         strh5['rystare/detectorArea'][...] = -1.
 
         if (strh5['rystare/sensenode/resetnoise/factor'][()] > 1.):
-            print('{} {} {} {}'.format(
-                'Warning! The compensation factor',
-                strh5['rystare/sensenode/resetnoise/factor'][()],
-                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1!',
-                'The factor is set to 1.'))
+            print(
+                f"Warning! The compensation factor "
+                f"{strh5['rystare/sensenode/resetnoise/factor'][()]} "
+                '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise cannot be more than 1! '
+                'The factor is set to 1.')
             strh5['rystare/sensenode/resetnoise/factor'][()] = 1.
         else:
             if (strh5['rystare/sensenode/resetnoise/factor'][()] < 0):
-                print('{} {} {} {}'.format(
-                    'Warning! The compensation factor',
-                    strh5['rystare/sensenode/resetnoise/factor'][()],
-                    '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative!',
-                    'The factor is set to 0, SNReset noise is not simulated.'))
+                print(
+                    f"Warning! The compensation factor "
+                    f"{strh5['rystare/sensenode/resetnoise/factor'][()]} "
+                    '(strh5["rystare/noise/sn_reset/Factor"]) you entered for the Sense Node Reset Noise negative! '
+                    'The factor is set to 0, SNReset noise is not simulated.')
                 strh5['rystare/sensenode/resetnoise/factor'][()]=0
 
 
@@ -2231,7 +2231,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
 
     #open the file to create data structure and store the results, remove if exists
 
-    hdffilename = '{}{}.hdf5'.format(prefix, outfilename)
+    hdffilename = f'{prefix}{outfilename}.hdf5'
     if os.path.isfile(hdffilename):
         os.remove(hdffilename)
     strh5 = ryfiles.open_HDF(hdffilename,'w')
@@ -2499,43 +2499,21 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     #calculate the noise and final images
     strh5 = photosensor(strh5) # here the Photon-to-electron conversion occurred.
 
-    with open('{}{}.txt'.format(prefix,outfilename), 'wt') as fo: 
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalPhotonRateIrradiance',
-            np.mean(strh5['rystare/signal/photonRateIrradiance'][()]),
-            np.var(strh5['rystare/signal/photonRateIrradiance'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalphotonRateIrradianceNU',
-            np.mean(strh5['rystare/signal/photonRateIrradianceNU'][()]),
-            np.var(strh5['rystare/signal/photonRateIrradianceNU'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalelectronRateIrradiance',
-            np.mean(strh5['rystare/signal/electronRateIrradiance'][()]),
-            np.var(strh5['rystare/signal/electronRateIrradiance'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalelectronRate',
-            np.mean(strh5['rystare/signal/electronRate'][()]),
-            np.var(strh5['rystare/signal/electronRate'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signallightelectronsNoShotNoise',
-            np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'][()]),
-            np.var(strh5['rystare/signal/lightelectronsnoshotnoise'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signallightelectrons',
-            np.mean(strh5['rystare/signal/lightelectrons'][()]),
-            np.var(strh5['rystare/signal/lightelectrons'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('signalDark',
-            np.mean(strh5['rystare/signal/darkcurrentelectrons'][()]),
-            np.var(strh5['rystare/signal/darkcurrentelectrons'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('source_follower_noise',
-            np.mean(strh5['rystare/sourcefollower/source_follower_noise'][()]),
-            np.var(strh5['rystare/sourcefollower/source_follower_noise'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalElectrons',np.mean(strh5['rystare/signal/electrons'][()]),
-            np.var(strh5['rystare/signal/electrons'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeSF',
-            np.mean(strh5['rystare/signal/voltagebeforeSF'][()]),
-            np.var(strh5['rystare/signal/voltagebeforeSF'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforecds',
-            np.mean(strh5['rystare/signal/voltagebeforecds'][()]),
-            np.var(strh5['rystare/signal/voltagebeforecds'][()])))
+    with open(f'{prefix}{outfilename}.txt', 'wt') as fo: 
+        fo.write(f"{'SignalPhotonRateIrradiance':26}, {np.mean(strh5['rystare/signal/photonRateIrradiance'][()]):.5e}, {np.var(strh5['rystare/signal/photonRateIrradiance'][()]):.5e}\n")
+        fo.write(f"{'signalphotonRateIrradianceNU':26}, {np.mean(strh5['rystare/signal/photonRateIrradianceNU'][()]):.5e}, {np.var(strh5['rystare/signal/photonRateIrradianceNU'][()]):.5e}\n")
+        fo.write(f"{'signalelectronRateIrradiance':26}, {np.mean(strh5['rystare/signal/electronRateIrradiance'][()]):.5e}, {np.var(strh5['rystare/signal/electronRateIrradiance'][()]):.5e}\n")
+        fo.write(f"{'SignalelectronRate':26}, {np.mean(strh5['rystare/signal/electronRate'][()]):.5e}, {np.var(strh5['rystare/signal/electronRate'][()]):.5e}\n")
+        fo.write(f"{'signallightelectronsNoShotNoise':26}, {np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'][()]):.5e}, {np.var(strh5['rystare/signal/lightelectronsnoshotnoise'][()]):.5e}\n")
+        fo.write(f"{'signallightelectrons':26}, {np.mean(strh5['rystare/signal/lightelectrons'][()]):.5e}, {np.var(strh5['rystare/signal/lightelectrons'][()]):.5e}\n")
+        fo.write(f"{'signalDark':26}, {np.mean(strh5['rystare/signal/darkcurrentelectrons'][()]):.5e}, {np.var(strh5['rystare/signal/darkcurrentelectrons'][()]):.5e}\n")
+        fo.write(f"{'source_follower_noise':26}, {np.mean(strh5['rystare/sourcefollower/source_follower_noise'][()]):.5e}, {np.var(strh5['rystare/sourcefollower/source_follower_noise'][()]):.5e}\n")
+        fo.write(f"{'SignalElectrons':26}, {np.mean(strh5['rystare/signal/electrons'][()]):.5e}, {np.var(strh5['rystare/signal/electrons'][()]):.5e}\n")
+        fo.write(f"{'voltagebeforeSF':26}, {np.mean(strh5['rystare/signal/voltagebeforeSF'][()]):.5e}, {np.var(strh5['rystare/signal/voltagebeforeSF'][()]):.5e}\n")
+        fo.write(f"{'voltagebeforecds':26}, {np.mean(strh5['rystare/signal/voltagebeforecds'][()]):.5e}, {np.var(strh5['rystare/signal/voltagebeforecds'][()]):.5e}\n")
         # fo.write('{:26}, {:.5e}, {:.5e}\n'.format('voltagebeforeadc',np.mean(strh5['rystare/signal/voltagebeforeadc'][()]), np.var(strh5['rystare/signal/voltage'][()])))
         # fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalVoltage',np.mean(strh5['rystare/signal/voltage'][()]), np.var(strh5['rystare/signal/voltagebeforeadc'][()])))
-        fo.write('{:26}, {:.5e}, {:.5e}\n'.format('SignalDN',np.mean(strh5['rystare/signal/DN'][()]),
-            np.var(strh5['rystare/signal/DN'][()])))
+        fo.write(f"{'SignalDN':26}, {np.mean(strh5['rystare/signal/DN'][()]):.5e}, {np.var(strh5['rystare/signal/DN'][()]):.5e}\n")
 
     lstimgs = ['rystare/signal/photonRateIrradianceNoNoise', 'rystare/quantumEfficiency',
          'rystare/signal/photonRateIrradiance','rystare/photondetector/lightPRNU/value',
@@ -2603,116 +2581,80 @@ def get_summary_stats(hdffilename):
         strh5 = ryfiles.open_HDF(hdffilename)
         print(hdffilename)
 
-        print('Image file name             : {}'.format(strh5['rystare/imageFilename'][()]))
-        print('Image name                  : {}'.format(strh5['rystare/imageName'][()]))
-        print('Input rystare/LinUnits      : {}'.format(strh5['rystare/LinUnits'][()]))
+        print(f"Image file name             : {strh5['rystare/imageFilename'][()]}")
+        print(f"Image name                  : {strh5['rystare/imageName'][()]}")
+        print(f"Input rystare/LinUnits      : {strh5['rystare/LinUnits'][()]}")
         # print('Input rystare/EinUnit       : {}'.format(strh5['rystare/EinUnits'][()]))
-        print('Sensor type                 : {} '.format(strh5['rystare/sensortype'][()]))
+        print(f"Sensor type                 : {strh5['rystare/sensortype'][()]} ")
 
-        print('F-number                    : {} '.format(strh5['rystare/fnumber'][()]))
-        print('F-number cone               : {} sr'.format(strh5['rystare/fnumberConeSr'][()]))
-        print('Pixel pitch                 : {} m'.format(strh5['rystare/pixelPitch'][()]))
-        print('Detector area               : {} m'.format(strh5['rystare/detectorArea'][()]))
+        print(f"F-number                    : {strh5['rystare/fnumber'][()]} ")
+        print(f"F-number cone               : {strh5['rystare/fnumberConeSr'][()]} sr")
+        print(f"Pixel pitch                 : {strh5['rystare/pixelPitch'][()]} m")
+        print(f"Detector area               : {strh5['rystare/detectorArea'][()]} m")
         
         if 'rystare/imageSizeDiagonal' in strh5:
-            print('Image size diagonal         : {:.3e} m'.format(strh5['rystare/imageSizeDiagonal'][()]))
-        print('Image size pixels           : {} '.format(strh5['rystare/imageSizePixels'][()]))
-        print('Fill factor                 : {}'.format(strh5['rystare/photondetector/geometry/fillfactor'][()]))
-        print('Full well electrons         : {} e'.format(
-            strh5['rystare/sensenode/fullwellelectronselection/fullwellelectrons'][()]))
-        print('Integration time            : {} s'.format(strh5['rystare/photondetector/integrationtime'][()]))
-        print('Wavelength                  : {} m'.format(strh5['rystare/wavelength'][()]))
-        print('Operating temperature       : {} K'.format(strh5['rystare/photondetector/operatingtemperature'][()]))
-        print('Max equivalent input signal : {} {}'.format(np.max(strh5['rystare/equivalentSignal'][()]),
-            strh5['rystare/equivalentSignalUnit'][()]))
-        print('Min equivalent input signal : {} {}'.format(np.min(strh5['rystare/equivalentSignal'][()]),
-            strh5['rystare/equivalentSignalUnit'][()]))
-        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateRadianceNoNoise',
-            np.mean(strh5['rystare/signal/photonRateRadianceNoNoise'][()]),
-            np.var(strh5['rystare/signal/photonRateRadianceNoNoise'][()])))
-        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('PhotonRateIrradianceNoNoise',
-            np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'][()]),
-            np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'][()])))
-        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonRateIrradiance',
-            np.mean(strh5['rystare/signal/photonRateIrradiance'][()]),
-            np.var(strh5['rystare/signal/photonRateIrradiance'][()])))
-        print('{:28}: q/(m2.s) mean={:.5e}, var={:.5e}'.format('SignalPhotonsNU',
-            np.mean(strh5['rystare/signal/photonRateIrradianceNU'][()]),
-            np.var(strh5['rystare/signal/photonRateIrradianceNU'][()])))
-        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalLightNoShotNoise',
-            np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'][()]),
-            np.var(strh5['rystare/signal/lightelectronsnoshotnoise'][()])))
-        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalLight',
-            np.mean(strh5['rystare/signal/lightelectrons'][()]),
-            np.var(strh5['rystare/signal/lightelectrons'][()])))
-        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDarkNoNoise',
-            np.mean(strh5['rystare/darkcurrentelectronsnonoise'][()]),
-            np.var(strh5['rystare/darkcurrentelectronsnonoise'][()])))
-        print('{:28}: e mean={:.5e}, var={:.5e}'.format('signalDark',
-            np.mean(strh5['rystare/signal/darkcurrentelectrons'][()]),
-            np.var(strh5['rystare/signal/darkcurrentelectrons'][()])))
-        print('{:28}: e mean={:.5e}, var={:.5e}'.format('SignalElectrons',
-            np.mean(strh5['rystare/signal/electrons'][()]),
-            np.var(strh5['rystare/signal/electrons'][()])))
-        print('{:28}: v mean={:.5e}, var={:.5e}'.format('source_follower_noise',
-            np.mean(strh5['rystare/sourcefollower/source_follower_noise'][()]),
-            np.var(strh5['rystare/sourcefollower/source_follower_noise'][()])))
-        print('{:28}: v mean={:.5e}, var={:.5e}'.format('SignalVoltage',
-            np.mean(strh5['rystare/signal/voltage'][()]),
-            np.var(strh5['rystare/signal/voltage'][()])))
-        print('{:28}: DN mean={:.5e}, var={:.5e}'.format('SignalDN',np.mean(strh5['rystare/signal/DN'][()]),
-            np.var(strh5['rystare/signal/DN'][()])))
-        print('{:28}: DN mean={:.5e}, var={:.5e}'.format('ADC gain',np.mean(strh5['rystare/ADC/gain'][()]),
-            np.var(strh5['rystare/ADC/gain'][()])))
-        print('ADC                         : DN/v bits={} offset={} DN'.format(strh5['rystare/ADC/num-bits'][()],
-            strh5['rystare/ADC/offset'][()] ))
-        print('Dark current density        : {}  A/m2'.format(
-            strh5['rystare/photondetector/darkcurrent/densityAm2'][()]))
-        print('Dark current coeff ca       : {}  (A)'.format(strh5['rystare/photondetector/darkcurrent/ca'][()]))
-        print('Dark current coeff ed       : {}  (A)'.format(strh5['rystare/photondetector/darkcurrent/ed'][()]))
+            print(f"Image size diagonal         : {strh5['rystare/imageSizeDiagonal'][()]:.3e} m")
+        print(f"Image size pixels           : {strh5['rystare/imageSizePixels'][()]} ")
+        print(f"Fill factor                 : {strh5['rystare/photondetector/geometry/fillfactor'][()]}")
+        print(f"Full well electrons         : {strh5['rystare/sensenode/fullwellelectronselection/fullwellelectrons'][()]} e")
+        print(f"Integration time            : {strh5['rystare/photondetector/integrationtime'][()]} s")
+        print(f"Wavelength                  : {strh5['rystare/wavelength'][()]} m")
+        print(f"Operating temperature       : {strh5['rystare/photondetector/operatingtemperature'][()]} K")
+        print(f"Max equivalent input signal : {np.max(strh5['rystare/equivalentSignal'][()])} {strh5['rystare/equivalentSignalUnit'][()]}")
+        print(f"Min equivalent input signal : {np.min(strh5['rystare/equivalentSignal'][()])} {strh5['rystare/equivalentSignalUnit'][()]}")
+        print(f"{'PhotonRateRadianceNoNoise':28}: q/(m2.s) mean={np.mean(strh5['rystare/signal/photonRateRadianceNoNoise'][()]):.5e}, var={np.var(strh5['rystare/signal/photonRateRadianceNoNoise'][()]):.5e}")
+        print(f"{'PhotonRateIrradianceNoNoise':28}: q/(m2.s) mean={np.mean(strh5['rystare/signal/photonRateIrradianceNoNoise'][()]):.5e}, var={np.var(strh5['rystare/signal/photonRateIrradianceNoNoise'][()]):.5e}")
+        print(f"{'SignalPhotonRateIrradiance':28}: q/(m2.s) mean={np.mean(strh5['rystare/signal/photonRateIrradiance'][()]):.5e}, var={np.var(strh5['rystare/signal/photonRateIrradiance'][()]):.5e}")
+        print(f"{'SignalPhotonsNU':28}: q/(m2.s) mean={np.mean(strh5['rystare/signal/photonRateIrradianceNU'][()]):.5e}, var={np.var(strh5['rystare/signal/photonRateIrradianceNU'][()]):.5e}")
+        print(f"{'signalLightNoShotNoise':28}: e mean={np.mean(strh5['rystare/signal/lightelectronsnoshotnoise'][()]):.5e}, var={np.var(strh5['rystare/signal/lightelectronsnoshotnoise'][()]):.5e}")
+        print(f"{'signalLight':28}: e mean={np.mean(strh5['rystare/signal/lightelectrons'][()]):.5e}, var={np.var(strh5['rystare/signal/lightelectrons'][()]):.5e}")
+        print(f"{'signalDarkNoNoise':28}: e mean={np.mean(strh5['rystare/darkcurrentelectronsnonoise'][()]):.5e}, var={np.var(strh5['rystare/darkcurrentelectronsnonoise'][()]):.5e}")
+        print(f"{'signalDark':28}: e mean={np.mean(strh5['rystare/signal/darkcurrentelectrons'][()]):.5e}, var={np.var(strh5['rystare/signal/darkcurrentelectrons'][()]):.5e}")
+        print(f"{'SignalElectrons':28}: e mean={np.mean(strh5['rystare/signal/electrons'][()]):.5e}, var={np.var(strh5['rystare/signal/electrons'][()]):.5e}")
+        print(f"{'source_follower_noise':28}: v mean={np.mean(strh5['rystare/sourcefollower/source_follower_noise'][()]):.5e}, var={np.var(strh5['rystare/sourcefollower/source_follower_noise'][()]):.5e}")
+        print(f"{'SignalVoltage':28}: v mean={np.mean(strh5['rystare/signal/voltage'][()]):.5e}, var={np.var(strh5['rystare/signal/voltage'][()]):.5e}")
+        print(f"{'SignalDN':28}: DN mean={np.mean(strh5['rystare/signal/DN'][()]):.5e}, var={np.var(strh5['rystare/signal/DN'][()]):.5e}")
+        print(f"{'ADC gain':28}: DN mean={np.mean(strh5['rystare/ADC/gain'][()]):.5e}, var={np.var(strh5['rystare/ADC/gain'][()]):.5e}")
+        print(f"ADC                         : DN/v bits={strh5['rystare/ADC/num-bits'][()]} offset={strh5['rystare/ADC/offset'][()]} DN")
+        print(f"Dark current density        : {strh5['rystare/photondetector/darkcurrent/densityAm2'][()]}  A/m2")
+        print(f"Dark current coeff ca       : {strh5['rystare/photondetector/darkcurrent/ca'][()]}  (A)")
+        print(f"Dark current coeff ed       : {strh5['rystare/photondetector/darkcurrent/ed'][()]}  (A)")
 
-        print('Quantum external efficiency : {} '.format(strh5['rystare/photondetector/externalquantumeff'][()]))
-        print('Quantum yield               : {} '.format(strh5['rystare/photondetector/quantumyield'][()]))
-        print('Sense node gain             : {} v/e'.format(strh5['rystare/sensenode/gain'][()]))
-        print('Sense reset Vref            : {} v'.format(strh5['rystare/sensenode/vrefreset'][()]))
-        print('Source follower gain        : {} '.format(strh5['rystare/sourcefollower/gain'][()]))
+        print(f"Quantum external efficiency : {strh5['rystare/photondetector/externalquantumeff'][()]} ")
+        print(f"Quantum yield               : {strh5['rystare/photondetector/quantumyield'][()]} ")
+        print(f"Sense node gain             : {strh5['rystare/sensenode/gain'][()]} v/e")
+        print(f"Sense reset Vref            : {strh5['rystare/sensenode/vrefreset'][()]} v")
+        print(f"Source follower gain        : {strh5['rystare/sourcefollower/gain'][()]} ")
         if strh5['rystare/sourcefollower/fpoffset/activate'][()]:
-            print('Dark offset model           : {}'.format(strh5['rystare/sourcefollower/fpoffset/model'][()]))
-            print('Dark offset spread          : {} e'.format(strh5['rystare/sourcefollower/fpoffset/sigma'][()]))
-        print('Dark response model         : {}'.format(
-            strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/model'][()]))
-        print('Dark response seed          : {}'.format(
-            strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/seed'][()]))
-        print('Dark response spread        : {} '.format(
-            strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/sigma'][()]))
-        print('Dark response neg lim flag  : {}'.format(
-            strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/limitnegative'][()]))
+            print(f"Dark offset model           : {strh5['rystare/sourcefollower/fpoffset/model'][()]}")
+            print(f"Dark offset spread          : {strh5['rystare/sourcefollower/fpoffset/sigma'][()]} e")
+        print(f"Dark response model         : {strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/model'][()]}")
+        print(f"Dark response seed          : {strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/seed'][()]}")
+        print(f"Dark response spread        : {strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/sigma'][()]} ")
+        print(f"Dark response neg lim flag  : {strh5['rystare/photondetector/darkcurrent/fixedPatternNoise/limitnegative'][()]}")
         if strh5['rystare/photondetector/lightPRNU/activate'][()]:
-            print('Detector response mode      : {}'.format(strh5['rystare/photondetector/lightPRNU/model'][()]))
-            print('Detector response seed      : {}'.format(strh5['rystare/photondetector/lightPRNU/seed'][()]))
-            print('Detector response spread    : {}'.format(strh5['rystare/photondetector/lightPRNU/sigma'][()]))
-        print('Material Eg 0 K             : {:.5f} eV'.format(strh5['rystare/photondetector/varshni/Egap0'][()]))
-        print('Material Eg                 : {:.5f} eV'.format(strh5['rystare/material/Eg-eV'][()]))
-        print('Material alpha              : {}  '.format(strh5['rystare/photondetector/varshni/varA'][()]))
-        print('Material beta               : {}  '.format(strh5['rystare/photondetector/varshni/varB'][()]))
-        print('Sense node reset noise factr: {}  '.format(strh5['rystare/sensenode/resetnoise/factor'][()]))
-        print('Sense node reset kTC sigma  : {} v'.format(strh5['rystare/sensenode/ResetKTC-sigma'][()]))
-        print('Sense node capacitance      : {:.5e} fF'.format(1e15 * strh5['rystare/sensenode/capacitance'][()]))
-        print('k1 constant, Csn =  k1/V    : {} '.format(strh5['rystare/sensenode/gainresponse/k1'][()]))
-        print('Sense node signal full well : {} V'.format(strh5['rystare/sensenode/volt-fullwell'][()]))
-        print('Sense node signal minimum   : {} V'.format(strh5['rystare/sensenode/volt-min'][()]))
-        print('Sense node reset noise      : {} '.format(strh5['rystare/sensenode/resetnoise/activate'][()]))
-        print('CDS gain                    : {} '.format(strh5['rystare/sourcefollower/CDS/gain'][()]))
-        print('CDS sample-to-sampling time : {} s'.format(strh5['rystare/sourcefollower/CDS/sampletosamplingtime'][()]))
-        print('Delta induced modulation    : {} '.format(strh5['rystare/sourcefollower/noise/deltaindmodulation'][()]))
-        print('Data clock speed            : {} Hz'.format(strh5['rystare/sourcefollower/dataclockspeed'][()]))
-        print('Frequency sampling delta    : {} Hz'.format(strh5['rystare/sourcefollower/freqsamplingdelta'][()]))
-        print('White noise density         : {} V/rtHz'.format(
-            strh5['rystare/sourcefollower/noise/whitenoisedensity'][()]))
-        print('Flicker corner              : {} Hz'.format(strh5['rystare/sourcefollower/noise/flickerCornerHz'][()]))
-        print('{:28}: v mean={:.5e}, var={:.5e}'.format('Source follower sigma',
-            np.mean(strh5['rystare/sourcefollower/sigma'][()]),
-            np.var(strh5['rystare/sourcefollower/sigma'][()])))
+            print(f"Detector response mode      : {strh5['rystare/photondetector/lightPRNU/model'][()]}")
+            print(f"Detector response seed      : {strh5['rystare/photondetector/lightPRNU/seed'][()]}")
+            print(f"Detector response spread    : {strh5['rystare/photondetector/lightPRNU/sigma'][()]}")
+        print(f"Material Eg 0 K             : {strh5['rystare/photondetector/varshni/Egap0'][()]:.5f} eV")
+        print(f"Material Eg                 : {strh5['rystare/material/Eg-eV'][()]:.5f} eV")
+        print(f"Material alpha              : {strh5['rystare/photondetector/varshni/varA'][()]}  ")
+        print(f"Material beta               : {strh5['rystare/photondetector/varshni/varB'][()]}  ")
+        print(f"Sense node reset noise factr: {strh5['rystare/sensenode/resetnoise/factor'][()]}  ")
+        print(f"Sense node reset kTC sigma  : {strh5['rystare/sensenode/ResetKTC-sigma'][()]} v")
+        print(f"Sense node capacitance      : {1000000000000000.0 * strh5['rystare/sensenode/capacitance'][()]:.5e} fF")
+        print(f"k1 constant, Csn =  k1/V    : {strh5['rystare/sensenode/gainresponse/k1'][()]} ")
+        print(f"Sense node signal full well : {strh5['rystare/sensenode/volt-fullwell'][()]} V")
+        print(f"Sense node signal minimum   : {strh5['rystare/sensenode/volt-min'][()]} V")
+        print(f"Sense node reset noise      : {strh5['rystare/sensenode/resetnoise/activate'][()]} ")
+        print(f"CDS gain                    : {strh5['rystare/sourcefollower/CDS/gain'][()]} ")
+        print(f"CDS sample-to-sampling time : {strh5['rystare/sourcefollower/CDS/sampletosamplingtime'][()]} s")
+        print(f"Delta induced modulation    : {strh5['rystare/sourcefollower/noise/deltaindmodulation'][()]} ")
+        print(f"Data clock speed            : {strh5['rystare/sourcefollower/dataclockspeed'][()]} Hz")
+        print(f"Frequency sampling delta    : {strh5['rystare/sourcefollower/freqsamplingdelta'][()]} Hz")
+        print(f"White noise density         : {strh5['rystare/sourcefollower/noise/whitenoisedensity'][()]} V/rtHz")
+        print(f"Flicker corner              : {strh5['rystare/sourcefollower/noise/flickerCornerHz'][()]} Hz")
+        print(f"{'Source follower sigma':28}: v mean={np.mean(strh5['rystare/sourcefollower/sigma'][()]):.5e}, var={np.var(strh5['rystare/sourcefollower/sigma'][()]):.5e}")
         
         strh5.flush()
         strh5.close()

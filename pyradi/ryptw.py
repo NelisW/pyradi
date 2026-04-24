@@ -187,7 +187,7 @@ def myRGB(x):
     R = x[0]
     G = x[1]
     B = x[2]
-    return '#{:02x}{:02x}{:02x}'.format(R, G, B)
+    return f'#{R:02x}{G:02x}{B:02x}'
 
 
 def terminateStrOnZero(str):
@@ -765,7 +765,7 @@ def getPTWFrames(header, loadFrames=[]):
     npFrames = np.asarray(loadFrames)
     if np.any(npFrames < 1) or np.any(npFrames > header.h_lastframe):
         print('getPTWFrames Error: at least one requested frame not in file')
-        print('legal frames for this file are: {0} to {1}'.format(1, header.h_lastframe))
+        print(f'legal frames for this file are: {1} to {header.h_lastframe}')
         return errorresult, None
 
     data, headerx = getPTWFrame(header, loadFrames[0])
@@ -793,159 +793,151 @@ def showHeader(Header):
         None
     """
 
-    print('{} version {}'.format(Header.h_Signature, Header.h_Version))
-    print('Main Header Size {}'.format(Header.h_MainHeaderSize))
-    print('Frame Header Size {}'.format(Header.h_FrameHeaderSize))
-    print('Frame + Frame Header Size {}'.format(Header.h_SizeOfOneFrameAndHeader))
-    print('Frame Size {}'.format(Header.h_SizeOfOneFrame))
-    print('Number of Frames {}'.format(Header.h_NumberOfFieldInFile))
+    print(f'{Header.h_Signature} version {Header.h_Version}')
+    print(f'Main Header Size {Header.h_MainHeaderSize}')
+    print(f'Frame Header Size {Header.h_FrameHeaderSize}')
+    print(f'Frame + Frame Header Size {Header.h_SizeOfOneFrameAndHeader}')
+    print(f'Frame Size {Header.h_SizeOfOneFrame}')
+    print(f'Number of Frames {Header.h_NumberOfFieldInFile}')
 
-    print('Year {} Month {} Day {}'.format(
-        Header.h_FileSaveYear, Header.h_FileSaveMonth, Header.h_FileSaveDay))
-    print('( {} / {} / {} )'.format(
-        str(Header.h_FileSaveYear).zfill(2),
-        str(Header.h_FileSaveMonth).zfill(2),
-        str(Header.h_FileSaveDay).zfill(2)))
-    print('Hour {} Minute {} Second {}'.format(
-        Header.h_FileSaveHour, Header.h_FileSaveMinute, Header.h_FileSaveSecond))
-    print('( {} : {} : {} )'.format(
-        str(Header.h_FileSaveHour).zfill(2),
-        str(Header.h_FileSaveMinute).zfill(2),
-        str(Header.h_FileSaveSecond).zfill(2)))
+    print(f'Year {Header.h_FileSaveYear} Month {Header.h_FileSaveMonth} Day {Header.h_FileSaveDay}')
+    print(f'( {str(Header.h_FileSaveYear).zfill(2)} / {str(Header.h_FileSaveMonth).zfill(2)} / {str(Header.h_FileSaveDay).zfill(2)} )')
+    print(f'Hour {Header.h_FileSaveHour} Minute {Header.h_FileSaveMinute} Second {Header.h_FileSaveSecond}')
+    print(f'( {str(Header.h_FileSaveHour).zfill(2)} : {str(Header.h_FileSaveMinute).zfill(2)} : {str(Header.h_FileSaveSecond).zfill(2)} )')
 
-    print('Camera Name {}'.format(Header.h_CameraName))
-    print('Detector Code1 {}'.format(Header.h_DetectorCode1))
-    print('Detector Code2 {}'.format(Header.h_DetectorCode2))
-    print('Detector Gain {}'.format(Header.h_DetectorGain))
+    print(f'Camera Name {Header.h_CameraName}')
+    print(f'Detector Code1 {Header.h_DetectorCode1}')
+    print(f'Detector Code2 {Header.h_DetectorCode2}')
+    print(f'Detector Gain {Header.h_DetectorGain}')
 
-    print('Lens {}'.format(Header.h_LensName))
-    print('Filter {}'.format(Header.h_FilterName))
-    print('Aperture Name {}'.format(Header.h_ApertureName))
+    print(f'Lens {Header.h_LensName}')
+    print(f'Filter {Header.h_FilterName}')
+    print(f'Aperture Name {Header.h_ApertureName}')
     if Header.h_Signature == 'IRUS':
-        print('{}'.format(Header.h_IRUSBilletSpeed))
-        print('{}'.format(Header.h_IRUSBilletDiameter))
-        print('{}'.format(Header.h_IRUSBilletShape))
-    print('Emissivity {:.6f}'.format(Header.h_Emissivity))
-    print('Ambient Temperature {:.6f} (K)'.format(Header.h_Ambiant))
-    print('Ambient Temperature {:.6f} (degC)'.format(Header.h_Ambiant - 273.15))
-    print('Distance to target {}'.format(Header.h_Distance))
+        print(f'{Header.h_IRUSBilletSpeed}')
+        print(f'{Header.h_IRUSBilletDiameter}')
+        print(f'{Header.h_IRUSBilletShape}')
+    print(f'Emissivity {Header.h_Emissivity:.6f}')
+    print(f'Ambient Temperature {Header.h_Ambiant:.6f} (K)')
+    print(f'Ambient Temperature {Header.h_Ambiant - 273.15:.6f} (degC)')
+    print(f'Distance to target {Header.h_Distance}')
     if Header.h_Signature == 'IRUS':
-        print('{}'.format(Header.h_IRUSInductorCoil))
-        print('{}'.format(Header.h_IRUSInductorPower))
-        print('{}'.format(Header.h_IRUSInductorVoltage))
-        print('{}'.format(Header.h_IRUSInductorFrequency))
-        print('{}'.format(Header.h_IRUSSynchronization))
-    print('Atm Transmission {}'.format(Header.h_AtmTransmission))
-    print('Ext Coef {}'.format(Header.h_ExtinctionCoeficient))
-    print('Target {}'.format(Header.h_Object))
-    print('Optic {}'.format(Header.h_Optic))
-    print('Atmo {}'.format(Header.h_Atmo))
-    print('Atm Temp {:.6f}'.format(Header.h_AtmosphereTemp))
-    print('Cut on Wavelength {:.6f}'.format(Header.h_CutOnWavelength))
-    print('Cut off Wavelength {:.6f}'.format(Header.h_CutOffWavelength))
-    print('PixelSize {}'.format(Header.h_PixelSize))
-    print('PixelPitch {}'.format(Header.h_PixelPitch))
-    print('Detector Apperture {}'.format(Header.h_DetectorApperture))
-    print('Optic Focal Length {}'.format(Header.h_OpticsFocalLength))
-    print('Housing Temp1 {:.6f} (K)'.format(Header.h_HousingTemperature1))
-    print('Housing Temp2 {:.6f} (K)'.format(Header.h_HousingTemperature2))
+        print(f'{Header.h_IRUSInductorCoil}')
+        print(f'{Header.h_IRUSInductorPower}')
+        print(f'{Header.h_IRUSInductorVoltage}')
+        print(f'{Header.h_IRUSInductorFrequency}')
+        print(f'{Header.h_IRUSSynchronization}')
+    print(f'Atm Transmission {Header.h_AtmTransmission}')
+    print(f'Ext Coef {Header.h_ExtinctionCoeficient}')
+    print(f'Target {Header.h_Object}')
+    print(f'Optic {Header.h_Optic}')
+    print(f'Atmo {Header.h_Atmo}')
+    print(f'Atm Temp {Header.h_AtmosphereTemp:.6f}')
+    print(f'Cut on Wavelength {Header.h_CutOnWavelength:.6f}')
+    print(f'Cut off Wavelength {Header.h_CutOffWavelength:.6f}')
+    print(f'PixelSize {Header.h_PixelSize}')
+    print(f'PixelPitch {Header.h_PixelPitch}')
+    print(f'Detector Apperture {Header.h_DetectorApperture}')
+    print(f'Optic Focal Length {Header.h_OpticsFocalLength}')
+    print(f'Housing Temp1 {Header.h_HousingTemperature1:.6f} (K)')
+    print(f'Housing Temp2 {Header.h_HousingTemperature2:.6f} (K)')
 
-    print('Sensor Temp4 {:.6f} (K)'.format(Header.h_sensorTemp4))
-    print('Detector/FPA Temp {:.6f} (K)'.format(Header.h_detectorTemp))
+    print(f'Sensor Temp4 {Header.h_sensorTemp4:.6f} (K)')
+    print(f'Detector/FPA Temp {Header.h_detectorTemp:.6f} (K)')
 
-    print('Camera Serial Number {}'.format(Header.h_CameraSerialNumber))
-    print('Min Threshold {}'.format(Header.h_MinimumLevelThreshold))
-    print('Max Threshold {}'.format(Header.h_MaximumLevelThreshold))
-    print('Gain {}'.format(Header.h_LockinGain))
-    print('Offset {}'.format(Header.h_LockinOffset))
-    print('HZoom {}'.format(Header.h_HorizontalZoom))
-    print('VZoom {}'.format(Header.h_VerticalZoom))
-    print('Field {}'.format(Header.h_PixelsPerLine, 'X', Header.h_LinesPerField))
-    print('AD converter {} bit'.format(Header.h_ADDynamic))
+    print(f'Camera Serial Number {Header.h_CameraSerialNumber}')
+    print(f'Min Threshold {Header.h_MinimumLevelThreshold}')
+    print(f'Max Threshold {Header.h_MaximumLevelThreshold}')
+    print(f'Gain {Header.h_LockinGain}')
+    print(f'Offset {Header.h_LockinOffset}')
+    print(f'HZoom {Header.h_HorizontalZoom}')
+    print(f'VZoom {Header.h_VerticalZoom}')
+    print(f'Field {Header.h_PixelsPerLine}')
+    print(f'AD converter {Header.h_ADDynamic} bit')
 
     if Header.h_Signature == 'SATIR':
-        print('{}'.format(Header.h_SATIRTemporalFrameDepth))
-        print('{}'.format(Header.h_SATIRLocationLongitude))
-        print('{}'.format(Header.h_SATIRLocationLatitude))
-        print('{}'.format(Header.h_SATIRLocationAltitude))
+        print(f'{Header.h_SATIRTemporalFrameDepth}')
+        print(f'{Header.h_SATIRLocationLongitude}')
+        print(f'{Header.h_SATIRLocationLatitude}')
+        print(f'{Header.h_SATIRLocationAltitude}')
     if Header.h_ExternalSynch:
         print('Ext Sync ON')
     else:
         print('Ext Sync OFF')
-    print('Header.h_Signature = {}'.format(Header.h_Signature))
+    print(f'Header.h_Signature = {Header.h_Signature}')
     if Header.h_Signature == 'CED':
-        print('CEDIP Period {:.6f} Hz'.format(1. / Header.h_CEDIPAquisitionPeriod))
-        print('CEDIP Integration {:.6f} msec'.format(Header.h_CEDIPIntegrationTime * 1000))
+        print(f'CEDIP Period {1.0 / Header.h_CEDIPAquisitionPeriod:.6f} Hz')
+        print(f'CEDIP Integration {Header.h_CEDIPIntegrationTime * 1000:.6f} msec')
     if Header.h_Signature == 'WOLF':
-        print('{}'.format(Header.h_WOLFSubwindowCapability))
+        print(f'{Header.h_WOLFSubwindowCapability}')
     if Header.h_Signature == 'ORI':
-        print('{}'.format(Header.h_ORIONIntegrationTime))
-        print('{}'.format(Header.h_ORIONFilterNames))
-    print('NUC {}'.format(Header.h_NucTable))
-    print('Comment {}'.format(Header.h_Comment))
+        print(f'{Header.h_ORIONIntegrationTime}')
+        print(f'{Header.h_ORIONFilterNames}')
+    print(f'NUC {Header.h_NucTable}')
+    print(f'Comment {Header.h_Comment}')
 
-    print('Calibration File Name {}'.format(Header.h_CalibrationFileName))
+    print(f'Calibration File Name {Header.h_CalibrationFileName}')
 
-    print('Tools File Name {}'.format(Header.h_ToolsFileName))
+    print(f'Tools File Name {Header.h_ToolsFileName}')
 
-    print('Palette Index {}'.format(Header.h_PaletteIndexValid))
-    print('Palette Current {}'.format(Header.h_PaletteIndexCurrent))
-    print('Palette Toggle {}'.format(Header.h_PaletteToggle))
-    print('Palette AGC {}'.format(Header.h_PaletteAGC))
-    print('Unit Index {}'.format(Header.h_UnitIndexValid))
-    print('Current Unit Index {}'.format(Header.h_CurrentUnitIndex))
-    print('Zoom Pos {}'.format(Header.h_ZoomPosition))
-    print('Key Framenum {}'.format(Header.h_KeyFrameNumber))
-    print('Num Keyframes {}'.format(Header.h_KeyFramesInFilm))
-    print('Player lock {}'.format(Header.h_PlayerLocked))
-    print('Frame Select {}'.format(Header.h_FrameSelectionValid))
-    print('ROI Start {}'.format(Header.h_FrameofROIStart))
-    print('ROI Stop {}'.format(Header.h_FrameofROIEnd))
-    print('Player inf loop {}'.format(Header.h_PlayerInfinitLoop))
-    print('Player Init Frame {}'.format(Header.h_PlayerInitFrame))
+    print(f'Palette Index {Header.h_PaletteIndexValid}')
+    print(f'Palette Current {Header.h_PaletteIndexCurrent}')
+    print(f'Palette Toggle {Header.h_PaletteToggle}')
+    print(f'Palette AGC {Header.h_PaletteAGC}')
+    print(f'Unit Index {Header.h_UnitIndexValid}')
+    print(f'Current Unit Index {Header.h_CurrentUnitIndex}')
+    print(f'Zoom Pos {Header.h_ZoomPosition}')
+    print(f'Key Framenum {Header.h_KeyFrameNumber}')
+    print(f'Num Keyframes {Header.h_KeyFramesInFilm}')
+    print(f'Player lock {Header.h_PlayerLocked}')
+    print(f'Frame Select {Header.h_FrameSelectionValid}')
+    print(f'ROI Start {Header.h_FrameofROIStart}')
+    print(f'ROI Stop {Header.h_FrameofROIEnd}')
+    print(f'Player inf loop {Header.h_PlayerInfinitLoop}')
+    print(f'Player Init Frame {Header.h_PlayerInitFrame}')
 
-    print('Isoterm0 {}'.format(Header.h_Isoterm0Active))
-    print('Isoterm0 DL Min {}'.format(Header.h_Isoterm0DLMin))
-    print('Isoterm0 DL Max {}'.format(Header.h_Isoterm0DLMax))
-    print('Isoterm0 Color RGB {}'.format(Header.h_Isoterm0Color))
+    print(f'Isoterm0 {Header.h_Isoterm0Active}')
+    print(f'Isoterm0 DL Min {Header.h_Isoterm0DLMin}')
+    print(f'Isoterm0 DL Max {Header.h_Isoterm0DLMax}')
+    print(f'Isoterm0 Color RGB {Header.h_Isoterm0Color}')
 
-    print('Isoterm1 {}'.format(Header.h_Isoterm1Active))
-    print('Isoterm1 DL Min {}'.format(Header.h_Isoterm1DLMin))
-    print('Isoterm1 DL Max {}'.format(Header.h_Isoterm1DLMax))
-    print('Isoterm1 Color RGB {}'.format(Header.h_Isoterm1Color))
+    print(f'Isoterm1 {Header.h_Isoterm1Active}')
+    print(f'Isoterm1 DL Min {Header.h_Isoterm1DLMin}')
+    print(f'Isoterm1 DL Max {Header.h_Isoterm1DLMax}')
+    print(f'Isoterm1 Color RGB {Header.h_Isoterm1Color}')
 
-    print('Isoterm2 {}'.format(Header.h_Isoterm2Active))
-    print('Isoterm2 DL Min {}'.format(Header.h_Isoterm2DLMin))
-    print('Isoterm2 DL Max {}'.format(Header.h_Isoterm2DLMax))
-    print('Isoterm2 Color RGB {}'.format(Header.h_Isoterm2Color))
+    print(f'Isoterm2 {Header.h_Isoterm2Active}')
+    print(f'Isoterm2 DL Min {Header.h_Isoterm2DLMin}')
+    print(f'Isoterm2 DL Max {Header.h_Isoterm2DLMax}')
+    print(f'Isoterm2 Color RGB {Header.h_Isoterm2Color}')
 
-    print('Zero {}'.format(Header.h_ZeroActive))
-    print('Zero DL {}'.format(Header.h_ZeroDL))
-    print('Palette Width {}'.format(Header.h_PaletteWidth))
-    print('PaletteF Full {}'.format(Header.h_PaletteFull))
-    print('PTR Frame Buffer type {}'.format(Header.h_PTRFrameBufferType))
-    print('Thermoelasticity {}'.format(Header.h_ThermoElasticity))
-    print('Demodulation {}'.format(Header.h_DemodulationFrequency))
-    print('Coordinate Type {}'.format(Header.h_CoordinatesType))
-    print('X Origin {}'.format(Header.h_CoordinatesXorigin))
-    print('Y Origin {}'.format(Header.h_CoordinatesYorigin))
-    print('Coord Show Orig {}'.format(Header.h_CoordinatesShowOrigin))
-    print('Axe Colour RGB {}'.format(Header.h_AxeColor))
-    print('Axe Size {}'.format(Header.h_AxeSize))
-    print('Axe Valid {}'.format(Header.h_AxeValid))
-    print('Distance offset {}'.format(Header.h_DistanceOffset))
-    print('Histogram {}'.format(Header.h_HistoEqualizationEnabled))
-    print('Histogram % {}'.format(Header.h_HistoEqualizationPercent))
+    print(f'Zero {Header.h_ZeroActive}')
+    print(f'Zero DL {Header.h_ZeroDL}')
+    print(f'Palette Width {Header.h_PaletteWidth}')
+    print(f'PaletteF Full {Header.h_PaletteFull}')
+    print(f'PTR Frame Buffer type {Header.h_PTRFrameBufferType}')
+    print(f'Thermoelasticity {Header.h_ThermoElasticity}')
+    print(f'Demodulation {Header.h_DemodulationFrequency}')
+    print(f'Coordinate Type {Header.h_CoordinatesType}')
+    print(f'X Origin {Header.h_CoordinatesXorigin}')
+    print(f'Y Origin {Header.h_CoordinatesYorigin}')
+    print(f'Coord Show Orig {Header.h_CoordinatesShowOrigin}')
+    print(f'Axe Colour RGB {Header.h_AxeColor}')
+    print(f'Axe Size {Header.h_AxeSize}')
+    print(f'Axe Valid {Header.h_AxeValid}')
+    print(f'Distance offset {Header.h_DistanceOffset}')
+    print(f'Histogram {Header.h_HistoEqualizationEnabled}')
+    print(f'Histogram % {Header.h_HistoEqualizationPercent}')
 
-    print('Calibration File Name {}'.format(Header.h_CalibrationFileName))
+    print(f'Calibration File Name {Header.h_CalibrationFileName}')
 
-    print('PTRFrame Valid {}'.format(Header.h_PTRTopFrameValid))
-    print('Subsampling {}'.format(Header.h_SubSampling))
-    print('Camera flip H {}'.format(Header.h_CameraHFlip))
-    print('Camera flip V {}'.format(Header.h_CameraHVFlip))
-    print('BB Temp {}'.format(Header.h_BBTemp))
-    print('Capture Wheel Index {}'.format(Header.h_CaptureWheelIndex))
-    print('Capture Wheel Focal Index {}'.format(Header.h_CaptureFocalIndex))
+    print(f'PTRFrame Valid {Header.h_PTRTopFrameValid}')
+    print(f'Subsampling {Header.h_SubSampling}')
+    print(f'Camera flip H {Header.h_CameraHFlip}')
+    print(f'Camera flip V {Header.h_CameraHVFlip}')
+    print(f'BB Temp {Header.h_BBTemp}')
+    print(f'Capture Wheel Index {Header.h_CaptureWheelIndex}')
+    print(f'Capture Wheel Focal Index {Header.h_CaptureFocalIndex}')
 
 
 ################################################################################
@@ -1047,17 +1039,17 @@ class JadeCalibrationData:
             str: Human-readable summary of all loaded calibration parameters.
         """
         str = ''
-        str += 'Path to XML                  = {}\n'.format(self.pathtoXML)
-        str += 'Path to datafiles            = {}\n'.format(self.datafileroot)
-        str += 'Calibration Name             = {}\n'.format(self.name)
-        str += 'ID                           = {}\n'.format(self.id)
-        str += 'Version                      = {}\n'.format(self.version)
-        str += 'Summary                      = {}\n'.format(self.summary)
-        str += 'DetectorPitch                = {}\n'.format(self.detectorPitch)
-        str += 'FillFactor                   = {}\n'.format(self.fillFactor)
-        str += 'Focallength                  = {}\n'.format(self.focallength)
-        str += 'integrationTime              = {}\n'.format(self.integrationTime)
-        str += 'Fnumber                      = {}\n'.format(self.fnumber)
+        str += f'Path to XML                  = {self.pathtoXML}\n'
+        str += f'Path to datafiles            = {self.datafileroot}\n'
+        str += f'Calibration Name             = {self.name}\n'
+        str += f'ID                           = {self.id}\n'
+        str += f'Version                      = {self.version}\n'
+        str += f'Summary                      = {self.summary}\n'
+        str += f'DetectorPitch                = {self.detectorPitch}\n'
+        str += f'FillFactor                   = {self.fillFactor}\n'
+        str += f'Focallength                  = {self.focallength}\n'
+        str += f'integrationTime              = {self.integrationTime}\n'
+        str += f'Fnumber                      = {self.fnumber}\n'
         str += self.LU.Info()
         return str
 
@@ -1076,27 +1068,25 @@ if __name__ == '__main__':
     showHeader(header)
 
     # Loading a sequence of frames
-    print('\n{}\n'.format(30 * '-'))
+    print(f"\n{30 * '-'}\n")
     framesToLoad = [3, 4, 10]
     data, fheaders = getPTWFrames(header, framesToLoad)
     print(ptwfile)
-    print('(1) Data shape={}'.format(rit(data.shape)))
+    print(f'(1) Data shape={rit(data.shape)}')
     ifrm = 0
-    print('Frame {} summary data:'.format(ifrm))
-    print('Image data:\n{}'.format(data[ifrm]))
-    print('Sensor Temperature4 {:.6f} K '.format(fheaders[ifrm].h_sensorTemp4))
-    print('FPA Temperature {:.6f} K '.format(fheaders[ifrm].h_detectorTemp))
-    print('Time {}:{}:{} '.format(fheaders[ifrm].h_frameHour,
-                                   fheaders[ifrm].h_frameMinute,
-                                   fheaders[ifrm].h_frameSecond))
+    print(f'Frame {ifrm} summary data:')
+    print(f'Image data:\n{data[ifrm]}')
+    print(f'Sensor Temperature4 {fheaders[ifrm].h_sensorTemp4:.6f} K ')
+    print(f'FPA Temperature {fheaders[ifrm].h_detectorTemp:.6f} K ')
+    print(f'Time {fheaders[ifrm].h_frameHour}:{fheaders[ifrm].h_frameMinute}:{fheaders[ifrm].h_frameSecond} ')
 
-    print('\n{}\n'.format(30 * '-'))
+    print(f"\n{30 * '-'}\n")
     # Loading a sequence of frames with an error in request
     framesToLoad = [0, 4, 10]
     data, fheaders = getPTWFrames(header, framesToLoad)
     print(rit(data.shape))
-    print('(2) Data shape={}'.format(rit(data.shape)))
-    print('\n{}\n'.format(30 * '-'))
+    print(f'(2) Data shape={rit(data.shape)}')
+    print(f"\n{30 * '-'}\n")
 
     # Loading single frames
     framesToLoad = list(range(1, 101, 1))
@@ -1126,29 +1116,17 @@ if __name__ == '__main__':
     print(' ')
     for Tint in [17.1]:
         for DL in [4571, 5132, 5906, 6887, 8034, 9338, 10834, 12386, 14042]:
-            print('Tint={}  DL={} T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(
-                Tint, DL,
-                calData.LU.LookupDLTemp(DL, Tint) - 273.15,
-                calData.LU.LookupDLRad(DL, Tint),
-                calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
+            print(f'Tint={Tint}  DL={DL} T={calData.LU.LookupDLTemp(DL, Tint) - 273.15:.1f} C  L(filter)={calData.LU.LookupDLRad(DL, Tint):.0f}  L(no filter)={calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False):.0f} W/(sr.m2)')
     print(' ')
 
     for Tint in [34.4]:
         for DL in [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921]:
-            print('Tint={}  DL={} T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(
-                Tint, DL,
-                calData.LU.LookupDLTemp(DL, Tint) - 273.15,
-                calData.LU.LookupDLRad(DL, Tint),
-                calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
+            print(f'Tint={Tint}  DL={DL} T={calData.LU.LookupDLTemp(DL, Tint) - 273.15:.1f} C  L(filter)={calData.LU.LookupDLRad(DL, Tint):.0f}  L(no filter)={calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False):.0f} W/(sr.m2)')
     print(' ')
 
     for Tint in [25]:
         for DL in [5477, 6050, 6817, 7789, 8922, 10262, 11694, 13299, 14921]:
-            print('Tint={} DL={}  T={:.1f} C  L(filter)={:.0f}  L(no filter)={:.0f} W/(sr.m2)'.format(
-                Tint, DL,
-                calData.LU.LookupDLTemp(DL, Tint) - 273.15,
-                calData.LU.LookupDLRad(DL, Tint),
-                calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False)))
+            print(f'Tint={Tint} DL={DL}  T={calData.LU.LookupDLTemp(DL, Tint) - 273.15:.1f} C  L(filter)={calData.LU.LookupDLRad(DL, Tint):.0f}  L(no filter)={calData.LU.LookupTempRad(calData.LU.LookupDLTemp(DL, Tint), withFilter=False):.0f} W/(sr.m2)')
     print(' ')
 
     """The following measurement observed a large-area blackbody in the lab.
@@ -1161,19 +1139,17 @@ if __name__ == '__main__':
 
     for frame in framesToLoad:
         data, fheader = getPTWFrame(header, frame)
-        print('Sensor Temperature4 {:.6f} K '.format(fheader.h_sensorTemp4))
-        print('FPA Temperature {:.6f} K '.format(fheader.h_detectorTemp))
-        print('Time {}:{}:{} '.format(fheader.h_frameHour,
-                                       fheader.h_frameMinute,
-                                       fheader.h_frameSecond))
+        print(f'Sensor Temperature4 {fheader.h_sensorTemp4:.6f} K ')
+        print(f'FPA Temperature {fheader.h_detectorTemp:.6f} K ')
+        print(f'Time {fheader.h_frameHour}:{fheader.h_frameMinute}:{fheader.h_frameSecond} ')
 
         tempIm = calData.LU.LookupDLTemp(data, header.h_HousingTemperature1 - 273.15)
-        print('Temperature at ({},{})={:.6f} C'.format(160, 120, tempIm[160, 120] - 273.15))
-        print('Temperature at ({},{})={:.6f} C'.format(140, 110, tempIm[140, 110] - 273.15))
+        print(f'Temperature at ({160},{120})={tempIm[160, 120] - 273.15:.6f} C')
+        print(f'Temperature at ({140},{110})={tempIm[140, 110] - 273.15:.6f} C')
         I = ryplot.Plotter(4, 1, 1, '', figsize=(8, 8))
         I.showImage(1, tempIm,
-                    ptitle='{}, frame {}, temperature in K'.format(ptwfile[:-4], frame),
+                    ptitle=f'{ptwfile[:-4]}, frame {frame}, temperature in K',
                     titlefsize=7, cbarshow=True, cbarfontsize=7)
-        I.saveFig('{}-{}.png'.format(os.path.basename(ptwfile)[:-4], frame))
+        I.saveFig(f'{os.path.basename(ptwfile)[:-4]}-{frame}.png')
 
     print('\nryptw Done!')

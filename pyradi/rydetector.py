@@ -547,10 +547,10 @@ if __name__ == '__main__':
     EevR = np.linspace(-0.2, 0.2, 500)
 
     fDirac = FermiDirac(0, eVtoJoule(EevR),  temperature[0]).reshape(-1, 1)
-    legend = ["{0:.0f} K".format(temperature[0])]
+    legend = [f"{temperature[0]:.0f} K"]
     for temp in temperature[1:] :
         fDirac = np.hstack((fDirac, FermiDirac(0, eVtoJoule(EevR), temp).reshape(-1, 1)))
-        legend.append("{0:.0f} K".format(temp))
+        legend.append(f"{temp:.0f} K")
 
    # Mel = planck(wl, temperature[0], type='el').reshape(-1, 1) # [W/(m$^2$.$\mu$m)]
 
@@ -621,22 +621,22 @@ if __name__ == '__main__':
     #######################################################################
     # bandgap at operating termperature
     Eg = EgVarshni(E0, VarshniA, VarshniB, tempDet)
-    print('Bandgap = {0:.6f}'.format(Eg))
-    print('Lambda_c= {0:.6f}'.format(1.24/Eg))
+    print(f'Bandgap = {Eg:.6f}')
+    print(f'Lambda_c= {1.24 / Eg:.6f}')
 
     #calculate the spectral absorption, quantum efficiency and responsivity
     absorption = Absorption(wavelength / 1e6, Eg, tempDet, a0, a0p)
     quantumEffic = QuantumEfficiency(absorption, d1, d2, theta1, n1, n2)
     responsivity = Responsivity(wavelength / 1e6,quantumEffic)
 
-    print ("\nSource temperature             = {0} K".format(tempSource))
-    print ("Source emissivity              = {0} ".format(emisSource))
-    print ("Source distance                = {0} m".format(distance))
-    print ("Source area                    = {0} m2".format(areaSource))
-    print ("Source solid angle             = {0:.6f} sr".format(solidAngSource))
-    print ("\nBackground temperature         = {0} K".format(tempBkg))
-    print ("Background emissivity          = {0} ".format(emisBkg))
-    print ("Background solid angle         = {0:.6f} sr".format(solidAngBkg))
+    print (f"\nSource temperature             = {tempSource} K")
+    print (f"Source emissivity              = {emisSource} ")
+    print (f"Source distance                = {distance} m")
+    print (f"Source area                    = {areaSource} m2")
+    print (f"Source solid angle             = {solidAngSource:.6f} sr")
+    print (f"\nBackground temperature         = {tempBkg} K")
+    print (f"Background emissivity          = {emisBkg} ")
+    print (f"Background solid angle         = {solidAngBkg:.6f} sr")
 
     #spectral irradiance for test setup, for both source and background
     # in units of photon rate q/(s.m2)
@@ -658,17 +658,14 @@ if __name__ == '__main__':
     iTotalE = iSourceE + iBkgE
     iTotalQ = iSourceQ + iBkgQ
 
-    print ("\nDetector current source        = {0:.6f} A   {1:.6f} A".\
-        format(iSourceQ,iSourceE))
-    print ("Detector current background    = {0:.6f} A   {1:.6f} A".\
-        format(iBkgQ,iBkgE))
-    print ("Detector current total         = {0:.6f} A   {1:.6f} A".\
-        format(iTotalQ,iTotalE))
+    print (f"\nDetector current source        = {iSourceQ:.6f} A   {iSourceE:.6f} A")
+    print (f"Detector current background    = {iBkgQ:.6f} A   {iBkgE:.6f} A")
+    print (f"Detector current total         = {iTotalQ:.6f} A   {iTotalE:.6f} A")
 
     #saturation current from material and detector parameters
     Isat,ni = Isaturation(eMob, tauE, hMob, tauH, me, mh, na, nd, Eg, tempDet, areaDet)
-    print ("\nI0               = {0:.6f} [A] ".format(Isat))
-    print ("ni               = {0:.6f} [m-3] ".format(ni))
+    print (f"\nI0               = {Isat:.6f} [A] ")
+    print (f"ni               = {ni:.6f} [m-3] ")
 
     #calculate the current-voltage curve for dark, background only and total signal
     ixvDark = IXV(Vbias, IVbeta, tempDet, 0, Isat)
@@ -679,11 +676,11 @@ if __name__ == '__main__':
     iNoisePsd, R0, johnsonPsd, shotPsd = Noise(tempDet, IVbeta, Isat, iBkgE)
     iNoise = iNoisePsd * np.sqrt(deltaFreq)
 
-    print('R0=              = {0:.6e} Ohm'.format(R0))
-    print('NBW=             = {0:.6e} Hz'.format(deltaFreq))
-    print("iNoiseTotal      = {0:.6e} A".format(iNoise))
-    print("iNoise Johnson=  = {0:.6e} A".format(johnsonPsd * np.sqrt(deltaFreq)))
-    print("iNoise shot      = {0:.6e} A".format(shotPsd * np.sqrt(deltaFreq)))
+    print(f'R0=              = {R0:.6e} Ohm')
+    print(f'NBW=             = {deltaFreq:.6e} Hz')
+    print(f"iNoiseTotal      = {iNoise:.6e} A")
+    print(f"iNoise Johnson=  = {johnsonPsd * np.sqrt(deltaFreq):.6e} A")
+    print(f"iNoise shot      = {shotPsd * np.sqrt(deltaFreq):.6e} A")
 
     #calculate the spectral noise equivalent power
     NEPower, detectivity = NEP(iNoise, responsivity)
