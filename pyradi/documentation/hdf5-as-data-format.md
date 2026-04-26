@@ -2,12 +2,12 @@
 
 ## Overview
 
-[HDF5](http://en.wikipedia.org/wiki/Hierarchical_Data_Format) is a data model, library, and file format for storing and managing data. It supports an unlimited variety of datatypes, and is designed for flexible and efficient I/O and for high volume and complex data. HDF5 is portable and is extensible, allowing applications to evolve in their use of HDF5. The HDF5 Technology suite includes tools and applications for managing, manipulating, viewing, and analyzing data in the HDF5 format [[from HDF5 web page](https://www.hdfgroup.org/HDF5/)].  The HDF5 format can be read and written in many computer languages, such as C and C++, but also from [Python](http://www.h5py.org/) and [Matlab](http://de.mathworks.com/help/matlab/hdf5-files.html).  There are also support in the form of [file viewing tools](https://www.hdfgroup.org/HDF5/Tutor/tools.html).
+[HDF5](http://en.wikipedia.org/wiki/Hierarchical_Data_Format) is a data model, library, and file format for storing and managing data. It supports an unlimited variety of datatypes, and is designed for flexible and efficient I/O and for high volume and complex data. HDF5 is portable and is extensible, allowing applications to evolve in their use of HDF5. The HDF5 Technology suite includes tools and applications for managing, manipulating, viewing, and analyzing data in the HDF5 format [[from HDF5 web page](https://www.hdfgroup.org/solutions/hdf5/)].  The HDF5 format can be read and written in many computer languages, such as C and C++, but also from [Python](https://h5py.readthedocs.io/en/stable/) and [Matlab](http://de.mathworks.com/help/matlab/hdf5-files.html).  There are also support in the form of [file viewing tools](https://support.hdfgroup.org/documentation/hdf5/latest/).
 
 For more information see:  
-<https://www.hdfgroup.org/HDF5/>  
-<https://www.hdfgroup.org/HDF5/Tutor/>  
-<http://docs.h5py.org/en/latest/>
+<https://www.hdfgroup.org/solutions/hdf5/>  
+<https://support.hdfgroup.org/documentation/hdf5/latest/_getting_started.html>  
+<https://h5py.readthedocs.io/en/stable/>
 
 From [someone's practical experience](http://stackoverflow.com/questions/4871670/experience-with-using-h5py-to-do-analytical-work-on-big-data-in-python):  
 HDF5 advantages:
@@ -84,7 +84,7 @@ An HDF5 file is opened for reading and writing, but once a variable has been cre
     g['rystare/value/illumination/value/image_irrad_scale/value'][...] = 6 # working now
     print(g['rystare/value/illumination/value/image_irrad_scale/value'].value)
 
-The slicing ellipsis `...` is used to denote 'all remaining dimensions' when slicing an array, as in [see [here](http://nbviewer.ipython.org/github/NelisW/ComputationalRadiometry/blob/master/02-PythonWhirlwindCheatSheet.ipynb)]:
+The slicing ellipsis `...` is used to denote 'all remaining dimensions' when slicing an array, as in [see [here](https://nbviewer.org/github/NelisW/ComputationalRadiometry/blob/master/02-PythonWhirlwindCheatSheet.ipynb)]:
 
 	a = np.zeros((2,3,4,5))
 	print('a.shape = {}'.format(a.shape))
@@ -198,5 +198,5 @@ The `flush()` function flushes all changed data to file and `close()` closes the
 
 # Viewing HDF5 File Contents
 
-The [HDFView tool](https://www.hdfgroup.org/products/java/hdfview/index.html) allows you to browse through the file and view its contents.  The viewer allows you to plot vector-style variables as graphs (up to ten lines are drawn).  Two-dimensional arrays van be plotted along rows or columns.  You can also view the properties and attributes of variables in the file.
+The [HDFView tool](https://www.hdfgroup.org/download-hdfview/) allows you to browse through the file and view its contents.  The viewer allows you to plot vector-style variables as graphs (up to ten lines are drawn).  Two-dimensional arrays van be plotted along rows or columns.  You can also view the properties and attributes of variables in the file.
 

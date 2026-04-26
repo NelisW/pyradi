@@ -850,7 +850,7 @@ def abshumidity(T, equationSelect = 1):
 
     #there are two options, the fist one seems more accurate (relative to test set)
     if equationSelect == 1:
-        #http://www.vaisala.com/Vaisala%20Documents/Application%20notes/Humidity_Conversion_Formulas_B210973EN-D.pdf
+        #https://www.vaisala.com/en/ebook/make-your-job-easier-humidity-conversion-formulas
         return ( 1325.2520998 * 10 **(7.5892*(T - 273.15)/(T -32.44)))/T
 
     else:
@@ -1125,11 +1125,11 @@ def convertSpectralDensity(inspectraldomain,  inspectralquantity, type='',outspe
 def savitzkyGolay1D(y, window_size, order, deriv=0, rate=1):
     r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
 
-    Source: http://wiki.scipy.org/Cookbook/SavitzkyGolay
+    Source: https://scipy-cookbook.readthedocs.io/items/SavitzkyGolay.html
 
     The Savitzky Golay filter is a particular type of low-pass filter,
     well adapted for data smoothing. For further information see:
-    http://www.wire.tu-bs.de/OLDWEB/mameyer/cmr/savgol.pdf
+    https://scipy-cookbook.readthedocs.io/items/SavitzkyGolay.html
 
 
     The Savitzky-Golay filter removes high frequency noise from data.
@@ -2792,7 +2792,7 @@ class Target(Spectral):
             emis must always be a spectral, refl and taumed may be scalars or spectrals.
             The emis wavelength/number vector serves as the base spectral vector.
 
-            see http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/
+            see https://github.com/NelisW/ComputationalRadiometry
             09b-StaringArrayDetectors.ipynb#Electron-count--for-various-sources
 
             Args:
@@ -3041,7 +3041,7 @@ def blurryextract(img, inputOrigin, outputSize, blocksize, sigma=0., filtermode=
     If the input image size/bounds are to be exceeded in the calculation 
     the function returns None.
 
-    | https://docs.scipy.org/doc/numpy/reference/generated/numpy.einsum.html
+    | https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
     | http://ajcr.net/Basic-guide-to-einsum/
     | https://obilaniu6266h16.wordpress.com/2016/02/04/einstein-summation-in-numpy/
     | https://stackoverflow.com/questions/26089893/understanding-numpys-einsum
@@ -3050,11 +3050,11 @@ def blurryextract(img, inputOrigin, outputSize, blocksize, sigma=0., filtermode=
     | http://stackoverflow.com/questions/16856788/slice-2d-array-into-smaller-2d-arrays
     | http://stackoverflow.com/questions/21220942/sums-of-subarrays
     | https://en.wikipedia.org/wiki/Einstein_notation
-    | https://docs.scipy.org/doc/numpy-1.12.0/reference/generated/numpy.einsum.html
+    | https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
     | https://stackoverflow.com/questions/28652976/passing-array-range-as-argument-to-a-function
     | https://stackoverflow.com/questions/13706258/passing-python-slice-syntax-around-to-functions
     |
-    | https://docs.scipy.org/doc/scipy-0.16.1/reference/generated/scipy.ndimage.filters.gaussian_filter.html
+    | https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html
 
 
     Args:

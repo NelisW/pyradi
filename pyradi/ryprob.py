@@ -371,23 +371,26 @@ def distribution_logistic(distribParams, out, funcName):
     return out
 
 
+
 ######################################################################################
 def distribution_wald(distribParams, out, funcName):
     """The Wald Distribution.
 
     This function is meant to be called via the `distributions_generator` function.
 
-    The Wald distribution is a special case of the Inverse Gaussian Distribution
-    where the mean is a constant with the value one.
+    The Wald distribution is a special case of the Inverse Gaussian Distribution.
+    This formulation is for a constant mean value of one, which is the most common use case.  
+    The random variable can take a value between zero and infinity.  The skewness increases 
+    rapidly with decreasing values of the shape parameter, chi.
 
     pdf = sqrt(chi/(2*pi*y^3)) * exp(-chi./(2*y).*(y-1).^2)
 
     - Mean     = 1
     - Variance = 1/chi
     - Skewness = sqrt(9/chi)
-    - Kurtosis = 3 + 15/scale
+    - Kurtosis = 15/chi
 
-    PARAMETERS: chi — scale parameter (chi > 0)
+    PARAMETERS: chi — shape parameter (chi > 0)
 
     SUPPORT: y, y > 0
 

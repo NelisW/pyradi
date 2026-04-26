@@ -1089,7 +1089,7 @@ def runModtranAndCopy(root, research, pathToModtranBin,execname,clean=False):
 
     Args:
         | root ([string]): path to root dir containing the dirs with modtran input files.
-        | research ([string]): regex to use when searching for input files ('.*.ltn' or 'tape5')
+        | research ([string]): regex to use when searching for input files (``'.*.ltn'`` or ``'tape5'``)
         | pathToModtranBin ([string]): path to modtran executable directory.
         | execname ([string]): modtran executable filename.
 
@@ -1150,7 +1150,7 @@ def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
     """
     Look for input files in directories, run modtran and copy results to dir.
 
-    Finds all \*.tp5 files below the root directory that matches the
+    Finds all ``/*.tp5`` files below the root directory that matches the
     regex pattern in research. Then runs modtran on these files
     using modroot.in
 

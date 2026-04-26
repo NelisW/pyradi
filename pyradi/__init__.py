@@ -21,8 +21,7 @@
 computational radiometry (flux flow) calculations. 
 
     | The toolkit is available at
-    | https://pypi.python.org/pypi/pyradi/ (pip installation package)  
-    | https://github.com/NelisW/pyradi (latest version in the repository)  
+    | https://github.com/NelisW/pyradi (latest version in the repository)
 
     | See docs at 
     | http://nelisw.github.io/pyradi-docs/_build/html/index.html  
@@ -31,10 +30,10 @@ computational radiometry (flux flow) calculations.
     | IPython notebooks demonstrating the use of pyradi is available at  
     | https://github.com/NelisW/ComputationalRadiometry#computational-optical-radiometry-with-pyradi
 
-    | Tested against Python 2.7.12 and Python 3.5.2
+    | Use the conda environment defined in ``pyradi/environment.yml`` to install the required Python version and dependencies.
 
 """
-__version__= "1.1.4"
+__version__= "1.2.0"
 __author__='pyradi team'
 
 

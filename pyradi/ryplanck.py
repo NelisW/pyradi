@@ -86,7 +86,7 @@ class PlanckConstants:
     This module uses the CODATA physical constants. For more details see
     http://physics.nist.gov/cuu/pdf/RevModPhysCODATA2010.pdf
 
-    Reference: http://docs.scipy.org/doc/scipy/reference/constants.html
+    Reference: https://docs.scipy.org/doc/scipy/reference/constants.html
     """
 
     def __init__(self):
@@ -622,8 +622,8 @@ def planck(spectral, temperature, type='el'):
         | spectral (scalar, np.array (N,) or (N,1)):  spectral vector.
         | temperature (scalar, list[M], np.array (M,), (M,1) or (1,M)):  Temperature in [K]
         | type (string):
-        |  'e' signifies Radiant values in [W/m^2.*].
-        |  'q' signifies photon rate values  [quanta/(s.m^2.*)].
+        |  'e' signifies Radiant values in [W/m^2].
+        |  'q' signifies photon rate values  [quanta/(s.m^2)].
         |  'l' signifies wavelength spectral vector  [micrometer].
         |  'n' signifies wavenumber spectral vector [cm-1].
         |  'f' signifies frequency spectral vector [Hz].
@@ -754,8 +754,8 @@ def planckInt(spectralLo, spectralHi, temperature, type='el'):
         | spectralHi (scalar):  spectral upper limit.
         | temperature (scalar):  Temperature in [K]
         | type (string):
-        |  'e' signifies Radiant values in [W/m^2.*].
-        |  'q' signifies photon rate values  [quanta/(s.m^2.*)].
+        |  'e' signifies Radiant values in [W/m^2].
+        |  'q' signifies photon rate values  [quanta/(s.m^2)].
         |  'l' signifies wavelength spectral vector  [micrometer].
         |  'n' signifies wavenumber spectral vector [cm-1].
         |  'f' signifies frequency spectral vector [Hz].

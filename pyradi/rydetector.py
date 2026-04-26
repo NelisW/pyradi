@@ -34,7 +34,7 @@ every compound or material, all the parameters, as well as the bandgap equation
 must be changed.
 
 This code uses the scipy.constants physical constants. For more details see
-http://docs.scipy.org/doc/scipy/reference/constants.html
+https://docs.scipy.org/doc/scipy/reference/constants.html
 
 This code does not yet fully comply with the coding standards
 

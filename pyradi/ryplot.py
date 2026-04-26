@@ -832,7 +832,7 @@ class Plotter:
         Subplot numbers range from 1 upwards.
 
         Use as follows to draw a vertical line in plot:
-            p.plot(1,*p.verticalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
+            p.plot(1,p.verticalLineCoords(subplotNum=1,x=freq),plotCol=['k'])
 
             Args:
                 | subplotNumer (int) : number of the subplot
@@ -862,7 +862,7 @@ class Plotter:
         Subplot numbers range from 1 upwards.
 
         Use as follows to draw a horizontal line in plot:
-            p.plot(1,*p.horizontalLineCoords(subplotNum=1,y=freq),plotCol=['k'])
+            p.plot(1,p.horizontalLineCoords(subplotNum=1,y=freq),plotCol=['k'])
 
             Args:
                 | subplotNumer (int) : number of the subplot
@@ -1502,9 +1502,10 @@ class Plotter:
           ax.set_ylabel(ylabel, fontsize=xylabelfsize)
 
       if xIsDate:
-          ax.xaxis_date()
+          # xaxis_date() was removed in Matplotlib >= 3.10 and is not needed:
+          # plotting datetime objects directly is handled automatically.
           ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-          ax.xaxis.set_major_locator(mdates.DayLocator())
+          ax.xaxis.set_major_locator(mdates.AutoDateLocator())
 
       if not xisList:
         if maxNX >0:
@@ -1518,10 +1519,10 @@ class Plotter:
             ax.xaxis.set_major_formatter(formx)
   
             # http://matplotlib.1069221.n5.nabble.com/ScalarFormatter-td28042.html
-            # http://matplotlib.org/api/ticker_api.html
-            # http://matplotlib.org/examples/pylab_examples/newscalarformatter_demo.html
+            # https://matplotlib.org/stable/api/ticker_api.html
+            # https://matplotlib.org/stable/gallery/ticks/scalarformatter.html
             # ax.xaxis.set_major_formatter( plt.FormatStrFormatter('%d'))
-            # http://matplotlib.org/1.3.1/api/axes_api.html#matplotlib.axes.Axes.ticklabel_format
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.ticklabel_format.html
             # plt.ticklabel_format(style='sci', axis='x',
             #      scilimits=(powerLimits[0], powerLimits[1]))
 
@@ -1567,7 +1568,7 @@ class Plotter:
       else: # not a stacked plot
         for i in range(yy.shape[1]):
             #set up the line style, either given or next in sequence
-            mmrk = ''
+            mmrk = None
             if markers:
                 if i >= len(markers):
                     mmrk = markers[-1]
@@ -1666,13 +1667,19 @@ class Plotter:
                 rotation=xtickRotation, fontsize=xytickfsize)
 
         if  xTicks is None and xtickRotation is not None:
-            ticks = ax.get_xticks()
             if xIsDate:
-                from datetime import date
-                ticks = [date.fromordinal(int(tick)).strftime('%Y-%m-%d') for tick in ticks]
-            ax.set_xticks(ticks) # this is workaround for bug in matplotlib
-            ax.set_xticklabels(ticks,
-                rotation=xtickRotation, fontsize=xytickfsize)
+                # Keep numeric tick positions; only convert to strings for labels.
+                # Passing strings to set_xticks() collapses all ticks to position 0.
+                numeric_ticks = ax.get_xticks()
+                tick_labels = [mdates.num2date(t).strftime('%Y-%m-%d') for t in numeric_ticks]
+                ax.set_xticks(numeric_ticks)
+                ax.set_xticklabels(tick_labels,
+                    rotation=xtickRotation, fontsize=xytickfsize)
+            else:
+                ticks = ax.get_xticks()
+                ax.set_xticks(ticks)  # workaround for matplotlib tick label bug
+                ax.set_xticklabels(ticks,
+                    rotation=xtickRotation, fontsize=xytickfsize)
 
             # minor ticks are two points smaller than major
             ax.tick_params(axis='both', which='major', labelsize=xytickfsize)
@@ -1963,7 +1970,7 @@ class Plotter:
         plt.clabel(pmplot, fmt = contFmt, colors = contCol, fontsize=contFonSz) #, zorder=zorder)
 
       if cbarshow and (contourFill):
-          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          #https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_axes_divider.html
           divider = make_axes_locatable(ax)
           if cbarorientation == 'vertical':
             cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -2207,7 +2214,7 @@ class Plotter:
       ax.dist = distance
 
       if cbarshow is True and cmap is not None:
-        #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+        #https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_axes_divider.html
         # divider = make_axes_locatable(ax)
         # if cbarorientation == 'vertical':
         #   cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -2565,7 +2572,7 @@ class Plotter:
             Raises:
                 | No exception is raised.
       """
-    #http://matplotlib.sourceforge.net/examples/pylab_examples/colorbar_tick_labelling_demo.html
+    #https://matplotlib.org/stable/gallery/ticks/colorbar_tick_labelling_demo.html
     #http://matplotlib.1069221.n5.nabble.com/Colorbar-Ticks-td21289.html
 
       pkey = (self.nrow, self.ncol, plotnum)
@@ -2589,7 +2596,7 @@ class Plotter:
       ax.axis(axes)
       
       if cbarshow is True:
-          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          #https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_axes_divider.html
           divider = make_axes_locatable(ax)
           if cbarorientation == 'vertical':
             cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -3052,7 +3059,7 @@ class Plotter:
 
       #set up the grids
       # add own labels: http://astrometry.net/svn/trunk/projects/masers/py/poster/plot_data.py
-      #                 http://matplotlib.org/devel/add_new_projection.html
+      #                 https://matplotlib.org/stable/gallery/misc/custom_projection.html
       if thetagrid is None:
           plt.thetagrids([])
       else:
@@ -3086,7 +3093,7 @@ class Plotter:
 
 
       if cbarshow is True:
-          #http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html#colorbar-whose-height-or-width-in-sync-with-the-master-axes
+          #https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_axes_divider.html
           # this does not work with the polar projection, use gridspec to do this.
           # divider = make_axes_locatable(ax)
           # if cbarorientation == 'vertical':
@@ -3272,10 +3279,10 @@ class Plotter:
         numRadGrid=10,drawGrid=True, degreeformatter=r"%d$^\circ$"):
         """Sets up the axes_grid for the pie plot, not using regulat Matplotlib axes.
 
-        http://matplotlib.org/mpl_toolkits/axes_grid/users/overview.html
-        http://matplotlib.org/mpl_toolkits/axes_grid/api/axis_artist_api.html
-        http://matplotlib.org/mpl_toolkits/axes_grid/users/axisartist.html
-        http://matplotlib.org/examples/axes_grid/demo_floating_axes.html
+        https://matplotlib.org/stable/gallery/axes_grid1/demo_axes_grid.html
+        https://matplotlib.org/stable/api/_as_gen/mpl_toolkits.axisartist.axis_artist.html
+        https://matplotlib.org/stable/api/toolkits/axisartist.html
+        https://matplotlib.org/stable/gallery/axisartist/demo_floating_axes.html
         https://fossies.org/dox/matplotlib-1.5.3/classmpl__toolkits_1_1axisartist_1_1angle__helper_1_1FormatterDMS.html
 
             Args:
@@ -4210,14 +4217,13 @@ if __name__ == '__main__':
         #    I.saveFig('HistoEq.eps')
 
         ############################################################################
-        if False:
-          # demonstrate dates on the x-axis
-          dates = ['01/02/1991','01/03/1991','01/04/1991']
-          x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
-          y = np.asarray(list(range(len(x))))
-          pd = Plotter(1)
-          pd.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
-          pd.saveFig('plotdateX.png')
+        # demonstrate dates on the x-axis
+        dates = ['01/02/1991','01/03/1991','01/04/1991']
+        x = np.asarray([dt.datetime.strptime(d,'%m/%d/%Y').date() for d in dates])
+        y = np.asarray(list(range(len(x))))
+        pdplot = Plotter(1)
+        pdplot.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
+        pdplot.saveFig('plotdateX.png')
 
         #demonstrate the use of arbitrary x-axis tick marks
         x = np.asarray([1, 2, 3, 4])

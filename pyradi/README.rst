@@ -31,11 +31,9 @@ Prerequisites
 -------------
 
 This  toolkit requires (current versions in brackets)  
-Python (2.7.12 or 3.5.2),
-Numpy (1.7 or later),
-SciPy (0.13 or later),
-Matplotlib (1.3 or later).
-Mayavi (4.1) (only for Python 2.7) is required only for one file to do three-dimensional rendering, the rest of the toolkit works fine without Mayavi.
+Use the conda environment defined in ``pyradi/environment.yml`` to install the required Python version and all dependencies
+(Python, NumPy, SciPy, Matplotlib, and optional packages).
+Mayavi is required only for one file to do three-dimensional rendering; the rest of the toolkit works fine without it.
 
 
 Status

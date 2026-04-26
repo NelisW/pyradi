@@ -53,6 +53,7 @@ import scipy.signal as signal
 import scipy.constants as const
 
 import pyradi.ryfiles as ryfiles
+import pyradi.ryhdf5 as ryhdf5
 import pyradi.ryutils as ryutils
 import pyradi.ryprob as ryprob
 import pyradi.ryplanck as ryplanck
@@ -2211,6 +2212,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     import matplotlib.mlab as mlab
 
     import pyradi.ryfiles as ryfiles
+    import pyradi.ryhdf5 as ryhdf5
     import pyradi.ryutils as ryutils
 
     if type(doTest) is not str:
@@ -2234,7 +2236,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     hdffilename = f'{prefix}{outfilename}.hdf5'
     if os.path.isfile(hdffilename):
         os.remove(hdffilename)
-    strh5 = ryfiles.open_HDF(hdffilename,'w')
+    strh5 = ryhdf5.open_HDF(hdffilename,'w')
 
     # Optics parameters to convert from radiance to irradiance in the image plane
     strh5['rystare/fnumber'] = 3.2
@@ -2405,7 +2407,7 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
     if pathtoimage is None:
         pathtoimage = os.path.join(os.path.dirname(ryprob.__file__), imagehdffilename)
 
-        imghd5 = ryfiles.open_HDF(pathtoimage)
+        imghd5 = ryhdf5.open_HDF(pathtoimage)
 
         
         #images must be in photon rate irradiance units q/(s.m2)
@@ -2452,9 +2454,9 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
                 strh5['rystare/EinUnits'] = 'q/(s.m2)'
     else:
 
-        imghd5 = ryfiles.open_HDF(pathtoimage)
+        imghd5 = ryhdf5.open_HDF(pathtoimage)
 
-    strh5 = ryfiles.open_HDF(hdffilename,'r+')
+    strh5 = ryhdf5.open_HDF(hdffilename,'r+')
     
     #images must be in photon rate irradiance units q/(s.m2)
     
@@ -2531,14 +2533,14 @@ def run_example(doTest='Advanced', outfilename='Output', pathtoimage=None,
          'rystare/signal/voltageaftercds','rystare/ADC/gainILE','rystare/ADC/gain','rystare/signal/DN']
 
     if doPlots:
-        ryfiles.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, 
+        ryhdf5.plotHDF5Images(strh5, prefix=prefix, colormap=mcm.jet,  lstimgs=lstimgs, 
             logscale=strh5['rystare/flag/plots/plotLogs'][()], debug=False) 
 
     if doHisto:
-        ryfiles.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
+        ryhdf5.plotHDF5Histograms(strh5, prefix, bins=100, lstimgs=lstimgs)
 
     if doImages:
-        ryfiles.plotHDF5Bitmaps(strh5, prefix, pformat='png', lstimgs=lstimgs,debug=False)
+        ryhdf5.plotHDF5Bitmaps(strh5, prefix, pformat='png', lstimgs=lstimgs,debug=False)
 
     strh5.flush()
     strh5.close()
@@ -2578,7 +2580,7 @@ def get_summary_stats(hdffilename):
     
 
     if hdffilename is not None:
-        strh5 = ryfiles.open_HDF(hdffilename)
+        strh5 = ryhdf5.open_HDF(hdffilename)
         print(hdffilename)
 
         print(f"Image file name             : {strh5['rystare/imageFilename'][()]}")

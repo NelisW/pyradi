@@ -38,6 +38,6 @@ files in `pyradi-docs/_build/latex`.
 
 ## References
 
-<https://help.github.com/articles/creating-project-pages-manually/>  
-<https://help.github.com/articles/creating-pages-with-the-automatic-generator/>  
-<https://help.github.com/articles/user-organization-and-project-pages/>  
+<https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site>  
+<https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site>  
+<https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages>  

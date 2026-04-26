@@ -27,7 +27,7 @@ All models are based on published information or derived herein, so you
 can check their relevancy and suitability for your work.
 
 For a detailed theoretical derivation and more examples of use see:
-http://nbviewer.jupyter.org/github/NelisW/ComputationalRadiometry/blob/master/07-Optical-Sources.ipynb
+https://nbviewer.org/github/NelisW/ComputationalRadiometry/blob/master/07-Optical-Sources.ipynb
 
 See the __main__ function for examples of use.
 

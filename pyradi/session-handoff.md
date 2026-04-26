@@ -1,6 +1,6 @@
 # PyRadi Refactor — Session Handoff & Progress Brief
 
-_Last updated: 2026-04-22 | All 18 files refactored · F-string conversion complete · 784 tests green (confirmed post-conversion)_
+_Last updated: 2026-04-25 | All 18 files refactored · F-string conversion complete · 784 tests green · URL cleanup complete (44 substitutions, 13 files)_
 
 ---
 
@@ -293,19 +293,37 @@ conda run -n pyradi --no-capture-output pytest \
 `REFACTOR_BRIEF.md` deleted by user on 2026-04-22. This document is now the sole
 progress record.
 
-### Step 3 — Optional: convert commented-out `.format()` calls
+### ~~Step 3 — URL cleanup~~ ✓ Done (2026-04-25)
+
+All URLs in `*.py`, `*.rst`, and `*.md` files tested and stale ones replaced.
+
+- **`check_urls.py`** — scans all source files, tests each URL (HEAD then GET fallback), writes `staleURLs.md` with file, line, status, URL
+- **`fix_urls.py`** — applies 38 high-confidence URL replacements; ordered longest→shortest to avoid prefix collisions; idempotent (safe to re-run)
+- **Result**: 44 substitutions across 13 files; `staleURLs.md` has ✅/❌ per row
+
+Families replaced: matplotlib (axes_grid removal, versioned paths, SourceForge), HDF Group site restructure, h5py docs migration, NumPy/SciPy versioned → stable docs, SciPy wiki/cookbook, nbviewer domain (ipython.org → org, jupyter.org → org), PyPI (pypi.python.org → pypi.org), GitHub Help → GitHub Docs, OSSIM Trac.
+
+Not replaced (low confidence, 15 entries): Nabble forum threads (content unrecoverable), an astrometry SVN file (no direct GitHub equivalent found), specific journal PDF (only index page confirmed), 11 personal/deleted/specialty pages with no public equivalent.
+
+To re-run URL check from `pyradi` conda env:
+```bash
+conda run -n pyradi python pyradi/check_urls.py
+python pyradi/fix_urls.py
+```
+
+### Step 4 — Optional: convert commented-out `.format()` calls
 
 14 lines of commented-out `.format()` calls remain in 6 files (catalogued in README).
 These are inert. If desired, delete the comments or convert them for consistency.
 
-### Step 4 — Optional: fix documented pre-existing bugs in ryplot.py
+### Step 5 — Optional: fix documented pre-existing bugs in ryplot.py
 
 The four ryplot pre-existing bugs (see Section 3) are preserved by policy. If the user
 decides to fix any of them, that is an explicit separate request — update both the
 production code and remove the corresponding `Note:` / buggy-behaviour assertion from the
 test suite.
 
-### Step 5 — Optional: clean up stale ryplot section in SKILL.md
+### Step 6 — Optional: clean up stale ryplot section in SKILL.md
 
 `SKILL.md` has a partial `ryplot.py — Active refactor progress` section near the bottom
 that predates completion. Now that all work is done, this section can be removed or
@@ -322,6 +340,9 @@ replaced with a one-line "ryplot: complete 2026-04-22" note.
 | `K:\WorkN\pyradi\pyradi\pyradi\REFACTOR_BRIEF.md` | Old progress brief — superseded | **Deleted 2026-04-22** |
 | `C:\Users\nwillers\.claude\skills\python-refactor\SKILL.md` | Refactor skill (1388 lines) | Current |
 | `K:\WorkN\pyradi\pyradi\pyradi\environment.yml` | Conda environment spec | Current |
+| `K:\WorkN\pyradi\pyradi\pyradi\staleURLs.md` | URL audit: stale URLs, replacements found, ✅/❌ status | Current (2026-04-25) |
+| `K:\WorkN\pyradi\pyradi\pyradi\check_urls.py` | Automated URL liveness checker; writes `staleURLs.md` | Created 2026-04-25 |
+| `K:\WorkN\pyradi\pyradi\pyradi\fix_urls.py` | Applies high-confidence URL replacements to source files | Created 2026-04-25 |
 
 ---
 

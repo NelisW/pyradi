@@ -457,7 +457,7 @@ and returns the filled array of random variates.
 
 ### ryplotspherical — spherical trajectory utilities for OSSIM
 
-Reads and writes [Object-oriented Simple Simulator (OSSIM)](https://ossim.trac.sourceforge.net/)
+Reads and writes [Object-oriented Simple Simulator (OSSIM)](https://trac.osgeo.org/ossim/)
 trajectory files based on the OFF (Object File Format) mesh format.  Generates 6-DOF
 (x, y, z, roll, pitch, yaw) trajectory tables either from an OFF mesh file or from an
 explicit elevation/azimuth grid.

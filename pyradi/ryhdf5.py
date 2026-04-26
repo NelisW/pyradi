@@ -242,7 +242,7 @@ def plotHDF5Images(hfd5f, prefix, colormap=None, cbarshow=True, lstimgs=None, lo
     See https://github.com/NelisW/pyradi/blob/master/pyradi/hdf5-as-data-format.md
     for more information on using HDF5 as a data structure.
 
-    http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps
+    https://scipy-cookbook.readthedocs.io/items/Matplotlib_Show_colormaps.html
 
     Args:
         | hfd5f (H5py file): the file to be opened

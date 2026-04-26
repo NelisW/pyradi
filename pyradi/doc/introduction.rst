@@ -32,7 +32,7 @@ The development of this toolkit is following the Unix philosophy for software
 development, summarised in the words of Doug McIlroy: 'Write programs that do 
 one thing and do it well. Write programs to work together.' In broader terms the
 philosophy was stated by Eric Raymond, but only selected items shown here
-(http://en.wikipedia.org/wiki/Unix_philosophy): 
+(https://en.wikipedia.org/wiki/Unix_philosophy): 
 
 1. Rule of Modularity: Write simple parts connected by clean interfaces. 
 2. Rule of Clarity: Clarity is better than cleverness. 

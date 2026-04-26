@@ -19,7 +19,7 @@ simulations and study of noise propagation in wavefront sensors, but can be
 used for many other applications involving CCD/CMOS
 photosensors.  The original files are available at:
 
-- Paper: http://arxiv.org/pdf/1412.4031.pdf
+- Paper: https://arxiv.org/pdf/1412.4031.pdf
 - The paper describing this Python model as published in SPIE Proc 10036 is available here::
   https://github.com/NelisW/pyradi/blob/master/pyradi/documentation/SM200-30-staring-array-modeling.pdf
 
@@ -156,7 +156,7 @@ By setting all the flags to True the example code will print a number of images 
 Plotting the results to file takes a while.  Execution is much faster with all flags set to False.
 
 Study the text file using a normal text editor and study the HDF5 file by using the viewer
-available from https://www.hdfgroup.org/products/java/hdfview/.
+available from https://www.hdfgroup.org/download-hdfview/.
 
 An IPython notebook demonstrating this model in quite some detail is available here https://github.com/NelisW/ComputationalRadiometry/blob/master/09b-StaringArrayDetectors.ipynb
 
@@ -207,7 +207,7 @@ The full code for the example run is included in `rystare.py`:
 
 	    Author: Mikhail V. Konnik, revised/ported by CJ Willers
 
-	    Original source: http://arxiv.org/pdf/1412.4031.pdf
+	    Original source: https://arxiv.org/pdf/1412.4031.pdf
 	    """
 	    import os.path
 	    from matplotlib import cm as mcm
