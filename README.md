@@ -5,7 +5,7 @@ _-- Richard Hamming_
 ## Status
 
 
-- pyradi has been updated and tested to work with Python 3.12+ during Aptril 2026. 
+- pyradi has been updated and tested to work with Python 3.12+ during April 2026. 
   
 - The documentation at https://nelisw.github.io/pyradi-docs/_build/html/index.html is current with this version. 
 
