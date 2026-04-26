@@ -3609,10 +3609,12 @@ def cubehelixcmap(start=0.5, rot=-1.5, gamma=1.0, hue=1.2, reverse=False, nlev=2
 
     Args:
         | start (scalar): Starting position in the color space: 0=blue, 1=red, 2=green. Defaults to 0.5 (optional)
-        | rot (scalar): Number of rotations through the rainbow. Positive or negative indicates direction; negative = Blue->Red. Defaults to -1.5 (optional)
+        | rot (scalar): Number of rotations through the rainbow. Positive or negative indicates
+        |     direction; negative = Blue->Red. Defaults to -1.5 (optional)
         | gamma (scalar): Gamma correction for intensity. Defaults to 1.0 (optional)
         | hue (scalar): Hue intensity factor. Defaults to 1.2 (optional)
-        | reverse (boolean): Set to True to reverse the color map (white to black). Good for density plots. Defaults to False (optional)
+        | reverse (boolean): Set to True to reverse the color map (white to black).
+        |     Good for density plots. Defaults to False (optional)
         | nevl (scalar): Number of discrete levels to render colors at. Defaults to 256 (optional)
 
     Returns:
@@ -4045,13 +4047,14 @@ if __name__ == '__main__':
     import datetime as dt
     import ryutils
     rit = ryutils.intify_tuple
+    import ryprob
 
     # print(os.environ['DISPLAY'])
     # if len(os.environ['DISPLAY'])<5:
     #   mpl.use('Agg')    
     # print(f"os.environ['DISPLAY']={os.environ['DISPLAY']}")
 
-    doAll = True
+    doAll = False
 
     if doAll:
         p = Plotter(1,2,3,figsize=(12,12))
@@ -4713,7 +4716,7 @@ if __name__ == '__main__':
         t.saveFig(_c('userplotcol02.png'))
 
 
-    if True: # doAll:
+    if doAll:
         print('------------')
         XX, YY = np.meshgrid(np.linspace(0,1,100), np.linspace(0,1,100))
         ZZ = np.sqrt(XX**2 + YY**2)
