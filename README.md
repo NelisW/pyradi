@@ -2,11 +2,23 @@
 The purpose of computing is insight, not numbers.<BR>
 _-- Richard Hamming_
 
+## Status
+
+
+- pyradi has been updated and tested to work with Python 3.12+ during Aptril 2026. 
+  
+- The documentation at https://nelisw.github.io/pyradi-docs/_build/html/index.html is current with this version. 
+
+- The Jupyter notebooks in the companion repository  https://github.com/NelisW/ComputationalRadiometry are current with this version.
+  
+- The conda environment defined in `pyradi/conda-environments/environment.yml` was used for testing. If you want to use pyradi in Jupyter notebooks, investigate the conda environment `pyradi/conda-environments/environmentCompRadio.yml`.
+
+- pyradi is no longer supported on PyPI, please install directly from this repository (details below).
+
 
 
 ## Notes
 
-- pyradi is no longer supported on PyPI, please install directly from this repository (details below).
 
 - Setting up and getting to know pyradi requires some grit on your part.  The toolkit is offered as  an engineering tool to other engineers; it is not intended to be used casually by uninformed persons. Most of the documentation is written up in the code itself.  The additional documentation is relatively sparse.
 
@@ -39,8 +51,6 @@ The toolkit is an extendable, integrated and coherent collection of basic functi
 
 The individual scripts in the toolkit is supported by examples, test cases and documentation. These examples are included at the end of each script in the `__main__`  section.  If you just run the script, the code will be executed and results will be available in graphs or text files.
 
-
-## Version status
 
 
 

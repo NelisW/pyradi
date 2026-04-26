@@ -200,9 +200,6 @@ project structure:
 https://docs.python-guide.org/writing/structure/
 https://github.com/audreyr/cookiecutter-pypackage
 
-setup.py classifiers list:
-https://pypi.org/classifiers/
-
 get version number from code:
 https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
 
