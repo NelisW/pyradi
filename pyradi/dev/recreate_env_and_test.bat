@@ -40,6 +40,7 @@ call conda run -n %ENV_NAME% --no-capture-output ^
     "%PYRADI_DIR%test\test_ryplanck.py" ^
     "%PYRADI_DIR%test\test_ryprob.py" ^
     "%PYRADI_DIR%test\test_ryplotspherical.py" ^
+    "%PYRADI_DIR%test\test_ryplot.py" ^
     "%PYRADI_DIR%test\test_ryptw.py" ^
     "%PYRADI_DIR%test\test_ryscene.py" ^
     "%PYRADI_DIR%test\test_rystare.py" ^

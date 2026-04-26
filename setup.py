@@ -1,143 +1,44 @@
 """
-Setup script for pyradi. This procedure must be followed only once so set up.
+Setup script for pyradi.
 
-0. Make a list of all the folders included and excluded in the PyPi package in MANIFEST.in
+pyradi is distributed via GitHub only:
+    https://github.com/NelisW/pyradi
 
-1.  Set up a user account with pyPI or testpyPI. The passwords may only contain 
-    letters and numbers, not other symbols.
+Install from source
+-------------------
+Clone the repository and install into the active conda environment:
 
-2.  On Windows create a HOME environmental variable to your home directory (C:\\Users\\username)
+    conda activate pyradi
+    git clone https://github.com/NelisW/pyradi.git
+    cd pyradi
+    pip install -e .
 
-3.  Place the .pypirc file in your home directory (to where HOME points). The format
-    of this file is as follows (no spaces in last two lines):
-    ---------------------------------------------------------
-    [distutils]
-    index-servers =
-        pypi
+Use the conda environment defined in environment.yml to obtain the required
+Python version and all dependencies:
 
-    [pypi]
-    username:yourPyPIusername
-    password:yourPyPIpassword    
-    ---------------------------------------------------------
-    you can remove the password, it will be prompted.
+    conda env create -f environment.yml
+    conda activate pyradi
 
-4.  Write the setup.py script for project (this file)
+Release cycle when updating pyradi
+-----------------------------------
+1.  Make the code changes in the git master branch and test.
 
-5.  Write and test the long description, this goes onto PyPI project page.
+2.  Bump the version in pyradi/__init__.py.
 
-6. If not already existing, mkdir ../pyradi-docs/_build. Alternatively clone the
-   gh-pages branch from https://github.com/NelisW/pyradi-docs/tree/gh-pages
-   To be on the same level as the main pyradi directory:In other words,
-   create a new folder on the same level as where pyradi root is:
+3.  Build the Sphinx documentation:
 
-    ..
-    +-pyradi  [https://github.com/NelisW/pyradi]
-      +-.git
-      |-setup.py (this file)
-      | ...
-      +-pyradi
-        + ... all the pyradi files
+        conda activate pyradi
+        K:\\WorkN\\pyradi\\pyradi-docs\\tools\\06_build_docs.bat
 
-    +-pyradi-docs [https://github.com/NelisW/pyradi-data] (this is an optional clone) 
-      +-.git
-      +-_build
+    This writes HTML and PDF output directly to the pyradi-docs repo.
+    Commit and push the pyradi-docs repo (gh-pages branch).
 
-    +-pyradi-data [https://github.com/NelisW/pyradi-docs] (this is an optional clone) 
-      +-.git
-      +-regression
-      +-images
+4.  Commit and push the pyradi code to the pyradi repo (master branch).
 
-7.  On every new release:  Register the meta data with PyPI    
-    cd to where setup.py is located and run the following command:
-    python setup.py register   [[this will register new release on pyPI]]
+5.  Update and commit any changed IPython notebooks; push to GitHub.
 
-8.  Create the package files zip and installers (not uploading)
-    python setup.py sdist bdist_wininst [[ built in dist directory ]]
-
-9.  Test locally by unzipping the package and running
-    python setup.py install  [[ will install to site-packages]]
-    test this installation prior to uploading to pyPI
-
-10.  Upload the packages to PyPIy
-    python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
-
-11. Installing a package from the server to local pyPI
-    pip install --upgrade pyradi
-
-See the bottom of this file for additional notes.
-
-Release cycle when updating PyRadi
-
-1.  Make the code changes required in the git master branch.
-    Test as necessary.
-
-2.  Raise the software version one count in __init()__.py
-
-3.  Build the Python Sphinx documentation by changing to the 
-    /pyradi/pyradi/doc directory.
-    Make sure that the gh-pages branch is checked out in the 
-    /pyradi/pyradi/doc/../../../pyradi-docs directory.
-
-    Create both the HTML and PDF docs.
-    See that the documentation is correct (spot checks).
-    cd to /pyradi/pyradi/doc
-    make html
-    make latex
-    cd to /pyradi/pyradi/doc/_build/latex
-    pdflatex pyradi.tex
-
-    This procedure will create the docs in the build directory
-    /pyradi/pyradi/doc/../../../pyradi-docs/_build.
-    which should contain a clone of the gh-pages repo at 
-    https://github.com/NelisW/pyradi-docs/tree/gh-pages.
-    Commit the changes to the pyradi-docs repo.
-
-4a. Commit the pyradi code to the pyradi repo, master branch.
-
-4b. Commit pyradi-docs to the pyradi-docs repo, gh-pages branch.
-
-4c. Commit the pyradi-data repo as and if required.
-
-5.  Update the IPython notebook documentation in the local git clone.
-    Do a complete rebuild of the notebooks: restart kernel and run all cells.
-    Check that all cells are rendered.
-
-6.  If a new notebook name is used, get the nbviewer link to the html rendering.
-
-7.  Update README.md with the new notebook name.
-
-8.  Commit the ipynb files to the local git repo.
-
-9. Push the local git repo changes to github repo.
-
---  NB make sure the local IE proxy is not set in IE.  Must be 'no proxy'
-
-10. Register the new version on PyPI by one of the two following methods:
-
-10a. cd to root pyradi directory and do in a command window:
-    python setup.py register   [[this will register new release on pyPI]]
-
-10b. Log in on the PyPi website and manually register the new release, 
-     to create a new index (release).    
-
-11. Create the package files zip and installers (not uploading)
-    python setup.py sdist bdist_wininst [[ built in dist directory ]]
-
-12. Test locally by unzipping the package and running
-    python setup.py install  [[ will install to site-packages]]
-    test this installation prior to uploading to pyPI
-
-13 Upload the packages to PyPIy, by one of two methods:
-
-13a. python setup.py sdist bdist_wininst upload [[ built in dist directory ]]
-
-13b. Log in to the PyPi website and manually upload the files against new 
-     release that was registered in 10b above.
-     
-    
-some of the code in this script below comes from 
+some of the helper code in this script comes from
 https://github.com/paltman/python-setup-template/blob/master/setup.py
-I am just not using much of it :-((
 """
 import codecs
 import os
@@ -275,8 +176,8 @@ setup(
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.12',
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Physics',
           'Topic :: Scientific/Engineering :: Visualization',
@@ -286,87 +187,31 @@ setup(
 )
 
 ################################################################################
-################################################################################
+# Useful references
 ################################################################################
 """
-General:
-http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
-http://docs.python-guide.org/en/latest/writing/structure/
+setuptools documentation:
+https://setuptools.pypa.io/en/latest/
+
+packaging guide:
+https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
+
+project structure:
+https://docs.python-guide.org/writing/structure/
 https://github.com/audreyr/cookiecutter-pypackage
-https://coderwall.com/p/lt2kew
-http://www.scotttorborg.com/python-packaging/
-http://pythonhosted.org/setuptools/setuptools.html#development-mode
-http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
-http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
-http://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-and-setuptools
 
-use setuptools: 
-https://stackoverflow.com/questions/6344076/differences-between-distribute-distutils-setuptools-and-distutils2
-http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/
+setup.py classifiers list:
+https://pypi.org/classifiers/
 
-.pypirc
-https://stackoverflow.com/questions/1569315/setup-py-upload-is-failing-with-upload-failed-401-you-must-be-identified-t/1569331#1569331'
-https://pythonhosted.org/an_example_pypi_project/setuptools.html
-https://wiki.python.org/moin/TestPyPI
-http://guide.python-distribute.org/contributing.html
+get version number from code:
+https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
 
-setup.py script 
-http://docs.python.org/2.7/distutils/setupscript.html#
-http://docs.python.org/2.7/distutils/introduction.html#distutils-simple-example
-https://pypi.python.org/pypi?:action=list_classifiers
-http://docs.python.org/2/distutils/sourcedist.html#manifest
-http://docs.python.org/2/distutils/setupscript.html#meta-data
+install locally for development:
+pip install -e .
 
-check the long description by
-python setup.py --long-description | rst2html.py > output.html
-http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
+including data files:
+https://setuptools.pypa.io/en/latest/userguide/datafiles.html
 
-register the meta data with the server listed in -r
-python setup.py register -r https://testpypi.python.org/pypi
-https://wiki.python.org/moin/TestPyPI
-http://docs.python.org/2.7/distutils/packageindex.html#registering-packages
-
-build the packages for local testing
-python setup.py sdist bdist_wininst upload
-
-build and upload the package files to server at -r
-python setup.py sdist  upload -r https://testpypi.python.org/pypi
-python setup.py sdist bdist_wininst upload -r https://testpypi.python.org/pypi
-python setup.py register sdist upload -r https://testpypi.python.org/pypi
-
-upload previously built to server at -r
-python setup.py upload -r https://testpypi.python.org/pypi
-http://docs.python.org/2.7/distutils/packageindex.html#uploading-packages
-
-Uploading source and installers with a batch script
-https://pythonhosted.org/an_example_pypi_project/setuptools.html
-
-Upload for each version of python you want to distribute
-https://pythonhosted.org/an_example_pypi_project/setuptools.html
-
-get version number from the code files
-http://www.ibm.com/developerworks/library/os-pythonpackaging/index.html?ca=rec_art
-http://legacy.python.org/dev/peps/pep-0386/
-
-9) Installing a package from server at i
-pip install --upgrade -i https://testpypi.python.org/pypi pyradi2
-http://www.pip-installer.org/en/latest/reference/pip_wheel.html#allow-external
-
-install locally on your pc
-$ python setup.py install <will install from here to python directory>
-
-including data
-include_package_data
-http://svn.python.org/projects/sandbox/trunk/setuptools/setuptools.txt
-http://www.scotttorborg.com/python-packaging/metadata.html
-
-using manifest file
-http://danielsokolowski.blogspot.com/2012/08/setuptools-includepackagedata-option.html
-http://docs.python.org/2/distutils/sourcedist.html#manifest-template 
-  
-testing
-http://www.scotttorborg.com/python-packaging/testing.html
-
-requirements
-https://caremad.io/blog/setup-vs-requirement/
+testing:
+https://docs.pytest.org/en/latest/
 """

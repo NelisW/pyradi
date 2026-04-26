@@ -111,3 +111,5 @@ Backup_of_*.cdr
 /pyradi/examples/tristimulus.png
 .ipynb_checkpoints
 /pyradi/doc/_build
+/pyradi/.opencode
+/pyradi/clutter

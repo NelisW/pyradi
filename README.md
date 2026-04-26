@@ -48,7 +48,7 @@ The individual scripts in the toolkit is supported by examples, test cases and d
 ## Prerequisites and Installation
 
 pyradi has been brought up to date with current versions of Python & Co as of April 2026.
-Support for Python 2.7 has been dropped. Python 3 requirement has been set to >3.12.
+Use the conda environment defined in `pyradi/environment.yml` to install the required Python version and all dependencies.
 
 pyradi has been updated and tested to work in the conda environment defined in `pyradi/environment.yml`
 If you want to use pyradi in Jupyter notebooks, investigate the conda environment `pyradi/environmentCompRadio.yml`.
