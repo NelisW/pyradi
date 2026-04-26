@@ -604,8 +604,8 @@ def calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax):
     - ``fintpEL``: temperature → photon-rate radiance
 
     Args:
-        | wavelength (np.array): wavelength vector in micrometres (um), passed directly to
-        |     ``ryplanck.planck(type='ql')`` which expects um.
+        | wavelength (np.array): wavelength (um), passed directly to
+          :func:`ryplanck.planck` with ``type='ql'`` which expects um.
         | sysresp (np.array): system spectral response vector (same length as wavelength).
         | tmin (float): minimum temperature [K] for the lookup table.
         | tmax (float): maximum temperature [K] for the lookup table.
@@ -619,7 +619,7 @@ def calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax):
 
     Note:
         Wavelength units: ``wavelength`` must be in **micrometres** because it
-        is passed directly to ``ryplanck.planck(type='ql')`` (``planckql``),
+        is passed directly to ``ryplanck.planck(type="ql")`` (``planckql``),
         which expects µm.  This differs from ``calcLuxEquivalent``, which
         expects wavelength in SI metres and converts to µm internally.
 

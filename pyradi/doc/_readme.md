@@ -27,14 +27,12 @@ to be on the same level as the main pyradi directory:
 		  +-.git
 		  +-_build
 
-1.  To build the html documentation open a command window in the `doc`  directory
-and execute the command `make html`.
+To build the html and PDF documentation run the command
 
-1. To build the pdf documentation open a command window in the `doc` directory
-and execute the command `make latex`, and then build the pdf from the latex
-files in `pyradi-docs/_build/latex`.
+	K:\WorkN\pyradi\pyradi-docs\tools\06_build_docs.bat.
 
-1. Commit all files to the `gh-pages` branch.
+and follow the instructions at the end of the batch file. 
+   
 
 ## References
 

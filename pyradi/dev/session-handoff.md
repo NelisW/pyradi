@@ -1,6 +1,6 @@
 # PyRadi Refactor — Session Handoff & Progress Brief
 
-_Last updated: 2026-04-26 | All 18 files refactored · F-string conversion complete · 784 tests green · URL cleanup complete · __main__ output → clutter/ · dev/ and clutter/ folders finalised · originals deleted_
+_Last updated: 2026-04-26 | All 18 files refactored · F-string conversion complete · 784 tests green · URL cleanup complete · __main__ output → clutter/ · dev/ and clutter/ folders finalised · originals deleted · line-length cleanup complete across all ry*.py_
 
 > **Note — file moved (2026-04-26):** This file now lives at
 > `K:\WorkN\pyradi\pyradi\pyradi\dev\session-handoff.md`
@@ -43,7 +43,7 @@ pytest test/ -v --tb=short
 
 ### 4. Immediate next action
 
-Run the full test suite to confirm the ~650 f-string conversions introduced no regressions:
+No critical actions pending. Confirm the suite is still green after any edits:
 
 ```bash
 conda run -n pyradi --no-capture-output pytest test/ -v --tb=short
@@ -172,16 +172,26 @@ Intentionally unconverted (catalogued in `README.md` "F-string conversion" secti
 
 The Edit tool writes to the Windows filesystem; the bash sandbox accesses the same files via a Linux mount that occasionally lags or pads with null bytes.
 
-Fix pattern (apply after every Edit-tool write to a large file):
-```bash
-# 1. Strip null bytes
-python3 -c "
-with open('file.py','rb') as f: data=f.read()
-data=data.rstrip(b'\x00')
-with open('file.py','wb') as f: f.write(data)"
+> ⚠️ **CRITICAL — never write to source files from bash.** The CIFS mount can present a
+> stale, truncated view of a file. If you `open(path,'wb').write(data)` from bash after an
+> Edit-tool write, you read the truncated Linux view and permanently overwrite the correct
+> Windows file with it. This destroyed `ryplot.py` twice in one session; the user had to
+> restore it from backup both times.
+>
+> **Rule: `ry*.py` source files must only be modified via the Edit tool. Never write to them
+> from bash — not for null-byte stripping, not for patching, not for any reason.**
 
-# 2. Syntax-check immediately
-python3 -m py_compile file.py && echo "OK"
+Safe bash operations on source files (read-only):
+```bash
+# Syntax check only — read-only, safe
+python3 -m py_compile /path/to/file.py && echo "OK"
+
+# Check line lengths — read-only, safe
+python3 -c "
+lines = open('/path/to/file.py').readlines()
+for i,l in enumerate(lines):
+    if len(l.rstrip()) > 120 and 'http' not in l:
+        print(f'{i+1} ({len(l.rstrip())}): {l.rstrip()[:100]}')"
 ```
 
 For large content additions (README sections, `__main__` blocks): write content as a Python string in a helper `.py` script using the Write tool, then execute via bash. **Never use heredocs (`cat << EOF`) or `cat >>` for multi-line content** — bash truncates them through the mount.
@@ -254,6 +264,7 @@ conda run -n pyradi --no-capture-output pytest \
 | Full suite (16 files, cross-version API fixes) | 659 passed | 2026-04-21 |
 | + ryplot (86 tests, polar bug workaround) | **784 passed, 0 failed** | 2026-04-22 |
 | After f-string conversion (~650 changes) | **784 passed, 0 failed** | 2026-04-22 |
+| After line-length cleanup (6 files, ~95 lines) | **784 passed, 0 failed** | 2026-04-26 |
 
 ---
 
@@ -270,6 +281,7 @@ conda run -n pyradi --no-capture-output pytest \
 | Inlining `_ryplanckql` with constants inside the function | Prevented module-level constant corruption across test files |
 | `rf"..."` raw f-strings for LaTeX multicolumn content | Preserves backslash literals while still interpolating expressions |
 | Write tool + Python helper script for large content | Avoids null-byte truncation from bash heredocs |
+| Edit tool exclusively for source-file modifications | Bash `open(...,'wb').write(data)` on CIFS mount destroyed `ryplot.py` twice — Edit tool is the only safe path |
 
 ### Didn't Work / Rejected
 
@@ -285,6 +297,7 @@ conda run -n pyradi --no-capture-output pytest \
 | Heredocs (`cat << EOF`) for multi-line bash writes | The Windows/Linux mount truncates heredoc content through the virtual filesystem |
 | `os.path.relpath` for path collection | Raises `ValueError` across drive letters on Windows |
 | `MagicMock` as `sys.modules['pyradi']` stub | pytest scans modules for `pytest_plugins`; `MagicMock` auto-creates that attribute returning another `MagicMock` (not a list) → `UsageError` |
+| Bash `open(path,'wb').write(data)` to strip null bytes from source files | Reads stale/truncated CIFS mount view and writes it back, permanently truncating the Windows file — destroyed `ryplot.py` twice, required user restore |
 
 ---
 
@@ -364,19 +377,46 @@ yaml pointers. Affected: `pyradi/__init__.py`, `pyradi/README.rst`, `README.md`,
 | `pd = Plotter(1)` in `__main__` shadows `import pandas as pd` → `AttributeError: 'Plotter' has no attribute 'Series'` | Renamed local var to `pdplot` |
 | Date x-axis: all dates squashed at origin | Removed deprecated `ax.xaxis_date()`; replaced `DayLocator` with `AutoDateLocator`; fixed `ax.set_xticks(string_list)` → keep numeric positions, use `mdates.num2date()` for labels only |
 
-### Step 9 — Optional: convert commented-out `.format()` calls
+### ~~Step 9 — Line-length cleanup across all ry*.py files~~ ✓ Done (2026-04-26)
+
+`test_ryplot.py::test_no_wrappable_long_lines` failed after `dev/all_tests.bat` was
+created (ryplot test had not been included in `recreate_env_and_test.bat` until now).
+Two docstring lines in `cubehelix()` exceeded 120 chars. Full scan then revealed long
+lines in 5 additional files:
+
+| File | Lines fixed | Types |
+|------|-------------|-------|
+| `ryplot.py` | 2 | docstring `\|` continuation |
+| `rylookup.py` | 1 | f-string split |
+| `ryplotspherical.py` | 1 | docstring `\|` continuation |
+| `ryptw.py` | 4 | comment moved to own line; f-string split |
+| `rytarggen.py` | 2 | docstring `\|` continuation |
+| `rymodtran.py` | 30 | column lists, string matches, `llines.append` LaTeX f-strings, `absHum` expression |
+| `rystare.py` | 57 | comments, docstring prose, `fo.write`/`print` f-string blocks |
+
+Rule used: lines > 120 chars, no `http`, before `__main__`. All 784 tests still green.
+
+> **Warning**: `ryplot.py` was accidentally destroyed twice during this step by bash
+> writes that read the stale CIFS mount view and wrote it back, truncating the file.
+> The user restored from backup both times. See the updated "Windows/Linux mount sync fix"
+> section and Critical Gotcha #11 for the definitive rule.
+
+New supporting file: `dev/all_tests.bat` — runs all tests without recreating the conda
+environment (fast re-run).
+
+### Step 10 — Optional: convert commented-out `.format()` calls
 
 14 lines of commented-out `.format()` calls remain in 6 files (catalogued in README).
 These are inert. If desired, delete the comments or convert them for consistency.
 
-### Step 10 — Optional: fix documented pre-existing bugs in ryplot.py
+### Step 11 — Optional: fix documented pre-existing bugs in ryplot.py
 
 The four ryplot pre-existing bugs (see Section 3) are preserved by policy. If the user
 decides to fix any of them, that is an explicit separate request — update both the
 production code and remove the corresponding `Note:` / buggy-behaviour assertion from the
 test suite.
 
-### Step 11 — Optional: clean up stale ryplot section in SKILL.md
+### Step 12 — Optional: clean up stale ryplot section in SKILL.md
 
 `SKILL.md` has a partial `ryplot.py — Active refactor progress` section near the bottom
 that predates completion. Now that all work is done, this section can be removed or
@@ -396,7 +436,8 @@ replaced with a one-line "ryplot: complete 2026-04-22" note.
 | `pyradi\pyradi\pyradi\dev\staleURLs.md` | URL audit: stale URLs, replacements found, ✅/❌ status | Current (2026-04-25) |
 | `pyradi\pyradi\pyradi\dev\check_urls.py` | URL liveness checker; ROOT = one level up; writes `dev\staleURLs.md` | Updated 2026-04-26 |
 | `pyradi\pyradi\pyradi\dev\fix_urls.py` | Applies high-confidence URL replacements to source files | Updated 2026-04-26 |
-| `pyradi\pyradi\pyradi\dev\recreate_env_and_test.bat` | Recreates conda env and runs full test suite | Updated 2026-04-26 |
+| `pyradi\pyradi\pyradi\dev\recreate_env_and_test.bat` | Recreates conda env and runs full test suite (all 17 test files incl. ryplot) | Updated 2026-04-26 |
+| `pyradi\pyradi\pyradi\dev\all_tests.bat` | Runs full test suite without recreating env (fast re-run) | Created 2026-04-26 |
 | `pyradi\pyradi\pyradi\clutter\` | Output sink for all `__main__` block file writes | Created 2026-04-26 |
 | `pyradi\pyradi\pyradi\clutter\_cleanClutter.py` | Interactive clutter-deletion utility (moved from `.`) | Updated 2026-04-26 |
 
@@ -424,4 +465,14 @@ replaced with a one-line "ryplot: complete 2026-04-22" note.
 
 10. **`transformations` package for ryscene** — third-party Gohlke wheel; stubbed in tests with `MagicMock` returning a known identity quaternion `[1, 0, 0, 0]`. Listed in `environment.yml` under `pip:`.
 
-11. **bash `cp` after an Edit-tool write truncates the copy** — the Linux CIFS mount lags behind the Windows filesystem. A `cp` immediately after an `Edit` picks up the stale (pre-edit) version. Always write file content directly via `python3 -c "open(dest,'w').write(content)"` and verify with `ast.parse()` before treating the result as canonical.
+11. **NEVER write to `ry*.py` source files from bash — use the Edit tool only.** The CIFS
+    mount can present a stale, truncated view of a recently-edited file. Any bash command
+    that reads and re-writes a source file (`open(...,'wb').write(data)`, `cp`, `sed -i`,
+    etc.) will overwrite the correct Windows file with the truncated Linux view, silently
+    destroying content. This happened twice with `ryplot.py` in the same session; the user
+    had to restore from backup both times. The only safe bash operations on source files are
+    read-only: `py_compile`, `grep`, `wc`, etc.
+
+12. **bash `cp` after an Edit-tool write truncates the copy** — same root cause as above.
+    Never use `cp` to duplicate a source file immediately after editing it via the Edit
+    tool. If you must copy, write the content directly via a Write-tool call instead.

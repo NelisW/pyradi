@@ -1221,15 +1221,15 @@ def source_follower_noise(strh5,initialise=True):
 
     The source follower noise can be approximated as:
 
-    :math:`\sigma_{SF} = \frac{\sqrt{\int\limits_{0}^{\infty} S_{SF}(f) H_{CDS}(f) df }}`
-    :math:`{A_{SN}A_{SF}(1-\exp^{-t_s/\tau_D})}`
+    :math:`\sigma_{SF} = \frac{N}{D}`
 
     where:
     -  :math:`\sigma_{SF}` is the source follower noise [e- rms]
+    -  :math:`N=\sqrt{\int\limits_{0}^{\infty} S_{SF}(f) H_{CDS}(f) df }` 
+    -  :math:`D=A_{SN}A_{SF}(1-\exp^{-t_s/\tau_D})` 
     -  :math:`f` is the electrical frequency [Hz]
     -  :math:`t_s` is the CDS sample-to-sampling time [sec]
-    -  :math:`\tau_D` is the CDS dominant time constant (see Janesick's Scientific CCDs book)
-       usually set as :math:`\tau_D = 0.5t_s` [sec].
+    -  :math:`\tau_D` is the CDS dominant time constant usually set as :math:`\tau_D = 0.5t_s` [sec].
 
     The :math:`H_{CDS}(f)` function is the CDS transfer function is (see Janesick's book):
 

@@ -73,8 +73,8 @@ project   = u'pyradi'
 copyright = u'2012-2026, CJ Willers'
 author    = u'CJ Willers'
 
-version = '1.1.4'
-release = '1.1.4'
+version = '1.2.0'
+release = '1.2.0'
 
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
