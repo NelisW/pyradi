@@ -335,6 +335,14 @@ def CIExy2rgb(xy,system='CIE RGB'):
 ##
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import pyradi.ryplanck as ryplanck
     import pyradi.ryplot as ryplot
@@ -457,7 +465,7 @@ if __name__ == '__main__':
         cietriplt.plot(4, ciebarwn[:,0], ciebarwn[:,1:4], "CIE tristimulus values, wn input",
                 r'Wavenumber cm$^{-1}$', r'Response', plotCol = ['r','g','b'],
                 label=['$\\bar{x}$', '$\\bar{y}$', '$\\bar{z}$'],legendAlpha=0.5,maxNX=5);
-        cietriplt.saveFig('cieBAR'+figtype)
+        cietriplt.saveFig(_c('cieBAR'+figtype))
 
 
 
@@ -512,20 +520,20 @@ if __name__ == '__main__':
         smpleplt = ryplot.Plotter(1, 1, 1)
         smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
                     r'Reflectance', ['r', 'g', 'y','k', 'b', 'm'],label=samplesTxt,legendAlpha=0.5)
-        smpleplt.saveFig('SampleReflectance'+figtype)
+        smpleplt.saveFig(_c('SampleReflectance'+figtype))
 
         ##------------------------- plot source spectra ------------------------------
         srceplt = ryplot.Plotter(2, 1, 1)
         srceplt.plot(1, wavelength, sources, "Normalized source radiance",
                     r'Wavelength $\mu$m', r'Radiance',['k', 'k', 'k', 'k'],
                     linestyle=[':', '-.', '--', '-'],label=sourcesTxt,legendAlpha=0.5 )
-        srceplt.saveFig('SourceRadiance'+figtype)
+        srceplt.saveFig(_c('SourceRadiance'+figtype))
 
         ##------------------------- plot cie tristimulus spectra ---------------------
         cietriplt = ryplot.Plotter(3, 1, 1)
         cietriplt.plot(1, wavelength, bar,"CIE tristimulus values",r'Wavelength $\mu$m',
                 r'Response', ['r','g','b'], label=['$\\bar{x}$','$\\bar{y}$','$\\bar{z}$'],legendAlpha=0.5)
-        cietriplt.saveFig('tristimulus'+figtype)
+        cietriplt.saveFig(_c('tristimulus'+figtype))
 
 
         ##------------------------- calculate cie xy for samples and sources ---------
@@ -572,6 +580,6 @@ if __name__ == '__main__':
                 ciexyplt.plot(1,xs[iSmpl,iSrc],ys[iSmpl,iSrc],"CIE chromaticity diagram", r'x',r'y',\
                         [styleSource[iSrc]],label=legend,legendAlpha=0.5 )
 
-        ciexyplt.saveFig('chromaticity'+figtype)
+        ciexyplt.saveFig(_c('chromaticity'+figtype))
 
     print('module chroma done!')

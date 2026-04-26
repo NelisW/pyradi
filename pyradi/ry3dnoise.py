@@ -364,6 +364,14 @@ def getTotal(imgSeq):
 ##
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import pyradi.ryfiles as ryfiles
     import pyradi.ryplot as ryplot
@@ -388,9 +396,9 @@ if __name__ == '__main__':
         # show something
         P = ryplot.Plotter(1, 1, 1, 'Simulated noise', figsize=(12, 8))
         P.showImage(1, img[0])
-        P.saveFig('rawframe0.png')
+        P.saveFig(_c('rawframe0.png'))
 
-        with open(outfilename, 'w') as outfile:
+        with open(_c(outfilename), 'w') as outfile:
             outfile.write(f'\n{frames} Frames read from {imagefile}\n')
             outfile.write(f'\nImage average S       : {getS(img):10.3f} \n')
             outfile.write(f'Total system noise    : {getTotal(img):10.3f} \n\n')
@@ -425,7 +433,7 @@ if __name__ == '__main__':
     P.showImage(3, img[0,:,:], ptitle=f'First Frame {ryutils.intify_tuple(img[0, :, :].shape)}', titlefsize=10)
     P.showImage(6, img[-1,:,:], ptitle=f'Last Frame {ryutils.intify_tuple(img[-1, :, :].shape)}', titlefsize=10)
     P.getPlot().show()
-    P.saveFig('simnoise.png')
+    P.saveFig(_c('simnoise.png'))
 
     #--------------------- Jade ptw file with noise data --------------------------------
 
@@ -450,9 +458,9 @@ if __name__ == '__main__':
     P = ryplot.Plotter(1, 1, 1, 'Measured MWIR noise', figsize=(12, 8))
     P.showImage(1, img[0])
     P.getPlot().show()
-    P.saveFig('ptwframe0.png')
+    P.saveFig(_c('ptwframe0.png'))
 
-    with open(outfilename, 'w') as outfile:
+    with open(_c(outfilename), 'w') as outfile:
         outfile.write(f'\n{frames} Frames read from {ptwfile}\n')
         outfile.write(f'\nImage average S       : {getS(img):10.3f} \n')
         outfile.write(f'Total system noise    : {getTotal(img):10.3f} \n\n')
@@ -487,6 +495,6 @@ if __name__ == '__main__':
     P.showImage(6, img[-1,:,:], ptitle=f'Last Frame {ryutils.intify_tuple(img[-1, :, :].shape)}', titlefsize=10)
     P.getPlot().show()
 
-    P.saveFig('ptwnoise.png')
+    P.saveFig(_c('ptwnoise.png'))
 
     print('ry3dnoise done!')

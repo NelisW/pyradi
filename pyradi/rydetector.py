@@ -453,6 +453,14 @@ def DstarSpectralFlatPhotonLim(Tdetec, Tenvironment,epsilon):
 
 ################################################################################
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
     """
     In the model application, the user must define all the detector and
     semiconductor parameters. Each material type has its own paramenters,
@@ -474,7 +482,7 @@ if __name__ == '__main__':
         currentP.axvline(x=xmaj,ls='-')
     for ymaj in currentP.yaxis.get_majorticklocs():
         currentP.axhline(y=ymaj,ls='-')
-    dstarP.saveFig('dstarFlat.eps')
+    dstarP.saveFig(_c('dstarFlat.eps'))
 
 
     ######################################################################
@@ -511,7 +519,7 @@ if __name__ == '__main__':
         currentP.axvline(x=xmaj,ls='-')
     for ymaj in currentP.yaxis.get_majorticklocs():
         currentP.axhline(y=ymaj,ls='-')
-    dstarP.saveFig('dstarPeak.eps')
+    dstarP.saveFig(_c('dstarPeak.eps'))
 
     #####################################################################
 
@@ -539,7 +547,7 @@ if __name__ == '__main__':
         currentP.axvline(x=xmaj,ls='-')
     for ymaj in currentP.yaxis.get_majorticklocs():
         currentP.axhline(y=ymaj,ls='-')
-    absFile.saveFig('absorption.eps')
+    absFile.saveFig(_c('absorption.eps'))
 
     #######################################################################
     #plot the Fermi-Dirac distribution
@@ -558,7 +566,7 @@ if __name__ == '__main__':
     fDfig = ryplot.Plotter(1,1,1)
     fDfig.plot(1,EevR,fDirac,'Fermi-Dirac distribution function',\
         r'Energy [eV]','Occupancy probability', label=legend)
-    fDfig.saveFig('FermiDirac.eps')
+    fDfig.saveFig(_c('FermiDirac.eps'))
 
 ######################################################################
 ######################################################################
@@ -692,35 +700,35 @@ if __name__ == '__main__':
     absFig = ryplot.Plotter(1,1,1)
     absFig.semilogY(1,wavelength,absorption,'Absorption Coefficient',\
         r'Wavelength [$\mu$m]',r'Absorption Coefficient [m$^{-1}$]')
-    absFig.saveFig('spectralabsorption.eps')
+    absFig.saveFig(_c('spectralabsorption.eps'))
 
     QE = ryplot.Plotter(1,1,1)
     QE.plot(1,wavelength,quantumEffic,'Spectral Quantum Efficiency',\
         r'Wavelength [$\mu$m]','Quantum Efficiency')
-    QE.saveFig('QE.eps')
+    QE.saveFig(_c('QE.eps'))
 
     IXVplot = ryplot.Plotter(1,1,1)
     IXVplot.semilogY(1,Vbias,np.abs(ixvDark) * 1e6, plotCol=['g'],label=['Dark'])
     IXVplot.semilogY(1,Vbias,np.abs(ixvBackgnd) * 1e6, plotCol=['r'],label=['Background'])
     IXVplot.semilogY(1,Vbias,np.abs(ixvTotalE) * 1e6,'IxV Curve',\
         'Voltage [V]','|Current| [uA]',plotCol=['b'],label=['Target'])
-    IXVplot.saveFig('IXVplot.eps')
+    IXVplot.saveFig(_c('IXVplot.eps'))
 
     Respons = ryplot.Plotter(1,1,1)
     Respons.plot(1,wavelength,responsivity,'Spectral Responsivity',\
         r'Wavelength [$\mu$m]','Responsivity [A/W]')
-    Respons.saveFig('Responsivity.eps')
+    Respons.saveFig(_c('Responsivity.eps'))
 
     DStarfig = ryplot.Plotter(1,1,1)
     DStarfig.plot(1,wavelength,dStar,'Spectral normalized detectivity',\
         r'Wavelength [$\mu$m]',r'D* [cm$\sqrt{{\rm Hz}}$/W]')
-    DStarfig.saveFig('dStar.eps')
+    DStarfig.saveFig(_c('dStar.eps'))
 
     NEPfig = ryplot.Plotter(1,1,1)
     NEPfig.plot(1,wavelength,NEPower,'Spectral Noise Equivalent Power',\
         r'Wavelength [$\mu$m]','NEP [W]',\
         pltaxis=[wavelenInit, wavelenFinal, 0,NEPower[0]])
-    NEPfig.saveFig('NEP.eps')
+    NEPfig.saveFig(_c('NEP.eps'))
 
     print('\nDone!')
 

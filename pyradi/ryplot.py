@@ -4033,6 +4033,14 @@ else:
 ## plot graphs and confirm the correctness of the functions
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import datetime as dt
     import ryutils
@@ -4080,7 +4088,7 @@ if __name__ == '__main__':
             thetaAxis=[135,271], radiusAxis=[0,1],xytickfsize=8,numAngGrid=3, numRadGrid=5,
             linewidths=[2],linestyle=['-'],markers=['o'],label=['dodo'],markevery=4,radangfsize=8)
 
-        p.saveFig('piepol.png')
+        p.saveFig(_c('piepol.png'))
 
 
     if doAll:  # stacked plot
@@ -4098,7 +4106,7 @@ if __name__ == '__main__':
         sp = Plotter(1,1,1,figsize=(16,8))
         sp.stackplot(1,x,percent,'Stack plot','X-axis label','Y-axis label',
             plotCol=['crimson','teal','#553300'], label=['aaa','bbb','cccc'],legendAlpha=0.5)
-        sp.saveFig('stackplot.png')
+        sp.saveFig(_c('stackplot.png'))
 
     if doAll:    #next line include both 0 and 360 degrees, i.e., overlap on edge
         angled = np.linspace(0.,360.,25)
@@ -4124,7 +4132,7 @@ if __name__ == '__main__':
             direction='clockwise', zerooffset=np.pi/2, )
         pm.polar3d(2, angler, grange, launch, zlabel='zlabel',
             linewidth=1, zscale=[0, 1], azim=135, elev=60, alpha=0.5,edgeCol=['k'])
-        pm.saveFig('3Dlaunch.png')
+        pm.saveFig(_c('3Dlaunch.png'))
 
     if doAll:
         ############################################################################
@@ -4167,7 +4175,7 @@ if __name__ == '__main__':
             edgeCol=['b'],plotCol=['b'],linewidth=0.4,rstride=2,cstride=2, drawGrid=False)
         sph.plot3d(2, xsu, ysu, zsu, ptitle='', scatter=True,markers=['o' for i in range(len(xsu))],
                    azim=azim, elev=elev)
-        sph.saveFig('3dsphere.png')
+        sph.saveFig(_c('3dsphere.png'))
 
         ############################################################################
         #demonstrate the use of a polar 3d plot
@@ -4185,8 +4193,8 @@ if __name__ == '__main__':
         p3D = Plotter(1, 1, 1,'Polar plot in 3-D',figsize=(12,8))
         p3D.polar3d(1, p, r, value, ptitle='3-D Polar Plot',
             xlabel='xlabel', ylabel='ylabel', zlabel='zlabel')#,zscale=[-2,1])
-        p3D.saveFig('p3D.png')
-        #p3D.saveFig('p3D.eps')
+        p3D.saveFig(_c('p3D.png'))
+        #p3D.saveFig(_c('p3D.eps'))
 
         with open('./data/Intensity-max.dat', 'rt') as fin:
             aArray = np.loadtxt( fin, skiprows=1 , dtype=float )
@@ -4202,8 +4210,8 @@ if __name__ == '__main__':
             p3D.polar3d(3, azim, elev3, intensity, zlabel='zlabel',zscale=[0, 2000], azim=60, elev=60)
             p3D.polar3d(4, azim, elev, intensity, zlabel='zlabel',zscale=[0, 1000], azim=110, elev=-30)
 
-            p3D.saveFig('p3D2.png')
-            #p3D.saveFig('p3D2.eps')
+            p3D.saveFig(_c('p3D2.png'))
+            #p3D.saveFig(_c('p3D2.eps'))
 
         ############################################################################
         xv,yv = np.mgrid[-2:2:21j, -2:2:21j]
@@ -4213,8 +4221,8 @@ if __name__ == '__main__':
         ip = ProcessImage()
         zz, customticksz = ip.compressEqualizeImage(z, 2, 10)
         I.showImage(2, zz, ptitle='Equalized xv**2 + yv**2', titlefsize=10,  cbarshow=True, cbarorientation = 'vertical', cbarcustomticks=customticksz, cbarfontsize = 7)
-        I.saveFig('HistoEq.png')
-        #    I.saveFig('HistoEq.eps')
+        I.saveFig(_c('HistoEq.png'))
+        #    I.saveFig(_c('HistoEq.eps'))
 
         ############################################################################
         # demonstrate dates on the x-axis
@@ -4223,14 +4231,14 @@ if __name__ == '__main__':
         y = np.asarray(list(range(len(x))))
         pdplot = Plotter(1)
         pdplot.plot(1,x,y,xIsDate=True,pltaxis=[x[0],x[-1],-1,4],xtickRotation=30)
-        pdplot.saveFig('plotdateX.png')
+        pdplot.saveFig(_c('plotdateX.png'))
 
         #demonstrate the use of arbitrary x-axis tick marks
         x = np.asarray([1, 2, 3, 4])
         y = np.asarray([1, 2, 3, 4])
         px = Plotter(2)
         px.plot(1,x,y,xTicks={1:'One', 2:'Two', 3:'Three', 4:'Four'}, xtickRotation=90)
-        px.saveFig('plotxTick.png')
+        px.saveFig(_c('plotxTick.png'))
 
     ############################################################################
     #demonstrate the use of a polar mesh plot radial scales
@@ -4259,8 +4267,8 @@ if __name__ == '__main__':
                       drawGrid=True, thetagrid=[15], rgrid=[0.2, 1.],\
                       thetagridfontsize=10, radialgridfontsize=8,
                       direction='clockwise', zerooffset=-np.pi/2)#, radscale=[0.5,1.25])
-        pmesh.saveFig('pmeshrad.png')
-        #pmesh.saveFig('pmeshrad.eps')
+        pmesh.saveFig(_c('pmeshrad.png'))
+        #pmesh.saveFig(_c('pmeshrad.eps'))
 
         #3D plot example
         def parametricCurve(z, param1 = 2, param2 = 1):
@@ -4272,22 +4280,22 @@ if __name__ == '__main__':
         z = np.linspace(-2, 2, 100)
         x, y = parametricCurve(z)
         P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z',zInvert=True)
-        P3D.saveFig('3D.png')
+        P3D.saveFig(_c('3D.png'))
 
         P3D = Plotter(6, 1, 1,'Plot 3D Single', figsize=(12,8))
         plabel = ['parametric curve 1', 'parametric curve 2', 'parametric curve 3']
         P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
-        P3D.saveFig('3DwithLabel.png')
+        P3D.saveFig(_c('3DwithLabel.png'))
         P3D.plot3d(1, 1.3*x.T, 0.8*y.T, 0.7*z.T, 'Parametric Curve', 'X', 'Y', 'Z', legendAlpha=0.5)
         P3D.plot3d(1, 0.8*x.T, 0.9*y.T, 1.2*z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=plabel, legendAlpha=0.5)
-        P3D.saveFig('3DwithLabelRepeat.png')
+        P3D.saveFig(_c('3DwithLabelRepeat.png'))
 
         P3D = Plotter(7, 2, 2,'Plot 3D Aspects', figsize=(12,8))
         P3D.plot(1, x.T, y.T, 'Top View', 'X', 'Y')
         P3D.plot(2, x.T, z.T, 'Side View Along Y Axis', 'X', 'Z')
         P3D.plot(3, y.T, z.T, 'Side View Along X Axis', 'Y', 'Z')
         P3D.plot3d(4, x.T, y.T, z.T, '3D View', 'X', 'Y', 'Z')
-        P3D.saveFig('S3D.png')
+        P3D.saveFig(_c('S3D.png'))
 
         P3D = Plotter(8, 1, 1,'Plot 3D Multiple', figsize=(12,8))
         label = [f'Param1={2} Param2={1}']
@@ -4303,7 +4311,7 @@ if __name__ == '__main__':
 
         P3D.plot3d(1, x.T, y.T, z.T, 'Parametric Curve', 'X', 'Y', 'Z', label=label,
             legendAlpha=0.5, markers=['o','v','^','<'], markevery=4)
-        P3D.saveFig('M3D.png')
+        P3D.saveFig(_c('M3D.png'))
 
     ############################################################################
     # demonstrate the use of the contextmanager and with statement
@@ -4348,7 +4356,7 @@ if __name__ == '__main__':
                     contourFill=True, contourLine=True, logScale=False )
         #the current version uses pngs, since there appears to be a
         #problem with eps files.
-        pmc.saveFig('meshContour.png', dpi=300)
+        pmc.saveFig(_c('meshContour.png'), dpi=300)
 
 
 
@@ -4380,7 +4388,7 @@ if __name__ == '__main__':
           rstride=3, cstride=3, linewidth= 0, maxNX=5, maxNY=5, maxNZ=0, drawGrid=True,
           cmap=cm.brg, cbarshow=True)
 
-        p.saveFig('mesh3d01.png')
+        p.saveFig(_c('mesh3d01.png'))
 
 
 
@@ -4401,7 +4409,7 @@ if __name__ == '__main__':
         Ar = Plotter(9, 1, 1,maintitle)
         Ar.plotArray(1,arrDummyDemo, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
             sepSpace=0.05)
-        Ar.saveFig('ArrayPlot01.png')
+        Ar.saveFig(_c('ArrayPlot01.png'))
 
         t = np.linspace(0, 4 * np.pi, 100).reshape(-1,1)
         arr = np.hstack((t,   np.sin(t * 2 * np.pi / 4.0)))
@@ -4418,14 +4426,14 @@ if __name__ == '__main__':
             sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
         Ar2.plotArray(1,arr, 0, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
             sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
-        Ar2.saveFig('ArrayPlot02.png')
+        Ar2.saveFig(_c('ArrayPlot02.png'))
 
         Ar3 = Plotter(11, 1, 1,maintitle)
         Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
             sepSpace=0.05,selectCols=[0,2,4,6,8,10,12,14],allPlotCol='b')
         Ar3.plotArray(1,arr.T, 1, labels=labels, titlefsize = 12, maxNX = 5, maxNY=3,
             sepSpace=0.05,selectCols=[1,3,5,7,9,11,13,15], allPlotCol='r')
-        Ar3.saveFig('ArrayPlot03.png')
+        Ar3.saveFig(_c('ArrayPlot03.png'))
 
 
     ############################################################################
@@ -4452,8 +4460,8 @@ if __name__ == '__main__':
         markers.add(6*np.pi/6,0.4,marker='D',fillstyle='left',markerfacecoloralt='Sienna',markersize=10)
         markers.plot(pmesh.getSubPlot(1))
 
-        pmesh.saveFig('pmesh.png')
-        #pmesh.saveFig('pmesh.eps')
+        pmesh.saveFig(_c('pmesh.png'))
+        #pmesh.saveFig(_c('pmesh.eps'))
 
 
     ############################################################################
@@ -4484,8 +4492,8 @@ if __name__ == '__main__':
                    label=['A1', 'A2', 'A3'],legendAlpha=0.5)
         A.semilogY(4, xLinS, yLinA, "Array SemilogY","X", "Y",\
                    label=['A1', 'A2', 'A3'],legendAlpha=0.5)
-        A.saveFig('A.png')
-        #A.saveFig('A.eps')
+        A.saveFig(_c('A.png'))
+        #A.saveFig(_c('A.eps'))
 
         AA = Plotter(1, 1, 1,'Demonstrate late labels',figsize=(12,8))
         AA.plot(1, xLinS, yLinA, plotCol=['b'],
@@ -4511,8 +4519,8 @@ if __name__ == '__main__':
         for ymin in currentP.yaxis.get_minorticklocs():
             currentP.axhline(y=ymin,ls='--')
 
-        AA.saveFig('AA.png')
-        # AA.saveFig('AA.eps')
+        AA.saveFig(_c('AA.png'))
+        # AA.saveFig(_c('AA.eps'))
 
         S = Plotter(2, 2, 2,'Single Plots',figsize=(12,8))
         S.plot(1, xLinS, yLinS, "Single Linear","X", "Y",\
@@ -4523,8 +4531,8 @@ if __name__ == '__main__':
                    label=['Original'],legendAlpha=0.5)
         S.semilogY(4, xLinS, yLinS, "Single SemilogY","X", "Y",\
                    label=['Original'],legendAlpha=0.5)
-        S.saveFig('S.png', dpi=300)
-        #S.saveFig('S.eps')
+        S.saveFig(_c('S.png'), dpi=300)
+        #S.saveFig(_c('S.eps'))
         #plot again on top of the existing graphs
         S.plot(1, xLinS, yLinSS, "Single Linear","X", "Y",\
                    plotCol='r',label=['Repeat on top'],legendAlpha=0.5)
@@ -4534,8 +4542,8 @@ if __name__ == '__main__':
                    plotCol='k',label=['Repeat on top'],legendAlpha=0.5)
         S.semilogY(4, xLinS, 0.85*yLinSS, "Single SemilogY","X", "Y",\
                    plotCol='y',label=['Repeat on top'],legendAlpha=0.5)
-        S.saveFig('SS.png', dpi=300)
-        #S.saveFig('SS.eps')
+        S.saveFig(_c('SS.png'), dpi=300)
+        #S.saveFig(_c('SS.eps'))
 
         r = np.arange(0, 3.01, 0.01).reshape(-1, 1)
         theta = 2*np.pi*r
@@ -4552,8 +4560,8 @@ if __name__ == '__main__':
         P.polar(4,theta, r2, "Array Polar",\
                label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
                thetagrid=[45], direction='counterclockwise', zerooffset=-np.pi/2)
-        P.saveFig('P.png')
-        #P.saveFig('P.eps')
+        P.saveFig(_c('P.png'))
+        #P.saveFig(_c('P.eps'))
         #plot again on top of existing graphs
         rr = np.arange(0.1, 3.11, 0.01).reshape(-1, 1)
         thetar = 2*np.pi*rr
@@ -4568,8 +4576,8 @@ if __name__ == '__main__':
         P.polar(4,thetar, 1.5 * rr, "Array Polar",\
                plotCol='y',label=['A', 'B'],legendAlpha=0.5,rscale=[0,9],rgrid=[0,6],\
                thetagrid=[45], direction='counterclockwise', zerooffset=-np.pi/2)
-        P.saveFig('PP.png')
-        #P.saveFig('PP.eps')
+        P.saveFig(_c('PP.png'))
+        #P.saveFig(_c('PP.eps'))
 
         #polar with negative values
         theta=np.linspace(0,2.0*np.pi,600)
@@ -4589,8 +4597,8 @@ if __name__ == '__main__':
         PN.polar(4,tt,rr, "1 + 3sin(x)", \
                legendAlpha=0.5,rgrid=[1,5],highlightNegative=True,direction='clockwise',
                zerooffset=np.pi/2,highlightCol='r',highlightWidth=2)
-        PN.saveFig('PN.png')
-        #PN.saveFig('PN.eps')
+        PN.saveFig(_c('PN.png'))
+        #PN.saveFig(_c('PN.eps'))
 
         #test/demo to show that multiple plots can be done in the same subplot, on top of older plots
         xLinS=np.linspace(0, 10, 50).reshape(-1, 1)
@@ -4607,8 +4615,8 @@ if __name__ == '__main__':
         yLinS=np.random.random(xLinS.shape[0]).reshape(-1, 1)
         M.plot(1, xLinS, yLinS, None,"X", "Y",plotCol=['c'], \
                label=['A4'],legendAlpha=0.5, maxNX=10, maxNY=2)
-        M.saveFig('M.png')
-        #M.saveFig('M.eps')
+        M.saveFig(_c('M.png'))
+        #M.saveFig(_c('M.eps'))
 
 
         xv,yv = np.mgrid[-5:5:21j, -5:5:21j]
@@ -4619,16 +4627,16 @@ if __name__ == '__main__':
         I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm.prism, cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-        I.saveFig('I.png')
-    #    I.saveFig('I.eps')
+        I.saveFig(_c('I.png'))
+    #    I.saveFig(_c('I.eps'))
         #plot on existing
         I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
         barticks = list(zip([-1, 0, 1], ['low', 'med', 'high']))
         I.showImage(2, z, ptitle='prism colormap, default font ', cmap=plt.cm. prism, cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-        I.saveFig('II.png')
-    #    I.saveFig('II.eps')
+        I.saveFig(_c('II.png'))
+    #    I.saveFig(_c('II.eps'))
 
         I = Plotter(5, 2, 2,'Images & Array Linear', figsize=(12, 8))
         I.showImage(1, z, ptitle='winter colormap, font 10pt', cmap=plt.cm. winter, titlefsize=10,  cbarshow=True, cbarorientation = 'horizontal', cbarfontsize = 7)
@@ -4636,13 +4644,13 @@ if __name__ == '__main__':
         I.showImage(2, z, ptitle='cubehelix colormap, default font ',cmap=cubehelixcmap(), cbarshow=True, cbarcustomticks=barticks)
         I.showImage(3, z, ptitle='default gray colormap, font 8pt', cbarshow=True, titlefsize=8)
         I.plot(4, xv[:, 1],  z, "Array Linear","x", "z")
-        I.saveFig('cmaps.png')
+        I.saveFig(_c('cmaps.png'))
 
         #demonstrate setting axis values
         x=np.linspace(-3,3,20)
         p = Plotter(1)
         p.plot(1,x,x,pltaxis=[-2,1,-3,2])
-        p.saveFig('testaxis.png')
+        p.saveFig(_c('testaxis.png'))
 
 
         #test the ability to return to existing plots and add new lines
@@ -4654,9 +4662,9 @@ if __name__ == '__main__':
             a.plot(1,x,x ** i, str(i))
             b.plot(1,x,(-x) ** i,str(i))
             c.plot(1,x,(5-x) ** i,str(i))
-        a.saveFig('ma.png')
-        b.saveFig('mb.png')
-        c.saveFig('mc.png')
+        a.saveFig(_c('ma.png'))
+        b.saveFig(_c('mb.png'))
+        c.saveFig(_c('mc.png'))
 
     ############################################################################
     #demonstrate multipage pdf output
@@ -4694,7 +4702,7 @@ if __name__ == '__main__':
         q.buildPlotCol(['#ff5577','#FFFF31'])
         q.plot(1,x,x,pltaxis=[-2,1,-3,2],drawGrid=False)
         q.plot(1,x,x**2,pltaxis=[-2,1,-3,2],drawGrid=False)
-        q.saveFig('userplotcol.png')
+        q.saveFig(_c('userplotcol.png'))
 
         x = np.linspace(0,1,200).reshape(-1,1)
         t = Plotter(1,1,1,figsize=(6,2))
@@ -4702,7 +4710,7 @@ if __name__ == '__main__':
         for i in range(len(t.plotCol)):
             y = np.hstack((y,x+i*0.02))
         t.plot(1,x,y,'Display default plot colours',pltaxis=[0,1,0,1],drawGrid=False)
-        t.saveFig('userplotcol02.png')
+        t.saveFig(_c('userplotcol02.png'))
 
 
     if True: # doAll:
@@ -4713,7 +4721,7 @@ if __name__ == '__main__':
         cimage = q.showImage(1,ZZ,'Jet', cmap='jet')
         cimage = q.showImage(2,ZZ,'Turbo', cmap='turbo')
         cimage = q.showImage(3,ZZ,'Viridis', cmap='viridis')
-        q.saveFig('jet-turbo.png')
+        q.saveFig(_c('jet-turbo.png'))
 
 
     print('module ryplot done!')

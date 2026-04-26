@@ -1055,6 +1055,14 @@ class JadeCalibrationData:
 
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
     import pyradi.ryutils as ryutils
     import pyradi.ryplot as ryplot
 
@@ -1150,6 +1158,6 @@ if __name__ == '__main__':
         I.showImage(1, tempIm,
                     ptitle=f'{ptwfile[:-4]}, frame {frame}, temperature in K',
                     titlefsize=7, cbarshow=True, cbarfontsize=7)
-        I.saveFig(f'{os.path.basename(ptwfile)[:-4]}-{frame}.png')
+        I.saveFig(_c(f'{os.path.basename(ptwfile)[:-4]}-{frame}.png'))
 
     print('\nryptw Done!')

@@ -3109,6 +3109,14 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
     import math
     import sys
     from scipy.interpolate import interp1d
@@ -3151,7 +3159,7 @@ if __name__ == '__main__':
         # confirm image
         p = ryplot.Plotter(1,3,1,filename)
         p.showImage(1,imgo)
-        p.saveFig(f'{filename[:-4]}.png')
+        p.saveFig(_c(f'{filename[:-4]}.png'))
         # fil = open(filename,'wb')
         # fil.write(imgo)
 
@@ -3164,7 +3172,7 @@ if __name__ == '__main__':
         p = ryplot.Plotter(1,1,2);
         p.showImage(1, dset);
         p.showImage(2, mesh_cart);
-        p.saveFig('warpPolarImageToCartesianImage.png')
+        p.saveFig(_c('warpPolarImageToCartesianImage.png'))
 
         if False:
             # this takes a while to compute
@@ -3319,7 +3327,7 @@ if __name__ == '__main__':
         vlam,wl = luminousEfficiency(vlamtype='CIE2008v10', wavelen=None, eqnapprox=False)
         p.plot(1,wl,vlam,'Luminous Efficiency',r'Wavelength $\mu$m','Efficiency',
             label=[r'CIE 2008 V($\lambda$) 10 deg table'])
-        p.saveFig('vlam.png')
+        p.saveFig(_c('vlam.png'))
 
 
     if  doAll:
@@ -3457,7 +3465,7 @@ if __name__ == '__main__':
         p.plot(1,wl, radiancewl,'Planck radiance',r'Wavelength $\mu$m', r'Radiance W/(m$^2$.sr.$\mu$m)')
         p.plot(2,wn, radiancewn1,'Planck radiance',r'Wavenumber cm$^{-1}$', r'Radiance W/(m$^2$.sr.cm$^{-1}$)')
         p.plot(3,wn, radiancewn2,'Planck radiance',r'Wavenumber cm$^{-1}$', r'Radiance W/(m$^2$.sr.cm$^{-1}$)')
-        p.saveFig('densconvert.png')
+        p.saveFig(_c('densconvert.png'))
 
     if  doAll:
         ##++++++++++++++++++++ demo the convolution ++++++++++++++++++++++++++++
@@ -3481,7 +3489,7 @@ if __name__ == '__main__':
                     r'Signal', ['r'],label=['Input'],legendAlpha=0.5)
         convplot.plot(1, wavenum, outspectral, "Convolution Test", r'Wavenumber cm$^{-1}$',\
                     r'Signal', ['g'],label=['Output'],legendAlpha=0.5)
-        convplot.saveFig('convplot01'+figtype)
+        convplot.saveFig(_c('convplot01'+figtype))
 
         ## ----------------------- spectral convolution practical example ----------
          # loading bunsen spectral radiance file: 4cm-1  spectral resolution, approx 2 cm-1 sampling
@@ -3505,7 +3513,7 @@ if __name__ == '__main__':
         convplot02 = ryplot.Plotter(1, 1, 1,figsize=(20,5))
         convplot02.plot(1, wavenum, atmoplot.T, "Atmospheric Transmittance", r'Wavenumber cm$^{-1}$',\
                     r'Transmittance', ['r', 'g'],label=['1 cm-1', '4 cm-1' ],legendAlpha=0.5)
-        convplot02.saveFig('convplot02'+figtype)
+        convplot02.saveFig(_c('convplot02'+figtype))
 
         bunsenPlt = ryplot.Plotter(1,3, 2, figsize=(20,7))
         bunsenPlt.plot(1, wavenum, bunsen, "Bunsen Flame Measurement 4 cm-1", r'',\
@@ -3523,7 +3531,7 @@ if __name__ == '__main__':
             "Atmospheric-corrected Bunsen Flame Measurement 4 cm-1",
             r'Wavenumber cm$^{-1}$', r'Signal', ['r'], pltaxis=[2000, 4000, 0, 1.5])
 
-        bunsenPlt.saveFig('bunsenPlt01'+figtype)
+        bunsenPlt.saveFig(_c('bunsenPlt01'+figtype))
 
         #bunsenPlt.plot
 
@@ -3557,7 +3565,7 @@ if __name__ == '__main__':
             r'Wavelength [$\mu$m]', r'Transmittance', \
                     ['r', 'g', 'y','k', 'b', 'm'],label=filterTxt)
 
-        smpleplt.saveFig('sfilterVar2'+figtype)
+        smpleplt.saveFig(_c('sfilterVar2'+figtype))
 
         #all passband, different shapes
         width = 0.5
@@ -3575,7 +3583,7 @@ if __name__ == '__main__':
             r"Optical filter for $\lambda_c$=0.7, $\Delta\lambda$=0.5,$\tau_{s}$=0.1, $\tau_{p}$=0.8",
             r'Wavelength [$\mu$m]', r'Transmittance', \
                     ['r', 'g', 'y','k', 'b', 'm'],label=filterTxt)
-        smpleplt.saveFig('sfilterVar'+figtype)
+        smpleplt.saveFig(_c('sfilterVar'+figtype))
 
 
     if  doAll:
@@ -3594,7 +3602,7 @@ if __name__ == '__main__':
             r"Detector Responsivity for $\lambda_c$=1.2 $\mu$m, k=1",
             r'Wavelength [$\mu$m]', r'Responsivity',
             ['r', 'g', 'y', 'k', 'b', 'm'], label=parameterTxt)
-        smpleplt.saveFig('responsivityVar'+figtype)
+        smpleplt.saveFig(_c('responsivityVar'+figtype))
 
         ##--------------------filtered responsivity ------------------------------
         # here we simply multiply the responsivity and spectral filter spectral curves.
@@ -3606,7 +3614,7 @@ if __name__ == '__main__':
         smpleplt.plot(1, wavelength, filtreps, "Filtered Detector Responsivity", r'Wavelength $\mu$m',\
                    r'Responsivity', \
                    ['r', 'g', 'y','k', 'b', 'm'],label=parameterTxt,legendAlpha=0.5)
-        smpleplt.saveFig('filtrespVar'+figtype)
+        smpleplt.saveFig(_c('filtrespVar'+figtype))
 
         ##++++++++++++++++++++ demo the demo effectivevalue  ++++++++++++++++++++++++++++
 
@@ -3650,7 +3658,7 @@ if __name__ == '__main__':
         temperature = np.linspace(-20,70,90)
         abshum = abshumidity(temperature + 273.15).reshape(-1,1)
         p.plot(1,temperature, abshum,'Absolute humidity vs temperature','Temperature [K]','Absolute humidity g/m$^3$]')
-        p.saveFig('abshum.eps')
+        p.saveFig(_c('abshum.eps'))
 
         print(f'US-Std 15C 46 RH has {0.46 * abshumidity(15 + 273.15):.3e} g/m3')
         #highest ever recorded absolute humidity was at dew point of 34C
@@ -3732,13 +3740,13 @@ if __name__ == '__main__':
         color2 = 255      
         img = drawCheckerboard(rows,cols,pixInBlock,'L',color1,color2,'nparray')
         pilImg = Img.fromarray(img, 'L')
-        pilImg.save(f"{'checkerboardL'}.png")
+        pilImg.save(_c(f"{'checkerboardL'}.png"))
 
 
         color1 = (0,0,0)          
         color2 = (255,255,255)      
         pilImage = drawCheckerboard(rows,cols,pixInBlock,'RGB',color1,color2,'image')
-        pilImage.save(f"{'checkerboardRGB'}.png")
+        pilImage.save(_c(f"{'checkerboardRGB'}.png"))
 
     ############################################################
     # test the mtf from wavefront code
@@ -3768,7 +3776,7 @@ if __name__ == '__main__':
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
             I1.showImage(i+4, phase[specband], ptitle=f'{specband} wavefront displacement in rad', 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
-        I1.saveFig('mirrorerror-WFerror.png')
+        I1.saveFig(_c('mirrorerror-WFerror.png'))
 
         # plot the 2D MTF
         I1 = ryplot.Plotter(1,1,len(specdef.keys()),f'Degraded MTF: sample {sample} ',
@@ -3777,7 +3785,7 @@ if __name__ == '__main__':
         for i,specband in enumerate(keys):
             I1.showImage(i+1, MTF2D[specband], ptitle=f'{specband} MTF', cmap=ryplot.cubehelixcmap(), 
                          titlefsize=10, cbarshow=True);
-        I1.saveFig('mirrorerror-2D-MTF.png')
+        I1.saveFig(_c('mirrorerror-2D-MTF.png'))
 
         #  plot the 2D MTF degradation
         I1 = ryplot.Plotter(2,1,len(specdef.keys()),f'Degraded MTF/MTFdiffraction: sample {sample} ',
@@ -3786,7 +3794,7 @@ if __name__ == '__main__':
         for i,specband in enumerate(keys):
             I1.showImage(i+1, MTF2D[specband]/MTF2D[clear], ptitle=f'{specband} MTF', 
                          cmap=ryplot.cubehelixcmap(),titlefsize=10, cbarshow=True);
-        I1.saveFig('mirrorerror-2D-MTF-ratio.png')
+        I1.saveFig(_c('mirrorerror-2D-MTF-ratio.png'))
 
         # plot the rotational MTF
         I1 = ryplot.Plotter(3,1,len(specdef.keys())-1,figsize=(8*(len(specdef.keys())-1),5));
@@ -3798,7 +3806,7 @@ if __name__ == '__main__':
                     I1.plot(j+1,rho[specband],MTFpol[specband][:,i],f'Sample {sample} {specband}',
                            'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1])
                 j += 1
-        I1.saveFig('mirrorerror-rotational-MTF.png')
+        I1.saveFig(_c('mirrorerror-rotational-MTF.png'))
 
         # plot the mean MTF
         I1 = ryplot.Plotter(4,len(specdef.keys())-1,2,figsize=(12,4*(len(specdef.keys())-1)),
@@ -3814,7 +3822,7 @@ if __name__ == '__main__':
                 I1.plot(j*2+1,rho[specband],MTFmean[clear],'',
                        'Frequency cy/mrad','MTF',pltaxis=[0,fcrit[specband],0,1],label=[clear])
                 j += 1
-        I1.saveFig('mirrorerror-mean-MTF.png')
+        I1.saveFig(_c('mirrorerror-mean-MTF.png'))
 
 
 

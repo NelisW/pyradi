@@ -1199,6 +1199,14 @@ def runModtranModrootIn(root, pathToModtranBin,execname,filerootname='atmo'):
 ##
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import math
     import sys
@@ -1223,34 +1231,34 @@ if __name__ == '__main__':
 
         ## ----------------------- -----------------------------------------
         tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
-        np.savetxt('tape7-01a.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-01a.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-01b", ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'AER+CLD_abTRNS'] )
-        np.savetxt('tape7-01b.txt', tape7, fmt=str('%.6e'))
+        np.savetxt(_c('tape7-01b.txt'), tape7, fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-01", ['FREQ_CM-1', 'COMBIN_TRANS', 'H2O_TRANS', 'UMIX_TRANS', 'O3_TRANS', 'TRACE_TRANS', 'N2_CONT', 'H2O_CONT', 'MOLEC_SCAT', 'AER+CLD_TRANS', 'HNO3_TRANS', 'AER+CLD_abTRNS', '-LOG_COMBIN', 'CO2_TRANS', 'CO_TRANS', 'CH4_TRANS', 'N2O_TRANS', 'O2_TRANS', 'NH3_TRANS', 'NO_TRANS', 'NO2_TRANS', 'SO2_TRANS', 'CLOUD_TRANS', 'CFC11_TRANS', 'CFC12_TRANS', 'CFC13_TRANS', 'CFC14_TRANS', 'CFC22_TRANS', 'CFC113_TRANS', 'CFC114_TRANS', 'CFC115_TRANS', 'CLONO2_TRANS', 'HNO4_TRANS', 'CHCL2F_TRANS', 'CCL4_TRANS', 'N2O5_TRANS'] )
-        np.savetxt('tape7-01.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-01.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-02", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
-        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-02.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-02b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
-        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-02.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-02c", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'GRND_RFLT', 'TOTAL_RAD', 'DEPTH', 'DIR_EM', 'BBODY_T[K]'] )
-        np.savetxt('tape7-02.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-02.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-03", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'THRML_SCT', 'SURF_EMIS', 'SOL_SCAT', 'SING_SCAT', 'GRND_RFLT', 'DRCT_RFLT', 'TOTAL_RAD', 'REF_SOL', 'SOL@OBS', 'DEPTH', 'DIR_EM', 'TOA_SUN', 'BBODY_T[K]'] )
-        np.savetxt('tape7-03.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-03.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-04", ['FREQ', 'TRANS', 'SOL_TR', 'SOLAR', 'DEPTH'] )
-        np.savetxt('tape7-04.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-04.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-05", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
-        np.savetxt('tape7-05.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-05.txt'), tape7,fmt=str('%.6e'))
 
         tape7= loadtape7("data/tape7-05b", ['FREQ', 'TOT_TRANS', 'PTH_THRML', 'SURF_EMIS', 'TOTAL_RAD'] )
-        np.savetxt('tape7-05b.txt', tape7,fmt=str('%.6e'))
+        np.savetxt(_c('tape7-05b.txt'), tape7,fmt=str('%.6e'))
 
 
     if doAll:
@@ -1264,8 +1272,8 @@ if __name__ == '__main__':
         mT.plot(1, wavelen, tape7[:,1:], "","Wavelength [$\\mu$m]", "Transmittance",
                label=colSelect[1:],legendAlpha=0.5, pltaxis=[0.4,1, 0, 1],
                maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
-        mT.saveFig('ModtranPlot.png')
-        #mT.saveFig('ModtranPlot.eps')
+        mT.saveFig(_c('ModtranPlot.png'))
+        #mT.saveFig(_c('ModtranPlot.eps'))
 
         # this example plots the individual transmittance components
         colSelect =  ['FREQ_CM-1', 'COMBIN_TRANS', 'MOLEC_SCAT', 'CO2_TRANS', 'H2O_TRANS', 'H2O_CONT', 'CH4_TRANS',\
@@ -1305,8 +1313,8 @@ if __name__ == '__main__':
                maxNX=10, maxNY=4, powerLimits = [-4,  4, -5, 5])
 
 
-        mT.saveFig('ModtranSpec.png')
-        mT.saveFig('ModtranSpec.eps')
+        mT.saveFig(_c('ModtranSpec.png'))
+        mT.saveFig(_c('ModtranSpec.eps'))
 
         # calculate the total path radiance over a spectral band
         #read the tape7 file with path radiance components, plot and integrate.
@@ -1325,7 +1333,7 @@ if __name__ == '__main__':
           #this calculation is over the whole band, equally weighted.
           totinband = np.trapezoid(Lpath.reshape(-1, 1),skyrad[:,0], axis=0)[0]
           print(f'{colSelect[i][:]} sum is {totinband} [W/(m^2.sr)]')
-        sr.saveFig('NIRPathradiance.png')
+        sr.saveFig(_c('NIRPathradiance.png'))
         print('Note that multiple scatter contributes significantly to the total path radiance')
 
         #repeat the same calculation, but this time do in wavelength domain
@@ -1343,7 +1351,7 @@ if __name__ == '__main__':
           totinband = - np.trapezoid(Lpath.reshape(-1, 1),wl,axis=0)[0]
           print(f'{colSelect[i][:]} integral is {totinband:.6e} [W/(m^2.sr)]')
 
-        sr.saveFig('NIRPathradiancewl.png')
+        sr.saveFig(_c('NIRPathradiancewl.png'))
         print('Note that multiple scatter contributes significantly to total path radiance')
 
 

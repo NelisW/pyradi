@@ -806,6 +806,14 @@ def planckInt(spectralLo, spectralHi, temperature, type='el'):
 ################################################################
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import ryutils
     doAll = True
@@ -1070,7 +1078,7 @@ if __name__ == '__main__':
         lp = ryplot.Plotter(1)
         lp.semilogX(1,wl,Mel,"Planck law exitance for 300 K source",r"Wavelength [$\mu$m]",
             r"Exitance [W/(m$^2$.$\mu$m)]")
-        lp.saveFig('M300k.eps')
+        lp.saveFig(_c('M300k.eps'))
 
         #plot all the planck functions.
         wl=np.logspace(np.log10(0.1), np.log10(100), num=100).reshape(-1, 1)
@@ -1111,7 +1119,7 @@ if __name__ == '__main__':
                         pltaxis=[3e12, 3e15, 1e-20, 1e+13])
 
         #fplanck.GetPlot().show()
-        fplanck.saveFig('planck.png')
+        fplanck.saveFig(_c('planck.png'))
 
         #now plot temperature derivatives
         Mel = dplanck(wl, np.asarray(temperature).reshape(-1,1), type='el') # [W/(m$^2$.$\mu$m.K)]
@@ -1143,7 +1151,7 @@ if __name__ == '__main__':
                         pltaxis=[3e12, 3e15, 1e-20, 1e+9])
 
         #fdplanck.GetPlot().show()
-        fdplanck.saveFig('dplanck.png')
+        fdplanck.saveFig(_c('dplanck.png'))
         print(' ')
 
     #--------------------------------------------------------------------------------------

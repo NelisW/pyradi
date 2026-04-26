@@ -1,6 +1,12 @@
 # PyRadi Refactor — Session Handoff & Progress Brief
 
-_Last updated: 2026-04-25 | All 18 files refactored · F-string conversion complete · 784 tests green · URL cleanup complete (44 substitutions, 13 files)_
+_Last updated: 2026-04-26 | All 18 files refactored · F-string conversion complete · 784 tests green · URL cleanup complete · __main__ output → clutter/ · dev/ and clutter/ folders finalised · originals deleted_
+
+> **Note — file moved (2026-04-26):** This file now lives at
+> `K:\WorkN\pyradi\pyradi\pyradi\dev\session-handoff.md`
+> (previously at `K:\WorkN\pyradi\pyradi\pyradi\session-handoff.md`).
+> The old location retains the pre-move snapshot; treat `dev/` as the
+> canonical location going forward.
 
 ---
 
@@ -305,25 +311,72 @@ Families replaced: matplotlib (axes_grid removal, versioned paths, SourceForge),
 
 Not replaced (low confidence, 15 entries): Nabble forum threads (content unrecoverable), an astrometry SVN file (no direct GitHub equivalent found), specific journal PDF (only index page confirmed), 11 personal/deleted/specialty pages with no public equivalent.
 
-To re-run URL check from `pyradi` conda env:
-```bash
-conda run -n pyradi python pyradi/check_urls.py
-python pyradi/fix_urls.py
+To re-run URL check from `pyradi` conda env (scripts now live in `dev/`):
+```bat
+conda run -n pyradi python pyradi\pyradi\dev\check_urls.py
+conda run -n pyradi python pyradi\pyradi\dev\fix_urls.py
 ```
+Output: `pyradi\pyradi\dev\staleURLs.md`
 
-### Step 4 — Optional: convert commented-out `.format()` calls
+### ~~Step 4 — __main__ output → clutter/ folder~~ ✓ Done (2026-04-26)
+
+All 10 `ry*.py` files that write output files in their `__main__` block now redirect
+those files into `pyradi/pyradi/pyradi/clutter/` via a `_c()` helper injected at the
+top of each `__main__` block. Covered: `saveFig`, `np.savetxt`, `open(...,'w')`,
+PIL `.save()`, and `rylookup` `PlotXxx(savePath=...)`. All files parse cleanly (AST verified).
+
+### ~~Step 5 — dev/ and clutter/ folder finalisation~~ ✓ Done (2026-04-26)
+
+`check_urls.py`, `fix_urls.py`, `recreate_env_and_test.bat`, `staleURLs.md`, and
+`session-handoff.md` moved to `pyradi/pyradi/pyradi/dev/`. All path references
+updated: ROOT in the Python scripts goes up one level via `.parent.parent`;
+the bat file uses `%SCRIPT_DIR%..\` for `environment.yml` and test paths.
+
+`_cleanClutter.py` moved to `pyradi/pyradi/pyradi/clutter/`. The `__main__` block
+path `'.'` replaced with `_pyradi = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`,
+and `'./examples'` → `os.path.join(_pyradi, 'examples')`.
+
+All originals deleted from `pyradi/pyradi/pyradi/`:
+`check_urls.py`, `fix_urls.py`, `recreate_env_and_test.bat`, `staleURLs.md`,
+`session-handoff.md`, `_cleanClutter.py`.
+
+> **Gotcha — bash `cp` via CIFS mount truncates files**: copying a file that was
+> just edited via the Edit tool may get a stale/truncated version from the Linux
+> mount. Always write new content directly via `python3 -c "open(...,'w').write(...)"` 
+> rather than `cp`, and verify with `ast.parse()` before treating the copy as canonical.
+
+### ~~Step 6 — PyPI references removed~~ ✓ Done (2026-04-26)
+
+All mentions of `pypi.org` / `pypi.python.org` removed from `*.py` and `*.rst` files.
+Affected: `pyradi/__init__.py` (×2 copies), `fix_urls.py` (URL rule deleted),
+`setup.py` (full docstring and reference block rewritten to GitHub-only workflow).
+
+### ~~Step 7 — Python version references replaced~~ ✓ Done (2026-04-26)
+
+Hard-coded Python version numbers (`2.7.x`, `3.5.x`, `>3.12`) replaced with conda
+yaml pointers. Affected: `pyradi/__init__.py`, `pyradi/README.rst`, `README.md`,
+`setup.py` PyPI classifiers (`2.7`/`3.5` → `3`/`3.12`).
+
+### ~~Step 8 — ryplot.py bug fixes~~ ✓ Done (2026-04-26)
+
+| Bug | Fix |
+|-----|-----|
+| `pd = Plotter(1)` in `__main__` shadows `import pandas as pd` → `AttributeError: 'Plotter' has no attribute 'Series'` | Renamed local var to `pdplot` |
+| Date x-axis: all dates squashed at origin | Removed deprecated `ax.xaxis_date()`; replaced `DayLocator` with `AutoDateLocator`; fixed `ax.set_xticks(string_list)` → keep numeric positions, use `mdates.num2date()` for labels only |
+
+### Step 9 — Optional: convert commented-out `.format()` calls
 
 14 lines of commented-out `.format()` calls remain in 6 files (catalogued in README).
 These are inert. If desired, delete the comments or convert them for consistency.
 
-### Step 5 — Optional: fix documented pre-existing bugs in ryplot.py
+### Step 10 — Optional: fix documented pre-existing bugs in ryplot.py
 
 The four ryplot pre-existing bugs (see Section 3) are preserved by policy. If the user
 decides to fix any of them, that is an explicit separate request — update both the
 production code and remove the corresponding `Note:` / buggy-behaviour assertion from the
 test suite.
 
-### Step 6 — Optional: clean up stale ryplot section in SKILL.md
+### Step 11 — Optional: clean up stale ryplot section in SKILL.md
 
 `SKILL.md` has a partial `ryplot.py — Active refactor progress` section near the bottom
 that predates completion. Now that all work is done, this section can be removed or
@@ -335,14 +388,17 @@ replaced with a one-line "ryplot: complete 2026-04-22" note.
 
 | File | Purpose | Status |
 |------|---------|--------|
-| `K:\WorkN\pyradi\pyradi\pyradi\README.md` | Full API reference + f-string unconverted catalogue | Current |
-| `K:\WorkN\pyradi\pyradi\pyradi\session-handoff.md` | **This file** — sole progress document | Current |
-| `K:\WorkN\pyradi\pyradi\pyradi\REFACTOR_BRIEF.md` | Old progress brief — superseded | **Deleted 2026-04-22** |
+| `pyradi\pyradi\pyradi\README.md` | Full API reference + f-string unconverted catalogue | Current |
+| `pyradi\pyradi\pyradi\dev\session-handoff.md` | **This file** — sole progress document | Current |
+| `pyradi\pyradi\pyradi\REFACTOR_BRIEF.md` | Old progress brief — superseded | **Deleted 2026-04-22** |
 | `C:\Users\nwillers\.claude\skills\python-refactor\SKILL.md` | Refactor skill (1388 lines) | Current |
-| `K:\WorkN\pyradi\pyradi\pyradi\environment.yml` | Conda environment spec | Current |
-| `K:\WorkN\pyradi\pyradi\pyradi\staleURLs.md` | URL audit: stale URLs, replacements found, ✅/❌ status | Current (2026-04-25) |
-| `K:\WorkN\pyradi\pyradi\pyradi\check_urls.py` | Automated URL liveness checker; writes `staleURLs.md` | Created 2026-04-25 |
-| `K:\WorkN\pyradi\pyradi\pyradi\fix_urls.py` | Applies high-confidence URL replacements to source files | Created 2026-04-25 |
+| `pyradi\pyradi\pyradi\environment.yml` | Conda environment spec | Current |
+| `pyradi\pyradi\pyradi\dev\staleURLs.md` | URL audit: stale URLs, replacements found, ✅/❌ status | Current (2026-04-25) |
+| `pyradi\pyradi\pyradi\dev\check_urls.py` | URL liveness checker; ROOT = one level up; writes `dev\staleURLs.md` | Updated 2026-04-26 |
+| `pyradi\pyradi\pyradi\dev\fix_urls.py` | Applies high-confidence URL replacements to source files | Updated 2026-04-26 |
+| `pyradi\pyradi\pyradi\dev\recreate_env_and_test.bat` | Recreates conda env and runs full test suite | Updated 2026-04-26 |
+| `pyradi\pyradi\pyradi\clutter\` | Output sink for all `__main__` block file writes | Created 2026-04-26 |
+| `pyradi\pyradi\pyradi\clutter\_cleanClutter.py` | Interactive clutter-deletion utility (moved from `.`) | Updated 2026-04-26 |
 
 ---
 
@@ -367,3 +423,5 @@ replaced with a one-line "ryplot: complete 2026-04-22" note.
 9. **`Plotter.polar` workaround needs BOTH conditions** — `rscale=[-0.1, 1.0]` AND `highlightNegative=False` must be set simultaneously. Neither alone is sufficient because the function body unconditionally overrides `highlightNegative` in the `rscale is None` and `rscale[0] >= 0` branches.
 
 10. **`transformations` package for ryscene** — third-party Gohlke wheel; stubbed in tests with `MagicMock` returning a known identity quaternion `[1, 0, 0, 0]`. Listed in `environment.yml` under `pip:`.
+
+11. **bash `cp` after an Edit-tool write truncates the copy** — the Linux CIFS mount lags behind the Windows filesystem. A `cp` immediately after an `Edit` picks up the stale (pre-edit) version. Always write file content directly via `python3 -c "open(dest,'w').write(content)"` and verify with `ast.parse()` before treating the result as canonical.

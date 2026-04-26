@@ -1082,6 +1082,14 @@ class RadLookup:
 ##
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     doPlots = True
 
@@ -1100,14 +1108,14 @@ if __name__ == '__main__':
     lut1 = RadLookup('lut1', nu, tmprMin, tmprMax, tmprInc)
     print(lut1.Info())
     if doPlots:
-        lut1.PlotSpectrals(saveFig=True)
-        lut1.PlotTempRadiance(withFilter=True,saveFig=True)
-        lut1.PlotTempRadiance(withFilter=False,saveFig=True)
-        lut1.PlotCalSpecRadiance(saveFig=True)
-        lut1.PlotCalDLTemp(saveFig=True)
-        lut1.PlotCalDLRadiance(saveFig=True)
-        lut1.PlotCalTempRadiance(saveFig=True)
-        lut1.PlotCalTintRad(saveFig=True)
+        lut1.PlotSpectrals(saveFig=True, savePath=_c("lut1"))
+        lut1.PlotTempRadiance(withFilter=True,saveFig=True, savePath=_c("lut1"))
+        lut1.PlotTempRadiance(withFilter=False,saveFig=True, savePath=_c("lut1"))
+        lut1.PlotCalSpecRadiance(saveFig=True, savePath=_c("lut1"))
+        lut1.PlotCalDLTemp(saveFig=True, savePath=_c("lut1"))
+        lut1.PlotCalDLRadiance(saveFig=True, savePath=_c("lut1"))
+        lut1.PlotCalTempRadiance(saveFig=True, savePath=_c("lut1"))
+        lut1.PlotCalTintRad(saveFig=True, savePath=_c("lut1"))
     # print('This table shows radiance with and without filter for given temperature')
     # print(lut1.TableTempRad)
     tempr1 = [300., 307.5, 505., 792.5, 800.]
@@ -1131,14 +1139,14 @@ if __name__ == '__main__':
              'data/Unity.txt', 'data/Unity.txt')
     print(lut2.Info())
     if doPlots:
-        lut2.PlotSpectrals(saveFig=True)
-        lut2.PlotTempRadiance(withFilter=True,saveFig=True)
-        lut2.PlotTempRadiance(withFilter=False,saveFig=True)
-        lut2.PlotCalSpecRadiance(saveFig=True)
-        lut2.PlotCalDLTemp(saveFig=True)
-        lut2.PlotCalDLRadiance(saveFig=True)
-        lut2.PlotCalTempRadiance(saveFig=True)
-        lut2.PlotCalTintRad(saveFig=True)
+        lut2.PlotSpectrals(saveFig=True, savePath=_c("lut2"))
+        lut2.PlotTempRadiance(withFilter=True,saveFig=True, savePath=_c("lut2"))
+        lut2.PlotTempRadiance(withFilter=False,saveFig=True, savePath=_c("lut2"))
+        lut2.PlotCalSpecRadiance(saveFig=True, savePath=_c("lut2"))
+        lut2.PlotCalDLTemp(saveFig=True, savePath=_c("lut2"))
+        lut2.PlotCalDLRadiance(saveFig=True, savePath=_c("lut2"))
+        lut2.PlotCalTempRadiance(saveFig=True, savePath=_c("lut2"))
+        lut2.PlotCalTintRad(saveFig=True, savePath=_c("lut2"))
     # print('This table shows radiance with and without filter for given temperature')
     # print(lut2.TableTempRad)
     tempr2 = [300., 307.5, 505., 792.5, 800.]
@@ -1185,14 +1193,14 @@ if __name__ == '__main__':
                 dicPower=dicPower, dicFloor=dicFloor)
     print(lut3.Info())
     if doPlots:
-        lut3.PlotSpectrals(saveFig=True)
-        lut3.PlotTempRadiance(withFilter=True, saveFig=True)
-        lut3.PlotTempRadiance(withFilter=False, saveFig=True)
-        lut3.PlotCalSpecRadiance(saveFig=True)
-        lut3.PlotCalDLTemp(saveFig=True)
-        lut3.PlotCalDLRadiance(saveFig=True)
-        lut3.PlotCalTempRadiance(saveFig=True)
-        lut3.PlotCalTintRad(saveFig=True)
+        lut3.PlotSpectrals(saveFig=True, savePath=_c("lut3"))
+        lut3.PlotTempRadiance(withFilter=True, saveFig=True, savePath=_c("lut3"))
+        lut3.PlotTempRadiance(withFilter=False, saveFig=True, savePath=_c("lut3"))
+        lut3.PlotCalSpecRadiance(saveFig=True, savePath=_c("lut3"))
+        lut3.PlotCalDLTemp(saveFig=True, savePath=_c("lut3"))
+        lut3.PlotCalDLRadiance(saveFig=True, savePath=_c("lut3"))
+        lut3.PlotCalTempRadiance(saveFig=True, savePath=_c("lut3"))
+        lut3.PlotCalTintRad(saveFig=True, savePath=_c("lut3"))
     tempr3 = [300., 307.5, 505., 792.5, 800.]
     rad3 = lut3.LookupTempRad(tempr3)
     tempr3i =  lut3.LookupRadTemp(rad3)

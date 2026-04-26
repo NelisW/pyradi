@@ -874,6 +874,14 @@ if __name__ == '__init__':
     pass
 
 if __name__ == '__main__':
+    import os as _os
+    _clutter = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'clutter')
+    _os.makedirs(_clutter, exist_ok=True)
+
+    def _c(fname):
+        """Redirect an output filename into the clutter folder."""
+        return _os.path.join(_clutter, _os.path.basename(str(fname)))
+
 
     import ryplot
     import ryutils
@@ -896,7 +904,7 @@ if __name__ == '__main__':
             p.plot(1, yVec, data[azim, :], xlabel='Zenith [rad]', ylabel='Irradiance [W/m$^2$]',
                 ptitle=f'3-5 {ryutils.upMu(False)}m, Altitude 10 m',
                 label=[f'Azim={yVec[azim]:.0f} deg'])
-        p.saveFig('OTBMLSNavMar15Nov4_10-C1E.png')
+        p.saveFig(_c('OTBMLSNavMar15Nov4_10-C1E.png'))
 
         print('Test writing latex format arrays:')
         arr = np.array([[1.0, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -937,7 +945,7 @@ if __name__ == '__main__':
         smpleplt.plot(1, wavelength, samples, "Sample reflectance", r'Wavelength $\mu$m',
                     r'Reflectance',
                     ['r', 'g', 'y', 'k', 'b', 'm'], label=samplesTxt, legendAlpha=0.5)
-        smpleplt.saveFig('SampleReflectance.png')
+        smpleplt.saveFig(_c('SampleReflectance.png'))
 
         print('\nTest cleanFilename function:')
         inString = "aa bb%cc:dd/ee,ff.gg\\hh[ii]jj"
@@ -966,7 +974,7 @@ if __name__ == '__main__':
             P.showImage(3, img[2], f'frame {framesToLoad[2]}', cmap=plt.cm.bone)
             P.showImage(4, img[3], f'frame {framesToLoad[3]}', cmap=plt.cm.gist_rainbow)
             P.getPlot().show()
-            P.saveFig('sample.png', dpi=300)
+            P.saveFig(_c('sample.png'), dpi=300)
             print(f'\n{img.shape[0]} frames of size {img.shape[1]} x {img.shape[2]} and data type {img.dtype} read from binary file {imagefile}')
 
             img_types = ['png', 'png', 'png', 'png']
