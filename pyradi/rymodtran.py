@@ -167,7 +167,9 @@ class extracttape6:
                         break
                     else:
                         if 'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)' in line:
-                            line = line.replace('FOG2 (RADIATI0N)    FOG2 (RADIATI0N)','FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
+                            line = line.replace(
+                                'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)',
+                                'FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
                         if 'FOG1 (ADVECTTION)' in line:
                             line = line.replace('FOG1 (ADVECTTION)','FOG1_(ADVECTTION)')
                         if 'USER DEFINED' in line:
@@ -182,7 +184,9 @@ class extracttape6:
                     cntr += 1
             if cntr > 0:
                 try:
-                    df.columns = ['Height km','Pressure mB','Temperature K','RelHum %','H2O g/m3','Aero Type','Aero Prof','Aero Season']
+                    df.columns = [
+                        'Height km','Pressure mB','Temperature K','RelHum %',
+                        'H2O g/m3','Aero Type','Aero Prof','Aero Season']
                 except:
                     print('Probably spaces resulting in additional columns')
                     print(df)
@@ -207,24 +211,35 @@ class extracttape6:
                     else:
                         lst = line.strip().split()
                         dfh = pd.concat([dfh, pd.DataFrame([lst])], ignore_index=True)
-                elif 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line:
+                elif ('AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)'
+                      '    RH (%)   CIRRUS   WAT DROP  ICE PART') in line:
                     cntr += 1
-                elif '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line:
+                elif ('(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)'
+                      '   (AFTER)    (-)     (550nm VIS [KM-1])') in line:
                     cntr += 1
 
 
-            dfh.columns = ['layer','Height km','Pressure mB','Temperature K','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
+            dfh.columns = [
+                'layer','Height km','Pressure mB','Temperature K',
+                'AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4',
+                'AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
             dfh = dfh.fillna('')
-            dfh['aeroextinc'] = dfh['AEROSOL 1'].astype(float) +dfh['AEROSOL 2'].astype(float)+dfh['AEROSOL 3'].astype(float)+dfh['AEROSOL 4'].astype(float)
+            dfh['aeroextinc'] = (dfh['AEROSOL 1'].astype(float)
+                                 + dfh['AEROSOL 2'].astype(float)
+                                 + dfh['AEROSOL 3'].astype(float)
+                                 + dfh['AEROSOL 4'].astype(float))
             dfh['visibility'] = np.log(50) / (dfh['aeroextinc']+0.01159)
-            dfh = dfh.drop(['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'],axis=1)
+            dfh = dfh.drop(
+                ['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4',
+                 'AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'], axis=1)
             for col in dfh.columns:
                 dfh[col] = dfh[col].astype(float)
             dfh = dfh.drop(['Pressure mB','Temperature K','RelHum %'],axis=1)
 
             # now attach aerosol info
             dfh = dfh.merge(df,on='Height km')
-            dfh = dfh[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+            dfh = dfh[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3",
+                       "Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
 
             var =  dfh.to_dict(orient='records')
             tp6data['Profiles'] = var
@@ -293,7 +308,9 @@ class extracttape6:
                         break
                     else:
                         if 'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)' in line:
-                            line = line.replace('FOG2 (RADIATI0N)    FOG2 (RADIATI0N)','FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
+                            line = line.replace(
+                                'FOG2 (RADIATI0N)    FOG2 (RADIATI0N)',
+                                'FOG2_(RADIATI0N)    FOG2_(RADIATI0N)')
                         if 'FOG1 (ADVECTTION)' in line:
                             line = line.replace('FOG1 (ADVECTTION)','FOG1_(ADVECTTION)')
                         if 'USER DEFINED' in line:
@@ -307,7 +324,9 @@ class extracttape6:
                 if '[Before scaling]' in line:
                     cntr += 1
             if df8.shape[1]>0:
-                df8.columns = ['Height km','Pressure mB','Temperature K','RelHum %','H2O g/m3','Aero Type','Aero Prof','Aero Season']
+                df8.columns = [
+                    'Height km','Pressure mB','Temperature K','RelHum %',
+                    'H2O g/m3','Aero Type','Aero Prof','Aero Season']
                 df8 = df8.fillna('')
                 for col in df8.columns[:5]:
                     df8[col] = df8[col].astype(float)
@@ -326,20 +345,31 @@ class extracttape6:
                     else:
                         lst = line.strip().split()
                         dfh = pd.concat([dfh, pd.DataFrame([lst])], ignore_index=True)
-                if 'AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)    RH (%)   CIRRUS   WAT DROP  ICE PART' in line:
+                if ('AEROSOL 1 AEROSOL 2 AEROSOL 3 AEROSOL 4  AER1*RH     RH (%)'
+                    '    RH (%)   CIRRUS   WAT DROP  ICE PART') in line:
                     cntr += 1
-                if '(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)   (AFTER)    (-)     (550nm VIS [KM-1])' in line:
+                if ('(      550nm EXTINCTION [KM-1]      )  (BEFORE H2O SCALING)'
+                    '   (AFTER)    (-)     (550nm VIS [KM-1])') in line:
                     cntr += 1
             if dfh.shape[1]>0:
-                dfh.columns = ['layer','Height km','Pressure mB','Temperature K','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
+                dfh.columns = [
+                    'layer','Height km','Pressure mB','Temperature K',
+                    'AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4',
+                    'AER1*RH','RH (%)','RelHum %','CIRRUS','WAT DROP','ICE PART']
                 dfh = dfh.fillna('')
-                dfh['aeroextinc'] = dfh['AEROSOL 1'].astype(float) +dfh['AEROSOL 2'].astype(float)+dfh['AEROSOL 3'].astype(float)+dfh['AEROSOL 4'].astype(float)
+                dfh['aeroextinc'] = (dfh['AEROSOL 1'].astype(float)
+                                     + dfh['AEROSOL 2'].astype(float)
+                                     + dfh['AEROSOL 3'].astype(float)
+                                     + dfh['AEROSOL 4'].astype(float))
                 dfh['visibility'] = np.log(50) / (dfh['aeroextinc']+0.01159)
-                dfh = dfh.drop(['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4','AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'],axis=1)
+                dfh = dfh.drop(
+                    ['layer','AEROSOL 1','AEROSOL 2','AEROSOL 3','AEROSOL 4',
+                     'AER1*RH','RH (%)','CIRRUS','WAT DROP','ICE PART'], axis=1)
                 for col in dfh.columns:
                     dfh[col] = dfh[col].astype(float)
                 Tk = dfh['Temperature K'].values
-                absHum = (dfh["RelHum %"]/100.) * (216.685/Tk)*6.11657 * np.exp(24.9215*(1-273.16/Tk)) * (273.16/Tk) **5.06
+                absHum = ((dfh["RelHum %"] / 100.) * (216.685 / Tk) * 6.11657
+                          * np.exp(24.9215 * (1 - 273.16 / Tk)) * (273.16 / Tk) ** 5.06)
                 dfh["H2O g/m3"] =  absHum
 
             # case: aerosol not in profiles, only in four lines
@@ -357,7 +387,8 @@ class extracttape6:
                 # link the two dataframes on common
                 df = dfa.merge(dfh,on='Height km')
                 # reorder columns to be same as for model 7
-                df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+                df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3",
+                         "Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
                 var =  df.to_dict(orient='records')
                 tp6data['Profiles'] = var
 
@@ -367,8 +398,10 @@ class extracttape6:
                 df8x = df8.drop(['Pressure mB','Temperature K', 'RelHum %','H2O g/m3'],axis=1)
                 df = df8x.merge(dfh,on='Height km')
                 # reorder columns to be same as for model 7
-                df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
-                # df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3","Aero Type","Aero Prof","Aero Season"]]
+                df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3",
+                         "Aero Type","Aero Prof","Aero Season","aeroextinc","visibility"]]
+                # df = df[["Height km","Pressure mB","Temperature K","RelHum %","H2O g/m3",
+                #          "Aero Type","Aero Prof","Aero Season"]]
                 var =  df.to_dict(orient='records')
                 tp6data['Profiles'] = var
             else:
@@ -415,7 +448,9 @@ class extracttape6:
     def findSingleScatter(self, lines,tp6data):
         var = None
         cntr = 0
-        fields = ['LATITUDE AT H1ALT','LONGITUDE AT H1ALT','SUBSOLAR LATITUDE','SUBSOLAR LONGITUDE','TIME (<0 UNDEF)','PATH AZIMUTH (FROM H1ALT TO H2ALT)']
+        fields = [
+            'LATITUDE AT H1ALT','LONGITUDE AT H1ALT','SUBSOLAR LATITUDE',
+            'SUBSOLAR LONGITUDE','TIME (<0 UNDEF)','PATH AZIMUTH (FROM H1ALT TO H2ALT)']
         for line in lines:
             if cntr>0:
                 for field in fields:
@@ -537,17 +572,25 @@ class extracttape6:
             if tp6data['wind speed'] is not None:
                 llines.append(f"current wind speed {tp6data['wind speed']:.1f}~""\\si{\\metre\\per\\second}. ")
         if 'Profiles' in tp6data.keys():
-            llines.append(f"\n\nAt the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~""\\si{\\kilo\\metre} ")
+            llines.append(
+                f"\n\nAt the first layer altitude of {tp6data['Profiles'][0]['Height km']:.3f}~"
+                "\\si{\\kilo\\metre} ")
             llines.append("the conditions are:  ")
             llines.append(f"pressure {tp6data['Profiles'][0]['Pressure mB']:.1f}~""\\si{\\milli\\bar}, ")
             llines.append(f"temperature {tp6data['Profiles'][0]['Temperature K']:.1f}~""\\si{\\kelvin} / ")
             llines.append(f"{tp6data['Profiles'][0]['Temperature K']-273.16:.1f}~""\\si{\\celsius}, ")
             llines.append(f"relative humidity {tp6data['Profiles'][0]['RelHum %']:.1f}""\\%, ")
-            llines.append(f"absolute humidity {tp6data['Profiles'][0]['H2O g/m3']:.2f}~""\\si{\\gram\\per\\metre\\cubed}, ")
+            llines.append(
+                f"absolute humidity {tp6data['Profiles'][0]['H2O g/m3']:.2f}~"
+                "\\si{\\gram\\per\\metre\\cubed}, ")
             if 'aeroextinc' in tp6data['Profiles'][0].keys():
-                llines.append(f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(
+                    f"extinction {tp6data['Profiles'][0]['aeroextinc']:.3e}~"
+                    "\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
             if 'visibility' in tp6data['Profiles'][0].keys():
-                llines.append(f"Koschmieder visibility {tp6data['Profiles'][0]['visibility']:.2f}~""\\si{\\kilo\\metre}. ")
+                llines.append(
+                    f"Koschmieder visibility {tp6data['Profiles'][0]['visibility']:.2f}~"
+                    "\\si{\\kilo\\metre}. ")
 
         if 'path radiance mode' in tp6data.keys():
             llines.append(f"Path radiance mode is {tp6data['path radiance mode']}"". ")
@@ -594,13 +637,18 @@ class extracttape6:
                 if 'ECA' in  tp6data['Path']:
                     llines.append(f"subtended earth center angle {tp6data['Path']['ECA']:.6f}""\\si{\\degree}, ")
                 if 'BCKZEN' in  tp6data['Path']:
-                    llines.append(f"zenith angle from final altitude back to sensor {tp6data['Path']['BCKZEN']:.6f}""\\si{\\degree}, ")
+                    llines.append(
+                        f"zenith angle from final altitude back to sensor "
+                        f"{tp6data['Path']['BCKZEN']:.6f}"
+                        "\\si{\\degree}, ")
                 if 'HMIN' in  tp6data['Path']:
                     llines.append(f"minimum altitude {tp6data['Path']['HMIN']:.3f}~""\\si{\\kilo\\metre}, ")
                 if 'BENDING' in  tp6data['Path']:
                     llines.append(f"path bending {tp6data['Path']['BENDING']:.6f}""\\si{\\degree}, ")
                 if 'CKRANG' in  tp6data['Path']:
-                    llines.append(f"slant range for k-distribution output {tp6data['Path']['CKRANG']:.3f}~""\\si{\\kilo\\metre}.")
+                    llines.append(
+                        f"slant range for k-distribution output {tp6data['Path']['CKRANG']:.3f}~"
+                        "\\si{\\kilo\\metre}.")
         else:
             print('*** No path information in json file')
 
@@ -608,10 +656,19 @@ class extracttape6:
         if 'Frequency range' in tp6data.keys():
             if tp6data['Frequency range'] is not None:
                 llines.append(f"\n\nFrequency range: ")
-                llines.append(f"spectral range lower bound {tp6data['Frequency range']['IV1']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
-                llines.append(f"spectral range upper bound {tp6data['Frequency range']['IV2']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
-                llines.append(f"spectral increment {tp6data['Frequency range']['IDV']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
-                llines.append(f"slit function full width at half maximum {tp6data['Frequency range']['IFWHM']:.0f}~""\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}.")
+                llines.append(
+                    f"spectral range lower bound {tp6data['Frequency range']['IV1']:.0f}~"
+                    "\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(
+                    f"spectral range upper bound {tp6data['Frequency range']['IV2']:.0f}~"
+                    "\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(
+                    f"spectral increment {tp6data['Frequency range']['IDV']:.0f}~"
+                    "\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}, ")
+                llines.append(
+                    f"slit function full width at half maximum "
+                    f"{tp6data['Frequency range']['IFWHM']:.0f}~"
+                    "\\si[per-mode=reciprocal]{\\centi\\metre\\tothe{-1}}.")
             else:
                 print('*** No frequency information in json file')
 

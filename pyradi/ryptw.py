@@ -556,8 +556,10 @@ def readPTWHeader(ptwfilename):
     Header.h_UnitIndexValid = ord(headerinfo[1924:1925])
     Header.h_CurrentUnitIndex = myint(headerinfo[1925:1927])
     stripchar = terminateStrOnZero(headerinfo[1927:1935]).decode('utf-8')[-1]
-    Header.h_ZoomPosition = terminateStrOnZero(headerinfo[1927:1935]).decode('utf-8').rstrip(stripchar)   # unknown format POINT
-    Header.h_KeyFramesInFilm = terminateStrOnZero(headerinfo[1936:2056]).decode('utf-8').rstrip(stripchar)  # set of 30 frames
+    # unknown format POINT
+    Header.h_ZoomPosition = terminateStrOnZero(headerinfo[1927:1935]).decode('utf-8').rstrip(stripchar)
+    # set of 30 frames
+    Header.h_KeyFramesInFilm = terminateStrOnZero(headerinfo[1936:2056]).decode('utf-8').rstrip(stripchar)
     Header.h_KeyFrameNumber = ord(headerinfo[1935:1936])
     Header.h_PlayerLocked = ord(headerinfo[2056:2057])
     Header.h_FrameSelectionValid = ord(headerinfo[2057:2058])
@@ -801,9 +803,13 @@ def showHeader(Header):
     print(f'Number of Frames {Header.h_NumberOfFieldInFile}')
 
     print(f'Year {Header.h_FileSaveYear} Month {Header.h_FileSaveMonth} Day {Header.h_FileSaveDay}')
-    print(f'( {str(Header.h_FileSaveYear).zfill(2)} / {str(Header.h_FileSaveMonth).zfill(2)} / {str(Header.h_FileSaveDay).zfill(2)} )')
+    print(f'( {str(Header.h_FileSaveYear).zfill(2)} / '
+          f'{str(Header.h_FileSaveMonth).zfill(2)} / '
+          f'{str(Header.h_FileSaveDay).zfill(2)} )')
     print(f'Hour {Header.h_FileSaveHour} Minute {Header.h_FileSaveMinute} Second {Header.h_FileSaveSecond}')
-    print(f'( {str(Header.h_FileSaveHour).zfill(2)} : {str(Header.h_FileSaveMinute).zfill(2)} : {str(Header.h_FileSaveSecond).zfill(2)} )')
+    print(f'( {str(Header.h_FileSaveHour).zfill(2)} : '
+          f'{str(Header.h_FileSaveMinute).zfill(2)} : '
+          f'{str(Header.h_FileSaveSecond).zfill(2)} )')
 
     print(f'Camera Name {Header.h_CameraName}')
     print(f'Detector Code1 {Header.h_DetectorCode1}')

@@ -234,7 +234,8 @@ class RadLookup:
                 str += '     Temp K           DL       L W/(sr.m2) [with filter]'
                 str += '\n'
                 str += np.array_str(self.dicCaldata[tmprInstr], max_line_width=120, precision=4, )
-                str += f'\nstraight line fit L = {self.DlRadCoeff[tmprInstr][0]:.10e} DL + {self.DlRadCoeff[tmprInstr][1]:.10e}'
+                str += (f'\nstraight line fit L = {self.DlRadCoeff[tmprInstr][0]:.10e} '
+                        f'DL + {self.DlRadCoeff[tmprInstr][1]:.10e}')
 
         return str
 

@@ -604,13 +604,15 @@ def calcTemperatureEquivalent(wavelength, sysresp, tmin, tmax):
     - ``fintpEL``: temperature → photon-rate radiance
 
     Args:
-        | wavelength (np.array): wavelength vector in micrometres (um), passed directly to ``ryplanck.planck(type='ql')`` which expects um.
+        | wavelength (np.array): wavelength vector in micrometres (um), passed directly to
+        |     ``ryplanck.planck(type='ql')`` which expects um.
         | sysresp (np.array): system spectral response vector (same length as wavelength).
         | tmin (float): minimum temperature [K] for the lookup table.
         | tmax (float): maximum temperature [K] for the lookup table.
 
     Returns:
-        | (fintpLE, fintpEL): pair of scipy interp1d functions; fintpLE maps photon-rate radiance to temperature [K], fintpEL maps temperature [K] to photon-rate radiance.
+        | (fintpLE, fintpEL): pair of scipy interp1d functions; fintpLE maps photon-rate radiance
+        |     to temperature [K], fintpEL maps temperature [K] to photon-rate radiance.
 
     Raises:
         | No exception is raised.

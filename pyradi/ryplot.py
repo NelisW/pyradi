@@ -4054,7 +4054,7 @@ if __name__ == '__main__':
     #   mpl.use('Agg')    
     # print(f"os.environ['DISPLAY']={os.environ['DISPLAY']}")
 
-    doAll = False
+    doAll = True
 
     if doAll:
         p = Plotter(1,2,3,figsize=(12,12))
@@ -4725,6 +4725,17 @@ if __name__ == '__main__':
         cimage = q.showImage(2,ZZ,'Turbo', cmap='turbo')
         cimage = q.showImage(3,ZZ,'Viridis', cmap='viridis')
         q.saveFig(_c('jet-turbo.png'))
+
+
+    if doAll:
+        numpoints = 400
+        vec = ryprob.unifomOnSphere(numpoints)
+        # print(vec)
+        # print(np.linalg.norm(vec,axis=1).reshape(-1,1))
+        p = Plotter(1,1,1)
+        p.plot3d(1, vec[:,0],vec[:,1],vec[:,2], markers='.',linewidths=[0], linestyle='-')
+        p.saveFig(_c('randomonunitsphere.png'))
+
 
 
     print('module ryplot done!')

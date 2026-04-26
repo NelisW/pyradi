@@ -205,7 +205,8 @@ if __name__ == '__init__':
 if __name__ == '__main__':
 
     # Script lives in clutter/ — resolve the pyradi package directory (one level up)
-    _pyradi = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _pyradi = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'clutter')
+    print(f'Cleaning up in {_pyradi}')
 
     doUnit = False
 

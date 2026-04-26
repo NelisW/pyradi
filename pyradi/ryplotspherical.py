@@ -128,7 +128,8 @@ def readOffFile(filename):
     Returns:
         | vertices (np.array): array of vertices, shape (N, 3)
         | triangles (np.array): array of triangle index triples, shape (M, 3)
-        | Returns ``(None, None)`` if the file is not a valid OFF file or if the declared vertex/face counts do not match the data.
+        | Returns ``(None, None)`` if the file is not a valid OFF file or if the declared
+        |     vertex/face counts do not match the data.
 
     Raises:
         | No exception is raised.
